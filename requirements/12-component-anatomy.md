@@ -47,7 +47,7 @@ Each operation record needs:
 - `optional` flags for each "may" clause
 - `effect` (see below)
 
-- **REQ-AN-01** Effects must be expressed in a structured scripting format, a DSL or code hooks, that the rules engine can execute. Free text is for display only.
+- **REQ-AN-01** Every operation is implemented as its own Python function. Each function declares the actions it may take, and the engine passes in only those actions. Free text is for display only. The coding rules and the full action list are in [CLAUDE.md](../CLAUDE.md).
 - **REQ-AN-02** Keep the printed rules text for every operation, to show in tooltips and card zoom.
 
 ## 3. Stardate cards

@@ -53,7 +53,7 @@ server/
   tests/          engine tests, API tests, acceptance scenarios
 ```
 
-- **REQ-SRV-03** Card data lives in data files under `content/`, following the schema in [12-component-anatomy.md](12-component-anatomy.md). Card effects are implemented as engine code, one handler per card effect, and reuse the keyword primitives from [14-keywords.md](14-keywords.md).
+- **REQ-SRV-03** Card data lives in data files under `content/`, following the schema in [12-component-anatomy.md](12-component-anatomy.md). Card effects are implemented as engine code, one function per operation, using only the actions each function declares. The rules and the action list are in [CLAUDE.md](../CLAUDE.md).
 - **REQ-SRV-04** Each acceptance scenario in [18-acceptance-scenarios.md](18-acceptance-scenarios.md) must have an automated engine test.
 
 ### 3.3 Game state and commands
