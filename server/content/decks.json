@@ -1,0 +1,20 @@
+[
+  {"id": "georgiou", "captain": "Georgiou", "faction": "Starfleet", "complexity": 2, "set": "to_boldly_go",
+   "summary": "Explorer of alien life who gathers trusted colleagues, and must also build Military for the Klingon war."},
+  {"id": "soval", "captain": "Soval", "faction": "Vulcan", "complexity": 3, "set": "to_boldly_go",
+   "summary": "Values Scientists. Chooses between a Military route, T'Pau's Influence route, and Research toward the Path of Surak."},
+  {"id": "kirk", "captain": "Kirk", "faction": "Starfleet", "complexity": 4, "set": "to_boldly_go",
+   "summary": "Versatile. Pursues Research, Influence and Military together, and meets the most Encounters."},
+  {"id": "archer", "captain": "Archer", "faction": "Starfleet", "complexity": 6, "set": "to_boldly_go",
+   "summary": "First Starfleet captain with limited resources and few Away Teams. Builds a crew from the Person deck."},
+  {"id": "rebner", "captain": "Rebner", "faction": "Pakled", "complexity": 8, "set": "to_boldly_go",
+   "summary": "Helmets, a hand size of 3, junking and digging through the Junk."},
+  {"id": "khan", "captain": "Khan", "faction": "Augment", "complexity": 9, "set": "to_boldly_go",
+   "summary": "No Specialty tracks. Marks collected traits instead, manages Incidents and uses double-sided cards."},
+  {"id": "pike", "captain": "Pike", "faction": "Starfleet", "complexity": 5, "set": "second_contact",
+   "summary": "Many Person cards. Playing a skilled card advances a track. Knowledge of a terrible fate brings Time Travel."},
+  {"id": "riker", "captain": "Riker", "faction": "Starfleet", "complexity": 6, "set": "second_contact",
+   "summary": "Strong Military, handles Incidents with Deanna's advice, and needs extra effort for Research."},
+  {"id": "freeman", "captain": "Freeman", "faction": "Starfleet", "complexity": 7, "set": "second_contact",
+   "summary": "Built around Lower Decker cards and chains of SUPPORT operations."}
+]

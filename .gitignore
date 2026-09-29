@@ -1,0 +1,9 @@
+.env
+.DS_Store
+node_modules/
+client/dist/
+server/.venv/
+server/data/
+server/static/
+__pycache__/
+.pytest_cache/

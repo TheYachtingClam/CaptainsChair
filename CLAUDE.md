@@ -11,6 +11,14 @@ An online version of the board game *Star Trek: Captain's Chair*.
 - `server/` is the Python API server and rules engine (FastAPI, pytest). `client/` is the React and TypeScript web client. See `requirements/19-technical-architecture.md`.
 - Rule precedence: card text beats Keywords in Detail (`requirements/14-keywords.md`), which beats the general rules.
 
+## Commands
+
+```bash
+scripts/start.sh --test     # server tests (run after every server change)
+scripts/start.sh --dev      # API with reload on :8000, client on :5173
+cd client && npm run build  # type-check and build the client
+```
+
 ## Card effects are code
 
 This section is mandatory for every card. It also applies to everything else with an effect:

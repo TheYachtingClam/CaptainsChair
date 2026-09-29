@@ -1,0 +1,11 @@
+.git
+.env
+manual
+requirements
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+client/dist
+server/data
+server/static
