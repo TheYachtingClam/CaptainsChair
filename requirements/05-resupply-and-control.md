@@ -13,7 +13,7 @@ Source: Rulebook p. 9.
 
 ## 2. Control Step
 
-- **REQ-CT-01 Secured.** A neutral Location (in the Neutral Zone) is **secured** by a player when that player has **at least 3 tokens** there and **at least 2 more tokens than the opponent**. Tokens are Ship tokens and Away Team tokens in any combination.
+- **REQ-CT-01 Secured.** A neutral Location (in the Neutral Zone) is **secured** by a player when that player has **at least 3 tokens** there and **at least 2 more tokens than the opponent**. Tokens are Ship tokens and Away Team tokens in any combination. Count each token by its weight, normally 1 (see REQ-EXP-FRE-03).
 - **REQ-CT-02** During the Control Step the active player **may** take control of **one** secured neutral Location.
 - **REQ-CT-03 Take-control procedure:**
   1. The opponent gains 1 Glory for each of their tokens (Away Team or Ship) at that Location.

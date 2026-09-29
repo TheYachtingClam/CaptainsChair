@@ -40,6 +40,9 @@ Other common cards:
 
 ## 3. Solo components
 
+Solo rules and components are specified in [22-solo-mode.md](22-solo-mode.md). *Second Contact* components are in [21-expansion-second-contact.md](21-expansion-second-contact.md).
+
+
 | Item | Count |
 |---|---|
 | Automated Command cards | 13 |

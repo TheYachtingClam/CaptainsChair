@@ -70,3 +70,5 @@ Table operations are usable on cards **in play but not in the Staging Area and n
 | CLEAN-UP | Clean-up Step |
 | ENDGAME | Final scoring |
 | SPECIAL | As stated on the card |
+| SUPPORT (expansion) | From hand, when its trigger happens in the owner's Action Step. See [21-expansion-second-contact.md](21-expansion-second-contact.md) |
+| SURPRISE (Bot only) | When the Bot resolves the card. See [22-solo-mode.md](22-solo-mode.md) |

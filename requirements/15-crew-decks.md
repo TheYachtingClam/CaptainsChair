@@ -17,6 +17,8 @@ Each Crew deck is a content pack of cards, a Crew board and Ship tokens. Some de
 
 - **REQ-CD-01** Show complexity and summary text on the selection screen. Recommend Georgiou versus Soval for first games.
 
+The *Second Contact* expansion adds Pike, Riker and Freeman. Their rules are in [21-expansion-second-contact.md](21-expansion-second-contact.md) §7. Rules for any Crew deck played by the Bot are in [22-solo-mode.md](22-solo-mode.md).
+
 ## 2. Archer
 
 - **REQ-CD-ARC-01 Away Teams "2+".** Archer starts with 2 Away Teams on the Captain. The other 4 are kept nearby and out of play; some of Archer's Developments refer to them. The engine needs an "out-of-play Away Team reserve" zone.

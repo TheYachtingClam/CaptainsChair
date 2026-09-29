@@ -6,7 +6,8 @@ Source: Rulebook pp. 1, 8 (*Star Trek: Captain's Chair – To Boldly Go*).
 
 - **REQ-OV-01** The application implements *Star Trek: Captain's Chair*, an asymmetric, thematic deck-building game.
 - **REQ-OV-02** Each player plays as a famous captain with a unique Crew deck. Players recruit allies, analyze lifeforms, survey or conquer neutral planets (Locations), and manage resources.
-- **REQ-OV-03** Supported player counts: **1–2 players**. Two-player is the primary mode. Solo mode is played against an automated opponent (the "Bot") and is described in a separate solo rulebook (see [16-solo-and-cadet-training.md](16-solo-and-cadet-training.md)).
+- **REQ-OV-03** Supported player counts: **1–2 players**. Two-player is the primary mode. Solo mode is played against an automated opponent (the "Bot"), see [22-solo-mode.md](22-solo-mode.md). Cadet Training is a simpler solo practice mode, see [16-solo-and-cadet-training.md](16-solo-and-cadet-training.md).
+- **REQ-OV-06** The game supports optional expansions. The first is *Second Contact* ([21-expansion-second-contact.md](21-expansion-second-contact.md)).
 - **REQ-OV-04** Expected play time is 60–120 minutes. The online version should support saving and resuming a game in progress.
 - **REQ-OV-05** At the end of the game the player with the most Victory Points (VP) wins, unless the game ends by the Burn (see §3).
 

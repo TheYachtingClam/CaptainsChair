@@ -329,6 +329,10 @@ Each keyword below must be a reusable engine primitive that card scripts call. E
 - **KW-STEAL-01** Take the stated resource from the opponent, up to what they have, possibly none. The thief cannot take a different type instead.
 - **KW-STEAL-02** Stealing is not gaining. Reactions that trigger on gaining a resource do not trigger.
 
+## Support (expansion)
+
+- **KW-SUP-01** A SUPPORT operation lets a player put a Lower Decker card from hand into the Staging Area when its trigger happens during their Action Step, resolving only the SUPPORT effect. Full rules are in [21-expansion-second-contact.md](21-expansion-second-contact.md) §4.
+
 ## Take [a card]
 
 - **KW-TAKE-01** Common forms are "Take an Incident" and "Take the top Encounter", or look at 2 Encounters and take one. The card goes **directly into hand**.
@@ -354,6 +358,7 @@ Each keyword below must be a reusable engine primitive that card scripts call. E
 - **KW-TREAT-01** A card "treated as [trait]" has that trait while the operation lasts.
 - **KW-TREAT-02** "[Cards] are additionally treated as [trait]" keeps their printed traits and adds this one.
 - **KW-TREAT-03** It does nothing to a card that already has the trait, because each card has each trait only once.
+- **KW-TREAT-04** Some cards treat Skill icons of one colour as another. The original colour is then gone unless the card says otherwise. See [21-expansion-second-contact.md](21-expansion-second-contact.md) §6.
 
 ## Trigger [a Location's CONTROL operation]
 

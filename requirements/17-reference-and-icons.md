@@ -51,11 +51,13 @@ Any Species, Different Species, Alien, Aenar, Andorian, Android, Bajoran, Betazo
 
 ### Regular traits
 
-Ambassador, Ancient, Anomaly, Augment, Beverage, Business, Cloak, Communication, Creature, Crossover\*, Doctor, Dominion, Engineer, Helmet, Hologram, Imperial, Mind Control, Ops, Path of Surak, Pilot, Maquis\*, NX-01, Scientist, Security, Shady, Spy, Starbase, Starfleet, Telepath, Time Travel, Weapon
+Ambassador, Ancient, Anomaly, Augment, Beverage, Business, Cloak, Communication, Creature, Crossover†, Doctor, Dominion, Engineer, Helmet, Hologram, Imperial, Mind Control, Ops, Path of Surak, Pilot, Maquis\*, NX-01, Scientist, Security, Shady, Spy, Starbase, Starfleet, Telepath, Time Travel, Weapon
 
 ### Other (special) traits
 
-Attack, Lower Decker\*, Ongoing, Surprise, Wildcard
+Attack, Lower Decker†, Ongoing, Surprise, Wildcard
+
+† Used only with the *Second Contact* expansion ([21-expansion-second-contact.md](21-expansion-second-contact.md)).
 
 ### Other icons
 

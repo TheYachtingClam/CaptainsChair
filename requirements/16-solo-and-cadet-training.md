@@ -1,6 +1,6 @@
-# 16 – Cadet Training Mode (Practice Solo) and Solo Mode
+# 16 – Cadet Training Mode (Practice Solo)
 
-Source: Rulebook p. 28. Full solo rules against the Bot are in a separate solo rulebook that is not part of this manual.
+Source: Rulebook p. 28. Solo play against the Bot is in [22-solo-mode.md](22-solo-mode.md).
 
 ## 1. Cadet Training Mode
 
@@ -21,6 +21,7 @@ A single-player practice mode for learning a deck without the Bot's rules.
   - Securing a neutral Location still needs only 3 tokens, because the virtual opponent has 1 Away Team there.
 - **REQ-CTM-13** When the virtual opponent would take an Incident, skip it and the player gains 1 Glory. When the player gives an Incident to the opponent, the player gains 1 Glory and returns the Incident.
 - **REQ-CTM-14** If the Burn is triggered, the player **loses**.
+- **REQ-CTM-15** Undo and the can't-be-undone warnings work exactly as in normal play. See [20-undo.md](20-undo.md).
 
 ### Clean-up and Stardates
 
@@ -40,7 +41,6 @@ A single-player practice mode for learning a deck without the Bot's rules.
 | 100+ VP | You're getting quite proficient with this deck |
 | Over 120 VP | You have done an outstanding job |
 
-## 2. Solo against the Bot (future scope)
+## 2. Solo against the Bot
 
-- **REQ-SOLO-01** The box includes 13 Automated Command cards, 2 Solo cards, and Stardate cards with a Bot action count. The Surprise trait matters only against the Bot.
-- **REQ-SOLO-02** The solo rulebook is not in this manual. Solo-vs-Bot requirements must be written separately once it is available.
+Solo play against the Bot, including the Five-Year Mission campaign, is specified in [22-solo-mode.md](22-solo-mode.md).

@@ -34,6 +34,7 @@ Source: Rulebook pp. 18–19, 28 (Beam keyword).
 
 - **REQ-AT-01** The Captain card shows how many Away Team tokens the player has. Tokens on the Captain are the player's **personal pool** of Away Teams.
 - **REQ-AT-02** Away Teams can be sent to a Location the player controls, or to a Neutral Zone Location **only if the opponent does not have more Ship tokens there** than the player.
+- **REQ-AT-02a** Ship counts in REQ-AT-02 use each token's weight, normally 1 (see REQ-EXP-FRE-03).
 - **REQ-AT-03** An Away Team may be placed at a Location even when the player has no Ship there.
 - **REQ-AT-04** If the player has no Away Teams left and wants to place more, they may move tokens from other cards to complete the placement.
 - **REQ-AT-05** Away Teams removed from cards for any other reason return to the personal pool on the Captain.

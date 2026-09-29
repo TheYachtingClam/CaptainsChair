@@ -17,11 +17,12 @@ This file defines the data every card, board and token record must hold.
 | `awayTeams` | Captain only. Number of Away Team tokens, with an optional "+" flag |
 | `operations[]` | Ordered list of operations (see §2) |
 | `devCost` | Development cards only. Resource costs and extra effects |
-| `positionIndicator` | Available, Reserve, Development, Deployed, Controlled Location, Discard, Incident Deck, Starting Location, Advanced Location, or none |
+| `positionIndicator` | Available, Reserve, Development, Deployed, Controlled Location, Discard, Incident Deck, Starting Location, Advanced Location, Rewards, Solo Campaign, or none |
 | `cardId` | Set code such as `2SOV01/24` |
 | `deckIcon` | Owning Crew deck, or none for common cards |
 | `boxMarker` | Optional `•` (duplicate) or `†` (replacement) |
 | `shipToken` | Optional. Link to a Ship token record |
+| `set` | Product the card comes from, e.g. To Boldly Go, Second Contact, Core Box |
 
 ## 2. Operations
 
@@ -33,7 +34,8 @@ Operations are colour-coded strips:
 | Blue | Table operations: ACTIVATION, PASSIVE, REACTION |
 | Green | RESUPPLY or CLEAN-UP. CONTROL is also on Locations |
 | Red | ENDGAME |
-| Purple | SPECIAL |
+| Purple | SPECIAL, and SURPRISE (Bot only) |
+| Dashed purple | SUPPORT (expansion) |
 | Black | Development cost |
 
 Each operation record needs:
@@ -71,6 +73,7 @@ See [10-missions-and-specialties.md](10-missions-and-specialties.md). Each board
 | `name` | Ship name |
 | `deckIcon` | Owning Crew deck, or none for common |
 | `cardRef` | The card the token belongs to |
+| `weight` | How many Ships the token counts as for securing. Normally 1; 2 for *A Fleet of 30 California-Class Ships* |
 
 ## 6. Card backs (for UI rendering)
 
@@ -79,3 +82,17 @@ See [10-missions-and-specialties.md](10-missions-and-specialties.md). Each board
 - Captain back.
 - Stardate backs.
 - Status card back.
+
+## 7. Automated Command cards (solo)
+
+See [22-solo-mode.md](22-solo-mode.md) §6.
+
+| Field | Description |
+|---|---|
+| `crew` | The Bot Crew it belongs to |
+| `kind` | TRAITS, SUITS, KHAN IN EXILE, or FIVE YEAR MISSION: UPGRADES |
+| `side` | For SUITS: WITH NO DUTY OFFICER or WITH DUTY OFFICER |
+| `specialRule` | Optional Bot-specific rule shown at the top |
+| `rows[]` | Ordered rows. Each has a trait list or suit, display text, and an effect script |
+| `row.attackParts` | Which parts of the row are attacks (bold red) and which affect the human without attacking (bold) |
+| `upgrades` | Upgrade cards only. WIN and LOSS sections, each with reinforceable card types and alternative bonuses |
