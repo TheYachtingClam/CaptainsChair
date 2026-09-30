@@ -55,7 +55,7 @@ server/
 
 - **REQ-SRV-03** Card data lives in data files under `content/`, following the schema in [12-component-anatomy.md](12-component-anatomy.md). Card effects are implemented as engine code, one function per operation, using only the actions each function declares. The rules and the action list are in [CLAUDE.md](../CLAUDE.md).
 - **REQ-SRV-04** Each acceptance scenario in [18-acceptance-scenarios.md](18-acceptance-scenarios.md) must have an automated engine test.
-- **REQ-SRV-05 Card images.** Raw card scans live in `resources/scans/cards/` and are never part of the image. `scripts/process_scans.py` turns them into straightened WebP files named by card id in `server/content/images/`, in the same folders as the scans, plus a manifest with a content version for each. The server serves them only to signed-in users, at `/api/content/cards/{card_id}/image?v={version}`, with a private one-year cache for the current version. Game views include an image URL only for cards the viewing player may see; facedown cards use a card-back image.
+- **REQ-SRV-05 Images.** Raw scans of cards, crew boards and command cards live in `resources/scans/` and are never part of the Docker image. `scripts/process_scans.py` turns them into WebP files named by id in `server/content/images/`, in the same folders as the scans. Cards are sized to exact card proportions; boards and command cards keep their own proportions. A manifest records each image's kind, size and content version. The server serves them only to signed-in users, at `/api/content/images/{id}?v={version}`, with a private one-year cache for the current version. Game views include an image URL only for cards the viewing player may see; facedown cards use a card-back image.
 
 ### 3.3 Game state and commands
 

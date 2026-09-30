@@ -9,8 +9,8 @@ An online version of the board game *Star Trek: Captain's Chair*.
 - `requirements/` holds the requirements. Start at `requirements/00-README.md`. They are the source of truth. If code and requirements disagree, stop and flag it rather than guessing.
 - `resources/` holds source material that is **never** copied into the Docker image:
   - `resources/manual/`: scanned rulebooks (`base/`, `expansion/`, `solo/`);
-  - `resources/scans/cards/`: raw card scans, in any folder layout. See its README.
-- `server/content/images/` holds the processed card images the server ships and serves. Regenerate them with `scripts/process_scans.py`; never edit them by hand.
+  - `resources/scans/`: raw scans of cards, crew boards and command cards. See `resources/scans/README.md`.
+- `server/content/images/` holds the processed images the server ships and serves, at `/api/content/images/{id}`. Regenerate them with `scripts/process_scans.py`; never edit them by hand.
 - `server/` is the Python API server and rules engine (FastAPI, pytest). `client/` is the React and TypeScript web client. See `requirements/19-technical-architecture.md`.
 - Rule precedence: card text beats Keywords in Detail (`requirements/14-keywords.md`), which beats the general rules.
 
@@ -20,7 +20,7 @@ An online version of the board game *Star Trek: Captain's Chair*.
 scripts/start.sh --test     # server tests (run after every server change)
 scripts/start.sh --dev      # API with reload on :8000, client on :5173
 cd client && npm run build  # type-check and build the client
-scripts/process_scans.py    # raw scans -> server/content/images/<same folders>/<card_id>.webp
+scripts/process_scans.py    # raw scans -> server/content/images/<same folders>/<id>.webp
 ```
 
 ## Card effects are code
@@ -61,7 +61,7 @@ This section is mandatory for every card. It also applies to everything else wit
 
 ```
 server/content/cards/<set>.yaml         printed data per card: id, name, suit, traits, icons, VP, text
-server/content/images/**/<id>.webp      processed card image, made by scripts/process_scans.py
+server/content/images/**/<id>.webp      processed image (card, board, command card), made by scripts/process_scans.py
 server/engine/cards/<set>/<slug>.py     one module per card, linked to the data by card id
 server/engine/actions.py                the action list and its implementations
 server/engine/bot/<crew>.py             Automated Command rows for each Bot Crew

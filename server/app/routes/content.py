@@ -18,21 +18,30 @@ def list_expansions() -> dict[str, str]:
 
 
 @router.get("/images")
-def list_images() -> dict[str, str]:
-    """Card id -> versioned image URL for every processed card image.
+def list_images(kind: str | None = None) -> dict[str, dict]:
+    """Every processed image: id -> {url, kind, width, height}. Filter with ?kind=cards|boards|command.
 
     Game views must only include an image URL for cards the viewing player may see;
     facedown cards use a card-back id instead (REQ-SRV-20).
     """
-    return {card_id: content.image_url(card_id) for card_id in content.image_manifest()}
+    return {
+        image_id: {
+            "url": content.image_url(image_id),
+            "kind": entry["kind"],
+            "width": entry["width"],
+            "height": entry["height"],
+        }
+        for image_id, entry in content.image_manifest().items()
+        if kind is None or entry["kind"] == kind
+    }
 
 
-@router.get("/cards/{card_id}/image")
-def card_image(card_id: str, v: str | None = None) -> FileResponse:
-    path = content.image_path(card_id)
+@router.get("/images/{image_id}")
+def image(image_id: str, v: str | None = None) -> FileResponse:
+    path = content.image_path(image_id)
     if path is None:
-        raise HTTPException(404, "No image for that card")
-    version = content.image_manifest()[card_id]["version"]
+        raise HTTPException(404, "No such image")
+    version = content.image_manifest()[image_id]["version"]
     # A URL with the current version never changes, so it can be cached for a year.
     # "private" keeps shared caches from storing images that sit behind the site password.
     cache = "private, max-age=31536000, immutable" if v == version else "private, no-cache"
