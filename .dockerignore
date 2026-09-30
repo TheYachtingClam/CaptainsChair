@@ -1,6 +1,6 @@
 .git
 .env
-manual
+resources
 requirements
 **/node_modules
 **/.venv

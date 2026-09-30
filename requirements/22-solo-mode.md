@@ -1,6 +1,6 @@
 # 22 – Solo Mode: Starfleet Command Training Program (Playing Against the Bot)
 
-Source: Solo rulebook, [manual/solo/](../manual/solo/). Page numbers in this file refer to the solo rulebook.
+Source: Solo rulebook, [resources/manual/solo/](../resources/manual/solo/). Page numbers in this file refer to the solo rulebook.
 
 In solo mode, one human player plays against an automated opponent called **the Bot**. The Bot ignores the text on its cards. It acts using its **Automated Command cards**, based on the suit and traits of each card it resolves.
 
