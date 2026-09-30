@@ -34,11 +34,11 @@ Table operations are usable on cards **in play but not in the Staging Area and n
   - Exhaust the card first, then resolve.
   - An exhausted card's Activation cannot be used until refreshed.
   - If a card has several Activations, choose one.
-- **REQ-AS-21 PASSIVE.**
+- **REQ-AS-21 PASSIVE.** Passives work only while the card is in a table position: Fleet Area, Location Area, Duty Officer slot, or as the Captain or Status card. They never work from the Staging Area or while beamed. This includes "this card has" Passives, such as extra Skill icons.
   - Always in effect, on either player's turn, even while the card is exhausted.
   - Condition-triggered Passives may fire any number of times.
   - Passives are mandatory even when not beneficial.
-- **REQ-AS-22 REACTION.**
+- **REQ-AS-22 REACTION.** Reactions follow the same position rule as Passives (REQ-AS-21): they work only from a table position, never from the Staging Area or while beamed. A card deployed or taken under control by its own operation is in a table position and may react at once (KW-REA-03).
   - May be used whenever its trigger condition is met, including outside the Action Step and on the opponent's turn.
   - Exhaust the card first, then resolve.
   - Cannot be used while the card is exhausted.

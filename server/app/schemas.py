@@ -20,6 +20,7 @@ class SeatChoice(BaseModel):
 class CreateGameRequest(SeatChoice):
     mode: GameMode = "two_player"
     expansions: list[str] = []
+    promos: bool = False
 
 
 class SeatOut(BaseModel):
@@ -34,6 +35,7 @@ class GameSummary(BaseModel):
     created_at: datetime
     mode: GameMode
     expansions: list[str]
+    promos: bool
     status: str
     seats: list[SeatOut]
     open_seats: int

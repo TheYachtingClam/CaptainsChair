@@ -23,6 +23,7 @@ Each keyword below must be a reusable engine primitive that card scripts call. E
 ## Beam
 
 - **KW-BEAM-01** Take a card from hand, unless another source is specified. Place it faceup under the target card, usually a Ship, so only its suit and trait icons show. The card is now **beamed**.
+- **KW-BEAM-01a** Beaming never takes a card from the top of the Draw deck, or from any other source, unless the effect names that source. Example: Jackabog beams a Ship it has just gained.
 - **KW-BEAM-02** A card can hold any number of beamed cards. An effect may limit which suits can be beamed.
 - **KW-BEAM-03** A Location can never be beamed to another card. A Ship can be beamed to another Ship.
 - **KW-BEAM-04** A beamed card is in play. Its operations and Skill icons are not.
@@ -108,6 +109,7 @@ Each keyword below must be a reusable engine primitive that card scripts call. E
 - **KW-EXH-01** Rotate an in-play card sideways, as though an ACTIVATION or REACTION had been used. This can be a Fleet Area card, Location Area card, Duty Officer or Captain.
 - **KW-EXH-02** Its ACTIVATION and REACTION operations stay unusable until the end of the owner's Clean-up, unless an effect refreshes it.
 - **KW-EXH-03** Exhausting is a **cost**. If there is no card to exhaust, the operation cannot be resolved.
+- **KW-EXH-04** An exhausted card cannot be exhausted again. An effect that offers "exhaust it" as an option cannot use that option on an already exhausted card.
 
 ## Find [name / suit / trait / icon]
 

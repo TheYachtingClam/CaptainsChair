@@ -24,6 +24,7 @@ def summarize(game: Game) -> dict:
         "created_at": game.created_at,
         "mode": game.mode,
         "expansions": game.expansions,
+        "promos": game.promos,
         "status": game.status,
         "seats": [SeatOut.model_validate(s, from_attributes=True) for s in game.seats],
         "open_seats": seat_count(game) - len(game.seats),
@@ -78,7 +79,7 @@ def create_game(body: CreateGameRequest, db: Session = Depends(get_db)) -> dict:
     if unknown:
         raise HTTPException(422, f"Unknown expansion: {', '.join(sorted(unknown))}")
     validate_deck(body.deck_id, body.expansions)
-    game = Game(mode=body.mode, expansions=body.expansions)
+    game = Game(mode=body.mode, expansions=body.expansions, promos=body.promos)
     db.add(game)
     seat, token = add_seat(db, game, body)
     return {"game": {**summarize(game), "your_seat": seat.index}, "seat_index": seat.index, "seat_token": token}

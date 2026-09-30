@@ -67,7 +67,7 @@ server/
 - **REQ-SRV-15** Shuffles use a random generator seeded per game on the server. The seed is never sent to clients.
 - **REQ-SRV-16** Undo is part of the first version. Every option in a pending decision says whether it can be undone, so the client can warn the player first. Details are in [20-undo.md](20-undo.md).
 - **REQ-SRV-17** The Bot ([22-solo-mode.md](22-solo-mode.md)) runs inside the server as another source of commands. It uses the same rules engine and its own view, with no access to hidden information beyond what the Bot rules allow.
-- **REQ-SRV-18** Game creation accepts the expansions to include, and for solo games the Bot's Crew, difficulty and optional Ticking Clock challenge.
+- **REQ-SRV-18** Game creation accepts the expansions to include, whether to include promo cards (REQ-CS-20), and for solo games the Bot's Crew, difficulty and optional Ticking Clock challenge.
 
 ### 3.4 Hidden information
 
@@ -138,7 +138,7 @@ All endpoints except login and health require a valid session (see §5).
 |---|---|
 | Password page | One password field and a submit button. Shown whenever there is no valid session |
 | Lobby | Create game, list of open games to join, list of the player's own in-progress games |
-| New game | Choose mode (two-player, solo against the Bot, Cadet Training), expansions, Crew deck (with complexity and summary), board side and display name. Solo adds Bot Crew, difficulty and Ticking Clock |
+| New game | Choose mode (two-player, solo against the Bot, Cadet Training), expansions, promo cards, Crew deck (with complexity and summary), board side and display name. Solo adds Bot Crew, difficulty and Ticking Clock |
 | Campaign | Five-Year Mission log, rank, upgrades, challenges and the next assignment |
 | Game table | The main play screen (§4.3) |
 | Score screen | Final score breakdown per player, following [13-final-scoring.md](13-final-scoring.md) |

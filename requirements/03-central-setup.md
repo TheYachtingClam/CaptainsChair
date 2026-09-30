@@ -24,7 +24,17 @@ The engine must perform central setup automatically, with player choices (Crew d
 - **REQ-CS-16 Tokens per player.** Give each player 3 Action tokens and 3 Mission Completion tokens. Put the other Action tokens in the supply.
 - **REQ-CS-17 First player.** Randomly determine the starting player and give them the Starting Player token.
 
-## 2. Combining boxes (optional)
+## 2. Promo cards (optional)
+
+- **REQ-CS-20** When creating a game, the host chooses whether to include promo cards. They are off by default.
+- **REQ-CS-21** When promos are included, shuffle each promo card into the common deck of its suit during central setup, before the Market is revealed:
+  - Cargo, Person, Ship and Ally promos go into their Market decks;
+  - Incident promos go into the Incident deck;
+  - Location promos go into the Starting or Advanced Location pile, according to their position indicator.
+- **REQ-CS-22** A promo card's own SPECIAL setup text takes precedence. For example, *Subspace Rhapsody* replaces a random Incident in the Incident deck instead of adding to it.
+- **REQ-CS-23** Promo cards follow all normal rules for common cards once in the game.
+
+## 3. Combining boxes (optional)
 
 Each Crew deck is balanced for its own box's Market cards. The app may later support mixing decks from this box ("To Boldly Go") with the Core Box.
 
@@ -37,6 +47,6 @@ Each Crew deck is balanced for its own box's Market cards. The app may later sup
   - **Incidents.** Shuffle the remaining cards and return random cards to the box until 6 remain. Do this before adding Incidents from Crew decks.
   - **Junk.** After creating the Market, flip the top card of each of the four Market decks into the Junk pile.
 
-## 3. Layout (for UI)
+## 4. Layout (for UI)
 
 - **REQ-CS-40** The table view should show: Encounter deck, supply, Ship token supply, the four Market decks above the Market strip, the four faceup Market cards below it, Junk pile on one side, Incident deck on the other, Stardate pile with its Glory, Location deck, and the three-slot Neutral Zone between the two player areas.

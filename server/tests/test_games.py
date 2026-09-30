@@ -61,3 +61,25 @@ def test_websocket_rejects_bad_seat(authed):
     with pytest.raises(WebSocketDisconnect):
         with authed.websocket_connect(f"/api/games/{game_id}/ws?seat=wrong") as ws:
             ws.receive_json()
+
+
+def test_promos_option(authed):
+    assert create(authed).json()["game"]["promos"] is False
+    grant = create(authed, promos=True).json()
+    assert grant["game"]["promos"] is True
+    assert authed.get(f"/api/games/{grant['game']['id']}").json()["promos"] is True
+
+
+def test_old_database_gets_promos_column(tmp_path):
+    import sqlite3
+
+    from app.db import init_db
+
+    path = tmp_path / "old.db"
+    con = sqlite3.connect(path)
+    con.execute("CREATE TABLE games (id VARCHAR(36) PRIMARY KEY, created_at DATETIME, mode VARCHAR(20), expansions JSON, status VARCHAR(20))")
+    con.commit()
+    con.close()
+    init_db(f"sqlite:///{path}")
+    cols = [r[1] for r in sqlite3.connect(path).execute("PRAGMA table_info(games)")]
+    assert "promos" in cols

@@ -9,10 +9,11 @@ export function NewGame() {
   const expansions = useQuery({ queryKey: ["expansions"], queryFn: api.expansions });
   const [mode, setMode] = useState<GameMode>("two_player");
   const [chosen, setChosen] = useState<string[]>([]);
+  const [promos, setPromos] = useState(false);
   const [seat, setSeat] = useState<SeatChoice>({ display_name: "", deck_id: "", board_side: "basic" });
 
   const create = useMutation({
-    mutationFn: () => api.createGame({ ...seat, mode, expansions: chosen }),
+    mutationFn: () => api.createGame({ ...seat, mode, expansions: chosen, promos }),
     onSuccess: (grant) => {
       saveSeatToken(grant.game.id, grant.seat_token);
       navigate(`/games/${grant.game.id}`);
@@ -50,6 +51,10 @@ export function NewGame() {
               {name}
             </label>
           ))}
+          <label className="inline">
+            <input type="checkbox" checked={promos} onChange={(e) => setPromos(e.target.checked)} />
+            Promo cards
+          </label>
         </fieldset>
         <SeatForm value={seat} onChange={setSeat} sets={["to_boldly_go", ...chosen]} />
         {create.error && <p className="error" role="alert">{create.error.message}</p>}

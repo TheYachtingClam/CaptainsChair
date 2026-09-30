@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -18,6 +18,8 @@ class Game(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     mode: Mapped[str] = mapped_column(String(20))
     expansions: Mapped[list[str]] = mapped_column(JSON, default=list)
+    # Promo cards are shuffled into their matching common decks at setup when true.
+    promos: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
     status: Mapped[str] = mapped_column(String(20), default="waiting")
 
     seats: Mapped[list["Seat"]] = relationship(

@@ -57,6 +57,7 @@ export function GameTable() {
       <p className="muted">
         Game {g.id.slice(0, 8)} · {g.status === "ready" ? "all seats filled" : "waiting for players"}
         {g.expansions.length > 0 && ` · expansions: ${g.expansions.join(", ")}`}
+        {g.promos && " · promo cards"}
       </p>
 
       <section className="card">

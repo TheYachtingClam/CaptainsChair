@@ -24,6 +24,7 @@ export interface Game {
   created_at: string;
   mode: GameMode;
   expansions: string[];
+  promos: boolean;
   status: string;
   seats: Seat[];
   open_seats: number;
@@ -89,7 +90,7 @@ export const api = {
     const token = loadSeatToken(id);
     return request<Game>(`/api/games/${id}`, { headers: token ? { "X-Seat-Token": token } : {} });
   },
-  createGame: (body: SeatChoice & { mode: GameMode; expansions: string[] }) =>
+  createGame: (body: SeatChoice & { mode: GameMode; expansions: string[]; promos: boolean }) =>
     request<SeatGrant>("/api/games", { method: "POST", body: JSON.stringify(body) }),
   joinGame: (id: string, body: SeatChoice) =>
     request<SeatGrant>(`/api/games/${id}/join`, { method: "POST", body: JSON.stringify(body) }),

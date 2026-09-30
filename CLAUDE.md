@@ -23,6 +23,15 @@ cd client && npm run build  # type-check and build the client
 scripts/process_scans.py    # raw scans -> server/content/images/<same folders>/<id>.webp
 ```
 
+## Card specs
+
+Every card scan in `resources/scans/cards/` has a spec file beside it with the same name and a `.md` extension. Command-card specs are in `resources/scans/command/`. The format is in `resources/scans/CARD_SPEC.md`.
+
+- Write a card's code from its spec, not from the scan. The spec lists each operation's cost, requirements, effect steps, choices, and the exact `uses=` actions.
+- Each spec's Tests section lists the cases its test module must cover.
+- If code and spec disagree, fix the spec first, then the code.
+- `resources/scans/OPEN_QUESTIONS.md` lists rulings still to be decided and actions missing from the list below. Do not implement a card with an open question until it is resolved.
+
 ## Card effects are code
 
 This section is mandatory for every card. It also applies to everything else with an effect:
@@ -128,12 +137,12 @@ These are the only actions card code may call. Each maps to a keyword in `requir
 | `BEAM` | Tuck a card under a Ship or Location | KW-BEAM | No |
 | `PROMOTE` | Make a Person a Duty Officer | KW-PROM | No |
 | `DEPLOY` | Move a Ship or Ongoing card to the Fleet Area | KW-DEP | No |
-| `PUT` | Put a card from hand somewhere specific | KW-PUT | No |
+| `PUT` | Put a card somewhere specific, such as the top of the Draw deck or the Staging Area. Takes a `source`: hand by default, or the Staging Area when a card puts itself (Class C Shuttlecraft). A card put into the Staging Area counts as put into play but its PLAY does not resolve | KW-PUT, KW-PIP | No |
 | `GIVE` | Give a card to the opponent | KW-GIVE | Yes |
 | `TAKE_INCIDENT` | Take the top Incident into hand | KW-TAKE | Yes |
 | `TAKE_ENCOUNTER` | Take an Encounter into hand | KW-TAKE | Yes |
 | `RETURN_INCIDENT` | Put an Incident on the bottom of the Incident deck | KW-RETI | No |
-| `JUNK` | Move a Market card to the Junk pile, then refill | KW-JUNK | Yes |
+| `JUNK` | Move a card to the Junk pile. Takes a `source`: the Market by default, which refills the slot and never takes a card with tokens; or your hand or Discard pile, which does not refill (Starbase 80) | KW-JUNK | Yes |
 | `GAIN_CARD` | Gain by suit or trait, including from the Junk | KW-GAIN | Yes |
 | `SCAN` | Scan a number of cards of a suit | KW-SCAN-01 | Yes |
 | `SCAN_FOR` | Scan for a trait or icon | KW-SCAN-05 | Yes |
@@ -143,6 +152,9 @@ These are the only actions card code may call. Each maps to a keyword in `requir
 | `FREE_PLAY` | Play a card without spending an action | KW-FREE | No |
 | `DUPLICATE` | Resolve another card's operation as this card | KW-DUP | No |
 | `TAKE_FROM_REWARD_PILE` | Look at random Reward cards and take one | REQ-EXP-44 | Yes |
+| `REVEAL` | Show cards from your hand to the opponent: the whole hand (Delta Vega, Lt. Saru) or chosen cards (Petra Aberdeen). The cards stay where they are; the client shows them to the opponent until the operation ends | — | Yes |
+| `PEEK` | Look privately at the top card of a named deck, such as a Market deck, without taking it. Only the looking player sees it; the card stays on top (Sarina Douglas) | — | Yes |
+| `SWAP_JUNK_WITH_MARKET` | Exchange a card in the Junk with the faceup Market card of the same suit. The Market card goes to the Junk and the Junk card takes its slot. A Market card with tokens cannot be swapped (Plomeek Tea) | KW-JUNK-02 | No |
 
 ### Resources and actions
 
@@ -192,7 +204,7 @@ Automated Command rows use the same action names. In a Bot context the engine su
 ### Changing the action list
 
 - Add an action only when no existing action, or combination of actions, can express an effect.
-- A new action must be general. It must not be named after a card or used by only one card, except the Khan and Bot actions above.
+- A new action must be general. It must not be named after a card or used by only one card, except the Khan and Bot actions above. `PEEK` and `SWAP_JUNK_WITH_MARKET` each have one user today; they are written generally so later cards can reuse them.
 - Adding an action means updating, in the same change: `server/engine/actions.py`, the tables in this file, its irreversible flag, and its tests.
 
 ## Tests
