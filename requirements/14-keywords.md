@@ -255,6 +255,7 @@ Each keyword below must be a reusable engine primitive that card scripts call. E
 - **KW-REA-02** A Reaction can **interrupt** another operation at the moment its condition is met. The interrupted operation resumes afterwards. The engine needs an interrupt / trigger stack.
 - **KW-REA-03** If a card's own PLAY or CONTROL operation meets an "after [X]" condition of a Reaction on that same card, and the card was deployed or taken under control by that operation, the Reaction can be used at once.
 - **KW-REA-04** When several Reactions share a trigger, the player may resolve any number of them in any order.
+- **KW-REA-06** Ordering across both players, "when … would" versus "after" timing, and nested triggers follow REQ-AS-26 to REQ-AS-33 in [06-action-step.md](06-action-step.md).
 - **KW-REA-05** A Reaction "when you gain a [card]" also triggers on a card gained by scanning.
 
 ## Recall

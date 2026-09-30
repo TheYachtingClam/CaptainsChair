@@ -47,6 +47,24 @@ Table operations are usable on cards **in play but not in the Staging Area and n
 - **REQ-AS-24 Promoting.** A Person's table operation works only while the Person is a **Duty Officer**. Playing the Person to the Staging Area is not enough. A specific ability, usually on the starting Ship, promotes a Person.
 - **REQ-AS-25 Not on the table.** Table operations of cards in the Staging Area (an unpromoted Person, an undeployed Ship) or of beamed cards cannot be resolved.
 
+## 3a. Trigger timing and order
+
+This section decides how the engine orders triggered operations. It applies to triggered PASSIVE, REACTION and SUPPORT operations, and to Bot rules that trigger on events.
+
+- **REQ-AS-26 Events.** The engine reports every game event, such as a card put into play, a card gained, an Away Team sent or a card logged. Each event has a "before" moment and an "after" moment.
+- **REQ-AS-27 "When … would" triggers resolve before the event.** These triggers replace, prevent or change the event, for example Riva, Phasers, Ambassador Gral, Lieutenant Dax and Starbase 80.
+  1. The active player is offered theirs first, then the opponent.
+  2. If one of them cancels or changes the event, any other "when … would" triggers for the original event no longer apply.
+- **REQ-AS-28 "After" triggers resolve once the event has finished.** The engine collects every matching trigger of both players.
+  1. The active player resolves all of theirs, in any order they choose (KW-REA-04).
+  2. Then the opponent resolves all of theirs, in any order they choose.
+  3. Triggered Passives must resolve. Reactions and Support are offered and may be declined.
+- **REQ-AS-29 Nesting.** If resolving a trigger causes a new event, that event's triggers resolve completely before the rest of the current queue continues. The expansion's Support chain (K'ranch, Bradward Boimler, D'Vana Tendi) is the acceptance test.
+- **REQ-AS-30 Recheck at resolution.** When a queued trigger's turn comes, the engine checks its conditions again. Its card must still be in a table position (REQ-AS-21, REQ-AS-22). A Reaction's card must not be exhausted. If an earlier trigger removed or exhausted the card, or its condition no longer holds, it is skipped.
+- **REQ-AS-31 Restrictions still apply.** Effects that stop Reactions, such as Vice Admiral Pasalk, remove those triggers from the queue.
+- **REQ-AS-32 Solo.** The Bot has no Passives or Reactions, since it ignores card text (REQ-SOLO-80). Only the human's triggers are queued, apart from Bot rules the solo rules define.
+- **REQ-AS-33 Client.** When a player has triggers to order or choose, the client shows one prompt listing them. Mandatory triggers are marked. Each choice to use a trigger goes through the can't-be-undone warning when it applies ([20-undo.md](20-undo.md)).
+
 ## 4. Completing goals (missions)
 
 - **REQ-AS-30** During the Action Step the player may complete one or more missions whose **GOAL** is currently met.
