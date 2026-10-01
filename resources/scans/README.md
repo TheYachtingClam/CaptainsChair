@@ -4,22 +4,31 @@ Source scans of game components. These files are **not** copied into the Docker 
 
 ```bash
 scripts/process_scans.py                              # everything
-scripts/process_scans.py cards/to_boldly_go command   # only these folders and their subfolders
+scripts/process_scans.py to_boldly_go/cards second_contact   # only these folders and their subfolders
 ```
 
 The script writes `server/content/images/<same folders>/<id>.webp` and updates `server/content/images/manifest.json`. Commit both.
 
 ## Folders
 
-The top folder decides how an image is sized. Below it, organise scans however you like, at any depth.
+Scans are grouped by product, then by kind:
 
-| Top folder | What goes in it | Output |
+```
+resources/scans/<set>/<kind>/...
+```
+
+`<set>` is the product: `to_boldly_go`, `second_contact` or `promo2`. The `<kind>` folder decides how an image is sized. Below it, organise scans however you like, at any depth, for example `to_boldly_go/cards/captains/soval/`.
+
+| Kind folder | What goes in it | Output |
 |---|---|---|
 | `cards/` | Every card: Market, Crew, Locations, Incidents, Encounters, Stardates, card backs | Exact card proportions, 630 × 880 |
 | `boards/` | Crew boards, one scan per side | Scan's own proportions, 1800 px on the long side |
 | `command/` | The Bot's Automated Command cards, one image or PDF page per side | Scan's own proportions, 1400 px on the long side |
+| `manual/`, `solo/` | Rulebook pages | Not processed; for people to read |
 
-Any other top folder keeps its proportions at 1200 px on the long side.
+Any other kind folder keeps its proportions at 1200 px on the long side.
+
+Card and board specs (`.md` files beside each scan) must sit in the folder of the set they declare; `scripts/build_content.py` checks this.
 
 Images and PDFs both work. Each PDF page becomes its own image.
 

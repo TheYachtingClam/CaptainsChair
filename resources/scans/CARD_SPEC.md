@@ -1,6 +1,6 @@
 # Card spec format
 
-Every card scan has a spec file next to it with the same name and a `.md` extension, for example `cards/to_boldly_go/captains/soval/2SOV01.jpg` and `2SOV01.md`. A command-card PDF has one spec covering all its sides, for example `command/cc-soval.md`.
+Every card scan has a spec file next to it with the same name and a `.md` extension, for example `to_boldly_go/cards/captains/soval/2SOV01.jpg` and `2SOV01.md`. A command-card PDF has one spec covering all its sides, for example `command/cc-soval.md`.
 
 A card spec holds everything needed to use the card in the game and to write its code under the rules in `CLAUDE.md`. It is the card's requirements document. Card code and card data are generated from it, so when the two disagree, fix the spec first.
 
@@ -86,7 +86,7 @@ Stardate specs add these frontmatter fields, and describe their two effects as t
 
 ## Command-card specs
 
-`command/cc-<captain>.md` covers all four sides of one Bot Crew's Automated Command cards. Each side is a table with one row per printed row: what it matches, the printed text, numbered steps, the actions used, and whether it can be undone. Bot rows also use the Bot-only actions in `CLAUDE.md`: `EXPLORE`, `ENGAGE`, `RESOLVE_CARD` and `CONTINUE_RESOLUTION`.
+`<set>/command/cc-<captain>.md` covers all four sides of one Bot Crew's Automated Command cards. Each side is a table with one row per printed row: what it matches, the printed text, numbered steps, the actions used, and whether it can be undone. Bot rows also use the Bot-only actions in `CLAUDE.md`: `EXPLORE`, `ENGAGE`, `RESOLVE_CARD` and `CONTINUE_RESOLUTION`.
 
 ## Open questions
 

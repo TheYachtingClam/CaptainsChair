@@ -1,6 +1,6 @@
 # 21 – Expansion: Second Contact
 
-Source: Second Contact expansion rulebook, [resources/manual/expansion/](../resources/manual/expansion/) pp. 1–6.
+Source: Second Contact expansion rulebook, [resources/scans/second_contact/manual/](../resources/scans/second_contact/manual/) pp. 1–6.
 
 *Second Contact* is the first expansion. It needs the Core Box or *To Boldly Go* to play. It adds three Crew decks, the **SUPPORT** operation, the **Lower Decker** and **Crossover** traits, the **Reward pile**, and some common cards.
 

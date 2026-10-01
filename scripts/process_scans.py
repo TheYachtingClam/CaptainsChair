@@ -5,16 +5,18 @@
 # ///
 """Turn raw scans into the web images the server serves.
 
-Reads   resources/scans/<kind>/**/*.{jpg,jpeg,png,webp,tif,tiff,pdf}
-Writes  server/content/images/<kind>/<same folders>/<id>.webp
+Reads   resources/scans/<set>/<kind>/**/*.{jpg,jpeg,png,webp,tif,tiff,pdf}
+Writes  server/content/images/<set>/<kind>/<same folders>/<id>.webp
         server/content/images/manifest.json
 
-<kind> is the top folder under resources/scans, and sets how images are sized:
+<set> is the product, e.g. to_boldly_go, second_contact or promo2. <kind> is the folder below it,
+and sets how images are sized:
   cards/     forced to exact card proportions, 630 x 880 (or 880 x 630 for landscape cards)
   boards/    crew boards; the scan's own proportions are kept, 1800 px on the long side
   command/   the Bot's Automated Command cards; own proportions kept, 1400 px on the long side
-Any other top folder keeps its proportions at 1200 px on the long side.
-Below the top folder, organise scans however you like, at any depth.
+  manual/, solo/   rulebook scans; never processed
+Any other kind folder keeps its proportions at 1200 px on the long side.
+Below the kind folder, organise scans however you like, at any depth.
 
 Every image needs an id, unique across all folders. It comes from, in order:
   1. a mapping.csv in the same folder as the scan, with columns  file,id[,rotate]
@@ -35,9 +37,9 @@ removed, and an image moves when its scan moves to another folder.
 
 Usage:
   scripts/process_scans.py                               process everything
-  scripts/process_scans.py cards/to_boldly_go command    process only these folders
+  scripts/process_scans.py to_boldly_go/cards second_contact    process only these folders
   scripts/process_scans.py --force                       redo images that are already up to date
-  scripts/process_scans.py cards/photos --detect         straighten uncropped photos
+  scripts/process_scans.py to_boldly_go/cards/photos --detect   straighten uncropped photos
 """
 
 from __future__ import annotations
@@ -79,6 +81,7 @@ PROFILES = {
     "command": Profile(long_side=1400, card_shape=False),
 }
 DEFAULT_PROFILE = Profile(long_side=1200, card_shape=False)
+SKIP_KINDS = {"manual", "solo"}  # rulebook scans, read by people only
 CARD_RATIO = 63 / 88
 
 
@@ -100,7 +103,7 @@ class Source:
 
     @property
     def kind(self) -> str:
-        return self.path.relative_to(SCANS_DIR).parts[0]
+        return self.path.relative_to(SCANS_DIR).parts[1]
 
     @property
     def folder(self) -> Path:
@@ -116,7 +119,9 @@ def find_sources() -> list[Source]:
     sources: list[Source] = []
     for p in sorted(SCANS_DIR.rglob("*")):
         rel = p.relative_to(SCANS_DIR)
-        if not p.is_file() or len(rel.parts) < 2 or any(part.startswith(".") for part in rel.parts):
+        if not p.is_file() or len(rel.parts) < 3 or any(part.startswith(".") for part in rel.parts):
+            continue
+        if rel.parts[1] in SKIP_KINDS:
             continue
         suffix = p.suffix.lower()
         if suffix in IMAGE_SUFFIXES:
@@ -245,7 +250,7 @@ def remove_empty_dirs(root: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("folders", nargs="*", help="folders under resources/scans to process (default: all)")
+    parser.add_argument("folders", nargs="*", help="folders under resources/scans to process, e.g. to_boldly_go/cards (default: all)")
     parser.add_argument("--force", action="store_true", help="reprocess images that are already up to date")
     parser.add_argument("--detect", action="store_true", help="find and straighten the item in uncropped photos")
     args = parser.parse_args()

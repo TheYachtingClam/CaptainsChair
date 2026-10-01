@@ -1,6 +1,6 @@
 # Open questions from card specs
 
-Collected from the "Rulings and open questions" sections of every spec under `cards/` and `command/`. Each needs a decision before the card's code is written.
+Collected from the "Rulings and open questions" sections of every card and command-card spec under `resources/scans/`. Each needs a decision before the card's code is written.
 
 ## Rules questions
 

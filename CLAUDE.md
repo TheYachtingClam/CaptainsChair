@@ -8,8 +8,7 @@ An online version of the board game *Star Trek: Captain's Chair*.
 
 - `requirements/` holds the requirements. Start at `requirements/00-README.md`. They are the source of truth. If code and requirements disagree, stop and flag it rather than guessing.
 - `resources/` holds source material that is **never** copied into the Docker image:
-  - `resources/manual/`: scanned rulebooks (`base/`, `expansion/`, `solo/`);
-  - `resources/scans/`: raw scans of cards, crew boards and command cards. See `resources/scans/README.md`.
+  - `resources/scans/<set>/`: everything for one product, by kind: `cards/`, `boards/`, `command/`, and the rulebook scans in `manual/` and `solo/`. See `resources/scans/README.md`.
 - `server/content/images/` holds the processed images the server ships and serves, at `/api/content/images/{id}`. Regenerate them with `scripts/process_scans.py`; never edit them by hand.
 - `server/` is the Python API server and rules engine (FastAPI, pytest). `client/` is the React and TypeScript web client. See `requirements/19-technical-architecture.md`.
 - Rule precedence: card text beats Keywords in Detail (`requirements/14-keywords.md`), which beats the general rules.
@@ -26,7 +25,7 @@ scripts/build_content.py    # card and board specs -> server/content/cards/*.yam
 
 ## Card specs
 
-Every card scan in `resources/scans/cards/` has a spec file beside it with the same name and a `.md` extension. Command-card specs are in `resources/scans/command/`. The format is in `resources/scans/CARD_SPEC.md`.
+Every card scan in `resources/scans/<set>/cards/` has a spec file beside it with the same name and a `.md` extension. Crew board specs are in `resources/scans/<set>/boards/` and command-card specs in `resources/scans/<set>/command/`. The format is in `resources/scans/CARD_SPEC.md`.
 
 - Write a card's code from its spec, not from the scan. The spec lists each operation's cost, requirements, effect steps, choices, and the exact `uses=` actions.
 - Each spec's Tests section lists the cases its test module must cover.

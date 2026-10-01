@@ -1,6 +1,6 @@
 # Star Trek: Captain's Chair – Online Version Requirements
 
-These documents turn the *Star Trek: Captain's Chair – To Boldly Go* rulebook (36 pages in [resources/manual/base/](../resources/manual/base/), `page-001.jpg` to `page-036.jpg`) into requirements for a digital, online implementation. They also cover the *Second Contact* expansion ([resources/manual/expansion/](../resources/manual/expansion/), 6 pages) and the solo rulebook ([resources/manual/solo/](../resources/manual/solo/), 21 pages). Page numbers refer to the base rulebook unless a file says otherwise. They are organised by topic, not by page.
+These documents turn the *Star Trek: Captain's Chair – To Boldly Go* rulebook (36 pages in [resources/scans/to_boldly_go/manual/](../resources/scans/to_boldly_go/manual/), `page-001.jpg` to `page-036.jpg`) into requirements for a digital, online implementation. They also cover the *Second Contact* expansion ([resources/scans/second_contact/manual/](../resources/scans/second_contact/manual/), 6 pages) and the solo rulebook ([resources/scans/to_boldly_go/solo/](../resources/scans/to_boldly_go/solo/), 21 pages). Page numbers refer to the base rulebook unless a file says otherwise. They are organised by topic, not by page.
 
 ## Document map
 

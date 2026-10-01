@@ -5,8 +5,8 @@
 # ///
 """Build the server's card and board data from the specs.
 
-Reads   resources/scans/cards/**/*.md     card specs (see resources/scans/CARD_SPEC.md)
-        resources/scans/boards/*.md       crew board specs
+Reads   resources/scans/<set>/cards/**/*.md   card specs (see resources/scans/CARD_SPEC.md)
+        resources/scans/<set>/boards/*.md     crew board specs
 Writes  server/content/cards/<set>.yaml   one file per set
         server/content/boards.yaml        every crew board side
 
@@ -25,8 +25,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
-CARD_SPECS = ROOT / "resources" / "scans" / "cards"
-BOARD_SPECS = ROOT / "resources" / "scans" / "boards"
+SCANS = ROOT / "resources" / "scans"
 OUT_CARDS = ROOT / "server" / "content" / "cards"
 OUT_BOARDS = ROOT / "server" / "content" / "boards.yaml"
 
@@ -86,10 +85,14 @@ def build_cards() -> dict[str, list[dict]]:
     by_set: dict[str, list[dict]] = {}
     seen: dict[str, Path] = {}
     errors: list[str] = []
-    for path in sorted(CARD_SPECS.rglob("*.md")):
+    for path in sorted(SCANS.glob("*/cards/**/*.md")):
         if path.name == "README.md":
             continue
         fm, body = split_spec(path)
+        folder_set = path.relative_to(SCANS).parts[0]
+        if fm.get("set") != folder_set:
+            errors.append(f"{path.relative_to(ROOT)}: set is {fm.get('set')!r} but the spec is in {folder_set}/")
+            continue
         missing = [k for k in REQUIRED if not fm.get(k)]
         if missing:
             errors.append(f"{path.relative_to(ROOT)}: missing {', '.join(missing)}")
@@ -128,14 +131,14 @@ def build_cards() -> dict[str, list[dict]]:
 
 def build_boards() -> list[dict]:
     boards = []
-    for path in sorted(BOARD_SPECS.glob("*.md")):
+    for path in sorted(SCANS.glob("*/boards/*.md")):
         fm, body = split_spec(path)
         missions = []
         for mission in fm["missions"]:
             block = re.search(rf"^### {re.escape(mission['name'])}.*?\n(.*?)(?=^### |^## |\Z)", body, re.S | re.M)
             text = block.group(1) if block else ""
             if "Same goal and reward as the Basic side" in text:
-                basic = BOARD_SPECS / f"cb-{fm['captain']}-basic.md"
+                basic = path.parent / f"cb-{fm['captain']}-basic.md"
                 _, basic_body = split_spec(basic)
                 block = re.search(rf"^### {re.escape(mission['name'])}.*?\n(.*?)(?=^### |^## |\Z)", basic_body, re.S | re.M)
                 text = block.group(1) if block else ""

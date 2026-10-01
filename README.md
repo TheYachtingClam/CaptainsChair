@@ -24,7 +24,6 @@ Local runs need [uv](https://docs.astral.sh/uv/) and Node.js 20 or later. Docker
 | `server/` | Python API server (FastAPI) and the rules engine |
 | `client/` | React and TypeScript web client (Vite) |
 | `requirements/` | Game and system requirements. Start at `00-README.md` |
-| `resources/manual/` | Scanned rulebooks. Not included in the Docker image |
-| `resources/scans/` | Raw scans of cards, crew boards and command cards. Not included in the Docker image. See its README |
+| `resources/scans/` | Raw scans and rulebook pages, by product and kind, with a spec beside each card and board. Not included in the Docker image. See its README |
 | `server/content/images/` | Processed images, served by the server |
 | `CLAUDE.md` | Rules for writing card code |
