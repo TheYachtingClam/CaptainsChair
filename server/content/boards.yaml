@@ -140,6 +140,7 @@ boards:
     reward: Take control of the Location used to fulfill the goal. Remove 1 [Glory] from the Stardate card.
     uses:
     - TAKE_CONTROL
+    - REMOVE_STARDATE_GLORY
 - id: cb-pike-basic
   captain: pike
   side: basic
@@ -509,6 +510,7 @@ boards:
     reward: Take the top Encounter. Remove 2 [Glory] from the Stardate card.
     uses:
     - TAKE_ENCOUNTER
+    - REMOVE_STARDATE_GLORY
   - id: the-undiscovered-country
     name: The Undiscovered Country
     vp: 1
@@ -523,6 +525,7 @@ boards:
     reward: Draw *Captain Spock* from your Log, and you *may* free play *Captain Spock*. You *may* find an Incident and return
       it. Gain an [Action]. Dismiss the *H.M.S. Bounty*.
     uses:
+    - DRAW_FROM_LOG
     - FREE_PLAY
     - FIND
     - RETURN_INCIDENT
@@ -563,6 +566,7 @@ boards:
     reward: Take the top Encounter. Remove 2 [Glory] from the Stardate card.
     uses:
     - TAKE_ENCOUNTER
+    - REMOVE_STARDATE_GLORY
 - id: cb-rebner-advanced
   captain: rebner
   side: advanced

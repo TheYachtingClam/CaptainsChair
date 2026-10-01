@@ -44,13 +44,13 @@ missions:
 - **Reward steps:**
   1. Take the top Encounter.
   2. Remove 2 Glory from the current Stardate card and return them to the supply.
-- **Actions used:** `TAKE_ENCOUNTER`
+- **Actions used:** `TAKE_ENCOUNTER`, `REMOVE_STARDATE_GLORY`
 - **Undoable:** no
 - **VP:** none on the Basic side.
 
 ## Rulings and open questions
 
-- Removing Glory from the Stardate card brings the game end closer; if it empties the card, the normal emptying rules apply (REQ-SD-02). Removing Glory needs a REMOVE_STARDATE_GLORY action, which CLAUDE.md does not have yet.
+- Removing Glory from the Stardate card brings the game end closer; if it empties the card, the normal emptying rules apply (REQ-SD-02).
 
 ## Tests
 

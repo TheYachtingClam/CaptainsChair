@@ -70,13 +70,12 @@ Spaces before the first multiplier score ×0 for Focus icons.
 - **Reward steps:**
   1. Take control of that neutral Location.
   2. Remove 1 Glory from the current Stardate card.
-- **Actions used:** `TAKE_CONTROL`
+- **Actions used:** `TAKE_CONTROL`, `REMOVE_STARDATE_GLORY`
 - **Undoable:** no
 
 ## Rulings and open questions
 
 - Research on the Advanced side has only ×3 and ×4, so a low Research track scores 0.
-- Removing Stardate Glory needs a REMOVE_STARDATE_GLORY action.
 
 ## Tests
 

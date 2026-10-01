@@ -138,12 +138,12 @@ These are the only actions card code may call. Each maps to a keyword in `requir
 | `BEAM` | Tuck a card under a Ship or Location | KW-BEAM | No |
 | `PROMOTE` | Make a Person a Duty Officer | KW-PROM | No |
 | `DEPLOY` | Move a Ship or Ongoing card to the Fleet Area | KW-DEP | No |
-| `PUT` | Put a card somewhere specific, such as the top of the Draw deck or the Staging Area. Takes a `source`: hand by default, or the Staging Area when a card puts itself (Class C Shuttlecraft). A card put into the Staging Area counts as put into play but its PLAY does not resolve | KW-PUT, KW-PIP | No |
+| `PUT` | Put a card somewhere specific. Takes a `source`: hand by default, the Staging Area (a card putting itself, e.g. Class C Shuttlecraft), or the top of a named deck (the Supplement deck, Time Is Running Out). Takes a `destination`: top or bottom of the Draw deck, top of the Reserve deck ("Trip" Tucker III, Faith of the Heart), the Development pile (Ceti Eel), the Staging Area, or the top of the Bot deck. A card put into the Staging Area counts as put into play but its PLAY does not resolve. Putting onto an empty Reserve deck recreates it (REQ-CD-ARC-02) | KW-PUT, KW-PIP | No |
 | `GIVE` | Give a card to the opponent | KW-GIVE | Yes |
 | `TAKE_INCIDENT` | Take the top Incident into hand | KW-TAKE | Yes |
-| `TAKE_ENCOUNTER` | Take an Encounter into hand | KW-TAKE | Yes |
+| `TAKE_ENCOUNTER` | Take an Encounter into hand. Takes `from`: top of the Encounter deck by default, or `bottom` (Messages from Old Friends) | KW-TAKE | Yes |
 | `RETURN_INCIDENT` | Put an Incident on the bottom of the Incident deck | KW-RETI | No |
-| `JUNK` | Move a card to the Junk pile. Takes a `source`: the Market by default, which refills the slot and never takes a card with tokens; or your hand or Discard pile, which does not refill (Starbase 80) | KW-JUNK | Yes |
+| `JUNK` | Move a card to the Junk pile. Takes a `source`: the Market by default, which refills the slot and never takes a card with tokens; your hand or Discard pile (Starbase 80); your Development pile (Knowledge of a Terrible Fate); or the top of the Incident deck (Time Is Running Out). Only the Market source refills | KW-JUNK | Yes |
 | `GAIN_CARD` | Gain by suit or trait, including from the Junk | KW-GAIN | Yes |
 | `SCAN` | Scan a number of cards of a suit | KW-SCAN-01 | Yes |
 | `SCAN_FOR` | Scan for a trait or icon | KW-SCAN-05 | Yes |
@@ -156,18 +156,23 @@ These are the only actions card code may call. Each maps to a keyword in `requir
 | `REVEAL` | Show cards from your hand to the opponent: the whole hand (Delta Vega, Lt. Saru) or chosen cards (Petra Aberdeen). The cards stay where they are; the client shows them to the opponent until the operation ends | — | Yes |
 | `PEEK` | Look privately at the top card of a named deck, such as a Market deck, without taking it. Only the looking player sees it; the card stays on top (Sarina Douglas) | — | Yes |
 | `SWAP_JUNK_WITH_MARKET` | Exchange a card in the Junk with the faceup Market card of the same suit. The Market card goes to the Junk and the Junk card takes its slot. A Market card with tokens cannot be swapped (Plomeek Tea) | KW-JUNK-02 | No |
+| `DRAW_FROM_LOG` | Take a card from your Captain's Log into hand (Shax, Search for Spock). Only when an effect says so; the Log is otherwise out of play | KW-LOG-05 | No |
+| `SHUFFLE_INTO` | Shuffle a card into your Draw deck (Second Contact, Dooplers) | — | Yes |
+| `REORDER` | Put cards you have looked at back on the top and/or bottom of their deck in an order you choose (Faith of the Heart). Used after `PEEK` | — | No |
+| `TAKE_FROM_REINFORCEMENT` | Take a card of your choice from your Reinforcement pile into hand (Reinforce; solo campaign only) | REQ-CAMP-21 | No |
 
 ### Resources and actions
 
 | Action (`A.`) | Does | Keyword | Irreversible |
 |---|---|---|---|
 | `GAIN_RESOURCE` | Gain Dilithium, Latinum or Glory | KW-GRES | No |
-| `SPEND` | Spend as an effect, not a cost | KW-SPEND | No |
+| `SPEND` | Spend as an effect, not a cost. Besides resources, it can spend available Action tokens, including "all remaining actions", which may be zero (Brad and Bradward Boimler) | KW-SPEND, KW-ACT | No |
 | `PLACE_RESOURCES` | Put supply resources on a card | KW-PLACE | No |
 | `MOVE_RESOURCES` | Move own resources onto a card | KW-MOVE | No |
 | `STEAL` | Take resources from the opponent | KW-STEAL | No |
 | `GAIN_ACTION` | Gain an extra action this turn | KW-ACT | No |
-| `GAIN_SPECIALTY` | Advance a Specialty track | REQ-SP-02 | No |
+| `GAIN_SPECIALTY` | Move a Specialty track. Positive amounts advance it; a negative amount moves it back (Dak'Rah's "lose 1 Military"), never below 0. The highest multiplier already reached is kept (REQ-SP-04) | REQ-SP-02 | No |
+| `REMOVE_STARDATE_GLORY` | Remove Glory from the current Stardate card and return it to the supply (Kirk's and Pike's missions). If this empties the card, it is emptied as normal (REQ-SD-02) | REQ-SD-02 | No |
 
 ### Board and tokens
 
@@ -175,6 +180,7 @@ These are the only actions card code may call. Each maps to a keyword in `requir
 |---|---|---|---|
 | `WARP` | Move a Ship token to a Location | KW-WARP | No |
 | `SEND_AWAY_TEAM` | Place Away Teams at a Location | KW-SEND | No |
+| `ADD_AWAY_TEAM` | Move Away Team tokens from a player's set-aside supply onto their Captain, up to a maximum where stated (Archer's 4 set-aside teams: Commander Shran, Ambassador Soval, the Archer Bot's Vulcan / Andorian / Tellarite row). Unlike `SEND_AWAY_TEAM`, it increases the number of Away Teams in play | REQ-CD-ARC-01 | No |
 | `REMOVE_AWAY_TEAM` | Remove Away Teams from a Location | KW-SEND | No |
 | `TAKE_CONTROL` | Take control of a Location | KW-TC | Yes |
 | `TRIGGER_CONTROL` | Resolve a Location's CONTROL again | KW-TRIG | No |
@@ -205,7 +211,7 @@ Automated Command rows use the same action names. In a Bot context the engine su
 ### Changing the action list
 
 - Add an action only when no existing action, or combination of actions, can express an effect.
-- A new action must be general. It must not be named after a card or used by only one card, except the Khan and Bot actions above. `PEEK` and `SWAP_JUNK_WITH_MARKET` each have one user today; they are written generally so later cards can reuse them.
+- A new action must be general. It must not be named after a card or used by only one card, except the Khan and Bot actions above. `PEEK`, `REORDER`, `SHUFFLE_INTO` and `TAKE_FROM_REINFORCEMENT` have only one or two users today; they are written generally so later cards can reuse them.
 - Adding an action means updating, in the same change: `server/engine/actions.py`, the tables in this file, its irreversible flag, and its tests.
 
 ## Tests

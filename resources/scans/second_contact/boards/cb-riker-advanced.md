@@ -77,7 +77,7 @@ Spaces before the first multiplier score ×0 for Focus icons.
 
 ## Rulings and open questions
 
-- Taking the bottom Encounter needs TAKE_ENCOUNTER to accept a bottom-of-deck option.
+- Taking the bottom Encounter uses TAKE_ENCOUNTER with from=bottom.
 
 ## Tests
 

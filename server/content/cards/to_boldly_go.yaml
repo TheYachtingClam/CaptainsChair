@@ -852,6 +852,9 @@ cards:
     action_cost: false
     attack: false
     trigger: You enlist Commander Shran.
+    uses:
+    - ADD_AWAY_TEAM
+    undoable: true
   - kind: DEVELOPMENT COST
     text: '[Dilithium] x2, [Latinum] x2'
     action_cost: false
@@ -904,6 +907,9 @@ cards:
     action_cost: false
     attack: false
     trigger: You enlist Ambassador Soval.
+    uses:
+    - ADD_AWAY_TEAM
+    undoable: true
   - kind: DEVELOPMENT COST
     text: '[Dilithium] x3, exhaust your Captain'
     action_cost: false
@@ -1587,6 +1593,7 @@ cards:
     attack: false
     uses:
     - PEEK
+    - REORDER
     - PROMOTE
     undoable: false
 - id: 2CAR01
@@ -2411,6 +2418,8 @@ cards:
     text: Take a card from your Reinforcement pile.
     action_cost: false
     attack: false
+    uses:
+    - TAKE_FROM_REINFORCEMENT
     undoable: true
   - kind: PLAY
     text: If your Reinforcement pile is empty, draw a card, then log this card.

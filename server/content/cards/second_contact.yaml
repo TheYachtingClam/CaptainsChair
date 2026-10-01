@@ -763,6 +763,9 @@ cards:
     action_cost: false
     attack: false
     trigger: You log Shax.
+    uses:
+    - DRAW_FROM_LOG
+    undoable: true
   - kind: DEVELOPMENT COST
     text: '[Dilithium] x2'
     action_cost: false
@@ -1050,6 +1053,7 @@ cards:
     - DRAW
     - GAIN_CARD
     - LOG
+    - SHUFFLE_INTO
     undoable: false
 - id: 3FRE17
   name: Set a Course
@@ -1201,6 +1205,7 @@ cards:
     - GAIN_CARD
     - GAIN_SPECIALTY
     - SPEND
+    - SHUFFLE_INTO
     undoable: false
 - id: 3FRE21
   name: Anomaly Consolidation Day
@@ -1317,6 +1322,7 @@ cards:
     action_cost: false
     attack: false
     uses:
+    - SPEND
     - DRAW
     - FREE_PLAY
     undoable: false
@@ -4128,6 +4134,7 @@ cards:
     action_cost: false
     attack: false
     uses:
+    - SPEND
     - DRAW
     - FREE_PLAY
     undoable: false

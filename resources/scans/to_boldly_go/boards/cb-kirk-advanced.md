@@ -49,7 +49,7 @@ Spaces before the first multiplier score ×0 for Focus icons.
 - **Reward steps:**
   1. Take the top Encounter.
   2. Remove 2 Glory from the current Stardate card and return them to the supply.
-- **Actions used:** `TAKE_ENCOUNTER`
+- **Actions used:** `TAKE_ENCOUNTER`, `REMOVE_STARDATE_GLORY`
 - **Undoable:** no
 
 ### The Undiscovered Country (1 VP)
@@ -73,13 +73,12 @@ Spaces before the first multiplier score ×0 for Focus icons.
   3. You may find an Incident and return it.
   4. Gain an action.
   5. Dismiss the H.M.S. Bounty.
-- **Actions used:** `FREE_PLAY`, `FIND`, `RETURN_INCIDENT`, `GAIN_ACTION`, `DISMISS`
+- **Actions used:** `DRAW_FROM_LOG`, `FREE_PLAY`, `FIND`, `RETURN_INCIDENT`, `GAIN_ACTION`, `DISMISS`
 - **Undoable:** no
 
 ## Rulings and open questions
 
-- Taking Captain Spock from the Log needs a DRAW_FROM_LOG action, which CLAUDE.md does not have yet.
-- Where No Man Has Gone Before needs the REMOVE_STARDATE_GLORY action noted on the Basic side.
+- Taking Captain Spock from the Log uses DRAW_FROM_LOG.
 
 ## Tests
 
