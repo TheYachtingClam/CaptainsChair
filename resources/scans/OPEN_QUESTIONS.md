@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:0d3d325ddba274877760e7ea239b6c26b16667f5101eb0959e3e0eef037c6ff5
-size 525
+# Open questions from card specs
+
+Collected from the "Rulings and open questions" sections of every spec under `cards/` and `command/`. Each needs a decision before the card's code is written.
+
+## Rules questions
+
+None. All rules questions have been decided and recorded in the card specs.
+
+## Gaps in the CLAUDE.md action list
+
+None. Every action named in the specs is in the CLAUDE.md action list. The last gaps were filled by adding `REVEAL`, `PEEK` and `SWAP_JUNK_WITH_MARKET`, and a `source` option on `PUT` and `JUNK`.

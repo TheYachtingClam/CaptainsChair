@@ -21,6 +21,7 @@ scripts/start.sh --test     # server tests (run after every server change)
 scripts/start.sh --dev      # API with reload on :8000, client on :5173
 cd client && npm run build  # type-check and build the client
 scripts/process_scans.py    # raw scans -> server/content/images/<same folders>/<id>.webp
+scripts/build_content.py    # card and board specs -> server/content/cards/*.yaml and boards.yaml
 ```
 
 ## Card specs
@@ -30,6 +31,7 @@ Every card scan in `resources/scans/cards/` has a spec file beside it with the s
 - Write a card's code from its spec, not from the scan. The spec lists each operation's cost, requirements, effect steps, choices, and the exact `uses=` actions.
 - Each spec's Tests section lists the cases its test module must cover.
 - If code and spec disagree, fix the spec first, then the code.
+- After editing any card or board spec, run `scripts/build_content.py`. Never edit `server/content/cards/` or `server/content/boards.yaml` by hand. The engine loads them through `engine/content.py`.
 - `resources/scans/OPEN_QUESTIONS.md` lists rulings still to be decided and actions missing from the list below. Do not implement a card with an open question until it is resolved.
 
 ## Card effects are code

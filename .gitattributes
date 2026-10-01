@@ -1,1 +1,14 @@
-resources/scans/** filter=lfs diff=lfs merge=lfs -text
+# Binary scans under resources/ are stored with Git LFS.
+# Text files there (spec .md files, mapping.csv) stay in normal git so they diff properly.
+resources/**/*.jpg  filter=lfs diff=lfs merge=lfs -text
+resources/**/*.jpeg filter=lfs diff=lfs merge=lfs -text
+resources/**/*.JPG  filter=lfs diff=lfs merge=lfs -text
+resources/**/*.JPEG filter=lfs diff=lfs merge=lfs -text
+resources/**/*.png  filter=lfs diff=lfs merge=lfs -text
+resources/**/*.PNG  filter=lfs diff=lfs merge=lfs -text
+resources/**/*.webp filter=lfs diff=lfs merge=lfs -text
+resources/**/*.tif  filter=lfs diff=lfs merge=lfs -text
+resources/**/*.tiff filter=lfs diff=lfs merge=lfs -text
+resources/**/*.heic filter=lfs diff=lfs merge=lfs -text
+resources/**/*.HEIC filter=lfs diff=lfs merge=lfs -text
+resources/**/*.pdf  filter=lfs diff=lfs merge=lfs -text
