@@ -22,7 +22,7 @@ def test_create_and_join(authed):
     r = authed.post(f"/api/games/{game_id}/join", json={"display_name": "Sam", "deck_id": "soval"})
     assert r.status_code == 200
     assert r.json()["seat_index"] == 1
-    assert r.json()["game"]["status"] == "ready"
+    assert r.json()["game"]["status"] == "active"
 
     view = authed.get(f"/api/games/{game_id}", headers={"X-Seat-Token": grant["seat_token"]}).json()
     assert view["your_seat"] == 0
@@ -83,3 +83,52 @@ def test_old_database_gets_promos_column(tmp_path):
     init_db(f"sqlite:///{path}")
     cols = [r[1] for r in sqlite3.connect(path).execute("PRAGMA table_info(games)")]
     assert "promos" in cols
+
+
+def started_game(authed):
+    a = create(authed).json()
+    b = authed.post(f"/api/games/{a['game']['id']}/join", json={"display_name": "Sam", "deck_id": "soval"}).json()
+    return a["game"]["id"], {0: a["seat_token"], 1: b["seat_token"]}
+
+
+def test_game_starts_and_plays(authed):
+    game_id, tokens = started_game(authed)
+    views = {seat: authed.get(f"/api/games/{game_id}/state", headers={"X-Seat-Token": t}).json() for seat, t in tokens.items()}
+    active = views[0]["active"]
+    assert views[active]["decision"]["options"]
+    assert "options" not in views[1 - active]["decision"]
+    assert views[0]["players"][1]["hand"] is None and views[1]["players"][1]["hand"] is not None
+
+    h = {"X-Seat-Token": tokens[1 - active]}
+    assert authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}, headers=h).status_code == 409
+
+    h = {"X-Seat-Token": tokens[active]}
+    r = authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}, headers=h)
+    assert r.status_code == 200 and r.json()["decision"]["kind"] == "glory"
+    assert r.json()["can_undo"] is True
+
+    r = authed.post(f"/api/games/{game_id}/undo", headers=h)
+    assert r.json()["decision"]["kind"] == "action"
+    assert r.json()["can_undo"] is False
+
+
+def test_irreversible_command_cannot_be_undone(authed):
+    game_id, tokens = started_game(authed)
+    h0 = {"X-Seat-Token": tokens[0]}
+    active = authed.get(f"/api/games/{game_id}/state", headers=h0).json()["active"]
+    h = {"X-Seat-Token": tokens[active]}
+    authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}, headers=h)
+    glory = authed.get(f"/api/games/{game_id}/state", headers=h).json()["decision"]["options"][0]["id"]
+    authed.post(f"/api/games/{game_id}/commands", json={"option": glory}, headers=h)
+    r = authed.post(f"/api/games/{game_id}/commands", json={"option": "done"}, headers=h)
+    assert r.json()["active"] != active and r.json()["can_undo"] is False
+    assert authed.post(f"/api/games/{game_id}/undo", headers=h).status_code == 409
+
+
+def test_state_needs_a_seat_to_act(authed):
+    game_id, _ = started_game(authed)
+    assert authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}).status_code == 403
+
+
+def test_solo_not_available(authed):
+    assert create(authed, mode="solo").status_code == 422

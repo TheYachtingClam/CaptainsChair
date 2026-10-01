@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import JSON, BigInteger, Boolean, DateTime, text, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -20,6 +20,9 @@ class Game(Base):
     expansions: Mapped[list[str]] = mapped_column(JSON, default=list)
     # Promo cards are shuffled into their matching common decks at setup when true.
     promos: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    # The engine state is rebuilt by replaying commands from the seed (REQ-SRV-14).
+    seed: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    commands: Mapped[list[dict]] = mapped_column(JSON, default=list, server_default=text("'[]'"))
     status: Mapped[str] = mapped_column(String(20), default="waiting")
 
     seats: Mapped[list["Seat"]] = relationship(

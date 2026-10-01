@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { MODE_LABELS, api, loadSeatToken } from "../api";
+import { Board } from "../components/Board";
 
 type SocketState = "connecting" | "open" | "closed" | "no-seat";
 
@@ -9,6 +10,16 @@ export function GameTable() {
   const { gameId = "" } = useParams();
   const queryClient = useQueryClient();
   const game = useQuery({ queryKey: ["game", gameId], queryFn: () => api.game(gameId) });
+  const started = game.data?.status === "active" || game.data?.status === "finished";
+  const state = useQuery({ queryKey: ["state", gameId], queryFn: () => api.state(gameId), enabled: started });
+  const command = useMutation({
+    mutationFn: (option: string) => api.command(gameId, option),
+    onSuccess: (view) => queryClient.setQueryData(["state", gameId], view),
+  });
+  const undo = useMutation({
+    mutationFn: () => api.undo(gameId),
+    onSuccess: (view) => queryClient.setQueryData(["state", gameId], view),
+  });
   const [socket, setSocket] = useState<SocketState>("connecting");
   const [online, setOnline] = useState<number[]>([]);
   const [log, setLog] = useState<string[]>([]);
@@ -32,6 +43,7 @@ export function GameTable() {
         const msg = JSON.parse(ev.data);
         if (msg.type === "presence") setOnline(msg.connected);
         if (msg.type === "game_updated") queryClient.invalidateQueries({ queryKey: ["game", gameId] });
+        if (msg.type === "state_changed" || msg.type === "game_updated") queryClient.invalidateQueries({ queryKey: ["state", gameId] });
         setLog((l) => [`${new Date().toLocaleTimeString()} ${describe(msg)}`, ...l].slice(0, 50));
       };
       ws.onclose = () => {
@@ -55,7 +67,7 @@ export function GameTable() {
     <main className="page">
       <h1>{MODE_LABELS[g.mode]}</h1>
       <p className="muted">
-        Game {g.id.slice(0, 8)} · {g.status === "ready" ? "all seats filled" : "waiting for players"}
+        Game {g.id.slice(0, 8)} · {g.status === "waiting" ? "waiting for players" : g.status}
         {g.expansions.length > 0 && ` · expansions: ${g.expansions.join(", ")}`}
         {g.promos && " · promo cards"}
       </p>
@@ -75,11 +87,16 @@ export function GameTable() {
         </ul>
       </section>
 
-      <section className="card">
-        <h2>Table</h2>
-        <p className="muted">Gameplay is not implemented yet. This page shows the live connection to the server.</p>
-        <p>Connection: <strong>{socket === "no-seat" ? "you have no seat in this game" : socket}</strong></p>
-      </section>
+      {started && state.data ? (
+        <Board view={state.data} busy={command.isPending || undo.isPending}
+          onChoose={(o) => command.mutate(o)} onUndo={() => undo.mutate()} />
+      ) : (
+        <section className="card">
+          <p className="muted">The game starts when every seat is filled.</p>
+        </section>
+      )}
+      {(command.error || undo.error) && <p className="error" role="alert">{(command.error || undo.error)!.message}</p>}
+      <p className="muted">Connection: {socket === "no-seat" ? "you have no seat in this game" : socket}</p>
 
       <section className="card">
         <h2>Events</h2>

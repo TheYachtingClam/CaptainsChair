@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app import content
+from app import content, play
 from app.auth import hash_seat_token, new_seat_token, require_session
 from app.db import get_db
 from app.hub import hub
 from app.models import Game, Seat
-from app.schemas import CreateGameRequest, GameSummary, GameView, SeatChoice, SeatGrant, SeatOut
+from app.schemas import CommandRequest, CreateGameRequest, GameSummary, GameView, SeatChoice, SeatGrant, SeatOut
 
 router = APIRouter(prefix="/api/games", tags=["games"], dependencies=[Depends(require_session)])
 
@@ -61,7 +61,10 @@ def add_seat(db: Session, game: Game, choice: SeatChoice) -> tuple[Seat, str]:
     )
     game.seats.append(seat)
     if len(game.seats) >= seat_count(game):
-        game.status = "ready"
+        try:
+            play.start(game)  # the game starts as soon as every seat is filled
+        except play.SetupError as err:
+            raise HTTPException(422, str(err)) from err
     db.commit()
     db.refresh(game)
     return seat, token
@@ -79,6 +82,8 @@ def create_game(body: CreateGameRequest, db: Session = Depends(get_db)) -> dict:
     if unknown:
         raise HTTPException(422, f"Unknown expansion: {', '.join(sorted(unknown))}")
     validate_deck(body.deck_id, body.expansions)
+    if body.mode == "solo":
+        raise HTTPException(422, "Solo play against the Bot is not available yet")
     game = Game(mode=body.mode, expansions=body.expansions, promos=body.promos)
     db.add(game)
     seat, token = add_seat(db, game, body)
@@ -107,3 +112,45 @@ def get_game(
     game = load_game(db, game_id)
     seat = seat_for_token(game, x_seat_token)
     return {**summarize(game), "your_seat": seat.index if seat else None}
+
+
+def seat_or_403(game: Game, token: str | None) -> int:
+    seat = seat_for_token(game, token)
+    if seat is None:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "You have no seat in this game")
+    return seat.index
+
+
+@router.get("/{game_id}/state")
+def game_state(game_id: str, db: Session = Depends(get_db), x_seat_token: str | None = Header(default=None)) -> dict:
+    game = load_game(db, game_id)
+    if game.seed is None:
+        raise HTTPException(409, "The game has not started yet")
+    seat = seat_for_token(game, x_seat_token)
+    return play.view(game, seat.index if seat else None)
+
+
+@router.post("/{game_id}/commands")
+async def command(game_id: str, body: CommandRequest, db: Session = Depends(get_db), x_seat_token: str | None = Header(default=None)) -> dict:
+    game = load_game(db, game_id)
+    seat = seat_or_403(game, x_seat_token)
+    if game.status != "active":
+        raise HTTPException(409, "The game is not in progress")
+    try:
+        play.apply(db, game, seat, body.option)
+    except play.IllegalCommand as err:
+        raise HTTPException(409, str(err)) from err
+    await hub.broadcast(game.id, {"type": "state_changed"})
+    return play.view(game, seat)
+
+
+@router.post("/{game_id}/undo")
+async def undo(game_id: str, db: Session = Depends(get_db), x_seat_token: str | None = Header(default=None)) -> dict:
+    game = load_game(db, game_id)
+    seat = seat_or_403(game, x_seat_token)
+    try:
+        play.undo(db, game, seat)
+    except play.IllegalCommand as err:
+        raise HTTPException(409, str(err)) from err
+    await hub.broadcast(game.id, {"type": "state_changed"})
+    return play.view(game, seat)

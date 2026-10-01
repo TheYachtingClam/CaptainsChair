@@ -23,6 +23,27 @@ scripts/process_scans.py    # raw scans -> server/content/images/<same folders>/
 scripts/build_content.py    # card and board specs -> server/content/cards/*.yaml and boards.yaml
 ```
 
+## Engine
+
+`server/engine/` is the rules engine. It has no web or database code.
+
+| Module | Holds |
+|---|---|
+| `state.py` | `GameState`, players, zones, card instances, decisions, events. One serialisable object |
+| `setup.py` | Central and player setup (`new_game`) |
+| `game.py` | The turn loop (`advance`), `choose` for player answers, and shared rules: draw and deck cycling, Glory and Stardates, Control, the Burn, Market and Neutral Zone wipes |
+| `scoring.py` | Final scoring and the Burn count |
+| `views.py` | Per-player views that hide secrets |
+| `content.py` | Card and board data loaded from `server/content/` |
+| `cards/` | Card code, one module per card |
+
+Rules for engine code:
+
+- All player input goes through a `Decision`: the engine stops, lists the options, and continues when `choose` gets an answer. Never block or prompt any other way.
+- All randomness goes through `state.shuffle` or `state.rng()`. They derive from the seed and a counter, so replay and undo give the same result.
+- Mark every event that reveals hidden information, uses randomness or ends a turn with `irreversible=True`. Options are flagged for the can't-be-undone warning by trying each one on a copy of the state.
+- The server stores the seed and the list of commands, and rebuilds a game by replaying them (`server/app/play.py`). Undo marks the last command undone and replays.
+
 ## Card specs
 
 Every card scan in `resources/scans/<set>/cards/` has a spec file beside it with the same name and a `.md` extension. Crew board specs are in `resources/scans/<set>/boards/` and command-card specs in `resources/scans/<set>/command/`. The format is in `resources/scans/CARD_SPEC.md`.

@@ -67,6 +67,7 @@ server/
 - **REQ-SRV-15** Shuffles use a random generator seeded per game on the server. The seed is never sent to clients.
 - **REQ-SRV-16** Undo is part of the first version. Every option in a pending decision says whether it can be undone, so the client can warn the player first. Details are in [20-undo.md](20-undo.md).
 - **REQ-SRV-17** The Bot ([22-solo-mode.md](22-solo-mode.md)) runs inside the server as another source of commands. It uses the same rules engine and its own view, with no access to hidden information beyond what the Bot rules allow.
+- **REQ-SRV-19** A game starts as soon as every seat is filled: the server picks a random seed, runs setup, and the first decision goes to the Starting Player. Solo play against the Bot is rejected at game creation until the Bot exists; Cadet Training starts with one seat but its virtual-opponent rules are not implemented yet.
 - **REQ-SRV-18** Game creation accepts the expansions to include, whether to include promo cards (REQ-CS-20), and for solo games the Bot's Crew, difficulty and optional Ticking Clock challenge.
 
 ### 3.4 Hidden information

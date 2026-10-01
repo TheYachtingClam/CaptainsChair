@@ -78,6 +78,77 @@ export function loadSeatToken(gameId: string): string | null {
   }
 }
 
+export interface CardView {
+  uid: string;
+  id: string;
+  name: string;
+  suit: string;
+  image: string;
+  exhausted: boolean;
+  resources?: Record<string, number>;
+  beamed?: CardView[];
+  away_teams?: Record<string, number>;
+  secured_by?: number[];
+}
+
+export interface OptionView {
+  id: string;
+  label: string;
+  irreversible: boolean;
+  reason: string | null;
+}
+
+export interface PlayerView {
+  seat: number;
+  name: string;
+  deck: string;
+  captain: CardView;
+  status: CardView[];
+  hand: CardView[] | null;
+  hand_count: number;
+  hand_size: number;
+  draw_count: number;
+  reserve_count: number;
+  discard: CardView[];
+  development: CardView[];
+  staging: CardView[];
+  fleet: CardView[];
+  locations: CardView[];
+  duty: CardView[];
+  log: CardView[];
+  resources: { dilithium: number; latinum: number; glory: number };
+  actions: number;
+  tracks: Record<string, number>;
+  away_pool: number;
+}
+
+export interface GameStateView {
+  turn: number;
+  active: number;
+  first_seat: number;
+  step: string;
+  you: number | null;
+  players: PlayerView[];
+  market: Record<string, CardView | null>;
+  neutral_zone: CardView[];
+  junk: CardView[];
+  location_deck_count: number;
+  encounter_count: number;
+  incident_count: number;
+  stardate: { top: CardView | null; glory: number; remaining: number };
+  resolution: boolean;
+  last_turn: number | null;
+  decision: { seat: number; kind: string; prompt: string; options?: OptionView[] } | null;
+  log: string[];
+  result: { reason: string; winners: number[]; scores?: { seat: number; name: string; total: number; parts: Record<string, number> }[] } | null;
+  can_undo: boolean;
+}
+
+function seatHeaders(id: string): Record<string, string> {
+  const token = loadSeatToken(id);
+  return token ? { "X-Seat-Token": token } : {};
+}
+
 export const api = {
   checkSession: () => request<null>("/api/auth/session").then(() => true),
   login: (password: string) =>
@@ -92,6 +163,10 @@ export const api = {
   },
   createGame: (body: SeatChoice & { mode: GameMode; expansions: string[]; promos: boolean }) =>
     request<SeatGrant>("/api/games", { method: "POST", body: JSON.stringify(body) }),
+  state: (id: string) => request<GameStateView>(`/api/games/${id}/state`, { headers: seatHeaders(id) }),
+  command: (id: string, option: string) =>
+    request<GameStateView>(`/api/games/${id}/commands`, { method: "POST", body: JSON.stringify({ option }), headers: seatHeaders(id) }),
+  undo: (id: string) => request<GameStateView>(`/api/games/${id}/undo`, { method: "POST", headers: seatHeaders(id) }),
   joinGame: (id: string, body: SeatChoice) =>
     request<SeatGrant>(`/api/games/${id}/join`, { method: "POST", body: JSON.stringify(body) }),
 };

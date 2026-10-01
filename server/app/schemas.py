@@ -23,6 +23,10 @@ class CreateGameRequest(SeatChoice):
     promos: bool = False
 
 
+class CommandRequest(BaseModel):
+    option: str
+
+
 class SeatOut(BaseModel):
     index: int
     display_name: str
