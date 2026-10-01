@@ -90,12 +90,13 @@ class Board(BaseModel):
     control_max: int
     actions: int
     mission_completion_tokens: int
-    tracks: dict[Specialty, dict[int, int]]
+    tracks: dict[Specialty, dict[int, int]]  # empty for Khan, who has no Specialty tracks
+    trait_slots: int | None = None  # Khan only
     missions: tuple[Mission, ...] = Field(min_length=1)
 
     def multiplier(self, specialty: Specialty, highest_space: int) -> int:
         """Highest multiplier at or below the highest space reached (REQ-SP-04). Zero if none."""
-        reached = [m for space, m in self.tracks[specialty].items() if space <= highest_space]
+        reached = [m for space, m in self.tracks.get(specialty, {}).items() if space <= highest_space]
         return max(reached, default=0)
 
 
@@ -112,7 +113,8 @@ class Content(BaseModel):
         return [c for c in self.cards.values() if c.deck == deck]
 
     def board(self, captain: str, side: str) -> Board:
-        return self.boards[f"cb-{captain}-{side}"]
+        # Khan has a single board with no side in its id.
+        return self.boards.get(f"cb-{captain}-{side}") or self.boards[f"cb-{captain}"]
 
     def stardates(self, mode: str) -> list[Card]:
         return sorted((c for c in self.cards.values() if c.suit == "Stardate" and c.mode == mode), key=lambda c: c.sequence or 0)

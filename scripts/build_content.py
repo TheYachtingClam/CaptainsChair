@@ -163,7 +163,8 @@ def build_boards() -> list[dict]:
             "control_max": fm["turn_summary"]["control_max"],
             "actions": fm["turn_summary"]["actions"],
             "mission_completion_tokens": fm["mission_completion_tokens"],
-            "tracks": {k: {int(s): m for s, m in v.items()} for k, v in fm["tracks"].items()},
+            "tracks": {k: {int(s): m for s, m in v.items()} for k, v in (fm.get("tracks") or {}).items()},
+            "trait_slots": fm.get("trait_slots"),
             "missions": missions,
         })
     return boards

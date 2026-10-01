@@ -1,0 +1,75 @@
+---
+id: 2KIRK20
+name: Set a Course
+suit: Directive
+set: to_boldly_go
+deck: kirk
+set_code: 2KIRK20/25
+position: Available
+traits: []
+skills: []
+focus: null
+vp: null
+away_teams: null
+development_cost: null
+ship_token: false
+box_marker: null
+scan: 2KIRK20.jpg
+---
+
+# Set a Course
+
+## Printed text
+
+> [Action] **PLAY:** Discard up to 3 Person to send the same number of [Away Team] to the same Location.  
+> **PLAY:** Draw a card, then discard a card. Warp up to 2 of your Ship.
+
+## Operations
+
+### 1. PLAY
+
+- **Printed:** Discard up to 3 Person to send the same number of [Away Team] to the same Location.
+- **Action cost:** yes
+- **Attack:** no
+- **Requires:** none
+- **Cost:** discard 1 to 3 Person cards
+- **Effect:**
+  1. Send that many Away Teams to one Location.
+- **Actions used:** `DISCARD`, `SEND_AWAY_TEAM`
+- **Undoable:** yes
+- **Rules:** KW-DIS, KW-SEND
+
+### 2. PLAY
+
+- **Printed:** Draw a card, then discard a card. Warp up to 2 of your Ship.
+- **Action cost:** no
+- **Attack:** no
+- **Requires:** none
+- **Cost:** none
+- **Effect:**
+  1. Draw a card.
+  2. Discard a card.
+  3. Warp up to 2 of your deployed Ships.
+- **Actions used:** `DRAW`, `DISCARD`, `WARP`
+- **Undoable:** no
+- **Rules:** KW-DRW, KW-WARP
+
+## Scoring
+
+None.
+
+## Solo
+
+The Bot ignores the printed text and resolves this card through its Automated Command cards, by trait and then suit (REQ-SOLO-82).
+
+## Rulings and open questions
+
+- Rulebook example (p. 10): the second PLAY costs no action and Set a Course stays in the Staging Area.
+
+## Tests
+
+- Given 2 Person cards discarded, then 2 Away Teams go to one Location.
+- The second PLAY spends no action.
+- When its play resolves, then: Send that many Away Teams to one Location.
+- Given the player cannot discard 1 to 3 Person cards, then this PLAY is not offered.
+- When its play resolves, then: Draw a card. Discard a card. Warp up to 2 of your deployed Ships.

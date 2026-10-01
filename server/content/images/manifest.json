@@ -1,5 +1,15 @@
 {
   "images": {
+    "0ALL01": {
+      "kind": "cards",
+      "file": "promo2/cards/ally/0ALL01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "f2593448254d",
+      "source": "resources/scans/promo2/cards/ally/0ALL01.jpg",
+      "source_sha256": "86ae015c919cc0a0080be6cef538d2c2287417d3d9b39a3526d2374d06ceb7c6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
     "0CAR02": {
       "kind": "cards",
       "file": "promo2/cards/cargo/0CAR02.webp",
@@ -48,6 +58,396 @@
       "version": "9af55ddaed99",
       "source": "resources/scans/promo2/cards/ships/0SHI02.jpg",
       "source_sha256": "4beca6ea1f41a23af904ab04198c599379b892163082ba366f145d26df791653",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL01": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9a871f5de60e",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL01.jpg",
+      "source_sha256": "05724afdea0a0819669bd7d2c949268de158368f8ec467c705ec2d8e2c72eab5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL02": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "49a5d8373aff",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL02.jpg",
+      "source_sha256": "ac50e119ba70e44318688b1c9f7599bbe1a2b72bae63f91951cfb620b0f29d21",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL03": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a9ffdca78d9a",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL03.jpg",
+      "source_sha256": "0c5f50909d734d1900d36778a8e7a7654547d7448e0d76e19616f88e25df482c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL04": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "4b4d700d64c4",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL04.jpg",
+      "source_sha256": "2b41fd43be0cc38b0b9a0cb8b2b66ee0e74b0b188ad881580d53f7d75a9f638e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL05": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "bcd539c4bac6",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL05.jpg",
+      "source_sha256": "7531393fd71e5e95ab75086001f83917d159b8bc77b4601f7ef9640a9f722d37",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL06": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6ad9b4b49c65",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL06.jpg",
+      "source_sha256": "f4373e465178952c1330ebfd3037a341c9e22dc57b04d258f3fafb388e974a6c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL07": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2274dd8a087d",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL07.jpg",
+      "source_sha256": "e3ac989ca7c6196737337bb8e5528e77a0630ca4a73a505d80429af1104423b0",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL08": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "68f897ee2f47",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL08.jpg",
+      "source_sha256": "2463a37b5243cbcb8e742fc71fda094ad8fefcfabde0ab9ce6229bfc798b743f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL09": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ef8226362ee9",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL09.jpg",
+      "source_sha256": "d40beafa110aedacf9a24fcdbc70e315f9c3274b9b9ec0ccff7ef39ae27ebb5d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL10": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "e4ee92cbeee0",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL10.jpg",
+      "source_sha256": "6fed68923c0dd66bd66ff5a3c7caf22ead9669e1c0973e9e4f583bd4d1e265d2",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL11": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "f318225442aa",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL11.jpg",
+      "source_sha256": "cf1d20cf58367087d75523e5cf48fb69606af0bf3eae0668319255e45f122982",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL12": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8f5f1b846cc8",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL12.jpg",
+      "source_sha256": "063d11b1ab0b0174078a40d7d0f5ba4a71f64b232a23c234576ba652f745dde3",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL13": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "bcf9c179236e",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL13.jpg",
+      "source_sha256": "9a5194ec8300e7e98aeaeb622180d4428748e08ad579cd0e56d89f335531af9e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL14": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0925e4535708",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL14.jpg",
+      "source_sha256": "245f9fb13acad8497975308024c7125e996348bbf87298723f57c116188df722",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL15": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b88845cdd16f",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL15.jpg",
+      "source_sha256": "db9e63ba9dd99cca1bbf8caf51a67fba43329e5f0398b647788c117f0d48b429",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ALL16": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/ally/2ALL16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "02c9fcfea2cf",
+      "source": "resources/scans/to_boldly_go/cards/ally/2ALL16.jpg",
+      "source_sha256": "f7444bec9e3c7515a0d44ff588af1620547482e62cae4b526439ac6057c740ad",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC01": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0e72168b98cd",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC01.jpg",
+      "source_sha256": "0141cd3a3a40a8de5d9cd7e977627c17605bee1bbebc99a4da473750d41da2a3",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC02": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "de9a92ceabcd",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC02.jpg",
+      "source_sha256": "b6f199d59c6e3ff6efc9380b82b4eac788751437e73ab97ee00f66e17276c8b5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC03": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "63c55a8cca3b",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC03.jpg",
+      "source_sha256": "8d9db4e0187ce7a643dc2596b0507372427aa363bbe183aea98c8619cb56df5c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC04": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "de55a1f799c9",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC04.jpg",
+      "source_sha256": "3fd1d2cd33a57c7d1365258e9698b2a6529a0bbf79405a521250dc32f7a81396",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC05": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "fa417b112333",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC05.jpg",
+      "source_sha256": "144cf76b3ed7367ac6385b724f183d81fbcff49ec09d99f7227c8eeca6a59f3f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC06": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d0ab3c0a9467",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC06.jpg",
+      "source_sha256": "9f53b54d635243993a42ed1bc5de6d1534a82444db75e1935b0fefe2d43a0ea6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC07": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "aec1602d389a",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC07.jpg",
+      "source_sha256": "7f4f77dd0d58124c59a08a6ae34314e5efd30991efab421fef6fed63b8f0d4c9",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC08": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c1e1e96be16f",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC08.jpg",
+      "source_sha256": "01dd958b1b20f7e79119bf929eba749cd4cf400fc53c010722c8507d855dbe2a",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC09": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "e52e49bfe7b8",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC09.jpg",
+      "source_sha256": "72bdbf01e4ccf7c1d6ec6cef0002c5f28e4fbcab5d2a95fb571e795e8499b11c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC10": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "36243da6f6e9",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC10.jpg",
+      "source_sha256": "1235f30fc02283412d2e918ab5401307097e8bfa005f877c1b505b5d719e53e3",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC11": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5d0a5c885428",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC11.jpg",
+      "source_sha256": "07d55d4fe8ff1d0dfcb216b3113da1e1cec49ff17ff6f4b26e1a3ab5790151c4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC12": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5ebcc8c64c9d",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC12.jpg",
+      "source_sha256": "a1c35393bb8d9e13f450282bb3522fa23dda1737106d81e0adc3ebf1176e0975",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC13": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "45dea94fce90",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC13.jpg",
+      "source_sha256": "85cf50f334b0578cc23ea9faf99dcf74e11bf24bfbdacba64b95b8c678a78ac7",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC14": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "edce28dde8d1",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC14.jpg",
+      "source_sha256": "01020a40dcf1a3f8dd7b472a335e499df863eea99ca118b89dce5f1a1c7f7101",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC15": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ca56f9ecd050",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC15.jpg",
+      "source_sha256": "a2c2049957a3c6c64156fde2cca7fe989bc65255dbac7415f395ec471a0ad3ab",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC16": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "29bd649886fd",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC16.jpg",
+      "source_sha256": "8551446c4ad6b31691bdab0258249318a99784037ad22f6bb17bb462ba045516",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC17": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6f9a9cf4ed1e",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC17.jpg",
+      "source_sha256": "8493ec736c6d78ec18c51347ce32856181109ace25f4b213e53ec97aa294207d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC18": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "410adb46432d",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC18.jpg",
+      "source_sha256": "259bcb754ff69bde119640f5f2508c25574786fff8c95f71e1667e46da7757bb",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC19": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6d054f66e0ca",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC19.jpg",
+      "source_sha256": "5b8869acd97cc97ca555fae474c6ade39f937a151e4fd72f6ef2f45938c3c6a5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC20": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "943bc2919840",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC20.jpg",
+      "source_sha256": "b958daa4c65f83a25be499930c105944d3f881e1a6a68810b8144b7d00291383",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC21": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "830a7daae2ef",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC21.jpg",
+      "source_sha256": "750a92e7061892f3c3e651071e4d871b3fdad0375ec0e1d44c0548cf6d5cd9cb",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC22": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "cd12c6063ed1",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC22.jpg",
+      "source_sha256": "d0a7f062c01c055a105df3397d07533224f110bd04c60434792104a4fd869afa",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2ARC23": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/archer/2ARC23.webp",
+      "width": 630,
+      "height": 880,
+      "version": "47ab42283df9",
+      "source": "resources/scans/to_boldly_go/cards/captains/archer/2ARC23.jpg",
+      "source_sha256": "1fc5559656466bc9ad6714a4a280cbd5e4602165d9c6b6754ad02f6bba991ed7",
       "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
     },
     "2CAR01": {
@@ -228,6 +628,26 @@
       "version": "845604c0666c",
       "source": "resources/scans/to_boldly_go/cards/cargo/2CAR18.jpg",
       "source_sha256": "36bd2d9a1b7fc90564112bc0fd03d2a3618c9caf2a598f7a07506a5e7c5ed94e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2DIR01": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/2DIR01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "84615cf23869",
+      "source": "resources/scans/to_boldly_go/cards/2DIR01.jpg",
+      "source_sha256": "93767c939d3f0c8d83a73d5bd4b65b7f67f1535d4bfdeecccd8d2aa711579662",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2DIR02": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/2DIR02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "30192c1e2081",
+      "source": "resources/scans/to_boldly_go/cards/2DIR02.jpg",
+      "source_sha256": "5446685076ee63003c8625a805396b6e05c068a29c715c3e72e0877277e70cc3",
       "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
     },
     "2ENC01": {
@@ -598,6 +1018,496 @@
       "version": "4db593f0b0a6",
       "source": "resources/scans/to_boldly_go/cards/incident/2INC06.jpg",
       "source_sha256": "f75867bfaa0a7458d8577d622c2db567cf5f5468254a0e7c3db1da6c19d90d72",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA01A": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA01A.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9696f5630cb3",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA01A.jpg",
+      "source_sha256": "0fa50db9b2c09f2b76349e1e9da40e6b13c8d9d1c327489012ec8fc38418586a",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA01B": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA01B.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6d69fb47f75f",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA01B.jpg",
+      "source_sha256": "9928738c8960b5c4c0e3ee81e310b57f7a7a02e50661f11f9c2e8757b281dec1",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA02A": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA02A.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ef73f57b8b64",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA02A.jpg",
+      "source_sha256": "819236c4fdf5fc5614b253edbbf96c1820d5b0cbfb80f598cf1b9ae1841c8f2d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA02B": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA02B.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ec740a69d71c",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA02B.jpg",
+      "source_sha256": "62aa71bbe7412102979e25ff9de0adda92f690c9a7013baae19aa9c29095fef3",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA03": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2d49da63dcce",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA03.jpg",
+      "source_sha256": "d72f24595c66eb321e3936a6ebc1d624f96bceafa4fd18c12efd29ab9e0c1d65",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA04": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "072941b2e974",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA04.jpg",
+      "source_sha256": "5013fdaec2d4720b748d06bec57a402b53d54954a174a5ca050f0f9a37843c8a",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA05": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "da1a3c1c475e",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA05.jpg",
+      "source_sha256": "1a754d49b20c7f22758aa27f6801534a0339e22c8907a0f8ea3e303292bbf58c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA06": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "89aba0cec43b",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA06.jpg",
+      "source_sha256": "67fa9cb1e04798c8650ec995a2c92650982e36b0184809256b5135c9b1e9acc1",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA07": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "1c65a33ebb46",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA07.jpg",
+      "source_sha256": "0b3919efd6fcee00c47838b8fd961f726188ab6606b482001022d9dbb326973e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA08": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "aba69c1c2f49",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA08.jpg",
+      "source_sha256": "cdf30c1e0a31878db9736bb311d1ef18bc11df0c00bcad16d953a05ca39ed4a1",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA09": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b5c9b54111e4",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA09.jpg",
+      "source_sha256": "453e3b52efa6e89c78df794bbc0b8d77226628f60931f9364967b942cd31b5d4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA10": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "bf93213d8655",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA10.jpg",
+      "source_sha256": "d412824adb429208f4cd868910e1125ac586f8105e4bde66224e7a6d5390d40c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA11": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c4a9749be2d5",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA11.jpg",
+      "source_sha256": "b65d40d2db4a035607e76c003759b7e51b5bb0792f9ece8707e380cb11337613",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA12": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "be533de0c6fa",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA12.jpg",
+      "source_sha256": "a07bdf9112cb143877ab8b5a51f6772080066e134cea1dcba69a84742740cd66",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA13": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ca272ecbae06",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA13.jpg",
+      "source_sha256": "e380f74888e6d831a1f95a6059163a4294c28549f20db237399b2eb4abc51344",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA14": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "4cd7025f1ab2",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA14.jpg",
+      "source_sha256": "336a5056a1af5cbf1dfe1640e6f2edb0fd1af008620ffbb14da40fec3411e825",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA15": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "70e553056a46",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA15.jpg",
+      "source_sha256": "466847f048ef9132dee325b62fcdeec30c8f91d4a82916b7f2eee2319c10d5f8",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA16": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8068b1604289",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA16.jpg",
+      "source_sha256": "345cd912d8fb9b089ed3c100e351cae548b445b31d927a897d276d134c815061",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA17": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a7c6c6a5d41f",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA17.jpg",
+      "source_sha256": "fbc028f632092eeb98b2987f693f75b8b8006b05f6e9b7812055d485720cedbb",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA18": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "f2cdec2c3905",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA18.jpg",
+      "source_sha256": "345005ed4cc55b118db22352bb7563a71cfab3c88d27cc08b2bdb47105997fec",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA19": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "3991f651ea5c",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA19.jpg",
+      "source_sha256": "8da43b63f2dc5be3ea2e5b101b94f544a95362f9f82490437861d3dafd9889a8",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA20": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "3500c2e40eae",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA20.jpg",
+      "source_sha256": "f117c129c29fa2ddd78aa9b10a51f5ac698574f32da28480d6295336dc8dec77",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA21": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "207f36fed41c",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA21.jpg",
+      "source_sha256": "6c6ca45cc7bac6cccbfc793b81f39b9d56b55426cb3d12157fdcdcfbad27f088",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KHA22": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kahn/2KHA22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a1b999ee5ea7",
+      "source": "resources/scans/to_boldly_go/cards/captains/kahn/2KHA22.jpg",
+      "source_sha256": "bde27d9c5f6513e32d726fefaa86fd1f66406495307354bd8ecc9f17c7b993ef",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK01": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2ba98a7311f6",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK01.jpg",
+      "source_sha256": "dc6e36d4505307dae0ecf10559c0ccc65445954098cbf62154b0da78e51693c5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK02": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "40fd283cde11",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK02.jpg",
+      "source_sha256": "6289b9d7f2b930e3206d479db0f58df3578ebed52b554f6dbbd5e3f615510b37",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK03": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "31a16d1133cf",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK03.jpg",
+      "source_sha256": "20374c243b675ba8885c8d0c6da32b38eed7e8477baaa21d45b4bc7c59c7474b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK04": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "aa95af442036",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK04.jpg",
+      "source_sha256": "573e6bda98996385da36d3563271d465446105fa4894b81c2955e37d70d228b0",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK05": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "40b19eea8f1b",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK05.jpg",
+      "source_sha256": "04003e99ba08de604bc73c3e16b51cf744d6ccde81cbc11dbac2dc16f02d7267",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK06": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "7596e540aee6",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK06.jpg",
+      "source_sha256": "8c8394f8a9d313f9426f41b54d9848323727c86b1d06d6e14e3457351d42f039",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK07": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c745c6acc003",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK07.jpg",
+      "source_sha256": "32d7407bbccf003e5743d4e9c8b73dec6384cf5fcacf9a1d47a01eacff65685d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK08": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "611278f023b5",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK08.jpg",
+      "source_sha256": "234174ab435c5b3e8767f3f854660332fd7508619e6d717f1059447a0677ea09",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK09": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6b913a70abe9",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK09.jpg",
+      "source_sha256": "74bf038a624765006dbb234140f9b6282fad1ad3315011e4a47eb3f00be60bb6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK10": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "30fb6bb6acf9",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK10.jpg",
+      "source_sha256": "12783a386ed1f59084a23dd15f02f1b6b39ec91af5f7414f325e1d6205f412b2",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK11": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b38b0d017cd5",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK11.jpg",
+      "source_sha256": "b0f2df6d30ea5ca264d2d3e084c36ab01e630e2c5646537bccb20754ea4b0fd9",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK12": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "17c864c1d151",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK12.jpg",
+      "source_sha256": "e0d4fa357d17a34cb75bcfebf922ff6cf5fee9ccb249cbb2f23917f82699273f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK13": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "1501a19e800a",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK13.jpg",
+      "source_sha256": "b0d6813caaa641e12f8ba4c0e122c21c550895fd67434760f64d8524501f1b9b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK14": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b035c6f25eb5",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK14.jpg",
+      "source_sha256": "2e68a536b5aaf617f0f7a14fc8ffe46d4a2563a8c3d2f8a9cbc0895326017af6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK15": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "e8c09e13c880",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK15.jpg",
+      "source_sha256": "1cd3296834dd76e7599d7005c313f410bdd4e84b5008dae8280c6faf419c1be5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK16": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "dbef51a7f355",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK16.jpg",
+      "source_sha256": "6bfc222253ac7f326a8965c3b6b447542a3bd3c6416f6f055aed5d1ce4d34c6b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK17": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "20073b06ae50",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK17.jpg",
+      "source_sha256": "49971ab23b0d19a8b69dba0d164a025aa23c3dd4acd4af95361f06418f9179dd",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK18": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "11fc85a30649",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK18.jpg",
+      "source_sha256": "f0ceba84780ae1cd6f79925f7a308ba51725488f8fc786c94800c8ea1e7b7d04",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK19": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0d4f2b95dbf4",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK19.jpg",
+      "source_sha256": "a90dff9bfa9dfdb04b21e50e14668fb36f0feff3c29905b8c21e74cc3421106b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK20": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "286b278fb698",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK20.jpg",
+      "source_sha256": "d13380e2979f4907b546634b449cf29f2fec5bd3ebc96dc91d838664a17f73da",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK21": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "52617e2748c9",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK21.jpg",
+      "source_sha256": "12aaf5f9ddec27841bf972f410e9ef8b0c11a27b057a88f8d15919adb50c6e27",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK22": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c9c94adf8c98",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK22.jpg",
+      "source_sha256": "29b902bece83ed60a81562eb479db8f5cacfdb8d7ea51a50d0b22881b5c6fec0",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK23": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK23.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6864a002e5b7",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK23.jpg",
+      "source_sha256": "aa746c04c0f76180aa4cae3e66a24006c3eee88be7cceeb0cd4470952c74f2b9",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK24": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK24.webp",
+      "width": 630,
+      "height": 880,
+      "version": "98f60781e27f",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK24.jpg",
+      "source_sha256": "951a6cf10d3c8f488b7b6ef93fe8a48cd848cda3321d0d09130415710247405b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2KIRK25": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/kirk/2KIRK25.webp",
+      "width": 630,
+      "height": 880,
+      "version": "50bef859e42b",
+      "source": "resources/scans/to_boldly_go/cards/captains/kirk/2KIRK25.jpg",
+      "source_sha256": "4197c1aed1e51b5f357de5ead99928522e4b25f45579b90144ccaa1f6cf1daa8",
       "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
     },
     "2LOC01": {
@@ -1060,6 +1970,226 @@
       "source_sha256": "53232fe3ecf354415ab5a7d5cd77cf07a8535357b21d10d5696c886e286c1e1b",
       "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
     },
+    "2REB01": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "7c50f0c3fd4a",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB01.jpg",
+      "source_sha256": "c85f820befedf0a32678fdb348152151bf7a754190a13912340c709e72213663",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB02": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "65bcf7980ea1",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB02.jpg",
+      "source_sha256": "bce00268a4be72e147cfa8786c48c8801db4f16937b14045125ec017af29f2fe",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB03": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "fcb7d9fc2646",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB03.jpg",
+      "source_sha256": "55f9a7be417617ef92ccbb879d7ad7387241efcb469e5a2489264081851f0911",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB04": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "89bf601e46af",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB04.jpg",
+      "source_sha256": "e652026a9b1e46deec60b2234c04123937a810137012a53c798628f77a6ad1a5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB05": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8701d46c711d",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB05.jpg",
+      "source_sha256": "9d2a29d9c6aad7f269e569cef0e1b38c5bf909e3b0b3d75eb08113bafc800872",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB06": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b31121889b05",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB06.jpg",
+      "source_sha256": "83fde25101c15bea689b67fbe55e8c312a6f4e99fd3e12d805edf30713ebb7c6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB07": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2dd4dcd81615",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB07.jpg",
+      "source_sha256": "78e3b3dbe53434bb669f8fc92d3dcb02615ce20091d8732a4b12dcd675471428",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB08": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "04a038962b03",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB08.jpg",
+      "source_sha256": "d04a7505cb1bf35c62acf34e015bd67e90a4954dd24db9eb3404a7aab63ad4f4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB09": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "359414bf96dc",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB09.jpg",
+      "source_sha256": "96dc2cc46d9104a5bf0dc1da37a356ad757b53252e7fbc0431235faa754b49a0",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB10": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ca6cbbda9011",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB10.jpg",
+      "source_sha256": "3d1fea42ba9f1562c17dfd079bc980d9e76e0b444600799f43d829f78cb32346",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB11": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8fe5b0372766",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB11.jpg",
+      "source_sha256": "ed8367a3452bc4a4d8d5fd9c0241f337aea11077a0216a00b3031cd1a9a4d22d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB12": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "dc0a50897b10",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB12.jpg",
+      "source_sha256": "a739da4f403d09d36347100b7e6c1f07556e1154b00eb9dd92e1197e69b2ce35",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB13": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "f235c918d435",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB13.jpg",
+      "source_sha256": "37c329564e2d49175a81535ad04acce1f1af7d589ca6352ce0d30af8e17e5640",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB14": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c51da20e8421",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB14.jpg",
+      "source_sha256": "4ca75bd7ef9afc5dd3c586ef8fb38b7e6f9f3c529b5270877b5047d530f4b6e2",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB15": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c63166a657e7",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB15.jpg",
+      "source_sha256": "d702351dd7827a76d1f98e11bba652470f335843b832dea8a3aa568a36597d96",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB16": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ce11a20ad49e",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB16.jpg",
+      "source_sha256": "222661872f2b7c5fd4c586dc76ec0ed244b5566480184f956bb7f122eff068bb",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB17": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2fc79035f484",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB17.jpg",
+      "source_sha256": "d9b5e6d150dfce68bb831a363a29a0ada42068592ca858b41308c013792c0af0",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB18": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "35b022a435e6",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB18.jpg",
+      "source_sha256": "4878386d263ba0cb7b86665e982dd1073e6042108883a65696478f7da13e77b6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB19": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c3f724b263b7",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB19.jpg",
+      "source_sha256": "11994f9ab7743e310b846349b2613010b1d4957d2abd687941d5dfef2fc3de9e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB20": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b43b45f67cd7",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB20.jpg",
+      "source_sha256": "408fad7c0cca0a8cd65c7e946be737e9203ec254edd414d806d1e0ef5f3bedb4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB21": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "4c33b6b57f7f",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB21.jpg",
+      "source_sha256": "751da6453ad3323d59ee13d9a7badf3744a51147bea7384e50c79185e4468bd4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "2REB22": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/captains/rebner/2REB22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "fac6d4cc9fec",
+      "source": "resources/scans/to_boldly_go/cards/captains/rebner/2REB22.jpg",
+      "source_sha256": "b2a426fadabe30546634ea92343688405509de338fcfdcd84c7b4584d1e3362c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
     "2SHI01": {
       "kind": "cards",
       "file": "to_boldly_go/cards/ships/2SHI01.webp",
@@ -1430,6 +2560,36 @@
       "source_sha256": "d90fdf86eb0c2d652ba71d3cb671aac1ab61579a8efae2ad71eb028f6a155928",
       "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
     },
+    "3ALL01": {
+      "kind": "cards",
+      "file": "second_contact/cards/ally/3ALL01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "32a7996905b8",
+      "source": "resources/scans/second_contact/cards/ally/3ALL01.jpg",
+      "source_sha256": "488fce5d4b5b25081da0bd3868bfd46ab29340b12b1fae129502088ad6cf45ca",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3ALL02": {
+      "kind": "cards",
+      "file": "second_contact/cards/ally/3ALL02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "30fe4ed1d8eb",
+      "source": "resources/scans/second_contact/cards/ally/3ALL02.jpg",
+      "source_sha256": "54e1b1ee76cff923d269eebb6be7ec512098aa6ccc8d5d59af70d374945a0f65",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3ALL03": {
+      "kind": "cards",
+      "file": "second_contact/cards/ally/3ALL03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c5ca3c07d409",
+      "source": "resources/scans/second_contact/cards/ally/3ALL03.jpg",
+      "source_sha256": "5566169896516fd7ae0e6fb5aedc843d06b755ee955e4f3b66443319f127b7a8",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
     "3CAR01": {
       "kind": "cards",
       "file": "second_contact/cards/cargo/3CAR01.webp",
@@ -1458,6 +2618,256 @@
       "version": "a6610937043a",
       "source": "resources/scans/second_contact/cards/cargo/3CAR03.jpg",
       "source_sha256": "5e8a92a87ac9d403805455c199aa6a518172add53c330c79affe615026693e87",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE01": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "94c4f8d08e82",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE01.jpg",
+      "source_sha256": "c05672047addb5b6afe599cb3430d477ed8f9a0451986f793d4760a50b88efc8",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE02": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "53049c492017",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE02.jpg",
+      "source_sha256": "6a8f14279f17d91ca91d67723ae676539259727c6043d00e6f648f8ac99218c6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE03": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8b3546e1e5c2",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE03.jpg",
+      "source_sha256": "fcc1eddfe519a177bcec715acf16bb5ee3dc3ad43f1b1c00a8d33b5ce16e1a25",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE04": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0d3c4dac97e0",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE04.jpg",
+      "source_sha256": "efdf381cfee2cf105b36c8b8b6b5f49f7fd9a1d2bb448d5e22d16c3dbf2574af",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE05": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d421da77a301",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE05.jpg",
+      "source_sha256": "bdc80fd77e298d7b0bc82c3500fc2c5724a1adacb72f6a152f4a846a6a99ded3",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE06": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2b68b574a34e",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE06.jpg",
+      "source_sha256": "757ae56e404811c98db7c5f23b5dd5c2af93d98a424a8cb166d70751904e4dcc",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE07": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2a4a033e4a51",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE07.jpg",
+      "source_sha256": "43d0611410b0138f971c1e0e4f3908df97cb576d7eecad7b9a791cd41c9c7770",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE08": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d1ce8878183b",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE08.jpg",
+      "source_sha256": "1d6f663fb9f76710c0ccfafb5e18c0f2dac92806ae48c47dff84a5516d37ef4a",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE09": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0b06a8662dff",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE09.jpg",
+      "source_sha256": "ccbe584a88f05fec51726716b4d26d7042a2886bcc908559da8930bb09d3d10b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE10": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ca82aaf51bd9",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE10.jpg",
+      "source_sha256": "5b0694af057f25850889db59bb777672db9bad0dfabd0600bbb021d603071bb5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE11": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "41694c4fd88e",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE11.jpg",
+      "source_sha256": "e70d381bf2150c9b16f71e63b2426b8fbcc7086708fbe6e53a9ff409568b926e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE12": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2da329cdf279",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE12.jpg",
+      "source_sha256": "2421da15fc3c127ab29e17a730437572091af0985bd4f236ab2228c5a6272106",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE13": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0dc132e6d6fe",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE13.jpg",
+      "source_sha256": "50f5fd6f71d52446873333061f3934f84ddbadf91688be95fa598da67a877937",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE14": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "485ae682de2e",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE14.jpg",
+      "source_sha256": "6181d3c9780d464bf2085f14700bf5a5b35ddc4df94d477ea24caaff851022ec",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE15": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "3807200cdcc5",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE15.jpg",
+      "source_sha256": "0e64e47e9e90e08b8992e1f8b0fefa74331979376af669c427f53de498056848",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE16": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8fffd325cd84",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE16.jpg",
+      "source_sha256": "2ea458b6f2094ad48d3a1d969e3a0457f8f636b6f6f3798e2a0772e2bbb2c232",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE17": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "f303abe7fd9b",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE17.jpg",
+      "source_sha256": "e12e5d95617905892dcb84efb44ae9e5692e20b2c2c15f0c4316b8c303f22fc7",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE18": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a5520cbe9bd3",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE18.jpg",
+      "source_sha256": "fe063ef5945f8c42e62b116cae02d3ee52347fc3b9053ec99fdcf80b2917dc6f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE19": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "95c2143aaa38",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE19.jpg",
+      "source_sha256": "95f543a0aa4b4a5802f5194d69d6685a43af1c1e9a9a31a9ab5d293ed1ea7997",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE20": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "61781a244013",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE20.jpg",
+      "source_sha256": "6fc6fb96df7828b641d1c2d701395a329a67186fcf8417f74def5c9e293d94e7",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE21": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "891efa80ba1b",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE21.jpg",
+      "source_sha256": "d4e70a45e78e535ec3738d9f668a4212e9b754a68c230bf4fb87e0403d35750f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE22": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b9471faa1718",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE22.jpg",
+      "source_sha256": "5fba4667b9269db562642817779da4eb109ee8a28a49179420b0e074a91542bd",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE23": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE23.webp",
+      "width": 630,
+      "height": 880,
+      "version": "3cb27142a556",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE23.jpg",
+      "source_sha256": "4fd23fc1a5ff05e7aca92ee2c5ddc903a16b02cda5387ea3372dac0f1c1e7a03",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE24": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE24.webp",
+      "width": 630,
+      "height": 880,
+      "version": "156fcf20ce88",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE24.jpg",
+      "source_sha256": "ee922ecb9d666ed7673c612d41c5e82ea6b1d90a07bb819afb4438c35dbc17b9",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3FRE25": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/freeman/3FRE25.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5c9687986ba8",
+      "source": "resources/scans/second_contact/cards/captains/freeman/3FRE25.jpg",
+      "source_sha256": "8a6604e822c1a1dfc983989f5121f49b2f3b9145d7c380470294398a34162fb8",
       "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
     },
     "3LOC01": {
@@ -1608,6 +3018,516 @@
       "version": "a0dc6a8b7043",
       "source": "resources/scans/second_contact/cards/person/3PER13.jpg",
       "source_sha256": "04a53a9a8b0c5a66d90a13d7a095f13cf6d013a21755474b133bd250bf5826aa",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK01": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "08639848979b",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK01.jpg",
+      "source_sha256": "75f55eeeb5183bc283e38ca5d79e6742e271cf970a1770925d86687a8b6c0ded",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK02": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d9a6a17962a9",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK02.jpg",
+      "source_sha256": "1a90d0f65baf1700f7330e2ef0cfdb4bdbe2bc77733b01cb3338b7b2062ecdda",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK03": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "1f1a9be8f7f9",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK03.jpg",
+      "source_sha256": "3f60106deb4283480c4a5f29d5b423f6f210648d9e1791be27b3aca72858bb26",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK04": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5496bdfcc93f",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK04.jpg",
+      "source_sha256": "9e520c084bdd64a41729297c49663fdc9e83d10fbc769cd90f4c5b8b7aa42229",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK05": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "7985cc703e22",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK05.jpg",
+      "source_sha256": "f67d74ff4d3cee8b9ae55dae73b1cb8e72ae18485fa1075f58f617b459e10c8d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK06": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c50fba3972ca",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK06.jpg",
+      "source_sha256": "25a9753f286bf3cefeb0fe03d9c707f4d47fe8d1666dc55bb5d3cd69bcc122e6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK07": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "e1661566cd9c",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK07.jpg",
+      "source_sha256": "9dd36468993991ff9914cdb0bc7e9cf53a1708a8ef480359b700eba00b016450",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK08": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8332b267e279",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK08.jpg",
+      "source_sha256": "0dde6405e0af65c79fdc71797961073459c0f22e3d8282f0576c8ef7ed8aebec",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK09": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6b9980c56b73",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK09.jpg",
+      "source_sha256": "e28a5e4531fbafe046954ef0e9c29c7a6e6a46982e8e4ea99ef32162750c2fc1",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK10": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0f87776722a8",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK10.jpg",
+      "source_sha256": "22bca9a842a89be08333f457409dc6141e33e85f2f67f67e5d8ce23165471875",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK11": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "59b1edcc0b7c",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK11.jpg",
+      "source_sha256": "a1568f93cf0f7743d8cf8d6f66493376f0abd15ad66604226a03de3a1460d2e4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK12": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "27985aa9cfa3",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK12.jpg",
+      "source_sha256": "391e153523f60f41ae77564d87a4b79b1ccc8e589de7c955716c0548e004e58d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK13": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "dd5c6bbf6832",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK13.jpg",
+      "source_sha256": "432f1f85af33b5c79592e9ffdc88e2f81d9cce462b5b6bf89cb61a1de82a39f0",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK14": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0e0774d4d9d9",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK14.jpg",
+      "source_sha256": "30ad6f6957e815aca6c2c67f67f0af3990623550ec9e8e279ea80882dafc7518",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK15": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ab2bac16a547",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK15.jpg",
+      "source_sha256": "793dc307a2ae68eefb7b18ef7e3cdd1eb1583f62682366901627028b3ef8f2ad",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK16": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b53f8d4d4fa0",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK16.jpg",
+      "source_sha256": "7db1000baec1b53e0169818183406fcd981684f40fff7aaa74bd91b5e40cc560",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK17": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d2b382c0ac79",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK17.jpg",
+      "source_sha256": "5482c4e01789ba50cb78ef81410a2d2bad2ac1605464e0e2816fe9bbba068158",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK18": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "bb2f5c524592",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK18.jpg",
+      "source_sha256": "fac537392a87edb17da63433d8ad5a48373b4b6c3a056e940b8d1e5feb87cfc1",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK19": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a3599baa5b6f",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK19.jpg",
+      "source_sha256": "7506095f066ed309bbc2b7742b0450346048e17230a4c345c37ba97c80b57692",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK20": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "e088c21a6bb0",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK20.jpg",
+      "source_sha256": "072cac69b62ad30c084770f44fa6e2c017ae65348441cb95170f4953008bd0b5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK21": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d1b21d51aa2b",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK21.jpg",
+      "source_sha256": "7f50316c9d2b090edf3d26468dc8f48a3f45264c8479d9f4bc450547d8ceff4f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK22": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "91f3fa00174d",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK22.jpg",
+      "source_sha256": "861a08df5a4ac3b60fccd179f49c80de621003f10009626b6b06cd5066e6e4f7",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK23": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK23.webp",
+      "width": 630,
+      "height": 880,
+      "version": "61af011792dd",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK23.jpg",
+      "source_sha256": "70222c0954723c66cbfd01de45a83b571216a5a61863d714c2a74a3c06c85d0c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK24": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK24.webp",
+      "width": 630,
+      "height": 880,
+      "version": "55b15637bb29",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK24.jpg",
+      "source_sha256": "ee8e1dbf982075a8d5039499a9db9beec76300337ec7c2f9b4896a4a296ecf07",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK25": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK25.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b1fdfa1fd6f3",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK25.jpg",
+      "source_sha256": "982767ce25e9aae4ea9905fecaf6b77cce70099114f23ad1568908215378ee65",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3PIK26": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/pike/3PIK26.webp",
+      "width": 630,
+      "height": 880,
+      "version": "640a402e1bd2",
+      "source": "resources/scans/second_contact/cards/captains/pike/3PIK26.jpg",
+      "source_sha256": "59c91fa299a18f6fc830d1046e6056bba3f4486de4f1ab43083256a1e6380483",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK01": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9e0a7aca940d",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK01.jpg",
+      "source_sha256": "e2655038239f45877ebd5e5b954a3e5066a5d782ef5315034192dcb872949b83",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK02": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "04145605a552",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK02.jpg",
+      "source_sha256": "6b04ea7f74481e28180d3c6e0b82e470e70fd4ab902ba2ce18c2313b857f01b9",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK03": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "aceaad78b256",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK03.jpg",
+      "source_sha256": "eda24d82e3d98ed526c7f71800bd293ab7f6bc476308f7d92c87f7eb894b0c65",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK04": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "38c7463ad3a7",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK04.jpg",
+      "source_sha256": "eab4bcaba953376a04c6ad05188635e7653789e17f646b98cf6365089951f162",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK05": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "be6988c29041",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK05.jpg",
+      "source_sha256": "9e280aa42722e75bdf4240a9ec8aceb28899227bca0286425c69514ad99519f2",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK06": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6a3068271881",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK06.jpg",
+      "source_sha256": "61a5ab44dfb564d0c9268ded3fa7b9110d12cea2a1c6e8e4a09b37de12557f28",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK07": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6a1c990dcd72",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK07.jpg",
+      "source_sha256": "f16f1b3592859d905aaaf46fa60bf61af01ce98ac49b20c0b015bf3ffc97cc11",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK08": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "3c7c51a6ffdb",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK08.jpg",
+      "source_sha256": "0d39376e468dea51c38c25f6672f7fd1ffb9c12cbe77923896565e624039fbe5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK09": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2c62d77b8623",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK09.jpg",
+      "source_sha256": "72b4fca776e4850dacdfc48bcd10628fed5f28970690afb759b84af44021902f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK10": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9cff786c97a4",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK10.jpg",
+      "source_sha256": "6425411e75620a2000cde2777493c64c1590c7428628660af1e93deb889e3095",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK11": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a7539b624420",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK11.jpg",
+      "source_sha256": "bca5f973ba315d37838cc5d06e8b9e585a564a2c0e4e7e3b63bffa2c1a36c290",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK12": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "70f58a401f67",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK12.jpg",
+      "source_sha256": "b041874208b9cc0c35ff724762f57f7c6e9041ea66b10fd6061a4dfd2b48ddad",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK13": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "14b11a30bcf1",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK13.jpg",
+      "source_sha256": "c35575fe54e7097b8b68a3a2fb7b0d0d8e5dfeecfb6ff63401b3f9ef64da4247",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK14": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "09271381fd95",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK14.jpg",
+      "source_sha256": "d1cd6aefcc1188891386c9af32ea60b52067f39b5b969f680d8de074b4e99c23",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK15": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "4e741d501ccb",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK15.jpg",
+      "source_sha256": "a16b8ca105f75126774b8c912769baf5a8d7376db354c61ddf12d178019b5e31",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK16": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d180e7c2639f",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK16.jpg",
+      "source_sha256": "ea2dac45f896300e7e9f60c4ec12df840439afcf74bf9ef20758e3a1052e7e50",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK17": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "af7e03abc9fa",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK17.jpg",
+      "source_sha256": "25ee8fb5c2220e40b2f84172768679687a39a8697e3ccc43721f9f91e57ff08d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK18": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "210fd0ac9dc3",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK18.jpg",
+      "source_sha256": "6feef69a1fed18af72072ed94d8d414ecf1c260cde9a4e886ff524ce218d506b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK19": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "1c7ebdcf870f",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK19.jpg",
+      "source_sha256": "65656147c864dc1d27e37254f9834887115884aa96b48bfab34913bc1717301c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK20": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "204a74c0b333",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK20.jpg",
+      "source_sha256": "b9b9e9a054c5f641b0e0a1699c0135a7182982149c7e865441f264c4f05e1e21",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK21": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5d6a2cd884a4",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK21.jpg",
+      "source_sha256": "088e5ec3b6ccf655fbd254b248ed9e952112814cf8110feb74db54739416c4ed",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK22": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b45139e556da",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK22.jpg",
+      "source_sha256": "d83fb255d40f4fb1c2fa5036eb27789875a61aaddecc8fff214bdf370c4f218c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK23": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK23.webp",
+      "width": 630,
+      "height": 880,
+      "version": "17a9b6dfa25c",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK23.jpg",
+      "source_sha256": "6a413ad6354c9261eed47378f48f0572e42f8bf7f1aab41e3c76030dae54540a",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK24": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK24.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9552dd940c88",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK24.jpg",
+      "source_sha256": "550925a2130c09bbd44ce6b557017b866722c5a3005bc18399b486427f30e673",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "3RIK25": {
+      "kind": "cards",
+      "file": "second_contact/cards/captains/william riker/3RIK25.webp",
+      "width": 630,
+      "height": 880,
+      "version": "91cec5d240b9",
+      "source": "resources/scans/second_contact/cards/captains/william riker/3RIK25.jpg",
+      "source_sha256": "1f67fbf6934cb2a6e7f068535444f3d33afbcc80a0a5b1edb29077c161659232",
       "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
     },
     "3SHI01": {
@@ -1950,6 +3870,86 @@
       "source_sha256": "db9bdacb3d1362a21b9da3b57dd7379463d78e14647ac973bbbbe140222289ad",
       "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
     },
+    "archer-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "to_boldly_go/command/archer-five-year-mission-upgrades.webp",
+      "width": 854,
+      "height": 1400,
+      "version": "398f678aa296",
+      "source": "resources/scans/to_boldly_go/command/archer-five-year-mission-upgrades.jpg",
+      "source_sha256": "3f09e1ca13e8a6629a41c265bb6d31771a5f392cf64a490bfe5f950fe3fb1aee",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "archer-no-duty-officer": {
+      "kind": "command",
+      "file": "to_boldly_go/command/archer-no-duty-officer.webp",
+      "width": 879,
+      "height": 1400,
+      "version": "4ab50244dd3e",
+      "source": "resources/scans/to_boldly_go/command/archer-no-duty-officer.jpg",
+      "source_sha256": "291dc58e5463d85ea2b18c954e82894ad5ca57cf3cf61036ae9216e09c336f05",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "archer-traits": {
+      "kind": "command",
+      "file": "to_boldly_go/command/archer-traits.webp",
+      "width": 845,
+      "height": 1400,
+      "version": "85cc1fe4edd2",
+      "source": "resources/scans/to_boldly_go/command/archer-traits.jpg",
+      "source_sha256": "8a09804441fffd7ae66af1740a7843ea319fae63198a43da61b56580cefe465d",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "archer-with-duty-officer": {
+      "kind": "command",
+      "file": "to_boldly_go/command/archer-with-duty-officer.webp",
+      "width": 829,
+      "height": 1400,
+      "version": "62229cee63cc",
+      "source": "resources/scans/to_boldly_go/command/archer-with-duty-officer.jpg",
+      "source_sha256": "701adb195ac66d2f60411c18c7dbfe20442755f127382e2713ceb106cde0a4da",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "cb-archer-advanced": {
+      "kind": "boards",
+      "file": "to_boldly_go/boards/cb-archer-advanced.webp",
+      "width": 1800,
+      "height": 1350,
+      "version": "e8272abde637",
+      "source": "resources/scans/to_boldly_go/boards/cb-archer-advanced.jpg",
+      "source_sha256": "ef2424183f029afe5c443f116d96c05d88487f23af95d2f84ac1aa1b1ce444b3",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-archer-basic": {
+      "kind": "boards",
+      "file": "to_boldly_go/boards/cb-archer-basic.webp",
+      "width": 1800,
+      "height": 1365,
+      "version": "f76344965c77",
+      "source": "resources/scans/to_boldly_go/boards/cb-archer-basic.jpg",
+      "source_sha256": "ac65958b0b1fbc29c702f6dc726821b9ad473a20bf45d4720c68303b598cdf18",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-freeman-advanced": {
+      "kind": "boards",
+      "file": "second_contact/boards/cb-freeman-advanced.webp",
+      "width": 1800,
+      "height": 1355,
+      "version": "56420dbd58cb",
+      "source": "resources/scans/second_contact/boards/cb-freeman-advanced.jpg",
+      "source_sha256": "bf0a5fc4d04e828250c8725d80d4a6cd883becb472d075febb72b55bff5060bd",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-freeman-basic": {
+      "kind": "boards",
+      "file": "second_contact/boards/cb-freeman-basic.webp",
+      "width": 1800,
+      "height": 1363,
+      "version": "e7da5c96530e",
+      "source": "resources/scans/second_contact/boards/cb-freeman-basic.jpg",
+      "source_sha256": "6f891daf8c8f7977177ade2f6e4e4fcaab3ab9884167368fbf376533300eff45",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
     "cb-georgiou-advanced": {
       "kind": "boards",
       "file": "to_boldly_go/boards/cb-georgiou-advanced.webp",
@@ -1968,6 +3968,96 @@
       "version": "debf3ff23c29",
       "source": "resources/scans/to_boldly_go/boards/cb-georgiou-basic.jpg",
       "source_sha256": "fb969767d89035e6dbb36281812b73b4d6eeb2fffd4d8f9fe59afbea53bc8e7f",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-khan": {
+      "kind": "boards",
+      "file": "to_boldly_go/boards/cb-khan.webp",
+      "width": 1800,
+      "height": 1378,
+      "version": "f5fa809fce68",
+      "source": "resources/scans/to_boldly_go/boards/cb-khan.jpg",
+      "source_sha256": "db8df84fe1d287b1c307199534dd47b2b3d4973b05be704dfa21c14f1b363e10",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-kirk-advanced": {
+      "kind": "boards",
+      "file": "to_boldly_go/boards/cb-kirk-advanced.webp",
+      "width": 1800,
+      "height": 1367,
+      "version": "b8187e3b21a3",
+      "source": "resources/scans/to_boldly_go/boards/cb-kirk-advanced.jpg",
+      "source_sha256": "61ff3e4918baac86e4fc193b646fb6e65778fc2659344784dea4bd4430da8a4b",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-kirk-basic": {
+      "kind": "boards",
+      "file": "to_boldly_go/boards/cb-kirk-basic.webp",
+      "width": 1800,
+      "height": 1340,
+      "version": "f1e8e50511ef",
+      "source": "resources/scans/to_boldly_go/boards/cb-kirk-basic.jpg",
+      "source_sha256": "13abf3fc879b2f1f913955c7d417d84e74edaa2ce06cffe657e5565215db9f7c",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-pike-advanced": {
+      "kind": "boards",
+      "file": "second_contact/boards/cb-pike-advanced.webp",
+      "width": 1800,
+      "height": 1377,
+      "version": "5459909d16c0",
+      "source": "resources/scans/second_contact/boards/cb-pike-advanced.jpg",
+      "source_sha256": "1a07e917aa6d69fbd6c0176ed0275de4109559fe2d78806de0edcfbbd96dcf8e",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-pike-basic": {
+      "kind": "boards",
+      "file": "second_contact/boards/cb-pike-basic.webp",
+      "width": 1800,
+      "height": 1329,
+      "version": "f675fc382b62",
+      "source": "resources/scans/second_contact/boards/cb-pike-basic.jpg",
+      "source_sha256": "847deda30bf935bdb577fef2f3472303de58066fa61321c5b592d4709f4b4505",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-rebner-advanced": {
+      "kind": "boards",
+      "file": "to_boldly_go/boards/cb-rebner-advanced.webp",
+      "width": 1800,
+      "height": 1363,
+      "version": "65295c899adf",
+      "source": "resources/scans/to_boldly_go/boards/cb-rebner-advanced.jpg",
+      "source_sha256": "7103877d45ab2ae3823347bb1a8386aa207fb4b2424cf8facd5c1a0a40f553a0",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-rebner-basic": {
+      "kind": "boards",
+      "file": "to_boldly_go/boards/cb-rebner-basic.webp",
+      "width": 1800,
+      "height": 1340,
+      "version": "49e4cdc01a2e",
+      "source": "resources/scans/to_boldly_go/boards/cb-rebner-basic.jpg",
+      "source_sha256": "17b6542997d6ba2291daccbae20c445f57b21482fcd8671492cb22e0c485edfd",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-riker-advanced": {
+      "kind": "boards",
+      "file": "second_contact/boards/cb-riker-advanced.webp",
+      "width": 1800,
+      "height": 1360,
+      "version": "b92c2c73e052",
+      "source": "resources/scans/second_contact/boards/cb-riker-advanced.jpg",
+      "source_sha256": "52392017a644f0f46568a3aa55db90f11a2bf16145a0341ca0e92cfa568a5d81",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-riker-basic": {
+      "kind": "boards",
+      "file": "second_contact/boards/cb-riker-basic.webp",
+      "width": 1800,
+      "height": 1330,
+      "version": "7f5ebb284eac",
+      "source": "resources/scans/second_contact/boards/cb-riker-basic.jpg",
+      "source_sha256": "0b9546fce369390a89f72d8177f4239b44b4b8616afb22564e18e856e99e33e9",
       "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
     },
     "cb-soval-advanced": {
@@ -1990,85 +4080,335 @@
       "source_sha256": "00355c16e5f195f2cce6e5a72066b815bfb08e14bce536393833f07c5d533d92",
       "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
     },
-    "cc-georgiou-suits-duty-officer": {
+    "freeman-five-year-mission-upgrades": {
       "kind": "command",
-      "file": "to_boldly_go/command/cc-georgiou-suits-duty-officer.webp",
-      "width": 819,
+      "file": "second_contact/command/freeman-five-year-mission-upgrades.webp",
+      "width": 850,
       "height": 1400,
-      "version": "909f6393139a",
-      "source": "resources/scans/to_boldly_go/command/cc-georgiou.pdf#2",
-      "source_sha256": "be6ef6521fdab2a51bf50d9fefab775f420bbb5ee674ac0dbc2a8d8becc918a1",
-      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:2"
+      "version": "3b3acd89f829",
+      "source": "resources/scans/second_contact/command/freeman-five-year-mission-upgrades.jpg",
+      "source_sha256": "5b852e6844338ff9d8387a8d88a1266c10a165a5235a4657446969e15eb0b0f8",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
     },
-    "cc-georgiou-suits-no-duty-officer": {
+    "freeman-no-duty-officer": {
       "kind": "command",
-      "file": "to_boldly_go/command/cc-georgiou-suits-no-duty-officer.webp",
+      "file": "second_contact/command/freeman-no-duty-officer.webp",
+      "width": 846,
+      "height": 1400,
+      "version": "f1775a2213d7",
+      "source": "resources/scans/second_contact/command/freeman-no-duty-officer.jpg",
+      "source_sha256": "3981349a598f121d9b1b1edb7ae7e0a066119b591d86d1da9a90f548037a9b47",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "freeman-traits": {
+      "kind": "command",
+      "file": "second_contact/command/freeman-traits.webp",
+      "width": 845,
+      "height": 1400,
+      "version": "a45f468be49f",
+      "source": "resources/scans/second_contact/command/freeman-traits.jpg",
+      "source_sha256": "c2427a9354185b8ddd15e61afc06e10d6ddbc49f4fd78c27c6fa75dcb88a19d5",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "freeman-with-duty-officer": {
+      "kind": "command",
+      "file": "second_contact/command/freeman-with-duty-officer.webp",
+      "width": 845,
+      "height": 1400,
+      "version": "589ca871b56f",
+      "source": "resources/scans/second_contact/command/freeman-with-duty-officer.jpg",
+      "source_sha256": "6e0e62d2c961e8c033bc687f4916bf846ebec6a2c2279ba1ab4aa17708afa07b",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "georgiou-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "to_boldly_go/command/georgiou-five-year-mission-upgrades.webp",
+      "width": 842,
+      "height": 1400,
+      "version": "3db70af532a3",
+      "source": "resources/scans/to_boldly_go/command/georgiou-five-year-mission-upgrades.jpg",
+      "source_sha256": "b10cb2645c3e464e1e32c308f09e439a929d9428c844e2b8729057fd68bc50de",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "georgiou-no-duty-officer": {
+      "kind": "command",
+      "file": "to_boldly_go/command/georgiou-no-duty-officer.webp",
+      "width": 878,
+      "height": 1400,
+      "version": "a5ff12560b62",
+      "source": "resources/scans/to_boldly_go/command/georgiou-no-duty-officer.jpg",
+      "source_sha256": "7764bd7526a89bf06b9ae3e6941be6a1ca48b309881b88d61816fd61f61a55aa",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "georgiou-traits": {
+      "kind": "command",
+      "file": "to_boldly_go/command/georgiou-traits.webp",
+      "width": 836,
+      "height": 1400,
+      "version": "0d2423fbc0a0",
+      "source": "resources/scans/to_boldly_go/command/georgiou-traits.jpg",
+      "source_sha256": "0c9d168d3bf9da7238366aff668b97b47f35c1f1e5d319c8fffbbad24f8bfe59",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "georgiou-with-duty-officer": {
+      "kind": "command",
+      "file": "to_boldly_go/command/georgiou-with-duty-officer.webp",
+      "width": 846,
+      "height": 1400,
+      "version": "7c4f8696e7e3",
+      "source": "resources/scans/to_boldly_go/command/georgiou-with-duty-officer.jpg",
+      "source_sha256": "e37a3b69701eb4a6a59dec8b3d1baf8eec1cb15e8b6270d3749ea43f0e07aeff",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "khan-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "to_boldly_go/command/khan-five-year-mission-upgrades.webp",
+      "width": 843,
+      "height": 1400,
+      "version": "23e41786ced6",
+      "source": "resources/scans/to_boldly_go/command/khan-five-year-mission-upgrades.jpg",
+      "source_sha256": "d75cc8dc89fa807240d6d2c3b9ba589d8c0905fbd09b2915a453e1723084f83a",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "khan-in-exile-traits": {
+      "kind": "command",
+      "file": "to_boldly_go/command/khan-in-exile-traits.webp",
+      "width": 845,
+      "height": 1400,
+      "version": "90c5d2d7b288",
+      "source": "resources/scans/to_boldly_go/command/khan-in-exile-traits.jpg",
+      "source_sha256": "6d371732d40f66da2a745e9d0efbcf7acb485015481ac71c00c1809010481408",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "khan-no-duty-officer": {
+      "kind": "command",
+      "file": "to_boldly_go/command/khan-no-duty-officer.webp",
+      "width": 876,
+      "height": 1400,
+      "version": "280259807610",
+      "source": "resources/scans/to_boldly_go/command/khan-no-duty-officer.jpg",
+      "source_sha256": "726b431b87eb524e5c307987c929e9c67f7fd3d86bca21e07b7a36ea2584e065",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "khan-traits": {
+      "kind": "command",
+      "file": "to_boldly_go/command/khan-traits.webp",
+      "width": 823,
+      "height": 1400,
+      "version": "819512628a93",
+      "source": "resources/scans/to_boldly_go/command/khan-traits.jpg",
+      "source_sha256": "78a61f555625c3774ef288fbbd830e88be3a11d6d5b94b80697cf738f9be6d9b",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "khan-with-duty-officer": {
+      "kind": "command",
+      "file": "to_boldly_go/command/khan-with-duty-officer.webp",
+      "width": 840,
+      "height": 1400,
+      "version": "116eed5878fc",
+      "source": "resources/scans/to_boldly_go/command/khan-with-duty-officer.jpg",
+      "source_sha256": "a1c20d54ab6345e3229a5e7ce0e3c8072111dea777361a15818aa32d90f3c21f",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "kirk-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "to_boldly_go/command/kirk-five-year-mission-upgrades.webp",
+      "width": 846,
+      "height": 1400,
+      "version": "031c085d8c31",
+      "source": "resources/scans/to_boldly_go/command/kirk-five-year-mission-upgrades.jpg",
+      "source_sha256": "b1cc8896916e8ca984ff98cc297ef85c9ac2a339cec4ce6b847c0b3c3a095230",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "kirk-no-duty-officer": {
+      "kind": "command",
+      "file": "to_boldly_go/command/kirk-no-duty-officer.webp",
+      "width": 892,
+      "height": 1400,
+      "version": "04f0e9e87387",
+      "source": "resources/scans/to_boldly_go/command/kirk-no-duty-officer.jpg",
+      "source_sha256": "e7801a3d3c70a0aaa0ea135234d6678572d6e2cad77676ef99dc2db8d4884846",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "kirk-traits": {
+      "kind": "command",
+      "file": "to_boldly_go/command/kirk-traits.webp",
+      "width": 850,
+      "height": 1400,
+      "version": "9b22b9469722",
+      "source": "resources/scans/to_boldly_go/command/kirk-traits.jpg",
+      "source_sha256": "994879b5f04db6d03a489b3225448ea52681e0b94e832547c0d1d8a3f296cf52",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "kirk-with-duty-officer": {
+      "kind": "command",
+      "file": "to_boldly_go/command/kirk-with-duty-officer.webp",
+      "width": 849,
+      "height": 1400,
+      "version": "b2d54900806c",
+      "source": "resources/scans/to_boldly_go/command/kirk-with-duty-officer.jpg",
+      "source_sha256": "ce07366545a10922e495025a5530794f0e79e0b54f63527530debb5cc0bd4556",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "pike-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "second_contact/command/pike-five-year-mission-upgrades.webp",
+      "width": 854,
+      "height": 1400,
+      "version": "9e45bd01f5c3",
+      "source": "resources/scans/second_contact/command/pike-five-year-mission-upgrades.jpg",
+      "source_sha256": "4f4cfca5826f931ad67d8d0db6b1886a31deed17c49500e1e1898047a69533d3",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "pike-no-duty-officer": {
+      "kind": "command",
+      "file": "second_contact/command/pike-no-duty-officer.webp",
+      "width": 854,
+      "height": 1400,
+      "version": "14b67352db43",
+      "source": "resources/scans/second_contact/command/pike-no-duty-officer.jpg",
+      "source_sha256": "f6b48998666cad494d47ef19355948322d65b17af6f2e13a17706fd36cf0438d",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "pike-traits": {
+      "kind": "command",
+      "file": "second_contact/command/pike-traits.webp",
+      "width": 847,
+      "height": 1400,
+      "version": "5525776d60b5",
+      "source": "resources/scans/second_contact/command/pike-traits.jpg",
+      "source_sha256": "e7f407ac1a138d2dd2071006553e05e15c270092b22dd5986d04bd1c175d9579",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "pike-with-duty-officer": {
+      "kind": "command",
+      "file": "second_contact/command/pike-with-duty-officer.webp",
+      "width": 861,
+      "height": 1400,
+      "version": "6c4d9e75b1e3",
+      "source": "resources/scans/second_contact/command/pike-with-duty-officer.jpg",
+      "source_sha256": "e947fe2723e1eaa7e95777c87095482a41554254eb801668a6546c9b57e30658",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "rebner-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "to_boldly_go/command/rebner-five-year-mission-upgrades.webp",
       "width": 838,
       "height": 1400,
-      "version": "b140f755f768",
-      "source": "resources/scans/to_boldly_go/command/cc-georgiou.pdf#1",
-      "source_sha256": "be6ef6521fdab2a51bf50d9fefab775f420bbb5ee674ac0dbc2a8d8becc918a1",
-      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:1"
+      "version": "858fce58e954",
+      "source": "resources/scans/to_boldly_go/command/rebner-five-year-mission-upgrades.jpg",
+      "source_sha256": "f5cdf54a39d18f366c70da12662f5d47f83ee4455b385c6bcd89dbbdaae3c82d",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
     },
-    "cc-georgiou-traits": {
+    "rebner-no-duty-officer": {
       "kind": "command",
-      "file": "to_boldly_go/command/cc-georgiou-traits.webp",
+      "file": "to_boldly_go/command/rebner-no-duty-officer.webp",
+      "width": 855,
+      "height": 1400,
+      "version": "90fbfa64379c",
+      "source": "resources/scans/to_boldly_go/command/rebner-no-duty-officer.jpg",
+      "source_sha256": "13a294c87fa0e30cccee567d048e6ded73551fd10689b3e13e5ee2dcfec99136",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "rebner-traits": {
+      "kind": "command",
+      "file": "to_boldly_go/command/rebner-traits.webp",
+      "width": 835,
+      "height": 1400,
+      "version": "1af6313d2d01",
+      "source": "resources/scans/to_boldly_go/command/rebner-traits.jpg",
+      "source_sha256": "fe0bc3c8f023d742751c66d216e9c4009f42f309778fca6b13edea38b40afc6f",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "rebner-with-duty-officer": {
+      "kind": "command",
+      "file": "to_boldly_go/command/rebner-with-duty-officer.webp",
+      "width": 840,
+      "height": 1400,
+      "version": "6cf65890c2c4",
+      "source": "resources/scans/to_boldly_go/command/rebner-with-duty-officer.jpg",
+      "source_sha256": "f48420590bc025404f268b29c3a558cb97477289746027b3f6170c193083a399",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "riker-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "second_contact/command/riker-five-year-mission-upgrades.webp",
+      "width": 850,
+      "height": 1400,
+      "version": "469630c71a19",
+      "source": "resources/scans/second_contact/command/riker-five-year-mission-upgrades.jpg",
+      "source_sha256": "ec7b7a7aea9a14fd036193d44a3b9464697dce953b5d7bbd26d9c75f1c7780b4",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "riker-no-duty-officer": {
+      "kind": "command",
+      "file": "second_contact/command/riker-no-duty-officer.webp",
+      "width": 858,
+      "height": 1400,
+      "version": "6981cdd7fb84",
+      "source": "resources/scans/second_contact/command/riker-no-duty-officer.jpg",
+      "source_sha256": "d792dbd7f07e0c7ce0649a25a37286328b55efb2f84ee1ee3f0b459bdf747533",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "riker-traits": {
+      "kind": "command",
+      "file": "second_contact/command/riker-traits.webp",
+      "width": 835,
+      "height": 1400,
+      "version": "c618af4ddbf0",
+      "source": "resources/scans/second_contact/command/riker-traits.jpg",
+      "source_sha256": "35300823fdd9cc77982211211fbab70326f91450471607a5163ff76a3817f66b",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "riker-with-duty-officer": {
+      "kind": "command",
+      "file": "second_contact/command/riker-with-duty-officer.webp",
+      "width": 880,
+      "height": 1400,
+      "version": "6d3df2bac922",
+      "source": "resources/scans/second_contact/command/riker-with-duty-officer.jpg",
+      "source_sha256": "21cceb3fd3ef3a1be0551a926478a1654c66946c8f6468a16142acdab3606773",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "soval-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "to_boldly_go/command/soval-five-year-mission-upgrades.webp",
+      "width": 853,
+      "height": 1400,
+      "version": "e89688e0a8e8",
+      "source": "resources/scans/to_boldly_go/command/soval-five-year-mission-upgrades.jpg",
+      "source_sha256": "0618b94b7be19a6f741dd17b2e2d06556bd060c9d700f1848eec937a48ee42b5",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "soval-no-duty-officer": {
+      "kind": "command",
+      "file": "to_boldly_go/command/soval-no-duty-officer.webp",
+      "width": 861,
+      "height": 1400,
+      "version": "65fd1732c489",
+      "source": "resources/scans/to_boldly_go/command/soval-no-duty-officer.jpg",
+      "source_sha256": "a3f5f1c7dc80ad43277110cbd3ae6e348825452d385a2727a04ba05b101fbd81",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "soval-traits": {
+      "kind": "command",
+      "file": "to_boldly_go/command/soval-traits.webp",
+      "width": 845,
+      "height": 1400,
+      "version": "cf749f2d43c0",
+      "source": "resources/scans/to_boldly_go/command/soval-traits.jpg",
+      "source_sha256": "63d9205f214ae9ce515ff817a66912708fd5a9bdd21b3f0602f183ef9702f53e",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "soval-with-duty-officer": {
+      "kind": "command",
+      "file": "to_boldly_go/command/soval-with-duty-officer.webp",
       "width": 838,
       "height": 1400,
-      "version": "5dca8eca2f51",
-      "source": "resources/scans/to_boldly_go/command/cc-georgiou.pdf#3",
-      "source_sha256": "be6ef6521fdab2a51bf50d9fefab775f420bbb5ee674ac0dbc2a8d8becc918a1",
-      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:3"
-    },
-    "cc-georgiou-upgrades": {
-      "kind": "command",
-      "file": "to_boldly_go/command/cc-georgiou-upgrades.webp",
-      "width": 839,
-      "height": 1400,
-      "version": "748438c58c84",
-      "source": "resources/scans/to_boldly_go/command/cc-georgiou.pdf#4",
-      "source_sha256": "be6ef6521fdab2a51bf50d9fefab775f420bbb5ee674ac0dbc2a8d8becc918a1",
-      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:4"
-    },
-    "cc-soval-suits-duty-officer": {
-      "kind": "command",
-      "file": "to_boldly_go/command/cc-soval-suits-duty-officer.webp",
-      "width": 808,
-      "height": 1400,
-      "version": "fe297417b6bd",
-      "source": "resources/scans/to_boldly_go/command/cc-soval.pdf#2",
-      "source_sha256": "a8e81a45fa6f11bf765e4baebd78143dc19cd87ed925b4b23bcebd4bd0197abb",
-      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:2"
-    },
-    "cc-soval-suits-no-duty-officer": {
-      "kind": "command",
-      "file": "to_boldly_go/command/cc-soval-suits-no-duty-officer.webp",
-      "width": 818,
-      "height": 1400,
-      "version": "f174361ef043",
-      "source": "resources/scans/to_boldly_go/command/cc-soval.pdf#1",
-      "source_sha256": "a8e81a45fa6f11bf765e4baebd78143dc19cd87ed925b4b23bcebd4bd0197abb",
-      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:1"
-    },
-    "cc-soval-traits": {
-      "kind": "command",
-      "file": "to_boldly_go/command/cc-soval-traits.webp",
-      "width": 834,
-      "height": 1400,
-      "version": "9e77718363df",
-      "source": "resources/scans/to_boldly_go/command/cc-soval.pdf#3",
-      "source_sha256": "a8e81a45fa6f11bf765e4baebd78143dc19cd87ed925b4b23bcebd4bd0197abb",
-      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:3"
-    },
-    "cc-soval-upgrades": {
-      "kind": "command",
-      "file": "to_boldly_go/command/cc-soval-upgrades.webp",
-      "width": 830,
-      "height": 1400,
-      "version": "d1fdd12fa741",
-      "source": "resources/scans/to_boldly_go/command/cc-soval.pdf#4",
-      "source_sha256": "a8e81a45fa6f11bf765e4baebd78143dc19cd87ed925b4b23bcebd4bd0197abb",
-      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:4"
+      "version": "24b09c234245",
+      "source": "resources/scans/to_boldly_go/command/soval-with-duty-officer.jpg",
+      "source_sha256": "70956c2e97cbbd43ff5727839fa29d50d6bb1ab568480b38901142e3ef7750d0",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
     }
   }
 }

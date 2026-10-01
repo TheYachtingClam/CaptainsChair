@@ -18,22 +18,27 @@ def data():
 
 def test_card_counts(data):
     by_set = Counter(c.set for c in data.cards.values())
-    assert by_set == {"to_boldly_go": 170, "second_contact": 20, "promo2": 5}
+    assert by_set == {"to_boldly_go": 282, "second_contact": 99, "promo2": 6}
 
 
 def test_crew_deck_sizes_match_rulebook(data):
-    # To Boldly Go rulebook p. 2
-    assert len(data.crew_deck("georgiou")) == 23
-    assert len(data.crew_deck("soval")) == 24
+    # To Boldly Go rulebook p. 2 and Second Contact p. 2. Khan's two double-sided cards count once each.
+    sizes = {"georgiou": 23, "soval": 24, "archer": 23, "kirk": 25, "rebner": 22, "khan": 22,
+             "pike": 26, "riker": 25, "freeman": 25}
+    for deck, size in sizes.items():
+        cards = [c for c in data.crew_deck(deck) if not c.id.endswith("B")]
+        assert len(cards) == size, deck
 
 
 def test_each_crew_deck_has_one_captain(data):
-    for deck in ("georgiou", "soval"):
-        assert [c.suit for c in data.crew_deck(deck)].count("Captain") == 1
+    for deck in ("georgiou", "soval", "archer", "kirk", "rebner", "pike", "riker", "freeman"):
+        assert [c.suit for c in data.crew_deck(deck)].count("Captain") == 1, deck
+    assert [c.id for c in data.crew_deck("khan") if c.suit == "Captain"] == ["2KHA01A", "2KHA01B"]
 
 
 def test_common_counts_in_to_boldly_go(data):
     common = Counter(c.suit for c in data.by_set("to_boldly_go") if c.is_common)
+    assert common["Ally"] == 16
     assert common["Cargo"] == 18
     assert common["Person"] == 26
     assert common["Ship"] == 13
@@ -52,7 +57,7 @@ def test_box_markers_match_set_codes(data):
 
 def test_crew_cards_have_a_start_position(data):
     for card in data.cards.values():
-        if not card.is_common and card.suit not in ("Captain", "Status"):
+        if not card.is_common and card.suit not in ("Captain", "Status") and not card.id.endswith("B"):
             assert card.position, card.id
 
 
@@ -86,7 +91,9 @@ def test_every_card_has_an_image(data):
 
 
 def test_boards(data):
-    assert set(data.boards) == {"cb-soval-basic", "cb-soval-advanced", "cb-georgiou-basic", "cb-georgiou-advanced"}
+    assert len(data.boards) == 17
+    assert data.board("khan", "advanced").trait_slots == 12
+    assert data.board("khan", "advanced").tracks == {}
     basic = data.board("georgiou", "basic")
     assert basic.control_max == 1 and basic.actions == 3
     assert basic.mission_completion_tokens == 1
@@ -102,6 +109,13 @@ def test_track_multipliers(data):
     advanced = data.board("soval", "advanced")
     assert advanced.multiplier("research", 1) == 0  # Advanced sides start at x0
     assert advanced.multiplier("influence", 9) == 3
+
+
+def test_rebner_has_no_research_or_influence_multipliers(data):
+    for side in ("basic", "advanced"):
+        board = data.board("rebner", side)
+        assert board.multiplier("research", 15) == 0
+        assert board.multiplier("influence", 15) == 0
 
 
 def test_market_suits_known(data):

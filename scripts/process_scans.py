@@ -65,7 +65,7 @@ MANIFEST = OUT_DIR / "manifest.json"
 
 WEBP_QUALITY = 82
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"}
-PRINTED_ID_RE = re.compile(r"^([0-9]?[A-Z]{2,5}[0-9]{2,3})(?=$|[ _.-])")
+PRINTED_ID_RE = re.compile(r"^([0-9]?[A-Z]{2,5}[0-9]{2,3}[AB]?)(?=$|[ _.-])")  # A/B: sides of a double-sided card
 SPECIAL_ID_RE = re.compile(r"^[a-z][a-z0-9]*(-[a-z0-9]+)+$")  # whole name, e.g. cb-soval-basic
 
 

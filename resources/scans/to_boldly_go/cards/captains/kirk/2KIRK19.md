@@ -1,0 +1,76 @@
+---
+id: 2KIRK19
+name: Utilize
+suit: Directive
+set: to_boldly_go
+deck: kirk
+set_code: 2KIRK19/25
+position: Available
+traits: []
+skills: []
+focus: null
+vp: null
+away_teams: null
+development_cost: null
+ship_token: false
+box_marker: null
+scan: 2KIRK19.jpg
+---
+
+# Utilize
+
+## Printed text
+
+> [Action] **PLAY:** Gain 1 [Dilithium], and 2 [Dilithium] for each controlled Location you have in play.  
+> [Action] **PLAY:** Gain on one Specialty track ([Research]/[Influence]/[Military]) for each matching Skill icon you have in play (excluding beamed cards).
+
+## Operations
+
+### 1. PLAY
+
+- **Printed:** Gain 1 [Dilithium], and 2 [Dilithium] for each controlled Location you have in play.
+- **Action cost:** yes
+- **Attack:** no
+- **Requires:** none
+- **Cost:** none
+- **Effect:**
+  1. Gain 1 Dilithium plus 2 Dilithium per controlled Location.
+- **Actions used:** `GAIN_RESOURCE`
+- **Undoable:** yes
+- **Rules:** KW-GRES
+
+### 2. PLAY
+
+- **Printed:** Gain on one Specialty track for each matching Skill icon you have in play (excluding beamed cards).
+- **Action cost:** yes
+- **Attack:** no
+- **Requires:** none
+- **Cost:** none
+- **Effect:**
+  1. Choose one Specialty.
+  2. Count Skill icons of that Specialty on your in-play cards, not counting beamed cards; Any Skill icons count.
+  3. Advance that track by the count.
+- **Choices:** Owner picks the Specialty, and how each Any Skill icon counts.
+- **Actions used:** `GAIN_SPECIALTY`
+- **Undoable:** yes
+- **Rules:** REQ-SP-10, KW-BEAM-04
+
+## Scoring
+
+None.
+
+## Solo
+
+The Bot ignores the printed text and resolves this card through its Automated Command cards, by trait and then suit (REQ-SOLO-82).
+
+## Rulings and open questions
+
+- Common starting Directive, shared with other Crew decks.
+- Only Skill icons of the chosen Specialty count, plus Any Skill icons the owner assigns to it. Focus icons do not count.
+
+## Tests
+
+- Given 2 controlled Locations, when the first PLAY resolves, then 5 Dilithium are gained.
+- Given 2 Research icons in play and 1 on a beamed card, when Research is chosen, then Research rises by 2.
+- When its play resolves, then: Gain 1 Dilithium plus 2 Dilithium per controlled Location.
+- When its play resolves, then: Choose one Specialty. Count Skill icons of that Specialty on your in-play cards, not counting beamed cards; Any Skill icons count. Advance that track by the count.
