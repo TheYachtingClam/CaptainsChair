@@ -88,3 +88,144 @@ button.secondary { background: var(--bg); color: var(--text); border: 1px solid 
 .preview-beamed { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; max-width: min(420px, 42vw); }
 .preview-beamed img { width: 60px; border-radius: 4px; }
 @media (hover: none) { .card-preview { display: none; } }
+
+/* ---------------------------------------------------------------- player mat (rulebook p. 7) */
+.page:has(.mat) { max-width: 1280px; }
+.mat {
+  --cw: 92px; /* card width */
+  --ch: calc(var(--cw) * 88 / 63);
+  --mat-bg: #14171f;
+  --mat-text: #e8eaef;
+  --mat-muted: #9aa2b1;
+  background:
+    radial-gradient(1px 1px at 20% 30%, #ffffff55 50%, transparent 51%),
+    radial-gradient(1px 1px at 70% 60%, #ffffff44 50%, transparent 51%),
+    radial-gradient(1px 1px at 40% 80%, #ffffff33 50%, transparent 51%),
+    radial-gradient(1px 1px at 85% 15%, #ffffff44 50%, transparent 51%),
+    var(--mat-bg);
+  background-size: 180px 140px, 220px 170px, 260px 200px, 150px 120px, auto;
+  color: var(--mat-text);
+  border-radius: 16px;
+  padding: 12px 16px 16px;
+  border: 2px solid transparent;
+}
+.mat.active { border-color: var(--accent); }
+.mat .muted { color: var(--mat-muted); }
+.mat-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+.mat-header h2 { margin: 0; }
+.pill { background: var(--accent); color: var(--accent-text); border-radius: 999px; padding: 0.1rem 0.6rem; font-size: 0.8rem; font-weight: 600; }
+
+.mat-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) var(--cw) 1fr var(--cw);
+  grid-template-areas:
+    "left duty      locations locations"
+    "left captain   fleet     fleet"
+    "left draw      staging   discard";
+  gap: 14px 18px;
+  align-items: start;
+}
+.mat-left { grid-area: left; display: grid; gap: 10px; align-content: start; }
+.cell.duty { grid-area: duty; }
+.cell.locations { grid-area: locations; }
+.cell.captain { grid-area: captain; }
+.cell.fleet { grid-area: fleet; }
+.cell.draw { grid-area: draw; }
+.cell.staging { grid-area: staging; min-height: var(--ch); display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+.cell.discard { grid-area: discard; }
+.mat .row.top { align-items: flex-start; }
+
+.mat .gcard { width: var(--cw); }
+.lane { display: flex; flex-wrap: wrap; gap: 10px; }
+.staging-label { font-weight: 700; letter-spacing: 0.04em; color: var(--mat-muted); text-transform: uppercase; }
+
+.slot {
+  width: var(--cw); height: var(--ch); border-radius: 8px; border: 2px dashed #ffffffaa;
+  display: grid; place-items: center; text-align: center; padding: 6px;
+  font-weight: 700; font-size: 0.72rem; text-transform: uppercase; line-height: 1.15; color: #fff;
+}
+.slot-duty { background: #5a6b2f; }
+.slot-status { background: #8c2b2b; }
+.slot-location { background: #2f8f4a; }
+.slot-fleet { background: #4a4f57; }
+.slot-discard { background: #222; border-style: dotted; }
+
+.card-back, .dev-pile, .discard-pile { font: inherit; cursor: pointer; }
+.card-back {
+  width: var(--cw); height: var(--ch); border-radius: 8px; border: 2px solid #9fb3c8; padding: 6px;
+  background: radial-gradient(circle at 50% 42%, #e6f3ff 0 10%, #6aa6d6 11% 20%, #cfe3f4 21% 30%, #5c7f9c 31% 46%, #c9d4de 47%);
+  color: #10233a; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+}
+.card-back:disabled { cursor: default; opacity: 1; }
+.card-back.empty { opacity: 0.4; }
+.card-back-label { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; background: #ffffffcc; border-radius: 4px; padding: 0 4px; }
+.card-back-count { font-size: 1.1rem; font-weight: 800; background: #ffffffdd; border-radius: 999px; min-width: 1.8rem; }
+.card-back.small { width: 36px; height: 50px; padding: 0; border-width: 1px; }
+
+.dev-pile {
+  display: flex; justify-content: space-between; align-items: center; width: 100%;
+  background: repeating-linear-gradient(180deg, #2b3a2e 0 10px, #3f5a43 10px 12px); color: #fff;
+  border: 1px solid #ffffff55; border-radius: 8px; padding: 0.4rem 0.7rem; font-weight: 700; text-transform: uppercase;
+}
+.dev-pile:disabled { opacity: 0.6; cursor: default; }
+.dev-pile .count { background: #ffffffdd; color: #222; border-radius: 999px; padding: 0 0.5rem; }
+
+.tokens { display: flex; flex-wrap: wrap; gap: 6px; }
+.token { border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.8rem; font-weight: 700; color: #111; }
+.token.action { background: #e05a5a; color: #fff; }
+.token.glory { background: #5aa0ea; }
+.token.dilithium { background: #f2a6d4; }
+.token.latinum { background: #e4cf4a; }
+
+.crew-board { position: relative; }
+.crew-board img { width: 100%; border-radius: 10px; display: block; }
+.track-marker {
+  position: absolute; width: 4.2%; aspect-ratio: 1; transform: translate(-50%, -50%);
+  border: 2px solid #fff; border-radius: 3px; box-shadow: 0 2px 4px #0008;
+}
+.mission-tokens { position: absolute; right: 6px; top: 6px; font-size: 0.72rem; background: #000a; color: #fff; padding: 1px 6px; border-radius: 4px; }
+
+.badge.away { left: auto; right: -6px; top: 34%; bottom: auto; background: #9b4fd1; color: #fff; }
+.badge.bottom-left { left: 2px; right: auto; bottom: 2px; top: auto; background: #000b; color: #fff; }
+.badge.log-badge { left: 2px; right: auto; top: auto; bottom: 2px; border: 0; cursor: pointer; font: inherit; font-size: 0.7rem; background: #000b; color: #fff; }
+
+.discard-pile { position: relative; padding: 0; border: 0; background: none; width: var(--cw); }
+.discard-pile img { width: 100%; border-radius: 6px; display: block; box-shadow: 3px 3px 0 #0006, 6px 6px 0 #0004; }
+
+.hand { display: flex; align-items: flex-end; justify-content: center; gap: 0; margin-top: 14px; min-height: 40px; flex-wrap: wrap; }
+.hand .gcard { width: calc(var(--cw) * 1.15); margin: 0 -8px; transform-origin: 50% 120%; }
+.hand .gcard:hover, .hand .gcard:focus-visible { z-index: 2; translate: 0 -10px; }
+.hand .card-back.small { margin: 0 -6px; }
+.hand-size { margin-left: 1.5rem; align-self: center; }
+
+.modal.wide { max-width: min(900px, 94vw); }
+
+@media (max-width: 900px) {
+  .mat-grid {
+    grid-template-columns: var(--cw) 1fr;
+    grid-template-areas:
+      "left left"
+      "duty locations"
+      "captain fleet"
+      "draw staging"
+      "discard discard";
+  }
+}
+@media (max-width: 480px) { .mat { --cw: 64px; padding: 10px; } }
+/* Reserve card space before images load, so lazy-loaded cards never collapse. */
+.gcard img { aspect-ratio: 63 / 88; object-fit: cover; }
+.hand { padding-top: 12px; }
+/* Duty Officer, Location and Fleet areas: one outlined section each */
+.section {
+  position: relative; border: 1px solid #4f8fe0; border-radius: 10px;
+  padding: 20px 10px 10px; min-height: calc(var(--ch) + 30px);
+}
+.section-label {
+  position: absolute; top: 3px; left: 10px; font-size: 0.68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.04em; color: #8fb8ee;
+}
+.cell.duty .section { min-width: calc(var(--cw) + 22px); }
+.mat-grid { grid-template-columns: minmax(260px, 340px) max-content 1fr var(--cw); }
+.crew-board { cursor: zoom-in; }
+.crew-board:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 10px; }
+.card-preview.wide > img { width: min(760px, 62vw); max-height: 80vh; aspect-ratio: auto; }

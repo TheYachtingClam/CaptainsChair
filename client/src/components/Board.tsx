@@ -1,80 +1,7 @@
-import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { CardView, GameStateView, OptionView, PlayerView } from "../api";
-
-type Preview = { card: CardView; x: number; y: number } | null;
-const PreviewContext = createContext<(p: Preview) => void>(() => {});
-
-const GAP = 18; // distance between the cursor and the preview
-const MARGIN = 8; // keep this far from the window edges
-
-/** Large version of the hovered or focused card, placed next to the cursor and kept on screen. */
-function CardPreview({ preview }: { preview: Preview }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!preview || !el) return;
-    const { width, height } = el.getBoundingClientRect();
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    // Prefer the right of the cursor; flip to the left if it would run off screen.
-    let left = preview.x + GAP;
-    if (left + width > vw - MARGIN) left = preview.x - GAP - width;
-    left = Math.max(MARGIN, Math.min(left, vw - width - MARGIN));
-    const top = Math.max(MARGIN, Math.min(preview.y - height / 2, vh - height - MARGIN));
-    setPos({ left, top });
-  }, [preview]);
-
-  if (!preview) return null;
-  const { card } = preview;
-  return (
-    <div
-      ref={ref}
-      className="card-preview"
-      aria-hidden
-      style={pos ? { left: pos.left, top: pos.top } : { left: -9999, top: 0 }}
-    >
-      <img src={`/api/content/images/${card.image}`} alt="" />
-      {card.beamed && card.beamed.length > 0 && (
-        <div className="preview-beamed">
-          <span className="muted">Beamed here:</span>
-          {card.beamed.map((b) => <img key={b.uid} src={`/api/content/images/${b.image}`} alt="" />)}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Card({ card }: { card: CardView }) {
-  const setPreview = useContext(PreviewContext);
-  const glory = card.resources?.glory;
-  const show = (x: number, y: number) => setPreview({ card, x, y });
-  return (
-    <div
-      className={`gcard ${card.exhausted ? "exhausted" : ""}`}
-      title={card.name}
-      tabIndex={0}
-      onMouseEnter={(e) => show(e.clientX, e.clientY)}
-      onMouseMove={(e) => show(e.clientX, e.clientY)}
-      onMouseLeave={() => setPreview(null)}
-      onFocus={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        show(r.right, r.top + r.height / 2);
-      }}
-      onBlur={() => setPreview(null)}
-    >
-      <img src={`/api/content/images/${card.image}`} alt={card.name} loading="lazy" />
-      {glory ? <span className="badge">{glory} Glory</span> : null}
-      {card.away_teams && Object.keys(card.away_teams).length > 0 && (
-        <span className="badge left">
-          {Object.entries(card.away_teams).map(([seat, n]) => `P${Number(seat) + 1}:${n}`).join(" ")}
-        </span>
-      )}
-      {card.beamed && card.beamed.length > 0 && <span className="badge left">+{card.beamed.length} beamed</span>}
-    </div>
-  );
-}
+import { useEffect, useRef, useState } from "react";
+import { CardView, GameStateView, OptionView } from "../api";
+import { Card, CardPreview, Preview, PreviewContext } from "./Cards";
+import { PlayerMat } from "./PlayerMat";
 
 function Row({ label, cards, empty = "—" }: { label: string; cards: CardView[]; empty?: string }) {
   return (
@@ -82,30 +9,6 @@ function Row({ label, cards, empty = "—" }: { label: string; cards: CardView[]
       <div className="zone-label">{label}</div>
       <div className="cards">{cards.length ? cards.map((c) => <Card key={c.uid} card={c} />) : <span className="muted">{empty}</span>}</div>
     </div>
-  );
-}
-
-function PlayerArea({ p, you }: { p: PlayerView; you: boolean }) {
-  return (
-    <section className="card">
-      <div className="row between">
-        <h2>{p.name}{you && " (you)"}</h2>
-        <span className="muted">
-          Dilithium {p.resources.dilithium} · Latinum {p.resources.latinum} · Glory {p.resources.glory} · Actions {p.actions} ·
-          Away Teams {p.away_pool}
-        </span>
-      </div>
-      <p className="muted">
-        Research {p.tracks.research} · Influence {p.tracks.influence} · Military {p.tracks.military} · Deck {p.draw_count} ·
-        Reserve {p.reserve_count} · Discard {p.discard.length} · Development {p.development.length} · Log {p.log.length} ·
-        Hand {p.hand_count}/{p.hand_size}
-      </p>
-      <Row label="Captain, Status, Duty" cards={[p.captain, ...p.status, ...p.duty]} />
-      <Row label="Locations" cards={p.locations} />
-      <Row label="Fleet" cards={p.fleet} />
-      <Row label="Staging Area" cards={p.staging} />
-      {p.hand && <Row label="Hand" cards={p.hand} empty="Empty" />}
-    </section>
   );
 }
 
@@ -138,6 +41,9 @@ export function Board({ view, onChoose, onUndo, busy }: {
   const others = view.players.filter((p) => p.seat !== me);
   const mine = view.players.find((p) => p.seat === me);
   const d = view.decision;
+  const locationNames: Record<string, string> = Object.fromEntries(
+    [...view.neutral_zone, ...view.players.flatMap((p) => p.locations)].map((l) => [l.uid, l.name]),
+  );
 
   function pick(o: OptionView) {
     if (o.irreversible) setPending(o);
@@ -183,7 +89,7 @@ export function Board({ view, onChoose, onUndo, busy }: {
         )}
       </section>
 
-      {others.map((p) => <PlayerArea key={p.seat} p={p} you={false} />)}
+      {others.map((p) => <PlayerMat key={p.seat} p={p} you={false} active={view.active === p.seat} locationNames={locationNames} />)}
 
       <section className="card">
         <Row label="Neutral Zone" cards={view.neutral_zone} />
@@ -191,7 +97,7 @@ export function Board({ view, onChoose, onUndo, busy }: {
         <Row label="Junk" cards={view.junk} />
       </section>
 
-      {mine && <PlayerArea p={mine} you />}
+      {mine && <PlayerMat p={mine} you active={view.active === mine.seat} locationNames={locationNames} />}
 
       <section className="card">
         <h2>Log</h2>

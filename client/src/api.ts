@@ -85,6 +85,7 @@ export interface CardView {
   suit: string;
   image: string;
   exhausted: boolean;
+  at?: string;
   resources?: Record<string, number>;
   beamed?: CardView[];
   away_teams?: Record<string, number>;
@@ -102,6 +103,7 @@ export interface PlayerView {
   seat: number;
   name: string;
   deck: string;
+  board: string;
   captain: CardView;
   status: CardView[];
   hand: CardView[] | null;
@@ -120,6 +122,8 @@ export interface PlayerView {
   actions: number;
   tracks: Record<string, number>;
   away_pool: number;
+  mission_tokens: number;
+  missions_completed: string[];
 }
 
 export interface GameStateView {
