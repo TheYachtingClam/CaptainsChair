@@ -127,6 +127,7 @@ export interface PlayerView {
 }
 
 export interface GameStateView {
+  mode: GameMode;
   turn: number;
   active: number;
   first_seat: number;
@@ -146,7 +147,7 @@ export interface GameStateView {
   last_turn: number | null;
   decision: { seat: number; kind: string; prompt: string; options?: OptionView[] } | null;
   log: string[];
-  result: { reason: string; winners: number[]; scores?: { seat: number; name: string; total: number; parts: Record<string, number> }[] } | null;
+  result: { reason: string; winners: number[]; rating?: string; scores?: { seat: number; name: string; total: number; parts: Record<string, number> }[] } | null;
   can_undo: boolean;
 }
 

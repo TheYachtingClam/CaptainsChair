@@ -208,9 +208,25 @@ def cycle_deck(state: GameState, player: Player) -> bool:
     return True
 
 
+def is_cadet(state: GameState) -> bool:
+    """Cadet Training: one player against a virtual opponent (requirements/16-solo-and-cadet-training.md)."""
+    return state.mode == "cadet"
+
+
+# REQ-CTM-12: the virtual opponent has one of everything, except Ship tokens at neutral Locations.
+VIRTUAL_AWAY_TEAMS_PER_NEUTRAL_LOCATION = 1
+
+CADET_RATINGS = [
+    (121, "You have done an outstanding job."),
+    (100, "You're getting quite proficient with this deck."),
+    (70, "You understand how to play Captain's Chair."),
+]
+
+
 def gain_glory(state: GameState, player: Player, amount: int) -> None:
     for _ in range(amount):
-        take_glory_from_stardate(state)
+        if not is_cadet(state):
+            take_glory_from_stardate(state)  # Cadet Training: all gained Glory comes from the supply (REQ-CTM-10)
         player.glory += 1
 
 
@@ -291,7 +307,12 @@ def tokens_at(state: GameState, location: Inst, seat: int) -> int:
 def secured_by(state: GameState, location: Inst, seat: int) -> bool:
     mine = tokens_at(state, location, seat)
     other = state.opponent(seat)
-    theirs = tokens_at(state, location, other.seat) if other else 0
+    if other:
+        theirs = tokens_at(state, location, other.seat)
+    elif is_cadet(state) and location in state.neutral:
+        theirs = VIRTUAL_AWAY_TEAMS_PER_NEUTRAL_LOCATION  # REQ-CTM-12
+    else:
+        theirs = 0
     return mine >= 3 and mine - theirs >= 2
 
 
@@ -448,7 +469,15 @@ def step_cleanup(state: GameState) -> None:
                 if "neutral Location" in text:
                     wipe_neutral_zone(state)
         player.received_stardates = []
-        state.substep = "glory"
+        state.substep = "wipe" if is_cadet(state) else "glory"
+    elif state.substep == "wipe":
+        # Cadet Training: wipe one Market card of the player's choice (REQ-CTM-20).
+        slots = [(suit, inst) for suit, inst in state.market.items() if inst is not None]
+        if not slots:
+            state.substep = "glory"
+            return
+        ask(state, player.seat, "wipe", "Cadet Training: wipe one Market card (its tokens return to the supply).",
+            [(f"wipe:{suit}", f"Wipe {name(inst)} ({suit}{_glory_note(inst)})") for suit, inst in slots])
     elif state.substep == "glory":
         slots = [(suit, inst) for suit, inst in state.market.items() if inst is not None]
         if not slots:
@@ -469,6 +498,22 @@ def step_cleanup(state: GameState) -> None:
             inst.exhausted = False
         player.actions = content().boards[player.board].actions
         end_turn(state)
+
+
+def _glory_note(inst: Inst) -> str:
+    glory = inst.res.get("glory", 0)
+    return f", {glory} Glory" if glory else ""
+
+
+def handle_wipe(state: GameState, player: Player, option: str) -> None:
+    suit = option.split(":", 1)[1]
+    inst = state.market[suit]
+    inst.res.clear()
+    state.market[suit] = None
+    state.junk.append(inst)
+    state.emit(f"{player.name} wipes {name(inst)} from the Market.", seat=player.seat)
+    refill_market(state, suit)
+    state.substep = "glory"
 
 
 def handle_glory(state: GameState, player: Player, option: str) -> None:
@@ -497,6 +542,10 @@ def end_turn(state: GameState) -> None:
         from engine.scoring import score_game
 
         state.result = {"reason": "resolution", **score_game(state)}
+        if is_cadet(state):
+            total = state.result["scores"][0]["total"]
+            state.result["rating"] = next((text for vp, text in CADET_RATINGS if total >= vp),
+                                          "Keep practising: 70 VP shows you understand how to play.")
         state.step = "over"
         state.emit("The game is over.")
         return
@@ -522,6 +571,7 @@ HANDLERS = {
     "control": handle_control,
     "action": handle_action,
     "glory": handle_glory,
+    "wipe": handle_wipe,
     "discard": handle_discard,
     "op": lambda state, player, option: ops.answer(state, option),
     "trigger": handle_trigger,

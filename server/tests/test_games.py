@@ -139,3 +139,16 @@ def test_card_text_endpoint(authed):
     soval = cards["2SOV01"]
     assert soval["name"] == "Soval"
     assert [op["kind"] for op in soval["operations"]] == ["ACTIVATION", "ENDGAME"]
+
+
+def test_cadet_game_through_the_api(authed):
+    grant = create(authed, mode="cadet").json()
+    game_id = grant["game"]["id"]
+    assert grant["game"]["status"] == "active"
+    h = {"X-Seat-Token": grant["seat_token"]}
+    view = authed.get(f"/api/games/{game_id}/state", headers=h).json()
+    assert view["mode"] == "cadet" and len(view["players"]) == 1
+    r = authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}, headers=h)
+    assert r.json()["decision"]["kind"] == "wipe"  # REQ-CTM-20
+    r = authed.post(f"/api/games/{game_id}/undo", headers=h)
+    assert r.json()["decision"]["kind"] == "action"  # REQ-CTM-15: same undo as normal play

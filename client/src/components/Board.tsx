@@ -81,9 +81,13 @@ export function Board({ view, onChoose, onUndo, busy }: {
         {view.result ? (
           <div>
             <h2>Game over ({view.result.reason})</h2>
+            {view.mode === "cadet" && view.result.reason === "burn" && <p>The Burn ends Cadet Training: you lose.</p>}
             {view.result.scores?.map((s) => (
-              <p key={s.seat}>{s.name}: {s.total} VP {view.result!.winners.includes(s.seat) && "— winner"}</p>
+              <p key={s.seat}>
+                {s.name}: {s.total} VP {view.mode !== "cadet" && view.result!.winners.includes(s.seat) && "— winner"}
+              </p>
             ))}
+            {view.result.rating && <p><strong>{view.result.rating}</strong></p>}
           </div>
         ) : d && d.options ? (
           <div className="stack">

@@ -17,6 +17,8 @@ def attack_duty_officers(ctx, actions):
         yield from actions.dismiss(own)
     opp = ctx.opponent
     if opp is None or not opp.duty:
+        # Cadet Training: the virtual opponent has a Duty Officer and chooses to log it, so nothing happens
+        # for you (REQ-CTM-12; ruling assumed, see OPEN_QUESTIONS.md).
         return
     actions.attack()
     choice = yield from actions.choose(

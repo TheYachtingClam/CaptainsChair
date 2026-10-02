@@ -181,6 +181,11 @@ class Ctx:
         self.opponent = state.opponent(ref.seat)
         self.event = ref.event or {}
 
+    @property
+    def virtual_opponent(self) -> bool:
+        """Cadet Training: `opponent` is None and a virtual opponent with one of everything stands in (REQ-CTM-12)."""
+        return self.state.mode == "cadet"
+
     # ------------------------------------------------------------ cards
     @property
     def this_card(self) -> Inst | None:
@@ -639,11 +644,20 @@ class Actions:
         return
         yield  # pragma: no cover
 
-    def take_incident(self, player: Player | None = None, *, _cost: bool = False) -> Gen:
+    def take_incident(self, player: Player | None = None, *, opponent: bool = False, _cost: bool = False) -> Gen:
+        """Take the top Incident. `opponent=True` makes the opponent take it instead."""
         if not _cost:
             self._use(A.TAKE_INCIDENT)
         from engine import game
 
+        if opponent:
+            if self.ctx.opponent is None:
+                if self.ctx.virtual_opponent:
+                    # The virtual opponent skips the Incident and you gain 1 Glory (REQ-CTM-13).
+                    self.emit("The virtual opponent skips the Incident.")
+                    gain(self.state, self.ctx.me, "glory", 1)
+                return None
+            player = self.ctx.opponent
         return game.take_incident(self.state, player or self.ctx.me)
         yield  # pragma: no cover
 

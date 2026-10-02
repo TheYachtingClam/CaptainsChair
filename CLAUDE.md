@@ -74,8 +74,9 @@ This section is mandatory for every card. It also applies to everything else wit
 7. **Reading is free.** Read the game through `ctx`, the read-only query object: traits in play, token counts, tracks, zones, `ctx.this_card`, `ctx.me`, `ctx.opponent`. Queries need no declaration and never change state.
 8. **Costs and requirements are declarative.** Put costs in `cost=` as cost objects from `engine.ops` (`Spend`, `DiscardFromHand`, `TakeIncidentCost`, `PutOnDeck`, `LogFromHand`, `DismissDutyOfficer`, `RemoveOwnAwayTeam`). Put "Requires ..." conditions in `requires=lambda ctx: ...`. The action icon is not a cost: the engine reads it from the printed card data and spends the action itself. The engine checks costs and requirements to decide whether the operation is legal, and pays the costs before running the body. Cards used to pay are in `actions.paid`, for "discard a card to ... matching the discarded card". The body contains effects only. An operation whose cost cannot be paid can never start (REQ-AS-04, KW-REQ-02).
 9. **Attacks are marked.** Declare `A.ATTACK` and call `actions.attack()` right before the part that targets the opponent, so the engine can apply cancellation and "ignore the negative effect" rules correctly (KW-ATK-03, REQ-SOLO-184). Choices the opponent makes go through `actions.choose(..., seat=opponent.seat)` and need `A.FORCE`.
-10. **"This card" means `ctx.this_card`.** Never hard-code a card identity for "this card". Duplicate effects rely on it pointing at the duplicating card (KW-DUP-04).
-11. **One file per card.** Never put card-specific logic in the engine core, and never add an action named after a card.
+10. **Handle the Cadet Training virtual opponent.** In Cadet mode `ctx.opponent` is None and `ctx.virtual_opponent` is True. The virtual opponent has one of everything except Ship tokens at neutral Locations, so effects against it apply at most once (REQ-CTM-12). For "the opponent takes an Incident", call `actions.take_incident(opponent=True)`; in Cadet mode it gives you 1 Glory instead (REQ-CTM-13).
+11. **"This card" means `ctx.this_card`.** Never hard-code a card identity for "this card". Duplicate effects rely on it pointing at the duplicating card (KW-DUP-04).
+12. **One file per card.** Never put card-specific logic in the engine core, and never add an action named after a card.
 
 ### Operation kinds
 
