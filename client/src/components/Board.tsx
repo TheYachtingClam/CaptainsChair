@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GameStateView, OptionView } from "../api";
-import { CardPreview, PlayableContext, Preview, PreviewContext, SelectContext, Selection } from "./Cards";
+import { CardPreview, PlayableContext, Preview, PreviewContext, SelectContext, Selection, TargetContext } from "./Cards";
 import { CardPanel } from "./CardPanel";
 import { PlayerMat } from "./PlayerMat";
 import { CenterMat } from "./CenterMat";
@@ -22,6 +22,46 @@ function Confirm({ option, onContinue, onBack }: { option: OptionView; onContinu
   );
 }
 
+/** The prompt and answer buttons of a decision. */
+function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint }: {
+  hint?: string;
+  prompt: string;
+  options: OptionView[];
+  busy: boolean;
+  canUndo: boolean;
+  onPick: (o: OptionView) => void;
+  onUndo: () => void;
+}) {
+  return (
+    <div className="stack">
+      <p><strong>{prompt}</strong></p>
+      {hint && <p className="muted">{hint}</p>}
+      <div className="options">
+        {options.map((o) => (
+          <button key={o.id} disabled={busy} className="option" onClick={() => onPick(o)}>
+            {o.irreversible && <span aria-label="Cannot be undone" title="Cannot be undone">🔒 </span>}
+            {o.label}
+          </button>
+        ))}
+      </div>
+      {canUndo && <button className="secondary" disabled={busy} onClick={onUndo}>Undo</button>}
+    </div>
+  );
+}
+
+/** True while the element is on screen. */
+function useOnScreen(ref: React.RefObject<HTMLElement | null>): boolean {
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
+  return visible;
+}
+
 export function Board({ view, onChoose, onUndo, busy }: {
   view: GameStateView;
   onChoose: (option: string) => void;
@@ -31,6 +71,8 @@ export function Board({ view, onChoose, onUndo, busy }: {
   const [pending, setPending] = useState<OptionView | null>(null);
   const [preview, setPreview] = useState<Preview>(null);
   const [selection, setSelection] = useState<Selection>(null);
+  const decisionBox = useRef<HTMLElement>(null);
+  const decisionBoxVisible = useOnScreen(decisionBox);
   const toggle = useCallback(
     (s: Selection) => setSelection((cur) => (cur && s && cur.card.uid === s.card.uid ? null : s)),
     [],
@@ -62,12 +104,43 @@ export function Board({ view, onChoose, onUndo, busy }: {
     else onChoose(o.id);
   }
 
+  // Questions asked while a card resolves (where to warp, what to discard...) go in the floating box,
+  // and the cards that answer them are highlighted and clickable.
+  const midOperation = !!d?.options && (d.kind === "op" || d.kind === "trigger") && !view.result;
+  const visibleUids = new Set(
+    [...view.neutral_zone, ...Object.values(view.market).filter((c): c is NonNullable<typeof c> => !!c),
+     ...view.players.flatMap((p) => [p.captain, ...p.status, ...p.fleet, ...p.locations, ...p.duty, ...p.staging,
+       ...(p.hand ?? []), ...p.fleet.flatMap((s) => s.beamed ?? [])])].map((c) => c.uid),
+  );
+  const targets = new Map<string, OptionView>(
+    midOperation ? d!.options!.filter((o) => visibleUids.has(o.id)).map((o) => [o.id, o]) : [],
+  );
+  const targetKey = [...targets.keys()].join(",");
+  useEffect(() => {
+    if (!targetKey) return;
+    // Bring the highlighted cards into view unless one is fully visible above the floating box.
+    const els = [...document.querySelectorAll<HTMLElement>(".gcard.target")];
+    const limit = document.querySelector(".decision-dock")?.getBoundingClientRect().top ?? window.innerHeight;
+    const onScreen = els.some((el) => {
+      const r = el.getBoundingClientRect();
+      return r.top >= 0 && r.bottom <= limit;
+    });
+    if (!onScreen && els[0]) {
+      const r = els[0].getBoundingClientRect();
+      // Centre the card in the space above the floating box.
+      window.scrollBy({ top: r.top + r.height / 2 - limit / 2, behavior: "smooth" });
+    }
+  }, [targetKey]);
+  const showDock = !!d?.options && d.kind !== "action" && !view.result && !selection && !pending
+    && (midOperation || !decisionBoxVisible);
+
   return (
     <PreviewContext.Provider value={setPreview}>
     <PlayableContext.Provider value={playable}>
     <SelectContext.Provider value={{ selected: selectedUid, toggle }}>
+    <TargetContext.Provider value={{ targets, answer: pick }}>
     <div className="stack">
-      <section className="card">
+      <section className="card" ref={decisionBox}>
         <div className="row between">
           <strong>
             Turn {view.turn} · {view.players[view.active]?.name}'s turn · {view.step}
@@ -89,19 +162,11 @@ export function Board({ view, onChoose, onUndo, busy }: {
             ))}
             {view.result.rating && <p><strong>{view.result.rating}</strong></p>}
           </div>
+        ) : d && d.options && midOperation ? (
+          <p><strong>{d.prompt}</strong> <span className="muted">Answer in the box at the bottom of the screen.</span></p>
         ) : d && d.options ? (
-          <div className="stack">
-            <p><strong>{d.prompt}</strong></p>
-            <div className="options">
-              {d.options.map((o) => (
-                <button key={o.id} disabled={busy} className="option" onClick={() => pick(o)}>
-                  {o.irreversible && <span aria-label="Cannot be undone" title="Cannot be undone">🔒 </span>}
-                  {o.label}
-                </button>
-              ))}
-            </div>
-            {view.can_undo && <button className="secondary" disabled={busy} onClick={onUndo}>Undo</button>}
-          </div>
+          <DecisionOptions prompt={d.prompt} options={d.options} busy={busy} canUndo={view.can_undo}
+            onPick={pick} onUndo={onUndo} />
         ) : (
           <p className="muted">Waiting for {d ? view.players[d.seat]?.name : "…"}: {d?.prompt}</p>
         )}
@@ -124,12 +189,22 @@ export function Board({ view, onChoose, onUndo, busy }: {
       {pending && (
         <Confirm option={pending} onBack={() => setPending(null)} onContinue={() => { onChoose(pending.id); setPending(null); }} />
       )}
+      {/* A question asked mid-operation (e.g. where to warp) stays in sight while the top box is scrolled away.
+          The Action Step menu is left out: its choices are made from the cards and the End Turn button. */}
+      {showDock && (
+        <div className="decision-dock card" role="dialog" aria-label="Your decision">
+          <DecisionOptions prompt={d!.prompt} options={d!.options!} busy={busy} canUndo={view.can_undo}
+            onPick={pick} onUndo={onUndo}
+            hint={targets.size ? "Or click a highlighted card." : undefined} />
+        </div>
+      )}
       <CardPreview preview={preview} />
       {selection && (
         <CardPanel selection={selection} view={view} onClose={deselect}
           onChoose={(o) => { setSelection(null); pick(o); }} />
       )}
     </div>
+    </TargetContext.Provider>
     </SelectContext.Provider>
     </PlayableContext.Provider>
     </PreviewContext.Provider>

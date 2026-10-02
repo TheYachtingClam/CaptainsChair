@@ -323,3 +323,16 @@ button.secondary { background: var(--bg); color: var(--text); border: 1px solid 
 }
 .end-turn:hover:not(:disabled) { background: #a93226; }
 .end-turn:disabled { background: #6b2a24; color: #ffffff88; }
+
+.gcard.target { cursor: pointer; }
+.gcard.target img { box-shadow: 0 0 0 3px #5ee08a, 0 0 18px 4px #5ee08acc; animation: target-pulse 1.4s ease-in-out infinite; }
+@keyframes target-pulse { 50% { box-shadow: 0 0 0 3px #5ee08a, 0 0 6px 1px #5ee08a66; } }
+@media (prefers-reduced-motion: reduce) { .gcard.target img { animation: none; } }
+.decision-dock .stack { gap: 0.5rem; }
+.decision-dock p { margin: 0; }
+.decision-dock .options { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+.decision-dock {
+  position: fixed; z-index: 25; left: 50%; bottom: 16px; transform: translateX(-50%);
+  width: min(640px, calc(100vw - 32px)); max-height: 45vh; overflow: auto;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.45); border: 1px solid var(--accent);
+}

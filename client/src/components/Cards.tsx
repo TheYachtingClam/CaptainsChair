@@ -1,5 +1,5 @@
 import { createContext, useContext, useLayoutEffect, useRef, useState } from "react";
-import { CardView } from "../api";
+import { CardView, OptionView } from "../api";
 
 export type Preview = { image: string; beamed?: CardView[]; wide?: boolean; x: number; y: number } | null;
 export const PreviewContext = createContext<(p: Preview) => void>(() => {});
@@ -12,6 +12,12 @@ export const SelectContext = createContext<{ selected: string | null; toggle: (s
 
 /** Uids of cards the viewing player can play or activate right now. */
 export const PlayableContext = createContext<Set<string>>(new Set());
+
+/** Cards that answer the current question (e.g. where to warp), and how to answer with one. */
+export const TargetContext = createContext<{ targets: Map<string, OptionView>; answer: (o: OptionView) => void }>({
+  targets: new Map(),
+  answer: () => {},
+});
 
 const GAP = 18; // distance between the cursor and the preview
 const MARGIN = 8; // keep this far from the window edges
@@ -56,8 +62,15 @@ export function Card({ card, badges, style }: { card: CardView; badges?: React.R
   const setPreview = useContext(PreviewContext);
   const playable = useContext(PlayableContext).has(card.uid);
   const { selected, toggle } = useContext(SelectContext);
+  const { targets, answer } = useContext(TargetContext);
+  const target = targets.get(card.uid);
   const isSelected = selected === card.uid;
   const select = (el: HTMLElement) => {
+    if (target) {
+      setPreview(null);
+      answer(target);
+      return;
+    }
     const r = el.getBoundingClientRect();
     setPreview(null);
     toggle({ card, rect: { left: r.left, right: r.right, top: r.top, bottom: r.bottom } });
@@ -68,7 +81,7 @@ export function Card({ card, badges, style }: { card: CardView; badges?: React.R
   };
   return (
     <div
-      className={`gcard ${card.exhausted ? "exhausted" : ""} ${playable ? "playable" : ""} ${isSelected ? "selected" : ""}`}
+      className={`gcard ${card.exhausted ? "exhausted" : ""} ${playable ? "playable" : ""} ${isSelected ? "selected" : ""} ${target ? "target" : ""}`}
       role="button"
       aria-pressed={isSelected}
       onClick={(e) => select(e.currentTarget)}
@@ -79,7 +92,7 @@ export function Card({ card, badges, style }: { card: CardView; badges?: React.R
         }
       }}
       style={style}
-      title={card.name}
+      title={target ? `Choose ${target.label}` : card.name}
       tabIndex={0}
       onMouseEnter={(e) => show(e.clientX, e.clientY)}
       onMouseMove={(e) => show(e.clientX, e.clientY)}
