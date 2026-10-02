@@ -1,8 +1,12 @@
-"""Card behaviour registry.
+"""Card behaviour registry (CLAUDE.md "Card effects are code").
 
-Card code lives in one module per card under engine/cards/<set>/<slug>.py and follows CLAUDE.md.
-The engine skeleton only runs continuous PASSIVE modifiers so far; PLAY, ACTIVATION and other
-operations fall back to a placeholder until their code is written.
+Card code lives in one module per card under engine/cards/<set>/<slug>.py. A module registers:
+
+- @operation(ids, index, uses=..., cost=..., requires=..., trigger=...) for each printed operation,
+  where `index` is the operation's position in the card spec;
+- @development_cost(ids, *costs), @endgame(ids), and continuous PASSIVE modifiers.
+
+Operations that are not registered fall back to a placeholder in the engine.
 """
 
 from __future__ import annotations
@@ -10,20 +14,84 @@ from __future__ import annotations
 import importlib
 import pkgutil
 from collections.abc import Callable
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from engine.state import GameState, Player
+    from engine.state import GameState, Inst, Player
 
-# card id -> function(state, owner, base_hand_size) -> new hand size
+
+def _ids(card_ids: str | tuple[str, ...] | list[str]) -> tuple[str, ...]:
+    return (card_ids,) if isinstance(card_ids, str) else tuple(card_ids)
+
+
+@dataclass(frozen=True)
+class OpImpl:
+    card_id: str
+    index: int
+    fn: Callable
+    uses: frozenset[str]
+    costs: tuple[Any, ...] = ()
+    requires: Callable | None = None  # (ctx) -> bool; "Requires ..." preconditions (KW-REQ)
+    trigger: Callable | None = None  # (ctx, event) -> bool; for REACTION and triggered PASSIVE operations
+
+
+OPS: dict[tuple[str, int], OpImpl] = {}
+DEV_COSTS: dict[str, tuple[Any, ...]] = {}
+ENDGAME: dict[str, Callable[["GameState", "Player"], int]] = {}
+# Continuous PASSIVE modifiers. They apply only while the card is in a table position (REQ-AS-21).
 HAND_SIZE: dict[str, Callable[["GameState", "Player", int], int]] = {}
+DUTY_LIMIT: dict[str, int] = {}  # extra Duty Officers allowed while this card is on duty
+SKILLS: dict[str, Callable[["GameState", "Player", "Inst"], list[str]]] = {}  # replaces "Variable" icons
+SCANS_INCLUDE_JUNK: set[str] = set()
+STATE_CHECKS: dict[str, Callable[["GameState", "Player", "Inst"], bool]] = {}  # True = dismiss the card
 
 
-def hand_size_modifier(card_id: str):
-    """Register a PASSIVE that changes its owner's hand size while the card is in a table position."""
-
+def operation(card_ids, index: int, *, uses=(), cost=(), requires=None, trigger=None):
     def register(fn):
-        HAND_SIZE[card_id] = fn
+        for cid in _ids(card_ids):
+            OPS[(cid, index)] = OpImpl(cid, index, fn, frozenset(uses), tuple(cost), requires, trigger)
+        return fn
+
+    return register
+
+
+def development_cost(card_ids, *costs) -> None:
+    for cid in _ids(card_ids):
+        DEV_COSTS[cid] = tuple(costs)
+
+
+def endgame(card_ids):
+    def register(fn):
+        for cid in _ids(card_ids):
+            ENDGAME[cid] = fn
+        return fn
+
+    return register
+
+
+def hand_size_modifier(card_ids):
+    def register(fn):
+        for cid in _ids(card_ids):
+            HAND_SIZE[cid] = fn
+        return fn
+
+    return register
+
+
+def skill_icons(card_ids):
+    def register(fn):
+        for cid in _ids(card_ids):
+            SKILLS[cid] = fn
+        return fn
+
+    return register
+
+
+def state_check(card_ids):
+    def register(fn):
+        for cid in _ids(card_ids):
+            STATE_CHECKS[cid] = fn
         return fn
 
     return register
@@ -35,8 +103,8 @@ def load_all() -> None:
         if not setpkg.ispkg:
             continue
         pkg = importlib.import_module(f"{__name__}.{setpkg.name}")
-        for mod in pkgutil.iter_modules(pkg.__path__):
-            importlib.import_module(f"{pkg.__name__}.{mod.name}")
+        for mod in pkgutil.walk_packages(pkg.__path__, prefix=f"{pkg.__name__}."):
+            importlib.import_module(mod.name)
 
 
 load_all()

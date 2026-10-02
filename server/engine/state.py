@@ -49,6 +49,32 @@ class Event(BaseModel):
     irreversible: bool = False  # reveals information, uses randomness or ends a turn (REQ-UNDO-01)
 
 
+class OpRef(BaseModel):
+    """An operation waiting to run or running: a card's operation, or a system routine."""
+
+    mode: str  # play | activate | trigger | auto | system
+    seat: int  # whose operation it is
+    uid: str | None = None  # the card
+    index: int | None = None  # which printed operation
+    system: str | None = None  # name of a system routine, e.g. "drawup"
+    event: dict | None = None  # the trigger event, for REACTION and triggered PASSIVE operations
+
+
+class Running(BaseModel):
+    """The operation in progress. It is replayed from `snapshot` with `answers` after every answer."""
+
+    ref: OpRef
+    answers: list[str] = Field(default_factory=list)
+    snapshot: dict
+
+
+class Offer(BaseModel):
+    """Optional triggered operations offered to one player (REQ-AS-28)."""
+
+    seat: int
+    refs: list[OpRef]
+
+
 class Player(BaseModel):
     seat: int
     name: str
@@ -108,6 +134,10 @@ class GameState(BaseModel):
     decision: Decision | None = None
     log: list[Event] = Field(default_factory=list)
     result: dict | None = None
+    op_queue: list[OpRef] = Field(default_factory=list)
+    running: Running | None = None
+    pending_events: list[dict] = Field(default_factory=list)  # trigger events waiting to be checked
+    offer: Offer | None = None
 
     # ------------------------------------------------------------------ helpers
 

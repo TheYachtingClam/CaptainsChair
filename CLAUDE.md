@@ -72,8 +72,8 @@ This section is mandatory for every card. It also applies to everything else wit
 5. **Card code never decides for a player.** Every choice, including every "may", goes through `actions.choose(...)` or `actions.may(...)`. The engine asks the right player, or applies the Bot rules in solo games. These two are always available and need no declaration.
 6. **Every action is a generator. Call it with `yield from`.** Any action can pause the operation for a player decision, for example a Reaction, a Wildcard choice or enlisting a Development during a reshuffle. `yield from` lets the engine suspend and resume the operation.
 7. **Reading is free.** Read the game through `ctx`, the read-only query object: traits in play, token counts, tracks, zones, `ctx.this_card`, `ctx.me`, `ctx.opponent`. Queries need no declaration and never change state.
-8. **Costs and requirements are declarative.** Put costs in `cost=`, including the action cost, and Specialty requirements in `requires=`. The engine checks them to decide whether the operation is legal, and pays the costs before running the body. The body contains effects only. An operation whose cost cannot be paid can never start (REQ-AS-04, KW-REQ-02).
-9. **Attacks are marked.** Set `attack=True` on ATTACK operations. Wrap each part that targets the opponent in `yield from actions.attack(...)`, so the engine can apply cancellation and "ignore the negative effect" rules correctly (KW-ATK-03, REQ-SOLO-184).
+8. **Costs and requirements are declarative.** Put costs in `cost=` as cost objects from `engine.ops` (`Spend`, `DiscardFromHand`, `TakeIncidentCost`, `PutOnDeck`, `LogFromHand`, `DismissDutyOfficer`, `RemoveOwnAwayTeam`). Put "Requires ..." conditions in `requires=lambda ctx: ...`. The action icon is not a cost: the engine reads it from the printed card data and spends the action itself. The engine checks costs and requirements to decide whether the operation is legal, and pays the costs before running the body. Cards used to pay are in `actions.paid`, for "discard a card to ... matching the discarded card". The body contains effects only. An operation whose cost cannot be paid can never start (REQ-AS-04, KW-REQ-02).
+9. **Attacks are marked.** Declare `A.ATTACK` and call `actions.attack()` right before the part that targets the opponent, so the engine can apply cancellation and "ignore the negative effect" rules correctly (KW-ATK-03, REQ-SOLO-184). Choices the opponent makes go through `actions.choose(..., seat=opponent.seat)` and need `A.FORCE`.
 10. **"This card" means `ctx.this_card`.** Never hard-code a card identity for "this card". Duplicate effects rely on it pointing at the duplicating card (KW-DUP-04).
 11. **One file per card.** Never put card-specific logic in the engine core, and never add an action named after a card.
 
@@ -81,12 +81,14 @@ This section is mandatory for every card. It also applies to everything else wit
 
 | Kind | Function shape | Notes |
 |---|---|---|
-| PLAY, ACTIVATION, CONTROL, RESUPPLY, CLEAN-UP, SPECIAL, SURPRISE, SUPPORT | Generator using `actions` | ACTIVATION and REACTION exhaust automatically. Do not declare exhaust as a cost |
-| REACTION, triggered PASSIVE, SUPPORT | Generator plus `trigger=` | Triggered PASSIVEs are mandatory. REACTION and SUPPORT are offered to the player |
-| Continuous PASSIVE | `modifiers(ctx) -> list[Modifier]` | No actions. Examples: hand size, extra Duty Officer, "treated as" |
-| ENDGAME | `score(ctx) -> int` | No actions. Queries only |
-| Mission GOAL | `goal(ctx) -> bool` | Queries only. The REWARD is a normal generator |
-| Development cost | `cost=` on the card | Resources and side effects such as "take an Incident" |
+| PLAY, ACTIVATION, CONTROL, RESUPPLY, CLEAN-UP, SPECIAL, SURPRISE, SUPPORT | `@operation(ids, index, ...)` generator `fn(ctx, actions)` | ACTIVATION and REACTION exhaust automatically. Do not declare exhaust as a cost |
+| REACTION, triggered PASSIVE, SUPPORT | The same, plus `trigger=lambda ctx, event: bool` | Events are dicts with `kind` (deploy, warp, gain_specialty, put_into_play, gain), `seat` and `uid`. Triggered PASSIVEs are mandatory. REACTION and SUPPORT are offered to the player. Both work only from table positions |
+| Continuous PASSIVE | A registry decorator: `@hand_size_modifier`, `@skill_icons`, `DUTY_LIMIT[id] = n`, `SCANS_INCLUDE_JUNK.add(id)`, `@state_check` | No actions. Applies only while the card is in a table position |
+| ENDGAME | `@endgame(ids)` function `score(state, player) -> int` | No actions. Queries only |
+| Mission GOAL | `goal(ctx) -> bool` | Not implemented yet. Queries only. The REWARD is a normal generator |
+| Development cost | `development_cost(ids, *costs)` in the card's module | Resources and side effects such as "take an Incident". A Development without one cannot be enlisted |
+
+`index` is the operation's position in the card spec, counting every printed operation. Identical copies in other decks register the same function by listing all their ids.
 
 ### File layout
 
@@ -94,49 +96,53 @@ This section is mandatory for every card. It also applies to everything else wit
 server/content/cards/<set>.yaml         printed data per card: id, name, suit, traits, icons, VP, text
 server/content/images/**/<id>.webp      processed image (card, board, command card), made by scripts/process_scans.py
 server/engine/cards/<set>/<slug>.py     one module per card, linked to the data by card id
-server/engine/actions.py                the action list and its implementations
+server/engine/cards/<set>/_util.py      shared read-only helpers for card modules; registers nothing
+server/engine/ops.py                    the operation runtime: Ctx queries, cost objects and the Actions implementations
 server/engine/bot/<crew>.py             Automated Command rows for each Bot Crew
-server/tests/cards/<set>/test_<slug>.py one test module per card
+server/tests/test_<crew>.py             card tests per Crew deck, plus random-play smoke games
 ```
 
-Card modules may only import from `engine.cards`, `engine.actions`, `engine.costs`, `engine.queries` and `engine.types`.
+Card modules may only import from `engine.cards`, `engine.ops` (`A`, `Ctx` and the cost classes) and their set's `_util`.
+
+### How a paused operation resumes
+
+Generators cannot be saved, so the engine does not keep one between requests. When an operation starts, the engine snapshots the state. Each answer is appended to a list. To resume, the engine restores the snapshot and runs the operation again from the start, feeding the recorded answers. This is why card code must be deterministic. It also means objects held across a `yield` are rebuilt on each replay, so compare cards by `uid`, never by object identity, outside the operation.
 
 ### Examples
 
-These show the shape of the code. The card ids are placeholders; use the ids printed on the real cards.
+These are real card modules from Georgiou's deck.
 
 ```python
-from engine.cards import card, operation
-from engine.actions import A
-from engine.costs import ActionCost, Spend, DiscardFromHand
-from engine.types import Suit, Zone
+from engine.cards import operation, skill_icons
+from engine.ops import A, DiscardFromHand, TakeIncidentCost
+
+IDS = ("2GEO15", "2SOV17", "2ARC21", "2KIRK14", "3RIK19")  # Analyze and its identical copies
 
 
-@card("2GEO??")  # Class C Shuttle
-class ClassCShuttle:
-    # PLAY (costs an action): Send an Away Team to a Location where you have a Ship.
-    @operation("PLAY", cost=[ActionCost()], uses=[A.SEND_AWAY_TEAM])
-    def send_team(ctx, actions):
-        targets = ctx.locations(where=lambda loc: ctx.ships_at(loc, owner=ctx.me))
-        yield from actions.send_away_team(to=targets)
+@operation(IDS, 0, uses=[A.GAIN_CARD], cost=[TakeIncidentCost()])
+def gain_ship(ctx, actions):
+    """PLAY: Take an Incident to gain a Ship."""
+    yield from actions.gain_card(["Ship"], label="a Ship")
 
 
-@card("2LOC??")  # Denaxi Depot
-class DenaxiDepot:
-    # ACTIVATION: Spend 1 Latinum and discard a card to find a Ship,
-    # except in your Reserve deck.
-    @operation("ACTIVATION", cost=[Spend(latinum=1), DiscardFromHand(1)], uses=[A.FIND])
-    def find_ship(ctx, actions):
-        yield from actions.find(suit=Suit.SHIP, exclude=[Zone.RESERVE])
+@operation(IDS, 1, uses=[A.GAIN_CARD], cost=[DiscardFromHand(2)])
+def gain_cargo(ctx, actions):
+    """PLAY: Discard 2 cards to gain a Cargo."""
+    yield from actions.gain_card(["Cargo"], label="a Cargo")
 
 
-@card("2ALL??")  # Bynars
-class Bynars:
-    # PLAY: Gain a Cargo. Log this card.
-    @operation("PLAY", uses=[A.GAIN_CARD, A.LOG])
-    def gain_cargo(ctx, actions):
-        yield from actions.gain_card(suit=Suit.CARGO)
-        yield from actions.log(ctx.this_card)
+# Lt. Detmer: a REACTION with a trigger, and a continuous PASSIVE.
+@operation("2GEO21", 1, uses=[A.DRAW],
+           trigger=lambda ctx, ev: ev["kind"] == "warp" and ev["seat"] == ctx.me.seat)
+def draw_on_warp(ctx, actions):
+    """REACTION: After warping a Ship, draw a card."""
+    yield from actions.draw(1)
+
+
+@skill_icons("2GEO21")
+def any_skill(state, owner, inst):
+    """PASSIVE: This card has 1 Any Skill."""
+    return ["Any"]
 ```
 
 The engine chooses targets by asking the player. Card code passes the legal candidates; it never picks one itself.

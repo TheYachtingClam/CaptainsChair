@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from engine import cards as registry
 from engine.content import content
 from engine.state import SPECIALTIES, GameState, Inst, Player
 
@@ -19,6 +20,10 @@ def owned_cards(player: Player) -> list[Inst]:
     zones = [player.hand, player.draw, player.discard, player.staging, player.fleet, player.locations,
              player.duty, player.log, player.status, [player.captain]]
     return _with_beamed([inst for zone in zones for inst in zone])
+
+
+def _table(player: Player) -> list[Inst]:
+    return [player.captain, *player.status, *player.fleet, *player.locations, *player.duty]
 
 
 def incidents_owned(player: Player) -> int:
@@ -59,7 +64,7 @@ def score_player(state: GameState, player: Player) -> dict:
     parts = {
         "glory": player.glory,
         "neutral_tokens": neutral_tokens,
-        "endgame": 0,  # ENDGAME operations arrive with card code
+        "endgame": sum(registry.ENDGAME[i.card](state, player) for i in _table(player) if i.card in registry.ENDGAME),
         "printed_vp": sum(printed_vp(c.vp) for c in cards),
         "focus_research": focus["research"],
         "focus_influence": focus["influence"],

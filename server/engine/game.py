@@ -14,6 +14,7 @@ from __future__ import annotations
 import copy
 
 from engine import cards as card_code
+from engine import ops
 from engine.content import MARKET_SUITS, content
 from engine.setup import refill_market
 from engine.state import SPECIALTIES, Decision, GameState, Inst, Option, Player
@@ -52,8 +53,7 @@ def choose(state: GameState, seat: int, option_id: str) -> None:
 
 
 def advance(state: GameState, *, flag_irreversible: bool = True) -> None:
-    while state.decision is None and state.step != "over":
-        STEPS[state.step](state)
+    _advance_untracked(state)
     if state.decision is not None and flag_irreversible:
         _flag_irreversible(state)
 
@@ -76,8 +76,82 @@ def _flag_irreversible(state: GameState) -> None:
 
 
 def _advance_untracked(state: GameState) -> None:
+    """Run queued operations, then offered triggers, then trigger events, then the turn steps."""
     while state.decision is None and state.step != "over":
-        STEPS[state.step](state)
+        if state.op_queue:
+            ops.start(state, state.op_queue.pop(0))
+        elif state.offer is not None:
+            _ask_offer(state)
+        elif state.pending_events:
+            _process_event(state)
+        else:
+            STEPS[state.step](state)
+
+
+# =========================================================================== triggers (REQ-AS-26 to REQ-AS-33)
+
+
+def _process_event(state: GameState) -> None:
+    """Collect one player's triggers for the oldest event: active player first, then the opponent."""
+    event = state.pending_events[0]
+    order = [state.active] + [p.seat for p in state.players if p.seat != state.active]
+    step = event.get("_next", 0)
+    seat = order[step]
+    if step + 1 >= len(order):
+        state.pending_events.pop(0)
+    else:
+        event["_next"] = step + 1
+    trigger_event = {k: v for k, v in event.items() if k != "_next"}
+    player = state.player(seat)
+    mandatory, optional = [], []
+    for inst in table_cards(player):
+        for index, op in enumerate(card(inst).operations):
+            if op.kind not in ("REACTION", "PASSIVE"):
+                continue
+            impl = card_code.OPS.get((inst.card, index))
+            if impl is None or impl.trigger is None:
+                continue
+            ref = ops.OpRef(mode="trigger", seat=seat, uid=inst.uid, index=index, event=trigger_event)
+            ctx = ops.Ctx(state, ref)
+            if not impl.trigger(ctx, trigger_event):
+                continue
+            if op.kind == "PASSIVE":
+                mandatory.append(ref)
+            elif not inst.exhausted and all(c.can_pay(ctx) for c in impl.costs):
+                optional.append(ref)
+    state.op_queue.extend(mandatory)
+    if optional:
+        state.offer = ops_offer(seat, optional)
+
+
+def ops_offer(seat, refs):
+    from engine.state import Offer
+
+    return Offer(seat=seat, refs=refs)
+
+
+def _ask_offer(state: GameState) -> None:
+    offer = state.offer
+    valid = []
+    for ref in offer.refs:
+        inst = ops.find_inst(state, ref.uid)
+        if inst is not None and not inst.exhausted and inst in table_cards(state.player(ref.seat)):
+            valid.append(ref)
+    if not valid:
+        state.offer = None
+        return
+    offer.refs = valid
+    ask(state, offer.seat, "trigger", "Use a Reaction?",
+        [(f"use:{i}", f"Use {name(ops.find_inst(state, r.uid))}: {card(ops.find_inst(state, r.uid)).operations[r.index].text}")
+         for i, r in enumerate(valid)] + [("pass", "Do not use")])
+
+
+def handle_trigger(state: GameState, player: Player, option: str) -> None:
+    if option == "pass":
+        state.offer = None
+        return
+    ref = state.offer.refs.pop(int(option.split(":")[1]))
+    state.op_queue.insert(0, ref)
 
 
 def ask(state: GameState, seat: int, kind: str, prompt: str, options: list[tuple[str, str]]) -> None:
@@ -221,7 +295,7 @@ def secured_by(state: GameState, location: Inst, seat: int) -> bool:
     return mine >= 3 and mine - theirs >= 2
 
 
-def take_control(state: GameState, player: Player, location: Inst) -> None:
+def take_control(state: GameState, player: Player, location: Inst, *, run_control: bool = True) -> None:
     """REQ-CT-03."""
     other = state.opponent(player.seat)
     if other:
@@ -236,7 +310,12 @@ def take_control(state: GameState, player: Player, location: Inst) -> None:
     state.neutral.remove(location)
     player.locations.append(location)
     player.controls_this_turn += 1
-    state.emit(f"{player.name} takes control of {name(location)}. (Its CONTROL operation is not implemented yet.)")
+    state.emit(f"{player.name} takes control of {name(location)}.")
+    if run_control:
+        ops.put_into_play(state, player, location)
+        for index, op in enumerate(card(location).operations):
+            if op.kind == "CONTROL":
+                state.op_queue.append(ops.OpRef(mode="auto", seat=player.seat, uid=location.uid, index=index))
     if state.location_deck:
         revealed = state.location_deck.pop(0)
         state.neutral.append(revealed)
@@ -291,10 +370,16 @@ def step_start(state: GameState) -> None:
 
 
 def step_resupply(state: GameState) -> None:
+    """Queue every RESUPPLY operation in play (REQ-RS-01), then move on once they have run."""
     player = state.player(state.active)
-    ops = [inst for inst in table_cards(player) if any(op.kind == "RESUPPLY" for op in card(inst).operations)]
-    if ops:
-        state.emit("Resupply operations are not implemented yet: " + ", ".join(name(i) for i in ops) + ".", seat=player.seat)
+    if state.substep != "queued":
+        state.substep = "queued"
+        for inst in table_cards(player):
+            for index, op in enumerate(card(inst).operations):
+                if op.kind == "RESUPPLY":
+                    state.op_queue.append(ops.OpRef(mode="auto", seat=player.seat, uid=inst.uid, index=index))
+        return
+    state.substep = ""
     state.step = "control"
 
 
@@ -323,14 +408,14 @@ def step_action(state: GameState) -> None:
     options: list[tuple[str, str]] = []
     for inst in player.hand:
         for i, op in enumerate(card(inst).operations):
-            if op.kind == "PLAY" and (player.actions > 0 or not op.action_cost):
+            if op.kind == "PLAY" and ops.legal(state, player, inst, i):
                 cost = " (action)" if op.action_cost else ""
                 options.append((f"play:{inst.uid}:{i}", f"Play {name(inst)}{cost}: {op.text}"))
     for inst in table_cards(player):
         if inst.exhausted:
             continue
         for i, op in enumerate(card(inst).operations):
-            if op.kind == "ACTIVATION" and (player.actions > 0 or not op.action_cost):
+            if op.kind == "ACTIVATION" and ops.legal(state, player, inst, i):
                 options.append((f"activate:{inst.uid}:{i}", f"Activate {name(inst)}: {op.text}"))
     options.append(("end", "End the Action Step"))
     ask(state, player.seat, "action", f"Action Step. Actions left: {player.actions}.", options)
@@ -342,29 +427,18 @@ def handle_action(state: GameState, player: Player, option: str) -> None:
         state.substep = "ops"
         return
     verb, uid, index = option.split(":")
-    op = None
-    if verb == "play":
-        inst = next(i for i in player.hand if i.uid == uid)
-        op = card(inst).operations[int(index)]
-        player.hand.remove(inst)
-        player.staging.append(inst)
-        state.emit(f"{player.name} plays {name(inst)}.", seat=player.seat)
-    else:
-        inst = next(i for i in table_cards(player) if i.uid == uid)
-        op = card(inst).operations[int(index)]
-        inst.exhausted = True
-        state.emit(f"{player.name} activates {name(inst)}.", seat=player.seat)
-    if op.action_cost:
-        player.actions -= 1
-    state.emit(f"(Card effect not implemented yet: {op.text})", seat=player.seat)
+    mode = "play" if verb == "play" else "activate"
+    state.op_queue.append(ops.OpRef(mode=mode, seat=player.seat, uid=uid, index=int(index)))
 
 
 def step_cleanup(state: GameState) -> None:
     player = state.player(state.active)
     if state.substep == "ops":
-        ops = [i for i in table_cards(player) + player.staging if any(op.kind == "CLEAN-UP" for op in card(i).operations)]
-        if ops:
-            state.emit("Clean-up operations are not implemented yet: " + ", ".join(name(i) for i in ops) + ".", seat=player.seat)
+        # CLEAN-UP operations of cards in play, including the Staging Area (REQ-CU-01).
+        for inst in table_cards(player) + player.staging:
+            for index, op in enumerate(card(inst).operations):
+                if op.kind == "CLEAN-UP":
+                    state.op_queue.append(ops.OpRef(mode="auto", seat=player.seat, uid=inst.uid, index=index))
         state.substep = "stardate"
     elif state.substep == "stardate":
         for stardate in player.received_stardates:
@@ -388,9 +462,9 @@ def step_cleanup(state: GameState) -> None:
         ask(state, player.seat, "discard", "Discard any cards from your hand, then draw up.",
             [(f"discard:{i.uid}", f"Discard {name(i)}") for i in player.hand] + [("done", "Done: draw up")])
     elif state.substep == "draw":
-        missing = hand_size(state, player) - len(player.hand)
-        if missing > 0:
-            draw(state, player, missing)
+        state.op_queue.append(ops.OpRef(mode="system", seat=player.seat, system="drawup"))
+        state.substep = "refresh"
+    elif state.substep == "refresh":
         for inst in table_cards(player):
             inst.exhausted = False
         player.actions = content().boards[player.board].actions
@@ -449,4 +523,6 @@ HANDLERS = {
     "action": handle_action,
     "glory": handle_glory,
     "discard": handle_discard,
+    "op": lambda state, player, option: ops.answer(state, option),
+    "trigger": handle_trigger,
 }
