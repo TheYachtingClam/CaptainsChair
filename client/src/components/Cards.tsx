@@ -3,6 +3,8 @@ import { CardView } from "../api";
 
 export type Preview = { image: string; beamed?: CardView[]; wide?: boolean; x: number; y: number } | null;
 export const PreviewContext = createContext<(p: Preview) => void>(() => {});
+/** Uids of cards the viewing player can play or activate right now. */
+export const PlayableContext = createContext<Set<string>>(new Set());
 
 const GAP = 18; // distance between the cursor and the preview
 const MARGIN = 8; // keep this far from the window edges
@@ -45,11 +47,12 @@ export function CardPreview({ preview }: { preview: Preview }) {
 /** A faceup card on the table. Hover or focus shows the large preview. */
 export function Card({ card, badges, style }: { card: CardView; badges?: React.ReactNode; style?: React.CSSProperties }) {
   const setPreview = useContext(PreviewContext);
+  const playable = useContext(PlayableContext).has(card.uid);
   const glory = card.resources?.glory;
   const show = (x: number, y: number) => setPreview({ image: card.image, beamed: card.beamed, x, y });
   return (
     <div
-      className={`gcard ${card.exhausted ? "exhausted" : ""}`}
+      className={`gcard ${card.exhausted ? "exhausted" : ""} ${playable ? "playable" : ""}`}
       style={style}
       title={card.name}
       tabIndex={0}

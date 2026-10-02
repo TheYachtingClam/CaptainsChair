@@ -283,3 +283,5 @@ button.secondary { background: var(--bg); color: var(--text); border: 1px solid 
   .market { grid-column: 1 / -1; grid-row: 1; grid-template-columns: repeat(2, var(--cw)); }
   .neutral-zone { grid-template-columns: 1fr; }
 }
+/* Cards the player can play or activate now */
+.gcard.playable img { box-shadow: 0 0 0 2px #7fd1ff, 0 0 12px 2px #7fd1ff99; }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { GameStateView, OptionView } from "../api";
-import { CardPreview, Preview, PreviewContext } from "./Cards";
+import { CardPreview, PlayableContext, Preview, PreviewContext } from "./Cards";
 import { PlayerMat } from "./PlayerMat";
 import { CenterMat } from "./CenterMat";
 
@@ -33,6 +33,10 @@ export function Board({ view, onChoose, onUndo, busy }: {
   const others = view.players.filter((p) => p.seat !== me);
   const mine = view.players.find((p) => p.seat === me);
   const d = view.decision;
+  // Cards named by a "play" or "activate" option the viewer can choose right now.
+  const playable = new Set(
+    (d?.options ?? []).filter((o) => /^(play|activate):/.test(o.id)).map((o) => o.id.split(":")[1]),
+  );
   const locationNames: Record<string, string> = Object.fromEntries(
     [...view.neutral_zone, ...view.players.flatMap((p) => p.locations)].map((l) => [l.uid, l.name]),
   );
@@ -44,6 +48,7 @@ export function Board({ view, onChoose, onUndo, busy }: {
 
   return (
     <PreviewContext.Provider value={setPreview}>
+    <PlayableContext.Provider value={playable}>
     <div className="stack">
       <section className="card">
         <div className="row between">
@@ -97,6 +102,7 @@ export function Board({ view, onChoose, onUndo, busy }: {
       )}
       <CardPreview preview={preview} />
     </div>
+    </PlayableContext.Provider>
     </PreviewContext.Provider>
   );
 }
