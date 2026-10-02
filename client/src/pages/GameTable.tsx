@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
-import { MODE_LABELS, api, loadSeatToken } from "../api";
+import { useNavigate, useParams } from "react-router-dom";
+import { MODE_LABELS, api, forgetSeatToken, loadSeatToken } from "../api";
 import { Board } from "../components/Board";
 
 type SocketState = "connecting" | "open" | "closed" | "no-seat";
@@ -9,6 +9,7 @@ type SocketState = "connecting" | "open" | "closed" | "no-seat";
 export function GameTable() {
   const { gameId = "" } = useParams();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const game = useQuery({ queryKey: ["game", gameId], queryFn: () => api.game(gameId) });
   const started = game.data?.status === "active" || game.data?.status === "finished";
   const state = useQuery({ queryKey: ["state", gameId], queryFn: () => api.state(gameId), enabled: started });
@@ -42,6 +43,13 @@ export function GameTable() {
       ws.onmessage = (ev) => {
         const msg = JSON.parse(ev.data);
         if (msg.type === "presence") setOnline(msg.connected);
+        if (msg.type === "game_deleted") {
+          stopped = true;
+          forgetSeatToken(gameId);
+          queryClient.invalidateQueries({ queryKey: ["games"] });
+          navigate("/", { replace: true });
+          return;
+        }
         if (msg.type === "game_updated") queryClient.invalidateQueries({ queryKey: ["game", gameId] });
         if (msg.type === "state_changed" || msg.type === "game_updated") queryClient.invalidateQueries({ queryKey: ["state", gameId] });
         setLog((l) => [`${new Date().toLocaleTimeString()} ${describe(msg)}`, ...l].slice(0, 50));
@@ -57,7 +65,7 @@ export function GameTable() {
       window.clearTimeout(retry);
       ws?.close();
     };
-  }, [gameId, queryClient]);
+  }, [gameId, queryClient, navigate]);
 
   if (game.isPending) return <main className="page">Loading game…</main>;
   if (game.isError) return <main className="page error">{game.error.message}</main>;

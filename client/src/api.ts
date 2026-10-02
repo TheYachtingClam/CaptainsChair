@@ -70,6 +70,14 @@ export function saveSeatToken(gameId: string, token: string): void {
   }
 }
 
+export function forgetSeatToken(gameId: string): void {
+  try {
+    localStorage.removeItem(seatKey(gameId));
+  } catch {
+    /* storage unavailable: nothing stored */
+  }
+}
+
 export function loadSeatToken(gameId: string): string | null {
   try {
     return localStorage.getItem(seatKey(gameId));
@@ -181,6 +189,7 @@ export const api = {
   command: (id: string, option: string) =>
     request<GameStateView>(`/api/games/${id}/commands`, { method: "POST", body: JSON.stringify({ option }), headers: seatHeaders(id) }),
   undo: (id: string) => request<GameStateView>(`/api/games/${id}/undo`, { method: "POST", headers: seatHeaders(id) }),
+  deleteGame: (id: string) => request<null>(`/api/games/${id}`, { method: "DELETE", headers: seatHeaders(id) }),
   joinGame: (id: string, body: SeatChoice) =>
     request<SeatGrant>(`/api/games/${id}/join`, { method: "POST", body: JSON.stringify(body) }),
 };

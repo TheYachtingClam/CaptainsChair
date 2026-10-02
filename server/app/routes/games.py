@@ -114,6 +114,17 @@ def get_game(
     return {**summarize(game), "your_seat": seat.index if seat else None}
 
 
+@router.delete("/{game_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_game(game_id: str, db: Session = Depends(get_db), x_seat_token: str | None = Header(default=None)) -> None:
+    """Delete a game for everyone. Only a player seated in it may do so."""
+    game = load_game(db, game_id)
+    seat_or_403(game, x_seat_token)
+    db.delete(game)
+    db.commit()
+    play.forget(game_id)
+    await hub.broadcast(game_id, {"type": "game_deleted"})
+
+
 def seat_or_403(game: Game, token: str | None) -> int:
     seat = seat_for_token(game, token)
     if seat is None:

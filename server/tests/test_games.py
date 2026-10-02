@@ -152,3 +152,22 @@ def test_cadet_game_through_the_api(authed):
     assert r.json()["decision"]["kind"] == "wipe"  # REQ-CTM-20
     r = authed.post(f"/api/games/{game_id}/undo", headers=h)
     assert r.json()["decision"]["kind"] == "action"  # REQ-CTM-15: same undo as normal play
+
+
+def test_delete_game_needs_a_seat(authed):
+    grant = create(authed).json()
+    game_id = grant["game"]["id"]
+    assert authed.delete(f"/api/games/{game_id}").status_code == 403
+    assert authed.delete(f"/api/games/{game_id}", headers={"X-Seat-Token": "nope"}).status_code == 403
+    r = authed.delete(f"/api/games/{game_id}", headers={"X-Seat-Token": grant["seat_token"]})
+    assert r.status_code == 204
+    assert game_id not in {g["id"] for g in authed.get("/api/games").json()}
+    assert authed.get(f"/api/games/{game_id}").status_code == 404
+    assert authed.delete(f"/api/games/{game_id}", headers={"X-Seat-Token": grant["seat_token"]}).status_code == 404
+
+
+def test_delete_started_game_by_second_player(authed):
+    game_id, tokens = started_game(authed)
+    authed.get(f"/api/games/{game_id}/state", headers={"X-Seat-Token": tokens[0]})  # fills the state cache
+    assert authed.delete(f"/api/games/{game_id}", headers={"X-Seat-Token": tokens[1]}).status_code == 204
+    assert authed.get(f"/api/games/{game_id}/state", headers={"X-Seat-Token": tokens[0]}).status_code == 404

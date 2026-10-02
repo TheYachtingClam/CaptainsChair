@@ -93,6 +93,7 @@ All endpoints except login and health require a valid session (see §5).
 | `POST /api/games` | Create a game: mode, chosen deck, board side, display name |
 | `GET /api/games` | List open and in-progress games |
 | `POST /api/games/{id}/join` | Join as the second player |
+| `DELETE /api/games/{id}` | Delete the game for everyone. Needs the seat token of a player in that game. Connected players get a `game_deleted` message and return to the lobby |
 | `GET /api/games/{id}` | Current view of the game for this player |
 | `POST /api/games/{id}/commands` | Submit a command |
 | `GET /api/games/{id}/log` | Public action log |
@@ -138,7 +139,7 @@ All endpoints except login and health require a valid session (see §5).
 | Page | Contents |
 |---|---|
 | Password page | One password field and a submit button. Shown whenever there is no valid session |
-| Lobby | Create game, list of open games to join, list of the player's own in-progress games |
+| Lobby | Create game, list of open games to join, list of the player's own in-progress games. Each of the player's own games has a Delete button that asks for confirmation, because deleting cannot be undone |
 | New game | Choose mode (two-player, solo against the Bot, Cadet Training), expansions, promo cards, Crew deck (with complexity and summary), board side and display name. Solo adds Bot Crew, difficulty and Ticking Clock |
 | Campaign | Five-Year Mission log, rank, upgrades, challenges and the next assignment |
 | Game table | The main play screen (§4.3) |

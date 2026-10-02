@@ -19,6 +19,11 @@ _cache: dict[str, tuple[tuple[int, int], GameState]] = {}
 _lock = threading.Lock()  # one command per game at a time (REQ-SRV-42)
 
 
+def forget(game_id: str) -> None:
+    """Drop a deleted game's cached state."""
+    _cache.pop(game_id, None)
+
+
 def start(game: Game) -> None:
     game.seed = secrets.randbits(63)
     game.commands = []

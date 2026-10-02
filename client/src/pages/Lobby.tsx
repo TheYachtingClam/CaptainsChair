@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { Game, MODE_LABELS, SeatChoice, api, loadSeatToken, saveSeatToken } from "../api";
+import { Game, MODE_LABELS, SeatChoice, api, forgetSeatToken, loadSeatToken, saveSeatToken } from "../api";
 import { SeatForm } from "../components/SeatForm";
 
 export function Lobby() {
@@ -21,12 +21,7 @@ export function Lobby() {
         <h2>Your games</h2>
         {mine.length === 0 ? <p className="muted">You have no games yet.</p> : (
           <ul className="list">
-            {mine.map((g) => (
-              <li key={g.id} className="card row between">
-                <GameLine game={g} />
-                <Link className="button" to={`/games/${g.id}`}>Open</Link>
-              </li>
-            ))}
+            {mine.map((g) => <MyGame key={g.id} game={g} />)}
           </ul>
         )}
       </section>
@@ -50,6 +45,43 @@ function GameLine({ game }: { game: Game }) {
       <strong>{MODE_LABELS[game.mode]}</strong> · {players}
       {game.open_seats > 0 && <span className="muted"> · waiting for opponent</span>}
     </div>
+  );
+}
+
+function MyGame({ game }: { game: Game }) {
+  const queryClient = useQueryClient();
+  const [confirming, setConfirming] = useState(false);
+  const remove = useMutation({
+    mutationFn: () => api.deleteGame(game.id),
+    onSuccess: () => {
+      forgetSeatToken(game.id);
+      queryClient.invalidateQueries({ queryKey: ["games"] });
+    },
+  });
+  const others = game.seats.length > 1;
+
+  return (
+    <li className="card stack">
+      <div className="row between">
+        <GameLine game={game} />
+        <div className="row">
+          <Link className="button" to={`/games/${game.id}`}>Open</Link>
+          {!confirming && <button className="secondary" onClick={() => setConfirming(true)}>Delete</button>}
+        </div>
+      </div>
+      {confirming && (
+        <div className="row between confirm-delete" role="alert">
+          <span>
+            Delete this game{others ? " for both players" : ""}? This cannot be undone.
+          </span>
+          <div className="row">
+            <button className="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>Delete game</button>
+            <button className="link" onClick={() => setConfirming(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+      {remove.error && <p className="error" role="alert">{remove.error.message}</p>}
+    </li>
   );
 }
 
