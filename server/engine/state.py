@@ -40,6 +40,9 @@ class Decision(BaseModel):
     kind: str
     prompt: str
     options: list[Option]
+    # Cards the question is about, shown to the deciding player only: e.g. a just-gained card, or cards
+    # looked at from a deck. An option answers with a card when its id is the uid or ends with ":<uid>".
+    cards: list[Inst] = Field(default_factory=list)
 
 
 class Event(BaseModel):

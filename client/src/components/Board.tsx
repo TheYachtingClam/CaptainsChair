@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { GameStateView, OptionView } from "../api";
-import { CardPreview, PlayableContext, Preview, PreviewContext, SelectContext, Selection, TargetContext } from "./Cards";
+import { CardView, GameStateView, OptionView } from "../api";
+import { Card, CardPreview, PlayableContext, Preview, PreviewContext, SelectContext, Selection, TargetContext } from "./Cards";
 import { CardPanel } from "./CardPanel";
 import { PlayerMat } from "./PlayerMat";
 import { CenterMat } from "./CenterMat";
@@ -23,8 +23,9 @@ function Confirm({ option, onContinue, onBack }: { option: OptionView; onContinu
 }
 
 /** The prompt and answer buttons of a decision. */
-function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint }: {
+function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint, cards }: {
   hint?: string;
+  cards?: CardView[];
   prompt: string;
   options: OptionView[];
   busy: boolean;
@@ -35,6 +36,9 @@ function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint 
   return (
     <div className="stack">
       <p><strong>{prompt}</strong></p>
+      {cards && cards.length > 0 && (
+        <div className="dock-cards">{cards.map((c) => <Card key={c.uid} card={c} />)}</div>
+      )}
       {hint && <p className="muted">{hint}</p>}
       <div className="options">
         {options.map((o) => (
@@ -112,9 +116,16 @@ export function Board({ view, onChoose, onUndo, busy }: {
      ...view.players.flatMap((p) => [p.captain, ...p.status, ...p.fleet, ...p.locations, ...p.duty, ...p.staging,
        ...(p.hand ?? []), ...p.fleet.flatMap((s) => s.beamed ?? [])])].map((c) => c.uid),
   );
-  const targets = new Map<string, OptionView>(
-    midOperation ? d!.options!.filter((o) => visibleUids.has(o.id)).map((o) => [o.id, o]) : [],
-  );
+  // Cards the question is about that are not on the board, e.g. a card just gained or looked at from a deck.
+  const shownCards = midOperation ? (d!.cards ?? []).filter((c) => !visibleUids.has(c.uid)) : [];
+  const optionFor = (uid: string) => d?.options?.find((o) => o.id === uid || o.id.endsWith(`:${uid}`));
+  const targets = new Map<string, OptionView>();
+  if (midOperation) {
+    for (const uid of [...visibleUids, ...shownCards.map((c) => c.uid)]) {
+      const o = optionFor(uid);
+      if (o) targets.set(uid, o);
+    }
+  }
   const targetKey = [...targets.keys()].join(",");
   useEffect(() => {
     if (!targetKey) return;
@@ -194,7 +205,7 @@ export function Board({ view, onChoose, onUndo, busy }: {
       {showDock && (
         <div className="decision-dock card" role="dialog" aria-label="Your decision">
           <DecisionOptions prompt={d!.prompt} options={d!.options!} busy={busy} canUndo={view.can_undo}
-            onPick={pick} onUndo={onUndo}
+            onPick={pick} onUndo={onUndo} cards={shownCards}
             hint={targets.size ? "Or click a highlighted card." : undefined} />
         </div>
       )}

@@ -282,3 +282,16 @@ def test_random_games_do_not_crash(seed):
         uids = [i.uid for z in ("hand", "draw", "discard", "reserve", "development", "staging", "fleet", "locations", "duty", "log")
                 for i in getattr(p, z)]
         assert len(uids) == len(set(uids)), "a card is in two places"
+
+
+def test_gained_card_is_shown_with_the_where_question():
+    from engine.views import game_view
+
+    s = at_action()
+    play(s, give(s, "2GEO15"), 0)
+    ship = s.market["Ship"].uid
+    pick(s, "faceup")
+    view = game_view(s, 0)
+    assert view["decision"]["prompt"].endswith("where?")
+    assert [c["uid"] for c in view["decision"]["cards"]] == [ship]
+    assert "cards" not in game_view(s, 1)["decision"]  # only the deciding player sees them

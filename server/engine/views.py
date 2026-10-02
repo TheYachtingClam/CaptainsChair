@@ -62,6 +62,7 @@ def game_view(state: GameState, viewer: int | None) -> dict:
         decision = {"seat": d.seat, "kind": d.kind, "prompt": d.prompt}
         if d.seat == viewer:
             decision["options"] = [o.model_dump() for o in d.options]
+            decision["cards"] = [card_view(i) for i in d.cards]
     top = state.stardates[0] if state.stardates else None
     return {
         "mode": state.mode,

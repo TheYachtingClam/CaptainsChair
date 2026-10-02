@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Callable, Generator, Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from engine import cards as registry
@@ -58,6 +58,7 @@ class Ask:
     seat: int
     prompt: str
     options: list[tuple[str, str]]
+    cards: list[Inst] = field(default_factory=list)  # cards to show with the question
 
 
 Gen = Generator[Ask, str, Any]
@@ -437,11 +438,13 @@ class Actions:
         self.state.emit(text, seat=self.ctx.me.seat, **kw)
 
     # ------------------------------------------------------------ choices (always available)
-    def choose(self, prompt: str, options: list[tuple[str, str]], seat: int | None = None) -> Gen:
+    def choose(self, prompt: str, options: list[tuple[str, str]], seat: int | None = None, *,
+               show: list[Inst] | None = None) -> Gen:
+        """Ask a player. `show` lists cards the player needs to see to answer."""
         seat = self.ctx.me.seat if seat is None else seat
         if seat != self.ctx.me.seat:
             self.state.emit(f"{self.state.player(seat).name} must choose: {prompt}", irreversible=True)
-        answer = yield Ask(seat, prompt, options)
+        answer = yield Ask(seat, prompt, options, [i.model_copy(deep=True) for i in show or []])
         return answer
 
     def may(self, prompt: str, seat: int | None = None) -> Gen:
@@ -455,7 +458,7 @@ class Actions:
         options = [(c.uid, f"{name(c)}") for c in cards]
         if optional:
             options.append(("none", none_label))
-        answer = yield from self.choose(prompt, options, seat)
+        answer = yield from self.choose(prompt, options, seat, show=cards)
         return None if answer == "none" else next(c for c in cards if c.uid == answer)
 
     def pick_cards(self, prompt: str, cards: list[Inst], *, maximum: int, minimum: int = 0) -> Gen:
@@ -753,7 +756,8 @@ class Actions:
             self.ctx.me.hand.append(inst)
             where = "into their hand"
         else:
-            answer = yield from self.choose(f"Put {name(inst)} where?", [("top", "On top of your deck"), ("discard", "In your Discard pile")])
+            answer = yield from self.choose(f"Put {name(inst)} where?", [("top", "On top of your deck"), ("discard", "In your Discard pile")],
+                                            show=[inst])
             (self.ctx.me.draw.insert(0, inst) if answer == "top" else self.ctx.me.discard.append(inst))
             where = "on top of their deck" if answer == "top" else "into their Discard pile"
         self.emit(f"{self.ctx.me.name} gains {name(inst)} {where}.")
@@ -778,7 +782,8 @@ class Actions:
             options.append((f"market:{suit}", f"{name(self.state.market[suit])} (faceup)"))
         if include_junk or self._scans_junk():
             options += [(f"junk:{i.uid}", f"{name(i)} (from the Junk)") for i in self.state.junk if card(i).suit == suit]
-        answer = (yield from self.choose(f"Gain which {suit}?", options)) if options else None
+        shown = looked + [i for i in self.state.junk if card(i).suit == suit and (include_junk or self._scans_junk())]
+        answer = (yield from self.choose(f"Gain which {suit}?", options, show=shown)) if options else None
         inst = None
         if answer and answer.startswith("look:"):
             inst = next(i for i in looked if i.uid == answer[5:])
@@ -842,7 +847,7 @@ class Actions:
         found, zone = None, None
         if options:
             self.state.emit(f"{me.name} searches for {label}.", irreversible=True)
-            answer = yield from self.choose(f"Find {label}.", options)
+            answer = yield from self.choose(f"Find {label}.", options, show=[i for _, i in candidates])
             if answer != "none":
                 zone, uid = answer.split(":", 1)
                 found = next(i for z, i in candidates if i.uid == uid)
@@ -1222,7 +1227,7 @@ def _resume(state: GameState) -> None:
             reply = next(answers, None)
             if reply is None:
                 state.decision = Decision(seat=ask.seat, kind="op", prompt=ask.prompt,
-                                          options=[Option(id=i, label=l) for i, l in ask.options])
+                                          options=[Option(id=i, label=l) for i, l in ask.options], cards=ask.cards)
                 return
             ask = gen.send(reply)
     except StopIteration:

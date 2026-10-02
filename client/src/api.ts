@@ -153,7 +153,7 @@ export interface GameStateView {
   stardate: { top: CardView | null; glory: number; remaining: number };
   resolution: boolean;
   last_turn: number | null;
-  decision: { seat: number; kind: string; prompt: string; options?: OptionView[] } | null;
+  decision: { seat: number; kind: string; prompt: string; options?: OptionView[]; cards?: CardView[] } | null;
   log: string[];
   result: { reason: string; winners: number[]; rating?: string; scores?: { seat: number; name: string; total: number; parts: Record<string, number> }[] } | null;
   can_undo: boolean;
