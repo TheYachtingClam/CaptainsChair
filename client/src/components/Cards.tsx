@@ -107,3 +107,19 @@ export function CardBack({ label, count, onClick }: { label: string; count: numb
 export function Slot({ label, tone }: { label: string; tone: "duty" | "status" | "location" | "fleet" | "discard" }) {
   return <div className={`slot slot-${tone}`}><span>{label}</span></div>;
 }
+
+/** Modal listing every card in a public pile. */
+export function PileViewer({ title, cards, onClose }: { title: string; cards: CardView[]; onClose: () => void }) {
+  return (
+    <div className="modal-backdrop" onClick={onClose} onKeyDown={(e) => e.key === "Escape" && onClose()}>
+      <div className="card modal wide" role="dialog" aria-label={title} onClick={(e) => e.stopPropagation()}>
+        <div className="row between">
+          <h2>{title} ({cards.length})</h2>
+          <button className="secondary" onClick={onClose} autoFocus>Close</button>
+        </div>
+        <div className="cards">{cards.length ? cards.map((c) => <Card key={c.uid} card={c} />) : <span className="muted">Empty</span>}</div>
+      </div>
+    </div>
+  );
+}
+

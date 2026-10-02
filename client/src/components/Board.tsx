@@ -1,16 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { CardView, GameStateView, OptionView } from "../api";
-import { Card, CardPreview, Preview, PreviewContext } from "./Cards";
+import { GameStateView, OptionView } from "../api";
+import { CardPreview, Preview, PreviewContext } from "./Cards";
 import { PlayerMat } from "./PlayerMat";
-
-function Row({ label, cards, empty = "—" }: { label: string; cards: CardView[]; empty?: string }) {
-  return (
-    <div className="zone">
-      <div className="zone-label">{label}</div>
-      <div className="cards">{cards.length ? cards.map((c) => <Card key={c.uid} card={c} />) : <span className="muted">{empty}</span>}</div>
-    </div>
-  );
-}
+import { CenterMat } from "./CenterMat";
 
 function Confirm({ option, onContinue, onBack }: { option: OptionView; onContinue: () => void; onBack: () => void }) {
   const back = useRef<HTMLButtonElement>(null);
@@ -91,11 +83,7 @@ export function Board({ view, onChoose, onUndo, busy }: {
 
       {others.map((p) => <PlayerMat key={p.seat} p={p} you={false} active={view.active === p.seat} locationNames={locationNames} />)}
 
-      <section className="card">
-        <Row label="Neutral Zone" cards={view.neutral_zone} />
-        <Row label="Market" cards={Object.values(view.market).filter((c): c is CardView => !!c)} />
-        <Row label="Junk" cards={view.junk} />
-      </section>
+      <CenterMat view={view} />
 
       {mine && <PlayerMat p={mine} you active={view.active === mine.seat} locationNames={locationNames} />}
 

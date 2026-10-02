@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CardView, PlayerView } from "../api";
-import { Card, CardBack, Slot, imageUrl, usePreviewHandlers } from "./Cards";
+import { Card, CardBack, PileViewer, Slot, imageUrl, usePreviewHandlers } from "./Cards";
 
 // Crew board track geometry, as fractions of the board image (measured from the scans).
 const TRACK_X0 = 0.073; // centre of space 0
@@ -49,20 +49,6 @@ function Section({ label, cards, place }: { label: string; cards: CardView[]; pl
         {cards.map((c) => (
           <Card key={c.uid} card={c} badges={place?.(c) ? <span className="badge bottom-left">at {place(c)}</span> : null} />
         ))}
-      </div>
-    </div>
-  );
-}
-
-function PileViewer({ title, cards, onClose }: { title: string; cards: CardView[]; onClose: () => void }) {
-  return (
-    <div className="modal-backdrop" onClick={onClose} onKeyDown={(e) => e.key === "Escape" && onClose()}>
-      <div className="card modal wide" role="dialog" aria-label={title} onClick={(e) => e.stopPropagation()}>
-        <div className="row between">
-          <h2>{title} ({cards.length})</h2>
-          <button className="secondary" onClick={onClose} autoFocus>Close</button>
-        </div>
-        <div className="cards">{cards.length ? cards.map((c) => <Card key={c.uid} card={c} />) : <span className="muted">Empty</span>}</div>
       </div>
     </div>
   );

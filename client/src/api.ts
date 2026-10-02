@@ -136,6 +136,8 @@ export interface GameStateView {
   market: Record<string, CardView | null>;
   neutral_zone: CardView[];
   junk: CardView[];
+  market_deck_counts: Record<string, number>;
+  reward_count: number;
   location_deck_count: number;
   encounter_count: number;
   incident_count: number;
