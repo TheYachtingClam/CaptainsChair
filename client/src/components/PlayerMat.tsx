@@ -54,11 +54,13 @@ function Section({ label, cards, place }: { label: string; cards: CardView[]; pl
   );
 }
 
-export function PlayerMat({ p, you, active, locationNames }: {
+export function PlayerMat({ p, you, active, locationNames, onEndTurn }: {
   p: PlayerView;
   you: boolean;
   active: boolean;
   locationNames: Record<string, string>;
+  /** Shown on your own mat. Undefined while ending the turn is not possible. */
+  onEndTurn?: (() => void) | null;
 }) {
   const [viewing, setViewing] = useState<null | "discard" | "development" | "log">(null);
   const piles = { discard: ["Discard pile", p.discard], development: ["Development pile", p.development], log: ["Captain's Log", p.log] } as const;
@@ -97,7 +99,7 @@ export function PlayerMat({ p, you, active, locationNames }: {
             badges={
               <>
                 <span className="badge away" title="Away Teams on the Captain">{p.away_pool} Away</span>
-                <button type="button" className="badge log-badge" onClick={() => setViewing("log")} title="View the Captain's Log">
+                <button type="button" className="badge log-badge" onClick={(e) => { e.stopPropagation(); setViewing("log"); }} title="View the Captain's Log">
                   Log {p.log.length}
                 </button>
               </>
@@ -122,6 +124,12 @@ export function PlayerMat({ p, you, active, locationNames }: {
               <span className="badge">{p.discard.length}</span>
             </button>
           ) : <Slot label="Discard pile" tone="discard" />}
+          {you && (
+            <button type="button" className="end-turn" disabled={!onEndTurn} onClick={() => onEndTurn?.()}
+              title={onEndTurn ? "End your Action Step and go to Clean-up" : "Available during your Action Step"}>
+              End Turn
+            </button>
+          )}
         </div>
       </div>
 

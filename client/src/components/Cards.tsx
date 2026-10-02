@@ -3,6 +3,13 @@ import { CardView } from "../api";
 
 export type Preview = { image: string; beamed?: CardView[]; wide?: boolean; x: number; y: number } | null;
 export const PreviewContext = createContext<(p: Preview) => void>(() => {});
+/** The selected card, and a toggle to select or deselect a card at a position on screen. */
+export type Selection = { card: CardView; rect: { left: number; right: number; top: number; bottom: number } } | null;
+export const SelectContext = createContext<{ selected: string | null; toggle: (s: Selection) => void }>({
+  selected: null,
+  toggle: () => {},
+});
+
 /** Uids of cards the viewing player can play or activate right now. */
 export const PlayableContext = createContext<Set<string>>(new Set());
 
@@ -48,11 +55,29 @@ export function CardPreview({ preview }: { preview: Preview }) {
 export function Card({ card, badges, style }: { card: CardView; badges?: React.ReactNode; style?: React.CSSProperties }) {
   const setPreview = useContext(PreviewContext);
   const playable = useContext(PlayableContext).has(card.uid);
+  const { selected, toggle } = useContext(SelectContext);
+  const isSelected = selected === card.uid;
+  const select = (el: HTMLElement) => {
+    const r = el.getBoundingClientRect();
+    setPreview(null);
+    toggle({ card, rect: { left: r.left, right: r.right, top: r.top, bottom: r.bottom } });
+  };
   const glory = card.resources?.glory;
-  const show = (x: number, y: number) => setPreview({ image: card.image, beamed: card.beamed, x, y });
+  const show = (x: number, y: number) => {
+    if (!isSelected) setPreview({ image: card.image, beamed: card.beamed, x, y });
+  };
   return (
     <div
-      className={`gcard ${card.exhausted ? "exhausted" : ""} ${playable ? "playable" : ""}`}
+      className={`gcard ${card.exhausted ? "exhausted" : ""} ${playable ? "playable" : ""} ${isSelected ? "selected" : ""}`}
+      role="button"
+      aria-pressed={isSelected}
+      onClick={(e) => select(e.currentTarget)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          select(e.currentTarget);
+        }
+      }}
       style={style}
       title={card.name}
       tabIndex={0}

@@ -150,6 +150,12 @@ export interface GameStateView {
   can_undo: boolean;
 }
 
+export interface CardText {
+  name: string;
+  suit: string;
+  operations: { kind: string; text: string | null; action_cost: boolean; attack: boolean; requires: string | null }[];
+}
+
 function seatHeaders(id: string): Record<string, string> {
   const token = loadSeatToken(id);
   return token ? { "X-Seat-Token": token } : {};
@@ -169,6 +175,7 @@ export const api = {
   },
   createGame: (body: SeatChoice & { mode: GameMode; expansions: string[]; promos: boolean }) =>
     request<SeatGrant>("/api/games", { method: "POST", body: JSON.stringify(body) }),
+  cardText: () => request<Record<string, CardText>>("/api/content/cards"),
   state: (id: string) => request<GameStateView>(`/api/games/${id}/state`, { headers: seatHeaders(id) }),
   command: (id: string, option: string) =>
     request<GameStateView>(`/api/games/${id}/commands`, { method: "POST", body: JSON.stringify({ option }), headers: seatHeaders(id) }),

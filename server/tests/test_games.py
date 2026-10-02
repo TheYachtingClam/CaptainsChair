@@ -132,3 +132,10 @@ def test_state_needs_a_seat_to_act(authed):
 
 def test_solo_not_available(authed):
     assert create(authed, mode="solo").status_code == 422
+
+
+def test_card_text_endpoint(authed):
+    cards = authed.get("/api/content/cards").json()
+    soval = cards["2SOV01"]
+    assert soval["name"] == "Soval"
+    assert [op["kind"] for op in soval["operations"]] == ["ACTIVATION", "ENDGAME"]

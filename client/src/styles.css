@@ -285,3 +285,38 @@ button.secondary { background: var(--bg); color: var(--text); border: 1px solid 
 }
 /* Cards the player can play or activate now */
 .gcard.playable img { box-shadow: 0 0 0 2px #7fd1ff, 0 0 12px 2px #7fd1ff99; }
+
+/* ---------------------------------------------------------------- selected card panel */
+.gcard.selected img { box-shadow: 0 0 0 3px var(--accent), 0 0 16px 4px #e0b04099; }
+.card-panel {
+  position: fixed; z-index: 30; display: flex; gap: 14px; align-items: flex-start;
+  background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 14px;
+  padding: 12px; box-shadow: 0 16px 48px rgb(0 0 0 / 0.4); max-width: min(760px, 96vw);
+}
+.card-panel-image { width: min(320px, 40vw); border-radius: 10px; display: block; }
+.card-panel-menu { width: min(360px, 48vw); display: grid; gap: 6px; max-height: 80vh; overflow: auto; }
+.card-panel-menu h2 { margin: 0; font-size: 1.1rem; }
+.card-panel-menu p { margin: 0; }
+.icon-button { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 0.2rem 0.55rem; font-size: 1rem; line-height: 1; }
+.op-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.op {
+  width: 100%; text-align: left; display: grid; gap: 2px; font-weight: 400;
+  background: var(--bg); color: var(--text); border: 1px solid var(--accent); border-radius: 8px; padding: 0.5rem 0.65rem;
+}
+.op:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 15%, var(--bg)); }
+.op:disabled { opacity: 0.45; border-color: var(--border); cursor: not-allowed; }
+.op-kind { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.04em; color: var(--accent); }
+.op:disabled .op-kind { color: var(--muted); }
+.op-text { font-size: 0.88rem; }
+.op-reason { font-size: 0.75rem; color: var(--muted); font-style: italic; }
+@media (max-width: 640px) {
+  .card-panel { flex-direction: column; align-items: center; }
+  .card-panel-image, .card-panel-menu { width: min(320px, 88vw); }
+}
+.cell.discard { display: grid; gap: 10px; justify-items: center; }
+.end-turn {
+  width: var(--cw); background: #c0392b; color: #fff; border: 0; border-radius: 8px;
+  padding: 0.55rem 0.3rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; font-size: 0.8rem;
+}
+.end-turn:hover:not(:disabled) { background: #a93226; }
+.end-turn:disabled { background: #6b2a24; color: #ffffff88; }

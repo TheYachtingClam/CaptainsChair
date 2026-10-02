@@ -46,3 +46,21 @@ def image(image_id: str, v: str | None = None) -> FileResponse:
     # "private" keeps shared caches from storing images that sit behind the site password.
     cache = "private, max-age=31536000, immutable" if v == version else "private, no-cache"
     return FileResponse(path, media_type="image/webp", headers={"Cache-Control": cache})
+
+
+@router.get("/cards")
+def list_cards() -> dict[str, dict]:
+    """Printed data for every card: name, suit and operations. Card text is public information."""
+    from engine.content import content as engine_content
+
+    return {
+        card.id: {
+            "name": card.name,
+            "suit": card.suit,
+            "operations": [
+                {"kind": op.kind, "text": op.text, "action_cost": op.action_cost, "attack": op.attack, "requires": op.requires}
+                for op in card.operations
+            ],
+        }
+        for card in engine_content().cards.values()
+    }
