@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
 from app.models import Game
+from engine import dev
 from engine.game import IllegalCommand, advance, choose
 from engine.setup import SeatSetup, SetupError, new_game
 from engine.state import GameState
@@ -43,7 +44,10 @@ def build(game: Game) -> GameState:
     state = new_game(game.seed, game.mode, seats, game.expansions, game.promos)
     advance(state)
     for command in live:
-        choose(state, command["seat"], command["option"])
+        if "dev" in command:
+            dev.apply(state, command["seat"], command["dev"])
+        else:
+            choose(state, command["seat"], command["option"])
     _cache[game.id] = (key, copy.deepcopy(state))
     return state
 
@@ -52,6 +56,9 @@ def view(game: Game, seat: int | None) -> dict:
     state = build(game)
     out = game_view(state, seat)
     out["can_undo"] = seat is not None and can_undo(game, seat)
+    from app.config import get_settings
+
+    out["dev_tools"] = get_settings().dev_tools
     return out
 
 
@@ -64,6 +71,19 @@ def apply(db: Session, game: Game, seat: int, option: str) -> None:
         game.commands = [*game.commands, {"seat": seat, "option": option, "irreversible": irreversible, "turn": state.turn}]
         if state.step == "over":
             game.status = "finished"
+        flag_modified(game, "commands")
+        db.commit()
+
+
+def apply_dev(db: Session, game: Game, seat: int, cmd: dict) -> None:
+    """A developer command (engine/dev.py). It is stored like a move, so undo and replay include it."""
+    with _lock:
+        state = build(game)
+        try:
+            dev.apply(state, seat, cmd)
+        except dev.DevCommandError as err:
+            raise IllegalCommand(str(err)) from err
+        game.commands = [*game.commands, {"seat": seat, "dev": cmd, "irreversible": False, "turn": state.turn}]
         flag_modified(game, "commands")
         db.commit()
 
@@ -95,4 +115,4 @@ def undo(db: Session, game: Game, seat: int) -> None:
         db.commit()
 
 
-__all__ = ["IllegalCommand", "SetupError", "apply", "build", "can_undo", "start", "undo", "view"]
+__all__ = ["IllegalCommand", "SetupError", "apply", "apply_dev", "build", "can_undo", "start", "undo", "view"]

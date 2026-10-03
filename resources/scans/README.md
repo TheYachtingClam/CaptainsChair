@@ -53,6 +53,7 @@ Current naming conventions:
 | Item | Id |
 |---|---|
 | Card | Printed id, e.g. `2SOV01`, `SD09` |
+| Card back | `card-back`, in `to_boldly_go/cards/`. The client draws every facedown deck and hidden hand with it |
 | Crew board side | `cb-<captain>-basic`, `cb-<captain>-advanced` |
 | Command card side | `cc-<captain>-traits`, `cc-<captain>-upgrades`, `cc-<captain>-suits-no-duty-officer`, `cc-<captain>-suits-duty-officer` |
 

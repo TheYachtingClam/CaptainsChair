@@ -3,11 +3,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app import content, play
+from app.config import get_settings
 from app.auth import hash_seat_token, new_seat_token, require_session
 from app.db import get_db
 from app.hub import hub
 from app.models import Game, Seat
-from app.schemas import CommandRequest, CreateGameRequest, GameSummary, GameView, SeatChoice, SeatGrant, SeatOut
+from app.schemas import CommandRequest, DevCommand, CreateGameRequest, GameSummary, GameView, SeatChoice, SeatGrant, SeatOut
 
 router = APIRouter(prefix="/api/games", tags=["games"], dependencies=[Depends(require_session)])
 
@@ -149,6 +150,24 @@ async def command(game_id: str, body: CommandRequest, db: Session = Depends(get_
         raise HTTPException(409, "The game is not in progress")
     try:
         play.apply(db, game, seat, body.option)
+    except play.IllegalCommand as err:
+        raise HTTPException(409, str(err)) from err
+    await hub.broadcast(game.id, {"type": "state_changed"})
+    return play.view(game, seat)
+
+
+@router.post("/{game_id}/dev")
+async def dev_command(game_id: str, body: DevCommand, db: Session = Depends(get_db),
+                      x_seat_token: str | None = Header(default=None)) -> dict:
+    """Developer panel: only when DEV_TOOLS is on."""
+    if not get_settings().dev_tools:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Developer tools are off")
+    game = load_game(db, game_id)
+    seat = seat_or_403(game, x_seat_token)
+    if game.status != "active":
+        raise HTTPException(409, "The game is not in progress")
+    try:
+        play.apply_dev(db, game, seat, body.model_dump(exclude_none=True))
     except play.IllegalCommand as err:
         raise HTTPException(409, str(err)) from err
     await hub.broadcast(game.id, {"type": "state_changed"})

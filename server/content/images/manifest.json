@@ -3910,6 +3910,16 @@
       "source_sha256": "701adb195ac66d2f60411c18c7dbfe20442755f127382e2713ceb106cde0a4da",
       "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
     },
+    "card-back": {
+      "kind": "cards",
+      "file": "to_boldly_go/cards/card-back.webp",
+      "width": 630,
+      "height": 880,
+      "version": "50255506fa36",
+      "source": "resources/scans/to_boldly_go/cards/card-back.jpg",
+      "source_sha256": "4913b75dac8807e65b2fccf81541da6ac0fd2f9bdf06ca9cdb4b82cd44d5d494",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
     "cb-archer-advanced": {
       "kind": "boards",
       "file": "to_boldly_go/boards/cb-archer-advanced.webp",

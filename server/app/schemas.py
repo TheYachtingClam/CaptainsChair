@@ -27,6 +27,17 @@ class CommandRequest(BaseModel):
     option: str
 
 
+class DevCommand(BaseModel):
+    """Developer panel command (engine/dev.py)."""
+
+    kind: Literal["card", "resource", "track"]
+    card: str | None = None
+    zone: str | None = None
+    resource: str | None = None
+    track: str | None = None
+    amount: int = 0
+
+
 class SeatOut(BaseModel):
     index: int
     display_name: str

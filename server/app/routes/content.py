@@ -57,6 +57,7 @@ def list_cards() -> dict[str, dict]:
         card.id: {
             "name": card.name,
             "suit": card.suit,
+            "set": card.set,
             "operations": [
                 {"kind": op.kind, "text": op.text, "action_cost": op.action_cost, "attack": op.attack, "requires": op.requires}
                 for op in card.operations

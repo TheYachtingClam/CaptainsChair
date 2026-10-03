@@ -155,15 +155,17 @@ button.secondary { background: var(--bg); color: var(--text); border: 1px solid 
 
 .card-back, .dev-pile, .discard-pile { font: inherit; cursor: pointer; }
 .card-back {
-  width: var(--cw); height: var(--ch); border-radius: 8px; border: 2px solid #9fb3c8; padding: 6px;
-  background: radial-gradient(circle at 50% 42%, #e6f3ff 0 10%, #6aa6d6 11% 20%, #cfe3f4 21% 30%, #5c7f9c 31% 46%, #c9d4de 47%);
+  width: var(--cw); height: var(--ch); border-radius: 6px; border: 0; padding: 6px;
+  /* The scanned card back (resources/scans/to_boldly_go/cards/card-back.jpg); the gradient shows while it loads. */
+  background: url("/api/content/images/card-back") center / cover no-repeat, #5c7f9c;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
   color: #10233a; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
 }
 .card-back:disabled { cursor: default; opacity: 1; }
 .card-back.empty { opacity: 0.4; }
 .card-back-label { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; background: #ffffffcc; border-radius: 4px; padding: 0 4px; }
 .card-back-count { font-size: 1.1rem; font-weight: 800; background: #ffffffdd; border-radius: 999px; min-width: 1.8rem; }
-.card-back.small { width: 36px; height: 50px; padding: 0; border-width: 1px; }
+.card-back.small { width: 36px; height: 50px; padding: 0; border-radius: 3px; }
 
 .dev-pile {
   display: flex; justify-content: space-between; align-items: center; width: 100%;
@@ -338,3 +340,18 @@ button.secondary { background: var(--bg); color: var(--text); border: 1px solid 
   width: min(640px, calc(100vw - 32px)); max-height: 45vh; overflow: auto;
   box-shadow: 0 16px 48px rgb(0 0 0 / 0.45); border: 1px solid var(--accent);
 }
+
+/* ---------------------------------------------------------------- developer panel (DEV_TOOLS only) */
+.dev-toggle { position: fixed; left: 16px; bottom: 16px; z-index: 26; background: #6b4fbf; color: #fff; }
+.dev-panel {
+  position: fixed; left: 16px; bottom: 16px; z-index: 26; width: min(340px, calc(100vw - 32px));
+  max-height: 70vh; overflow: auto; display: grid; gap: 0.5rem; border: 1px solid #6b4fbf;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.45);
+}
+.dev-field { display: grid; gap: 0.25rem; font-size: 0.9rem; }
+.dev-results { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; max-height: 220px; overflow: auto; }
+.dev-results button { text-align: left; width: 100%; padding: 0.2rem 0.3rem; }
+.dev-grid { display: grid; gap: 4px; }
+.dev-row { display: grid; grid-template-columns: 1fr repeat(3, 3rem); gap: 4px; align-items: center; font-size: 0.9rem; }
+.dev-row button { padding: 0.15rem 0; }
+.small { font-size: 0.8rem; margin: 0; }

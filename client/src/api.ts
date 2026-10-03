@@ -157,11 +157,19 @@ export interface GameStateView {
   log: string[];
   result: { reason: string; winners: number[]; rating?: string; scores?: { seat: number; name: string; total: number; parts: Record<string, number> }[] } | null;
   can_undo: boolean;
+  dev_tools?: boolean;
 }
+
+/** Developer panel command (server engine/dev.py). */
+export type DevCommand =
+  | { kind: "card"; card: string; zone: string }
+  | { kind: "resource"; resource: "dilithium" | "latinum" | "glory" | "actions"; amount: number }
+  | { kind: "track"; track: "research" | "influence" | "military"; amount: number };
 
 export interface CardText {
   name: string;
   suit: string;
+  set?: string;
   operations: { kind: string; text: string | null; action_cost: boolean; attack: boolean; requires: string | null }[];
 }
 
@@ -189,6 +197,8 @@ export const api = {
   command: (id: string, option: string) =>
     request<GameStateView>(`/api/games/${id}/commands`, { method: "POST", body: JSON.stringify({ option }), headers: seatHeaders(id) }),
   undo: (id: string) => request<GameStateView>(`/api/games/${id}/undo`, { method: "POST", headers: seatHeaders(id) }),
+  dev: (id: string, body: DevCommand) =>
+    request<GameStateView>(`/api/games/${id}/dev`, { method: "POST", body: JSON.stringify(body), headers: seatHeaders(id) }),
   deleteGame: (id: string) => request<null>(`/api/games/${id}`, { method: "DELETE", headers: seatHeaders(id) }),
   joinGame: (id: string, body: SeatChoice) =>
     request<SeatGrant>(`/api/games/${id}/join`, { method: "POST", body: JSON.stringify(body) }),

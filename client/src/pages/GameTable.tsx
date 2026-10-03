@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { MODE_LABELS, api, forgetSeatToken, loadSeatToken } from "../api";
 import { Board } from "../components/Board";
+import { DevPanel } from "../components/DevPanel";
 
 type SocketState = "connecting" | "open" | "closed" | "no-seat";
 
@@ -103,6 +104,7 @@ export function GameTable() {
           <p className="muted">The game starts when every seat is filled.</p>
         </section>
       )}
+      {state.data?.dev_tools && g.your_seat != null && g.status === "active" && <DevPanel gameId={gameId} />}
       {(command.error || undo.error) && <p className="error" role="alert">{(command.error || undo.error)!.message}</p>}
       <p className="muted">Connection: {socket === "no-seat" ? "you have no seat in this game" : socket}</p>
 

@@ -21,6 +21,7 @@ scripts/start.sh --dev      # API with reload on :8000, client on :5173
 cd client && npm run build  # type-check and build the client
 scripts/process_scans.py    # raw scans -> server/content/images/<same folders>/<id>.webp
 scripts/build_content.py    # card and board specs -> server/content/cards/*.yaml and boards.yaml
+scripts/card_coverage.py    # how many card operations have code; --missing lists the rest
 ```
 
 ## Engine
@@ -43,6 +44,7 @@ Rules for engine code:
 - All randomness goes through `state.shuffle` or `state.rng()`. They derive from the seed and a counter, so replay and undo give the same result.
 - Mark every event that reveals hidden information, uses randomness or ends a turn with `irreversible=True`. Options are flagged for the can't-be-undone warning by trying each one on a copy of the state.
 - The server stores the seed and the list of commands, and rebuilds a game by replaying them (`server/app/play.py`). Undo marks the last command undone and replays.
+- Developer commands (`engine/dev.py`) put any card into a zone or change resources and tracks, for testing by hand. The server accepts them only when `DEV_TOOLS=true`. They are stored and replayed like moves. Card tests build positions the same way with `given(...)` in `server/tests/scenario.py`.
 
 ## Card specs
 

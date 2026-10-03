@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     secure_cookies: bool = True
     session_days: int = 30
     login_attempts_per_minute: int = 5
+    # Developer panel for testing cards by hand (plans/card-implementation.md). Never turn on for real games.
+    dev_tools: bool = False
 
 
 @lru_cache
