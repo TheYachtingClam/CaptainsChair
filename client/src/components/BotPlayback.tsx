@@ -113,16 +113,7 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight }: {
           {atEnd && turn!.finished && " · turn over"}
         </span>
       </header>
-      <div className="bot-playback-body">
-        {shown.card && (
-          <img className="bot-playback-card" src={imageUrl(shown.card.image)} alt={shown.card.name} />
-        )}
-        <div className="stack">
-          <p className="bot-step">{step.text}</p>
-          {rowLabel && <p className="bot-row"><span className="muted">Matched row:</span> {rowLabel}</p>}
-        </div>
-      </div>
-      <div className="row">
+      <div className="bot-playback-controls">
         <button className="secondary" disabled={index === 0} onClick={() => { setAuto(false); setIndex((i) => Math.max(i - 1, 0)); }}>
           Previous
         </button>
@@ -130,8 +121,18 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight }: {
         <button className="secondary" disabled={atEnd} onClick={() => setAuto((a) => !a)}>
           {auto ? "Pause" : "Auto-play"}
         </button>
-        <button className="secondary" disabled={atEnd} onClick={() => { setAuto(false); setIndex(last); }}>Skip to the end</button>
-        {turn!.finished && <button onClick={() => setClosed(true)}>Done</button>}
+        <button className="secondary" disabled={atEnd} onClick={() => { setAuto(false); setIndex(last); }}>Skip to end</button>
+        <button disabled={!turn!.finished} title={turn!.finished ? undefined : "The Bot's turn is not over yet"}
+          onClick={() => setClosed(true)}>Done</button>
+      </div>
+      <div className="bot-playback-body">
+        <div className="bot-playback-card-slot">
+          {shown.card && <img className="bot-playback-card" src={imageUrl(shown.card.image)} alt={shown.card.name} />}
+        </div>
+        <div className="stack">
+          <p className="bot-step">{step.text}</p>
+          {rowLabel && <p className="bot-row"><span className="muted">Matched row:</span> {rowLabel}</p>}
+        </div>
       </div>
     </div>
   );

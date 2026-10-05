@@ -87,6 +87,7 @@ export function Card({ card, badges, style }: { card: CardView; badges?: React.R
     <div
       className={`gcard ${card.exhausted ? "exhausted" : ""} ${playable ? "playable" : ""} ${isSelected ? "selected" : ""} ${target ? "target" : ""}`}
       role="button"
+      data-uid={card.uid}
       aria-pressed={isSelected}
       onClick={(e) => select(e.currentTarget)}
       onKeyDown={(e) => {

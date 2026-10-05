@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CardView, GameStateView, OptionView, RowRef } from "../api";
 import { BotPlayback } from "./BotPlayback";
 import { SoloAid } from "./SoloAid";
@@ -35,8 +35,16 @@ function Confirm({ option, onContinue, onBack, solo }: {
 }
 
 /** The prompt and answer buttons of a decision. */
-function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint, cards }: {
+/** Answers shown together under a title, e.g. the Neutral Zone Locations. */
+export interface OptionGroup {
+  title: string;
+  options: OptionView[];
+}
+
+function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint, cards, groupOf }: {
   hint?: string;
+  /** Puts an answer in a titled box; answers with no group are listed as usual. */
+  groupOf?: (o: OptionView) => string | undefined;
   cards?: CardView[];
   prompt: string;
   options: OptionView[];
@@ -45,6 +53,25 @@ function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint,
   onPick: (o: OptionView) => void;
   onUndo: () => void;
 }) {
+  const button = (o: OptionView) => (
+    <button key={o.id} disabled={busy} className="option" onClick={() => onPick(o)}>
+      {o.irreversible && <span aria-label="Cannot be undone" title="Cannot be undone">🔒 </span>}
+      {o.label}
+    </button>
+  );
+  // Groups keep the order of their first answer, so they read like the table.
+  const groups: OptionGroup[] = [];
+  const rest: OptionView[] = [];
+  for (const o of options) {
+    const title = groupOf?.(o);
+    if (!title) {
+      rest.push(o);
+      continue;
+    }
+    const g = groups.find((x) => x.title === title);
+    if (g) g.options.push(o);
+    else groups.push({ title, options: [o] });
+  }
   return (
     <div className="stack">
       <p><strong>{prompt}</strong></p>
@@ -52,30 +79,16 @@ function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint,
         <div className="dock-cards">{cards.map((c) => <Card key={c.uid} card={c} />)}</div>
       )}
       {hint && <p className="muted">{hint}</p>}
-      <div className="options">
-        {options.map((o) => (
-          <button key={o.id} disabled={busy} className="option" onClick={() => onPick(o)}>
-            {o.irreversible && <span aria-label="Cannot be undone" title="Cannot be undone">🔒 </span>}
-            {o.label}
-          </button>
-        ))}
-      </div>
+      {groups.map((g) => (
+        <fieldset key={g.title} className="option-group">
+          <legend>{g.title}</legend>
+          <div className="options centered">{g.options.map(button)}</div>
+        </fieldset>
+      ))}
+      {rest.length > 0 && <div className="options">{rest.map(button)}</div>}
       {canUndo && <button className="secondary" disabled={busy} onClick={onUndo}>Undo</button>}
     </div>
   );
-}
-
-/** True while the element is on screen. */
-function useOnScreen(ref: React.RefObject<HTMLElement | null>): boolean {
-  const [visible, setVisible] = useState(true);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [ref]);
-  return visible;
 }
 
 const SCORE_PART: Record<string, string> = {
@@ -103,8 +116,6 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
   const [selection, setSelection] = useState<Selection>(null);
   const [botRow, setBotRow] = useState<RowRef | null>(null);
   const [aid, setAid] = useState(false);
-  const decisionBox = useRef<HTMLElement>(null);
-  const decisionBoxVisible = useOnScreen(decisionBox);
   const toggle = useCallback(
     (s: Selection) => setSelection((cur) => (cur && s && cur.card.uid === s.card.uid ? null : s)),
     [],
@@ -176,8 +187,43 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
       window.scrollBy({ top: r.top + r.height / 2 - limit / 2, behavior: "smooth" });
     }
   }, [targetKey]);
-  const showDock = !!d?.options && d.kind !== "action" && !view.result && !selection && !pending
-    && (midOperation || !decisionBoxVisible);
+  // List the answers in the order their cards sit on screen (top to bottom, then left to right), so the menu reads
+  // like the table. Answers without a card on the board, e.g. "None", keep their place after them. It is measured
+  // after layout, before the screen is painted, because the cards must be on the page first.
+  const [screenOrder, setScreenOrder] = useState<string[] | null>(null);
+  const optionsKey = `${d?.prompt}|${(d?.options ?? []).map((o) => o.id).join(",")}|${targetKey}`;
+  useLayoutEffect(() => {
+    const options = d?.options ?? [];
+    const uidOf = new Map<string, string>();
+    for (const [uid, o] of targets) uidOf.set(o.id, uid);
+    const placed = options.map((o, i) => {
+      const uid = uidOf.get(o.id);
+      const el = uid ? [...document.querySelectorAll<HTMLElement>(`.gcard[data-uid="${uid}"]`)]
+        .find((x) => !x.closest(".decision-dock")) : undefined;
+      return { id: o.id, i, r: el?.getBoundingClientRect() };
+    });
+    const onBoard = placed.filter((p) => p.r).sort((a, b) => {
+      const dy = a.r!.top - b.r!.top;
+      return Math.abs(dy) > 30 ? dy : a.r!.left - b.r!.left || a.i - b.i;
+    });
+    setScreenOrder([...onBoard, ...placed.filter((p) => !p.r)].map((p) => p.id));
+  }, [optionsKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const dockOptions = (d?.options ?? []).slice().sort((a, b) => {
+    const rank = (o: OptionView) => screenOrder?.indexOf(o.id) ?? -1;
+    return rank(a) - rank(b);
+  });
+  // Location answers are boxed by where the Location is: the Neutral Zone or a player's controlled Locations.
+  const locationGroup = (o: OptionView): string | undefined => {
+    const uid = [...targets].find(([, t]) => t.id === o.id)?.[0];
+    if (!uid) return undefined;
+    if (view.neutral_zone.some((l) => l.uid === uid)) return "Neutral Zone";
+    const owner = view.players.find((p) => p.locations.some((l) => l.uid === uid));
+    if (!owner) return undefined;
+    return owner.seat === view.you ? "Your controlled Locations" : `${owner.name}'s controlled Locations`;
+  };
+  const showDock = !!d?.options && d.kind !== "action" && !view.result && !selection && !pending;
+  // Someone else's decision (the other player in a two-player game): a quiet note in the same place.
+  const waiting = !view.result && d && !d.options ? `Waiting for ${view.players[d.seat]?.name ?? "…"}: ${d.prompt}` : null;
 
   return (
     <PreviewContext.Provider value={setPreview}>
@@ -185,19 +231,10 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
     <SelectContext.Provider value={{ selected: selectedUid, toggle }}>
     <TargetContext.Provider value={{ targets, answer: pick }}>
     <div className="stack">
-      <section className="card" ref={decisionBox}>
-        <div className="row between">
-          <strong>
-            Turn {view.turn} · {view.players[view.active]?.name}'s turn · {view.step}
-            {view.resolution && ` · Resolution: game ends after turn ${view.last_turn}`}
-          </strong>
-          <span className="muted">
-            Stardate: {view.stardate.glory} Glory, {view.stardate.remaining} card(s) left · Incidents {view.incident_count} ·
-            Encounters {view.encounter_count}
-            {view.mode === "solo" && <> · <button className="link" onClick={() => setAid(true)}>Solo rules</button></>}
-          </span>
-        </div>
-        {view.result ? (
+      {/* The game's state is shown on the mats and its choices on the cards, the End Turn button and the floating
+          box, so there is no separate status box; only the result appears up here, once the game is over. */}
+      {view.result && (
+        <section className="card">
           <div>
             <h2>Game over ({view.result.reason})</h2>
             {view.mode === "cadet" && view.result.reason === "burn" && <p>The Burn ends Cadet Training: you lose.</p>}
@@ -223,15 +260,8 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
             ))}
             {view.result.rating && <p><strong>{view.result.rating}</strong></p>}
           </div>
-        ) : d && d.options && midOperation ? (
-          <p><strong>{d.prompt}</strong> <span className="muted">Answer in the box at the bottom of the screen.</span></p>
-        ) : d && d.options ? (
-          <DecisionOptions prompt={d.prompt} options={d.options} busy={busy} canUndo={view.can_undo}
-            onPick={pick} onUndo={onUndo} />
-        ) : (
-          <p className="muted">Waiting for {d ? view.players[d.seat]?.name : "…"}: {d?.prompt}</p>
-        )}
-      </section>
+        </section>
+      )}
 
       {bot && (
         <BotPlayback gameId={gameId} turn={view.bot_turn} botName={bot.name} rowText={rowText} onHighlight={setBotRow} />
@@ -239,7 +269,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
 
       {others.map((p) => (
         <PlayerMat key={p.seat} p={p} you={false} active={view.active === p.seat} locationNames={locationNames}
-          highlight={p.bot ? botRow : undefined} />
+          highlight={p.bot ? botRow : undefined} onSoloRules={p.bot ? () => setAid(true) : undefined} />
       ))}
 
       <CenterMat view={view} />
@@ -247,6 +277,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
       {mine && (
         <PlayerMat p={mine} you active={view.active === mine.seat} locationNames={locationNames}
           onEndTurn={endOption && !busy ? () => pick(endOption) : null}
+          onUndo={view.can_undo && !busy && !showDock ? onUndo : null}
           missions={d?.kind === "action" && d.seat === view.you ? (d.options ?? []).filter((o) => o.id.startsWith("mission:")) : []}
           onMission={busy ? undefined : pick} />
       )}
@@ -263,11 +294,12 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
           The Action Step menu is left out: its choices are made from the cards and the End Turn button. */}
       {showDock && (
         <div className="decision-dock card" role="dialog" aria-label="Your decision">
-          <DecisionOptions prompt={d!.prompt} options={d!.options!} busy={busy} canUndo={view.can_undo}
-            onPick={pick} onUndo={onUndo} cards={shownCards}
+          <DecisionOptions prompt={d!.prompt} options={dockOptions} busy={busy} canUndo={view.can_undo}
+            onPick={pick} onUndo={onUndo} cards={shownCards} groupOf={locationGroup}
             hint={targets.size ? "Or click a highlighted card." : undefined} />
         </div>
       )}
+      {waiting && <div className="decision-dock waiting-note card" role="status">{waiting}</div>}
       {aid && <SoloAid onClose={() => setAid(false)} />}
       <CardPreview preview={preview} />
       {selection && (

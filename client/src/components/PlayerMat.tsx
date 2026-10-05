@@ -72,7 +72,7 @@ function CommandSide({ side, highlight }: { side: BotView["command"][number]; hi
 
 /** The Bot's two Automated Command cards: TRAITS, and whichever SUITS side is up (REQ-SOLO-32, -91). While watching a
  * Bot turn, the side holding the matched row is shown with that row highlighted, even if the card has flipped since. */
-function CommandCards({ bot, highlight }: { bot: BotView; highlight?: RowRef | null }) {
+function CommandCards({ bot, highlight, onSoloRules }: { bot: BotView; highlight?: RowRef | null; onSoloRules?: () => void }) {
   const suits = bot.command.find((s) => s.side !== "traits" && (highlight ? s.side === highlight.side : s.up))
     ?? bot.command.find((s) => s.side !== "traits" && s.up);
   const shown = [bot.command.find((s) => s.side === "traits"), suits].filter((s): s is NonNullable<typeof s> => !!s);
@@ -82,6 +82,7 @@ function CommandCards({ bot, highlight }: { bot: BotView; highlight?: RowRef | n
         <CommandSide key={side.side} side={side} highlight={highlight?.side === side.side ? highlight.number : undefined} />
       ))}
       {bot.special_rule && <p className="muted special-rule"><strong>Special rule:</strong> {bot.special_rule}</p>}
+      {onSoloRules && <button type="button" className="link solo-rules-link" onClick={onSoloRules}>Solo rules</button>}
     </div>
   );
 }
@@ -100,7 +101,12 @@ function Section({ label, cards, place }: { label: string; cards: CardView[]; pl
   );
 }
 
-export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, onMission, highlight }: {
+export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, onMission, highlight, onSoloRules,
+  onUndo }: {
+  /** The Bot: opens the solo rules aid, linked under its command cards. */
+  onSoloRules?: () => void;
+  /** Your own mat: undo your last move, when it can be undone. */
+  onUndo?: (() => void) | null;
   /** The Bot: the Automated Command row to highlight while watching its turn. */
   highlight?: RowRef | null;
   /** Missions you can complete now (REQ-MS-09: shown, never auto-completed). */
@@ -148,7 +154,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
             <CardBack label={p.bot ? "Supplement" : "Reserve"} count={p.reserve_count} />
             {p.status.map((c) => <Card key={c.uid} card={c} />)}
           </div>
-          {p.bot ? <CommandCards bot={p.bot} highlight={highlight} /> : (
+          {p.bot ? <CommandCards bot={p.bot} highlight={highlight} onSoloRules={onSoloRules} /> : (
             <button type="button" className="dev-pile" onClick={() => setViewing("development")} disabled={!p.development.length}>
               <span>Development</span>
               <span className="count">{p.development.length}</span>
@@ -220,6 +226,9 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
               title={onEndTurn ? "End your Action Step and go to Clean-up" : "Available during your Action Step"}>
               End Turn
             </button>
+          )}
+          {you && onUndo && (
+            <button type="button" className="secondary undo-move" onClick={onUndo} title="Undo your last move">Undo</button>
           )}
         </div>
       </div>
