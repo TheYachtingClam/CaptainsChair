@@ -104,6 +104,11 @@ def _process_event(state: GameState) -> None:
     else:
         event["_next"] = step + 1
     trigger_event = {k: v for k, v in event.items() if k != "_next"}
+    with ops.acting(state, seat):
+        _collect_triggers(state, seat, trigger_event)
+
+
+def _collect_triggers(state: GameState, seat: int, trigger_event: dict) -> None:
     player = state.player(seat)
     mandatory, optional = [], []
     for inst in table_cards(player):

@@ -20,9 +20,28 @@ def is_suit(inst, *suits) -> bool:
 
 
 def has_trait(inst, *traits) -> bool:
+    """Whether the card has any of the traits, counting "treated as" traits and, for the acting player's own cards,
+    Wildcard (REQ-TR-05). Outside an operation (e.g. final scoring) only the card's own traits count."""
+    from engine.ops import trait_matches
+
+    return trait_matches(inst, traits)
+
+
+def printed_trait(inst, *traits) -> bool:
+    """Only the traits printed on the card: no Wildcard, no "treated as"."""
     from engine.ops import card
 
     return bool(set(card(inst).traits) & set(traits))
+
+
+def distinct_traits(cards, among) -> int:
+    """How many different traits from `among` the cards have. Each Wildcard the acting player owns adds one more
+    (AS-12: Bajoran + Klingon + Wildcard is 3 different species), up to the number in `among` (REQ-TR-05)."""
+    from engine.ops import card, wildcards_owned_by_actor
+
+    cards = list(cards)
+    found = {t for c in cards for t in card(c).traits if t in set(among)}
+    return min(len(set(among)), len(found) + wildcards_owned_by_actor(cards))
 
 
 def ships(ctx: Ctx):
@@ -49,7 +68,10 @@ def opponent_ships(ctx: Ctx):
 def count_traits(ctx: Ctx, *traits, player=None, beamed: bool = True, exclude=None) -> int:
     """Cards in play (Staging Area and table, beamed too unless excluded) with any of the traits, counting "treated
     as" traits such as Protocol 12's Augment Doctors."""
-    return ctx.count_in_play(lambda i: bool(ctx.traits(i) & set(traits)) and i is not exclude, player, beamed=beamed)
+    from engine.ops import trait_matches
+
+    return ctx.count_in_play(lambda i: i is not exclude and trait_matches(i, traits, state=ctx.state),
+                             player, beamed=beamed)
 
 
 def others_in_hand(ctx: Ctx, pred=None):

@@ -136,7 +136,7 @@ Goals and rewards for Georgiou's and Soval's board sides are included here. Each
 
 **You test:** meet Georgiou's goal and complete the mission from the Action Step menu.
 
-## Step 8b: Wildcard
+## Step 8b: Wildcard (done)
 
 The engine has no Wildcard rules yet (REQ-TR-05 to -07, AS-12). A Wildcard card counts as any single trait of its owner's choice: when finding or discarding by trait, and for "different species" counts. An opponent's attack cannot force it to count, and it is not any other trait at final scoring (REQ-FS-11). Vadic's Splinter Group already gains the Wildcard trait (Step 5); this step makes the trait mean something. Several Crew decks have Wildcard cards, so it comes before the Crew decks.
 

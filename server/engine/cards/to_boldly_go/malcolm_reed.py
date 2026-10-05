@@ -3,7 +3,7 @@
 from engine.cards import operation
 from engine.ops import A
 
-from ._util import count_traits, has_trait, is_suit, others_in_hand
+from ._util import count_traits, distinct_traits, has_trait, is_suit, others_in_hand
 
 
 @operation("2PER11", 0, uses=[A.GAIN_SPECIALTY, A.DISCARD])
@@ -18,7 +18,7 @@ def tactical(ctx, actions):
         yield from actions.discard(1)
     else:
         yield from actions.discard_top()
-    kinds = sum(1 for t in ("Augment", "Xindi", "Romulan") if any(has_trait(i, t) for i in ctx.me.discard))
+    kinds = distinct_traits(ctx.me.discard, ("Augment", "Xindi", "Romulan"))
     if kinds:
         yield from actions.gain_specialty("military", kinds)
 

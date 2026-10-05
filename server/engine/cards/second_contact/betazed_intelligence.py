@@ -3,7 +3,7 @@
 from engine.cards import operation
 from engine.ops import A
 
-from ._util import count_traits, has_trait
+from ._util import distinct_traits, has_trait
 
 
 @operation("3ALL01", 0, uses=[A.FIND])
@@ -18,7 +18,7 @@ def briefing(ctx, actions):
     """CLEAN-UP: Temporarily increase your hand size by 1 for each different one of Starfleet / Beverage / Ambassador
     you have in play. If this increased your hand size by 2 or 3, log this card.
     Ruling: Clean-up operations run before Discard & Draw, so it applies to this turn's draw."""
-    n = sum(1 for t in ("Starfleet", "Beverage", "Ambassador") if count_traits(ctx, t))
+    n = distinct_traits(ctx.in_play(), ("Starfleet", "Beverage", "Ambassador"))
     if n:
         yield from actions.adjust_hand_size(n)
     if n >= 2:

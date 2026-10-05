@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import math
 from collections.abc import Callable, Generator, Iterable
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -174,7 +176,7 @@ def is_khan(p: Player) -> bool:
 
 
 class Ctx:
-    """Read-only queries for card code (CLAUDE.md rule 7)."""
+    """Read-only queries for card code (CLAUDE.md rule 8)."""
 
     def __init__(self, state: GameState, ref: OpRef):
         self.state = state
@@ -213,7 +215,8 @@ class Ctx:
         return traits_of(self.state, inst)
 
     def has(self, inst: Inst, trait: str) -> bool:
-        return trait in self.traits(inst)
+        """Whether the card has the trait, or is your Wildcard counting as it (REQ-TR-05)."""
+        return trait_matches(inst, (trait,), state=self.state, actor=self.me.seat)
 
     def species(self, inst: Inst) -> set[str]:
         return self.traits(inst) & SPECIES
@@ -1470,7 +1473,8 @@ def duty_fits(state: GameState, player: Player, officers: list[Inst]) -> bool:
 
     def place(officer: Inst, seen: set[int]) -> bool:
         for k, (trait, provider) in enumerate(slots):
-            if k in seen or provider == officer.uid or (trait and trait not in traits_of(state, officer)):
+            if k in seen or provider == officer.uid or (
+                    trait and not trait_matches(officer, (trait,), state=state, actor=player.seat)):
                 continue
             seen.add(k)
             if k not in match or place(match[k], seen):
@@ -1508,6 +1512,56 @@ def traits_of(state: GameState, inst: Inst) -> set[str]:
     return traits
 
 
+# --------------------------------------------------------------------------- Wildcard (REQ-TR-05 to -07)
+
+# The player whose operation, trigger check or goal check is being evaluated, and the state. A Wildcard card counts as
+# any single trait only for its owner's own checks: an opponent's effect cannot force it, and at final scoring nobody is
+# acting, so it counts as no other trait (REQ-FS-11). Engine-internal, set by the runtime only.
+_ACTING: ContextVar[tuple[GameState, int | None] | None] = ContextVar("acting", default=None)
+
+
+@contextmanager
+def acting(state: GameState, seat: int | None):
+    token = _ACTING.set((state, seat))
+    try:
+        yield
+    finally:
+        _ACTING.reset(token)
+
+
+def trait_matches(inst: Inst, traits: Iterable[str], *, state: GameState | None = None,
+                  actor: int | None = None) -> bool:
+    """Whether the card has any of the traits, including "treated as" traits, or is a Wildcard its owner may count as
+    one of them. Ruling (REQ-TR-07 simplified): the owner's Wildcard always counts for the owner, without a prompt."""
+    wanted = set(traits)
+    current = _ACTING.get()
+    if state is None and current is not None:
+        state, actor = current
+    elif actor is None and current is not None and current[0] is state:
+        actor = current[1]
+    have = traits_of(state, inst) if state is not None else set(card(inst).traits)
+    if have & wanted:
+        return True
+    if "Wildcard" not in have or actor is None or not (wanted - {"Wildcard"}) or state is None:
+        return False
+    where = locate(state, inst.uid)
+    return where is not None and where.owner is not None and where.owner.seat == actor
+
+
+def wildcards_owned_by_actor(cards: Iterable[Inst]) -> int:
+    """How many of these cards are Wildcards the acting player may count, for "different traits" counts."""
+    current = _ACTING.get()
+    if current is None or current[1] is None:
+        return 0
+    state, actor = current
+    out = 0
+    for inst in cards:
+        if "Wildcard" in traits_of(state, inst):
+            where = locate(state, inst.uid)
+            out += bool(where and where.owner and where.owner.seat == actor)
+    return out
+
+
 def over_duty_limit(state: GameState) -> Player | None:
     return next((p for p in state.players if not duty_fits(state, p, p.duty)), None)
 
@@ -1540,6 +1594,11 @@ def impl_for(inst: Inst, index: int):
 
 
 def legal(state: GameState, player: Player, inst: Inst, index: int, *, free: bool = False) -> bool:
+    with acting(state, player.seat):
+        return _legal(state, player, inst, index, free=free)
+
+
+def _legal(state: GameState, player: Player, inst: Inst, index: int, *, free: bool = False) -> bool:
     impl = impl_for(inst, index)
     op = card(inst).operations[index]
     if impl is None:
@@ -1634,6 +1693,11 @@ def _drawup(ctx: Ctx, actions: Actions) -> Gen:
 
 def completable_missions(state: GameState, player: Player) -> list:
     """Missions on the player's board whose GOAL is met now and that are not completed (REQ-MS-05, -07, -09)."""
+    with acting(state, player.seat):
+        return _completable_missions(state, player)
+
+
+def _completable_missions(state: GameState, player: Player) -> list:
     board = content().boards[player.board]
     if len(player.missions_completed) >= player.mission_tokens:
         return []
@@ -1724,6 +1788,11 @@ def _restore(state: GameState, snapshot: dict) -> None:
 
 
 def _resume(state: GameState) -> None:
+    with acting(state, state.running.ref.seat):
+        _resume_inner(state)
+
+
+def _resume_inner(state: GameState) -> None:
     run = state.running
     gen = _execute(Ctx(state, run.ref))
     answers = iter(run.answers)

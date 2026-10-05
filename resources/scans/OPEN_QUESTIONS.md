@@ -10,6 +10,7 @@ Collected from the "Rulings and open questions" sections of every card, board an
 - **Core Box Burnham variant** (REQ-CTM-21): The rule refers to a Burnham Status card, but no Crew deck with that card is in the content yet. Not implemented.
 - **Ambassador Gral against an ignored attack** ([to_boldly_go/cards/person/2PER02.md](to_boldly_go/cards/person/2PER02.md)): His Reaction gives an Incident instead of returning it, and is an attack. If the opponent ignores it (Riva), the rules don't say what happens to the Incident. Implemented as: it is returned as normal. Confirm.
 - **Attacks against the Cadet virtual opponent** (REQ-CTM-12): Implemented as: each attack works once against its "one of everything". Stealing takes 1 from the supply, removing Away Teams removes 1 (1 Glory for the Disruptor Pistols), and dismissing its Duty Officer still pays (2 Glory for Ash Tyler). Effects that only hurt it do nothing. Confirm.
+- **Wildcard choice** (REQ-TR-07): The rules let the owner decide each time whether a Wildcard counts as the trait. Implemented as: your own Wildcard always counts for your own effects, without a prompt. This only matters when counting hurts you, for example the Universal Translator dismissing your Alien Ships. Confirm, or ask for a prompt in those cases.
 
 ## Gaps in the CLAUDE.md action list
 
