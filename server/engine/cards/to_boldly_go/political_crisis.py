@@ -5,8 +5,10 @@ from engine.ops import A, DiscardFromHand
 
 from ._util import count_traits
 
+IDS = ("2INC03", "3PIK14")  # Pike's Political Crisis is an identical copy
 
-@operation("2INC03", 0, uses=[A.DISCARD, A.RETURN_INCIDENT, A.GAIN_RESOURCE], cost=[DiscardFromHand(1)])
+
+@operation(IDS, 0, uses=[A.DISCARD, A.RETURN_INCIDENT, A.GAIN_RESOURCE], cost=[DiscardFromHand(1)])
 def negotiate(ctx, actions):
     """PLAY: Discard a card to return this card. If the discarded card has [Influence]/[Influence Focus], gain 1
     [Latinum]."""
@@ -15,7 +17,7 @@ def negotiate(ctx, actions):
         yield from actions.gain_resource("latinum", 1)
 
 
-@operation("2INC03", 1, uses=[A.RETURN_INCIDENT, A.GAIN_RESOURCE],
+@operation(IDS, 1, uses=[A.RETURN_INCIDENT, A.GAIN_RESOURCE],
            requires=lambda ctx: count_traits(ctx, "Ambassador") > 0)
 def diplomat(ctx, actions):
     """PLAY: If you have an Ambassador in play, return this card and gain 1 [Latinum]."""

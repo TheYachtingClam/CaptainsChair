@@ -36,8 +36,8 @@ def play_kelpien(ctx, actions):
         yield from actions.draw(1)
 
 
-@operation("2GEO03", 3, uses=[A.RETURN_INCIDENT], requires=lambda ctx: any(is_suit(i, "Incident") for i in ctx.me.hand))
+@operation("2GEO03", 3, uses=[A.RETURN_INCIDENT], requires=lambda ctx: bool(ctx.hand_incidents()))
 def return_incident(ctx, actions):
     """ACTIVATION: Return an Incident."""
-    incident = yield from actions.pick_card("Return which Incident?", [i for i in ctx.me.hand if is_suit(i, "Incident")])
+    incident = yield from actions.pick_card("Return which Incident?", ctx.hand_incidents())
     yield from actions.return_incident(incident)

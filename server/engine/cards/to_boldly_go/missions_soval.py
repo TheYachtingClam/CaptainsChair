@@ -27,7 +27,7 @@ def mind_meld_reward(ctx, actions):
             yield from actions.draw(1)
         else:
             yield from actions.gain_resource("latinum", 1)
-            incidents = [i for i in ctx.me.hand if is_suit(i, "Incident")]
+            incidents = ctx.hand_incidents()
             card = yield from actions.pick_card("Return an Incident?", incidents, optional=True, none_label="No")
             if card:
                 yield from actions.return_incident(card)

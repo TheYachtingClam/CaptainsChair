@@ -64,9 +64,15 @@ DUTY_SLOTS: dict[str, tuple[Callable, bool]] = {}
 # Restrictions on the owner: fn(state, owner, inst, target, verb) -> True when `verb` ("play" or "promote") of `target`
 # is not allowed. Table positions only.
 RESTRICTIONS: dict[str, Callable] = {}
-# "Treated as": fn(state, owner, inst, target) -> extra traits for one of the owner's cards. Table positions, or the
-# Staging Area when registered with staging=True.
-TRAIT_MODIFIERS: dict[str, tuple[Callable, bool]] = {}
+# "Treated as": fn(state, owner, inst, target) -> extra traits for one of the owner's cards. Table positions, the
+# Staging Area when registered with staging=True, or both with staging="both" ("while this card is in play").
+TRAIT_MODIFIERS: dict[str, tuple[Callable, bool | str]] = {}
+# "All [icon] on your cards are treated as [icon]" (La'an Noonien Singh): fn(state, owner, inst, icons) -> icons for
+# each of the owner's cards. Table positions.
+SKILL_REWRITES: dict[str, Callable] = {}
+# PASSIVE "Operations that find, free play, or return Incident from your hand can also target cards from your Log"
+# (Christopher Pike). Table positions.
+INCIDENTS_FROM_LOG: set[str] = set()
 # SPECIAL "This card is considered a [suit] for all purposes" (Gomtuu, Species 10-C): card id -> extra suit.
 ALSO_SUIT: dict[str, str] = {}
 # PASSIVE "When taking an Incident, you may take it from the Junk" (Starbase 80). Table positions.
@@ -182,12 +188,23 @@ def restriction(card_ids):
     return register
 
 
-def trait_modifier(card_ids, *, staging: bool = False):
+def trait_modifier(card_ids, *, staging: bool | str = False):
     """PASSIVE/SPECIAL "... are additionally treated as [trait]" (KW-TREAT-02)."""
 
     def register(fn):
         for cid in _ids(card_ids):
             TRAIT_MODIFIERS[cid] = (fn, staging)
+        return fn
+
+    return register
+
+
+def skill_rewrite(card_ids):
+    """PASSIVE "all [icon] on your cards are treated as [icon]": fn(state, owner, inst, icons) -> icons."""
+
+    def register(fn):
+        for cid in _ids(card_ids):
+            SKILL_REWRITES[cid] = fn
         return fn
 
     return register

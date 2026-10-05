@@ -3,14 +3,14 @@
 from engine.cards import endgame, operation
 from engine.ops import A, RemoveOwnAwayTeam
 
-from ._util import is_suit, table_of
+from ._util import table_of
 
 
 @operation("2GEO01", 0, uses=[A.RETURN_INCIDENT], cost=[RemoveOwnAwayTeam()],
-           requires=lambda ctx: any(is_suit(i, "Incident") for i in ctx.me.hand))
+           requires=lambda ctx: bool(ctx.hand_incidents()))
 def return_an_incident(ctx, actions):
     """ACTIVATION: Remove an Away Team from a Location to return an Incident."""
-    incident = yield from actions.pick_card("Return which Incident?", [i for i in ctx.me.hand if is_suit(i, "Incident")])
+    incident = yield from actions.pick_card("Return which Incident?", ctx.hand_incidents())
     yield from actions.return_incident(incident)
 
 

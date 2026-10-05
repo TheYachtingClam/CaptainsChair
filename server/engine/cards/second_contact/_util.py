@@ -10,3 +10,8 @@ def minus_unless_logged(points: int):
         return 0 if any(i.uid == inst.uid for i in player.log) else -points
 
     return score
+
+
+def status_of(player, card_id: str):
+    """A player's Status card with this id, if they have it (Pike's Improbable, Unstoppable, Sensational)."""
+    return next((i for i in player.status if i.card == card_id), None)

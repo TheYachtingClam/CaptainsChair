@@ -10,7 +10,7 @@ from ._util import is_suit
 def doctor(ctx, actions):
     """PLAY: Gain 1 [Research]. You may return an Incident."""
     yield from actions.gain_specialty("research", 1)
-    incidents = [i for i in ctx.me.hand if is_suit(i, "Incident")]
+    incidents = ctx.hand_incidents()
     card = yield from actions.pick_card("Return an Incident?", incidents, optional=True, none_label="No")
     if card:
         yield from actions.return_incident(card)

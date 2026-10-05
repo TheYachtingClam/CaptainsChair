@@ -17,7 +17,7 @@ from engine import cards as card_code
 from engine import ops
 from engine.content import MARKET_SUITS, content
 from engine.setup import refill_market
-from engine.state import SPECIALTIES, Decision, GameState, Inst, Option, Player
+from engine.state import Decision, GameState, Inst, Option, Player
 
 BASE_HAND_SIZE = 5
 FLEET_SHIP_WEIGHT = {"3FRE03": 2}  # A Fleet of 30 California-Class Ships (REQ-EXP-FRE-01)

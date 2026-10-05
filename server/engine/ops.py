@@ -237,8 +237,28 @@ class Ctx:
         owner = owner or self.me
         modifier = registry.SKILLS.get(inst.card)
         if modifier and inst in table_cards(owner):
-            return modifier(self.state, owner, inst)
-        return [s for s in printed if s != "Variable"]
+            icons = modifier(self.state, owner, inst)
+        else:
+            icons = [s for s in printed if s != "Variable"]
+        if registry.SKILL_REWRITES:
+            for source in table_cards(owner):
+                rewrite = registry.SKILL_REWRITES.get(source.card)
+                if rewrite:
+                    icons = rewrite(self.state, owner, source, icons)
+        return icons
+
+    def incidents_from_log(self, player: Player | None = None) -> bool:
+        """Whether "Incident from your hand" may also mean your Log for find, free play and return (Pike)."""
+        return any(i.card in registry.INCIDENTS_FROM_LOG for i in table_cards(player or self.me))
+
+    def hand_incidents(self, *extra_zones: str, player: Player | None = None) -> list[Inst]:
+        """Incidents in your hand (and `extra_zones`), plus your Log when Pike's PASSIVE applies, to return or play."""
+        player = player or self.me
+        pools = zones(player)
+        found = [i for z in ("hand", *extra_zones) for i in pools[z] if card(i).suit == "Incident"]
+        if self.incidents_from_log(player):
+            found += [i for i in player.log if card(i).suit == "Incident"]
+        return found
 
     def has_specialty_icon(self, inst: Inst, specialty: str) -> bool:
         """Skill or Focus icon of the Specialty, or Any Skill / Best Focus (REQ-SP-12)."""
@@ -753,7 +773,7 @@ class Actions:
         onto.beamed.append(inst)
         self.emit(f"{self.ctx.me.name} beams {name(inst)} to {name(onto)}.")
         if where.zone in ("hand", "discard"):
-            put_into_play(self.state, self.ctx.me, inst)
+            put_into_play(self.state, self.ctx.me, inst, beamed=True)
         return
         yield  # pragma: no cover
 
@@ -882,9 +902,11 @@ class Actions:
             self.emit(f"{self.ctx.me.name} takes the Encounter {name(chosen)}.", irreversible=True)
         return chosen
 
-    def junk(self) -> Gen:
+    def junk(self, suits: Iterable[str] | None = None) -> Gen:
+        """Junk a faceup Market card, of one of `suits` if given ("Junk a Person from the Market"). Refills."""
         self._use(A.JUNK)
-        cards = [i for i in self.state.market.values() if i is not None and not i.res]
+        cards = [i for i in self.state.market.values() if i is not None and not i.res
+                 and (suits is None or card(i).suit in suits)]
         inst = yield from self.pick_card("Junk a card from the Market.", cards)
         if inst and (yield from self._would(self.ctx.me.seat, {"kind": "would_junk", "seat": self.ctx.me.seat,
                                                                 "uid": inst.uid})):
@@ -917,7 +939,8 @@ class Actions:
         yield  # pragma: no cover
 
     def junk_card(self, inst: Inst) -> Gen:
-        """Junk a card from your hand or Discard pile (Starbase 80). The Market does not refill (KW-JUNK)."""
+        """Junk a card from your hand, Discard pile (Starbase 80) or Development pile (Knowledge of a Terrible Fate). The
+        Market does not refill (KW-JUNK)."""
         self._use(A.JUNK)
         take_out(self.state, inst)
         inst.res.clear()
@@ -1113,10 +1136,12 @@ class Actions:
         self._use(A.FIND)
         me = self.ctx.me
         searched = [z for z in zones_ if not (exclude_reserve and z == "reserve")]
-        pools = {"hand": me.hand, "draw": me.draw, "discard": me.discard, "reserve": me.reserve}
+        pools = {"hand": me.hand, "draw": me.draw, "discard": me.discard, "reserve": me.reserve, "log": me.log}
         this = self.ctx.this_card
         candidates = [(z, i) for z in searched for i in pools[z] if i is not this and pred(i)]
-        options = [(f"{z}:{i.uid}", f"{name(i)} ({'your ' + {'draw': 'Draw deck', 'reserve': 'Reserve deck', 'discard': 'Discard pile', 'hand': 'hand'}[z]})")
+        if "hand" in searched and self.ctx.incidents_from_log():  # Pike's PASSIVE: Incidents from the Log too
+            candidates += [("log", i) for i in me.log if card(i).suit == "Incident" and pred(i)]
+        options = [(f"{z}:{i.uid}", f"{name(i)} ({'your ' + {'draw': 'Draw deck', 'reserve': 'Reserve deck', 'discard': 'Discard pile', 'hand': 'hand', 'log': 'Log'}[z]})")
                    for z, i in candidates]
         if optional:
             options.append(("none", "Find nothing"))
@@ -1168,6 +1193,7 @@ class Actions:
                 yield from cost.pay(self)
         self.ctx.me.development.remove(inst)
         self.ctx.me.draw.insert(0, inst)
+        self.ctx.me.enlisted.append(inst.card)
         self.emit(f"{self.ctx.me.name} enlists {name(inst)}{' for free' if free else ''}.")
         raise_event(self.state, "enlist", self.ctx.me.seat, inst.uid)
         return inst
@@ -1181,6 +1207,8 @@ class Actions:
                              cards: Iterable[Inst] | None = None) -> list[Inst]:
         """Cards that can be free played now: from the named zones of yours, or from `cards` (e.g. beamed cards)."""
         pool = list(cards) if cards is not None else [i for z in zones_ for i in zones(self.ctx.me)[z]]
+        if cards is None and "hand" in zones_ and self.ctx.incidents_from_log():
+            pool += [i for i in self.ctx.me.log if card(i).suit == "Incident"]  # Pike's PASSIVE
         return [i for i in pool if pred(i) and playable_indexes(self.state, self.ctx.me, i, free=True)]
 
     # ------------------------------------------------------------ resources, actions, tracks
@@ -1243,9 +1271,9 @@ class Actions:
         yield  # pragma: no cover
 
     def duplicate(self, cards: list[Inst], *, label: str = "a card", optional: bool = True,
-                  indexes: Iterable[int] | None = None) -> Gen:
-        """Resolve a PLAY operation of one of `cards` as this card (KW-DUP). No extra action is spent; requirements
-        and costs still apply; "this card" in the copied text means the duplicating card. A Duplicate resolved by a
+                  indexes: Iterable[int] | None = None, kind: str = "PLAY") -> Gen:
+        """Resolve a `kind` operation (PLAY unless stated; Una duplicates a RESUPPLY) of one of `cards` as this card
+        (KW-DUP). No extra action is spent; requirements and costs still apply; "this card" in the copied text means the duplicating card. A Duplicate resolved by a
         Duplicate does nothing (KW-DUP-05). Returns (card, index) or None."""
         self._use(A.DUPLICATE)
         if self.in_duplicate:
@@ -1259,7 +1287,7 @@ class Actions:
         for c in cards:
             for index, op in enumerate(card(c).operations):
                 impl = impl_for(c, index)
-                if op.kind != "PLAY" or impl is None or (indexes is not None and index not in indexes):
+                if op.kind != kind or impl is None or (indexes is not None and index not in indexes):
                     continue
                 if impl.requires and not impl.requires(sub):
                     continue
@@ -1273,7 +1301,7 @@ class Actions:
             return None
         if optional:
             options.append(("none", "Do not duplicate"))
-        answer = yield from self.choose(f"Duplicate a PLAY operation of {label}.", options, show=cards)
+        answer = yield from self.choose(f"Duplicate a {kind} operation of {label}.", options, show=cards)
         if answer == "none":
             return None
         source, index, impl = found[answer]
@@ -1727,7 +1755,7 @@ def duty_slots(state: GameState, player: Player) -> list[tuple[str | None, str |
         slots += [(None, inst.uid)] * registry.DUTY_LIMIT.get(inst.card, 0)
     for inst, from_staging in [*((i, False) for i in table_cards(player)), *((i, True) for i in player.staging)]:
         entry = registry.DUTY_SLOTS.get(inst.card)
-        if entry and entry[1] == from_staging:
+        if entry and entry[1] in (from_staging, "both"):
             slots += [(trait, inst.uid) for trait in entry[0](state, player, inst)]
     return slots
 
@@ -1776,7 +1804,7 @@ def traits_of(state: GameState, inst: Inst) -> set[str]:
         return traits
     for source, from_staging in [*((i, False) for i in table_cards(owner)), *((i, True) for i in owner.staging)]:
         entry = registry.TRAIT_MODIFIERS.get(source.card)
-        if entry and entry[1] == from_staging:
+        if entry and entry[1] in (from_staging, "both"):
             traits |= set(entry[0](state, owner, source, inst))
     return traits
 
@@ -1847,10 +1875,10 @@ def raise_event(state: GameState, kind: str, seat: int, uid: str | None, **data)
 
 
 def put_into_play(state: GameState, player: Player, inst: Inst, *, played: bool = False,
-                  index: int | None = None) -> None:
+                  index: int | None = None, beamed: bool = False) -> None:
     """KW-PIP-01. `played` marks a card put into play by playing it, with the PLAY `index`, for "after playing X"
-    triggers."""
-    raise_event(state, "put_into_play", player.seat, inst.uid, played=played, index=index)
+    triggers; `beamed` one put into play by beaming it."""
+    raise_event(state, "put_into_play", player.seat, inst.uid, played=played, index=index, beamed=beamed)
 
 
 def _payable_developments(ctx: Ctx, free: bool = False) -> list[Inst]:

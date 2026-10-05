@@ -16,7 +16,7 @@ def reconciliation(ctx, actions):
     yield from actions.draw(1)
     returned = 0
     for player in [ctx.me] + ([ctx.opponent] if ctx.opponent else []):
-        incidents = [i for i in player.hand + player.discard if is_suit(i, "Incident")]
+        incidents = ctx.hand_incidents("discard", player=player)
         incident = yield from actions.pick_card("T'Pau: return an Incident from your hand or Discard pile?", incidents,
                                                 optional=True, none_label="No", seat=player.seat)
         if incident:

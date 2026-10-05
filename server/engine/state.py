@@ -106,6 +106,7 @@ class Player(BaseModel):
     away_aside: int = 0  # Archer's set-aside Away Teams (REQ-CD-ARC-01)
     mission_tokens: int = 1
     missions_completed: list[str] = Field(default_factory=list)
+    enlisted: list[str] = Field(default_factory=list)  # card ids of Developments enlisted this game
     controls_this_turn: int = 0
     hand_bonus: int = 0  # temporary hand size change until the end of this turn (Betazed Intelligence)
 

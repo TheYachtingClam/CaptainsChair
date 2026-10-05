@@ -167,7 +167,7 @@ Each step covers the deck's cards, development costs, Passives, ENDGAME, deck-sp
 11. Soval (done)
 12. Kirk (done)
 13. Archer (done)
-14. Pike (Second Contact)
+14. Pike (done)
 15. Riker (Second Contact)
 16. Freeman (Second Contact), including the K'ranch, Boimler and Tendi SUPPORT chain test
 17. Rebner: hand size 3, Helmets, the Junk, and tracks fixed at ×0
