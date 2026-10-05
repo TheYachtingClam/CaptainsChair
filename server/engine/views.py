@@ -57,6 +57,7 @@ def player_view(state: GameState, player: Player, viewer: int | None) -> dict:
         "mission_tokens": player.mission_tokens,
         "missions_completed": list(player.missions_completed),
         "bot": _bot_view(player),
+        "reinforcement": [card_view(i) for i in player.reinforcement],
     }
 
 

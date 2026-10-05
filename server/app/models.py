@@ -25,6 +25,8 @@ class Game(Base):
     commands: Mapped[list[dict]] = mapped_column(JSON, default=list, server_default=text("'[]'"))
     # Solo mode: the Bot's Crew, difficulty and Ticking Clock (REQ-SRV-18). Null for other modes.
     bot: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # A Five-Year Mission assignment: {"id": campaign id, "assignment": number, "reinforcement": [card ids]}.
+    campaign: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="waiting")
 
     seats: Mapped[list["Seat"]] = relationship(
@@ -46,3 +48,24 @@ class Seat(Base):
     token_hash: Mapped[str] = mapped_column(String(64), index=True)
 
     game: Mapped[Game] = relationship(back_populates="seats")
+
+
+class Campaign(Base):
+    """A Five-Year Mission (requirements/22-solo-mode.md §14), replacing the paper logbook (REQ-CAMP-50 to -54). It is
+    reached through its own secret link: only a hash of the token is stored, like seat tokens."""
+
+    __tablename__ = "campaigns"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    token_hash: Mapped[str] = mapped_column(String(64), index=True)
+    display_name: Mapped[str] = mapped_column(String(40))
+    deck_id: Mapped[str] = mapped_column(String(40))
+    mode: Mapped[str] = mapped_column(String(30))
+    expansions: Mapped[list[str]] = mapped_column(JSON, default=list)
+    promos: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    rank: Mapped[str] = mapped_column(String(20), default="ensign")
+    # One row per assignment: number, game_id, date, rank, bot, difficulty, board_side, outcome, scores, upgrade.
+    assignments: Mapped[list[dict]] = mapped_column(JSON, default=list, server_default=text("'[]'"))
+    reinforcement: Mapped[list[str]] = mapped_column(JSON, default=list, server_default=text("'[]'"))
+    status: Mapped[str] = mapped_column(String(20), default="active")

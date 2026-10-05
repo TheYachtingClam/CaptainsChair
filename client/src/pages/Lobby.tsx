@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { Game, MODE_LABELS, SeatChoice, api, forgetSeatToken, loadSeatToken, saveSeatToken } from "../api";
+import { Game, MODE_LABELS, SeatChoice, api, campaignApi, forgetSeatToken, knownCampaigns, loadSeatToken, saveSeatToken } from "../api";
 import { SeatForm } from "../components/SeatForm";
 
 export function Lobby() {
@@ -13,7 +13,10 @@ export function Lobby() {
     <main className="page">
       <div className="row between">
         <h1>Lobby</h1>
-        <Link className="button" to="/new">New game</Link>
+        <div className="row">
+          <Link className="button secondary" to="/campaigns/new">New Five-Year Mission</Link>
+          <Link className="button" to="/new">New game</Link>
+        </div>
       </div>
       {games.isError && <p className="error">{games.error.message}</p>}
 
@@ -25,6 +28,8 @@ export function Lobby() {
           </ul>
         )}
       </section>
+
+      <MyCampaigns />
 
       <section>
         <h2>Open games</h2>
@@ -124,5 +129,30 @@ function OpenGame({ game }: { game: Game }) {
         </>
       )}
     </li>
+  );
+}
+
+
+/** Five-Year Missions this browser has the link of (REQ-CAMP-54). */
+function MyCampaigns() {
+  const ids = knownCampaigns();
+  const campaigns = useQuery({
+    queryKey: ["campaigns", ids.join(",")],
+    queryFn: () => Promise.all(ids.map((id) => campaignApi.get(id).catch(() => null))),
+    enabled: ids.length > 0,
+  });
+  if (ids.length === 0) return null;
+  return (
+    <section>
+      <h2>Your Five-Year Missions</h2>
+      <ul className="list">
+        {(campaigns.data ?? []).filter((c): c is NonNullable<typeof c> => !!c).map((c) => (
+          <li key={c.id}>
+            <Link to={`/campaigns/${c.id}`}>{c.display_name}</Link> · {c.captain}&apos;s crew · {c.rank} ·{" "}
+            {c.assignments.length} of 10 assignments{c.phase === "finished" ? " · finished" : ""}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

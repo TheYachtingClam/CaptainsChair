@@ -65,6 +65,7 @@ class GameSummary(BaseModel):
     seats: list[SeatOut]
     open_seats: int
     bot: BotChoice | None = None
+    campaign_id: str | None = None
 
 
 class GameView(GameSummary):

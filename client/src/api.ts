@@ -40,6 +40,90 @@ export interface Game {
   open_seats: number;
   your_seat?: number | null;
   bot?: BotChoice | null;
+  campaign_id?: string | null;
+}
+
+// ------------------------------------------------------------------ Five-Year Mission campaigns
+
+export type CampaignMode = "set_phasers_to_stun" | "yellow_alert" | "gates_of_sto_vo_kor" | "kobayashi_maru";
+export const CAMPAIGN_MODES: [CampaignMode, string][] = [
+  ["set_phasers_to_stun", "Set Phasers to Stun (easiest)"],
+  ["yellow_alert", "Yellow Alert"],
+  ["gates_of_sto_vo_kor", "Gates of Sto'Vo'Kor"],
+  ["kobayashi_maru", "The Kobayashi Maru (hardest)"],
+];
+
+export interface CampaignCard {
+  id: string;
+  name: string;
+  suit: string;
+  image: string;
+}
+
+export interface Assignment {
+  number: number;
+  game_id: string;
+  date: string;
+  rank: string;
+  bot: string;
+  bot_captain: string;
+  difficulty: string;
+  board_side: BoardSide;
+  outcome: "win" | "loss" | null;
+  scores: Record<string, number> | null;
+  upgrade: { option: string; card?: string } | null;
+}
+
+export interface CampaignView {
+  id: string;
+  display_name: string;
+  deck_id: string;
+  captain: string;
+  mode: CampaignMode;
+  mode_name: string;
+  expansions: string[];
+  rank: string;
+  phase: "start" | "playing" | "upgrade" | "finished";
+  assignments: Assignment[];
+  assignments_left: number;
+  reinforcement: CampaignCard[];
+  next_difficulty: string | null;
+  opponents: { deck_id: string; captain: string }[];
+  game_id?: string;
+  upgrade?: { won: boolean; restriction: string | null; options: CampaignCard[] };
+  evaluation?: string;
+}
+
+const campaignKey = (id: string) => `cc.campaign.${id}`;
+
+export function saveCampaignToken(id: string, token: string): void {
+  try {
+    localStorage.setItem(campaignKey(id), token);
+  } catch {
+    /* storage unavailable: keep the link */
+  }
+}
+
+export function loadCampaignToken(id: string): string | null {
+  try {
+    return localStorage.getItem(campaignKey(id));
+  } catch {
+    return null;
+  }
+}
+
+/** Campaigns this browser knows the link of. */
+export function knownCampaigns(): string[] {
+  try {
+    return Object.keys(localStorage).filter((k) => k.startsWith("cc.campaign.")).map((k) => k.slice("cc.campaign.".length));
+  } catch {
+    return [];
+  }
+}
+
+function campaignHeaders(id: string): Record<string, string> {
+  const token = loadCampaignToken(id);
+  return token ? { "X-Campaign-Token": token } : {};
 }
 
 export interface SeatGrant {
@@ -230,6 +314,18 @@ function seatHeaders(id: string): Record<string, string> {
   const token = loadSeatToken(id);
   return token ? { "X-Seat-Token": token } : {};
 }
+
+export const campaignApi = {
+  create: (body: { display_name: string; deck_id: string; mode: CampaignMode; expansions: string[]; promos: boolean }) =>
+    request<{ campaign: CampaignView; token: string }>("/api/campaigns", { method: "POST", body: JSON.stringify(body) }),
+  get: (id: string) => request<CampaignView>(`/api/campaigns/${id}`, { headers: campaignHeaders(id) }),
+  start: (id: string, body: { bot_deck_id: string | null; board_side: BoardSide }) =>
+    request<{ game_id: string; seat_token: string; campaign: CampaignView }>(`/api/campaigns/${id}/assignments`,
+      { method: "POST", body: JSON.stringify(body), headers: campaignHeaders(id) }),
+  upgrade: (id: string, card_id: string | null) =>
+    request<CampaignView>(`/api/campaigns/${id}/upgrade`,
+      { method: "POST", body: JSON.stringify({ card_id }), headers: campaignHeaders(id) }),
+};
 
 export const api = {
   checkSession: () => request<null>("/api/auth/session").then(() => true),

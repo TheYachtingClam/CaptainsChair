@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { MODE_LABELS, api, forgetSeatToken, loadSeatToken } from "../api";
 import { Board } from "../components/Board";
 import { DevPanel } from "../components/DevPanel";
@@ -75,6 +75,10 @@ export function GameTable() {
   return (
     <main className="page">
       <h1>{MODE_LABELS[g.mode]}</h1>
+      {g.campaign_id && (
+        <p><Link to={`/campaigns/${g.campaign_id}`}>Back to the Five-Year Mission</Link> (the result is recorded there when
+          the game ends)</p>
+      )}
       <p className="muted">
         Game {g.id.slice(0, 8)} · {g.status === "waiting" ? "waiting for players" : g.status}
         {g.expansions.length > 0 && ` · expansions: ${g.expansions.join(", ")}`}

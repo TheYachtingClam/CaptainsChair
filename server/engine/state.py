@@ -126,6 +126,9 @@ class Player(BaseModel):
     enlisted: list[str] = Field(default_factory=list)  # card ids of Developments enlisted this game
     controls_this_turn: int = 0
     bot: BotState | None = None  # set for the Bot in solo mode
+    # Five-Year Mission campaign (REQ-CAMP-20 to -23): cards earned in earlier games, taken with Reinforce. They are
+    # not owned, so they never score, until taken.
+    reinforcement: list[Inst] = Field(default_factory=list)
     hand_bonus: int = 0  # temporary hand size change until the end of this turn (Betazed Intelligence)
 
 

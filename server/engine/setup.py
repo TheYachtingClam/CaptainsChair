@@ -12,6 +12,7 @@ STARDATE_MODE = {"two_player": "2-Player", "cadet": "Solo Cadet Practice", "solo
 DIFFICULTIES = ("ensign", "lieutenant", "commander", "captain", "admiral")  # REQ-SOLO-10, easiest first
 BOT_UNAVAILABLE = {"khan"}  # the Khan Bot waits with Khan's deck (plans/solo-mode.md)
 TIME_IS_RUNNING_OUT = "2DIR01"
+REINFORCE = "2DIR02"
 SOLO_ONLY = {"Solo Challenge", "Solo Campaign"}  # Reinforce, Time Is Running Out
 SUBSPACE_RHAPSODY = "0INC03"
 
@@ -21,6 +22,7 @@ class SeatSetup:
     name: str
     deck: str
     board_side: str
+    reinforcement: tuple[str, ...] = ()  # Five-Year Mission: card ids in the Reinforcement pile (REQ-CAMP-20)
 
 
 @dataclass(frozen=True)
@@ -180,6 +182,11 @@ def _player_setup(state: GameState, seat: int, choice: SeatSetup, data) -> Playe
     if choice.deck == "pike":
         starbase = next(i for i in player.locations if i.card == "3PIK03")
         starbase.away[seat] = 1  # REQ-EXP-PIK-01
+    if choice.reinforcement:
+        # REQ-CAMP-21: with cards in the Reinforcement pile, Reinforce is shuffled into the starting deck.
+        player.reinforcement = [state.new_inst(c) for c in choice.reinforcement]
+        player.draw.append(state.new_inst(REINFORCE))
+        state.shuffle(player.draw)
     return player
 
 

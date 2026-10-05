@@ -30,8 +30,14 @@ def start(game: Game) -> None:
     game.commands = []
     game.status = "active"
     # Validate setup now rather than on the first view. The game id may not exist yet, so no caching.
-    new_game(game.seed, game.mode, [SeatSetup(s.display_name, s.deck_id, s.board_side) for s in game.seats],
-             game.expansions, game.promos, bot_setup(game))
+    new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game))
+
+
+def seat_setups(game: Game) -> list[SeatSetup]:
+    """Each seat's setup; a campaign game also brings the human's Reinforcement pile (REQ-CAMP-20)."""
+    reinforcement = tuple((game.campaign or {}).get("reinforcement", []))
+    return [SeatSetup(s.display_name, s.deck_id, s.board_side, reinforcement if s.index == 0 else ())
+            for s in game.seats]
 
 
 def bot_setup(game: Game) -> BotSetup | None:
@@ -51,8 +57,7 @@ def build(game: Game) -> GameState:
     cached = _cache.get(game.id)
     if cached and cached[0] == key:
         return copy.deepcopy(cached[1])
-    seats = [SeatSetup(s.display_name, s.deck_id, s.board_side) for s in game.seats]
-    state = new_game(game.seed, game.mode, seats, game.expansions, game.promos, bot_setup(game))
+    state = new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game))
     advance(state, flag_irreversible=False)
     # Replay without the can't-be-undone flagging (it tries every option on a copy), then flag the last question.
     for i, command in enumerate(game.commands):

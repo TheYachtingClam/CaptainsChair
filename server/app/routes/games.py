@@ -30,6 +30,7 @@ def summarize(game: Game) -> dict:
         "seats": [SeatOut.model_validate(s, from_attributes=True) for s in game.seats],
         "open_seats": seat_count(game) - len(game.seats),
         "bot": game.bot,
+        "campaign_id": (game.campaign or {}).get("id"),
     }
 
 

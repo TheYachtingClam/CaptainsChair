@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings
 from app.db import init_db
-from app.routes import auth, content, games, health, ws
+from app.routes import auth, campaigns, content, games, health, ws
 
 
 def create_app() -> FastAPI:
@@ -21,7 +21,7 @@ def create_app() -> FastAPI:
         yield
 
     app = FastAPI(title="Captain's Chair API", version="0.1.0", lifespan=lifespan)
-    for module in (health, auth, content, games, ws):
+    for module in (health, auth, content, games, campaigns, ws):
         app.include_router(module.router)
 
     # In production the server also serves the built React client (REQ-OPS-01).

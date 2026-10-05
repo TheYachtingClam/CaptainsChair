@@ -195,7 +195,7 @@ The client side of following a Bot turn:
 
 **You test:** play a game using Next to step through each Bot turn, then switch to Auto-play. Open the player aid.
 
-## Step 7: Five-Year Mission, the core campaign
+## Step 7: Five-Year Mission, the core campaign (done)
 
 The campaign without bonuses and challenges:
 
@@ -215,6 +215,8 @@ The campaign without bonuses and challenges:
 - **Client:** a campaign screen with the log, rank, Reinforcement pile and final review, and New Game starts the next assignment from it.
 
 **You test:** start a campaign, play two assignments, pick an upgrade after each, and see the reinforced card come back through *Reinforce* in the next game.
+
+**What was done:** `engine/campaign.py` holds the rules (ranks, the difficulty table, upgrade restrictions, option A cards, the review). `app/routes/campaigns.py` stores the campaign (`Campaign` model, `X-Campaign-Token`) and records each result when its game is over; a deleted game counts as a failure. Each assignment is an ordinary solo game whose `campaign` column carries the Reinforcement pile; *Reinforce* (2DIR02) is card code. The client has New Five-Year Mission (from the Lobby), the campaign page, which starts each assignment itself rather than through New Game, a "Your Five-Year Missions" list in the Lobby, and a link back from the game. With no option A card the upgrade is skipped until option B arrives in Step 8.
 
 ## Step 8: Campaign bonuses and challenges
 

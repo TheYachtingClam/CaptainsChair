@@ -53,7 +53,7 @@ class A:
     GAIN_SPECIALTY = "GAIN_SPECIALTY"; WARP = "WARP"; SEND_AWAY_TEAM = "SEND_AWAY_TEAM"
     REMOVE_AWAY_TEAM = "REMOVE_AWAY_TEAM"; TAKE_CONTROL = "TAKE_CONTROL"; TRIGGER_CONTROL = "TRIGGER_CONTROL"
     EXHAUST = "EXHAUST"; REFRESH = "REFRESH"; FORCE = "FORCE"; ATTACK = "ATTACK"; MOVE_RESOURCES = "MOVE_RESOURCES"
-    ADJUST_HAND_SIZE = "ADJUST_HAND_SIZE"
+    ADJUST_HAND_SIZE = "ADJUST_HAND_SIZE"; TAKE_FROM_REINFORCEMENT = "TAKE_FROM_REINFORCEMENT"
     # Bot rows only (solo mode): engine/bot
     EXPLORE = "EXPLORE"; ENGAGE = "ENGAGE"; RESOLVE_CARD = "RESOLVE_CARD"; CONTINUE_RESOLUTION = "CONTINUE_RESOLUTION"
 
@@ -95,7 +95,7 @@ def name(inst: Inst) -> str:
 def zones(p: Player) -> dict[str, list[Inst]]:
     return {"hand": p.hand, "draw": p.draw, "discard": p.discard, "reserve": p.reserve, "development": p.development,
             "staging": p.staging, "fleet": p.fleet, "locations": p.locations, "duty": p.duty, "log": p.log,
-            "status": p.status}
+            "status": p.status, "reinforcement": p.reinforcement}
 
 
 def _beamed_parent(inst: Inst, uid: str) -> Inst | None:
@@ -773,6 +773,17 @@ class Actions:
             burn(self.state)
         return inst
         yield  # pragma: no cover
+
+    def take_from_reinforcement(self) -> Gen:
+        """Take a card of your choice from your Reinforcement pile into hand (Reinforce; REQ-CAMP-21)."""
+        self._use(A.TAKE_FROM_REINFORCEMENT)
+        me = self.ctx.me
+        inst = yield from self.pick_card("Take which card from your Reinforcement pile?", list(me.reinforcement))
+        if inst is not None:
+            me.reinforcement.remove(inst)
+            me.hand.append(inst)
+            self.emit(f"{me.name} takes {name(inst)} from their Reinforcement pile.")
+        return inst
 
     def shuffle_into(self, inst: Inst) -> Gen:
         """Shuffle a card into your Draw deck (Second Contact, Dooplers)."""

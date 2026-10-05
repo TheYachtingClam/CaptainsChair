@@ -392,3 +392,14 @@ button.link { background: none; border: 0; padding: 0; color: inherit; text-deco
 .aid-terms div { display: grid; grid-template-columns: 11rem 1fr; gap: 0.5rem; margin: 0.2rem 0; }
 .aid-terms dt { font-weight: 700; }
 .aid-terms dd { margin: 0; }
+
+/* Five-Year Mission */
+.campaign-cards { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.campaign-card { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; width: 7rem; font-size: 0.8rem;
+  background: none; border: 0; padding: 0; color: inherit; font: inherit; }
+.campaign-card img { width: 100%; border-radius: 6px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.4); }
+.campaign-card.pickable { cursor: pointer; }
+.campaign-card.pickable:hover img, .campaign-card.pickable:focus img { outline: 3px solid #ffd54a; }
+.campaign-log { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.campaign-log th, .campaign-log td { text-align: left; padding: 0.25rem 0.5rem; border-bottom: 1px solid #ccc4; }
+.evaluation { font-size: 1.3rem; font-style: italic; }
