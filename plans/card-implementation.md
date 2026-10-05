@@ -166,7 +166,7 @@ Each step covers the deck's cards, development costs, Passives, ENDGAME, deck-sp
 
 11. Soval (done)
 12. Kirk (done)
-13. Archer: the set-aside Away Teams and putting cards on the Reserve
+13. Archer (done)
 14. Pike (Second Contact)
 15. Riker (Second Contact)
 16. Freeman (Second Contact), including the K'ranch, Boimler and Tendi SUPPORT chain test

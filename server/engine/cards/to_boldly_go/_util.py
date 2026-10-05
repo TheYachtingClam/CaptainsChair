@@ -167,3 +167,8 @@ def stardate_sequence(state) -> int:
     from engine.ops import card
 
     return (card(state.stardates[0]).sequence or 0) if state.stardates else 0
+
+
+def earth_of(player):
+    """Archer's Earth (2ARC02), his Status card, if he has it."""
+    return next((i for i in player.status if i.card == "2ARC02"), None)

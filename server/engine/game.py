@@ -400,6 +400,7 @@ def dismiss(state: GameState, owner: Player, inst: Inst) -> None:
     inst.beamed = []
     owner.discard.append(inst)
     state.emit(f"{name(inst)} is dismissed.", seat=owner.seat)
+    ops.raise_event(state, "dismiss", owner.seat, inst.uid)
 
 
 def wipe_market(state: GameState) -> None:

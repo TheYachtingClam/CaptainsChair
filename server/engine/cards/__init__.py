@@ -75,6 +75,10 @@ INCIDENTS_FROM_JUNK: set[str] = set()
 CANNOT_PROMOTE: set[str] = set()
 # Asterisk VP: fn(state, player, inst) -> the card's VP at final scoring, wherever it is (REQ-FS-02 component 4).
 VP_SPECIAL: dict[str, Callable] = {}
+# PASSIVE "Ship can warp here" on a non-Location card (Archer's Earth). Table positions.
+WARP_DESTINATIONS: set[str] = set()
+# PASSIVE "Cards beamed here cannot be recalled or dismissed, not even when contributing to a Mission" (Earth).
+PROTECTED_BEAMED: set[str] = set()
 # SPECIAL "before scoring": card ids whose SPECIAL operation runs at the start of final scoring, wherever the owner
 # has the card (Su'Kal).
 BEFORE_SCORING: set[str] = set()

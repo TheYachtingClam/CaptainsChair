@@ -48,6 +48,7 @@ class A:
     PLACE_RESOURCES = "PLACE_RESOURCES"; STEAL = "STEAL"; GAIN_ACTION = "GAIN_ACTION"
     TAKE_FROM_REWARD_PILE = "TAKE_FROM_REWARD_PILE"; SWAP_JUNK_WITH_MARKET = "SWAP_JUNK_WITH_MARKET"
     REMOVE_STARDATE_GLORY = "REMOVE_STARDATE_GLORY"; DRAW_FROM_LOG = "DRAW_FROM_LOG"
+    ADD_AWAY_TEAM = "ADD_AWAY_TEAM"; REORDER = "REORDER"
     GAIN_SPECIALTY = "GAIN_SPECIALTY"; WARP = "WARP"; SEND_AWAY_TEAM = "SEND_AWAY_TEAM"
     REMOVE_AWAY_TEAM = "REMOVE_AWAY_TEAM"; TAKE_CONTROL = "TAKE_CONTROL"; TRIGGER_CONTROL = "TRIGGER_CONTROL"
     EXHAUST = "EXHAUST"; REFRESH = "REFRESH"; FORCE = "FORCE"; ATTACK = "ATTACK"; MOVE_RESOURCES = "MOVE_RESOURCES"
@@ -475,6 +476,21 @@ class SpendUnless(Cost):
 
 
 @dataclass
+class ExhaustCaptain(Cost):
+    """Exhaust your Captain as a cost; an exhausted Captain cannot pay it (KW-EXH-04)."""
+
+    def can_pay(self, ctx):
+        return not ctx.me.captain.exhausted
+
+    def pay(self, actions):
+        actions.ctx.me.captain.exhausted = True
+        actions.emit(f"{actions.ctx.me.name} exhausts their Captain.")
+        raise_event(actions.state, "exhaust", actions.ctx.me.seat, actions.ctx.me.captain.uid)
+        return
+        yield  # pragma: no cover
+
+
+@dataclass
 class Condition(Cost):
     """A precondition that is checked like a cost but pays nothing, e.g. Mount Seleya's development cost "and have 1+
     Vulcan logged"."""
@@ -672,6 +688,9 @@ class Actions:
         yield  # pragma: no cover
 
     def _dismiss(self, inst: Inst) -> None:
+        if is_protected(self.state, inst):
+            self.emit(f"{name(inst)} cannot be dismissed from where it is beamed.")
+            return
         where = take_out(self.state, inst)
         owner = where.owner or self.ctx.me
         if card(inst).suit == "Location":
@@ -683,6 +702,7 @@ class Actions:
         owner.discard.extend(flatten_beamed(inst))
         owner.discard.append(inst)
         self.state.emit(f"{name(inst)} is dismissed.", seat=owner.seat)
+        raise_event(self.state, "dismiss", owner.seat, inst.uid)
 
     def _clear_location(self, loc: Inst) -> None:
         for p in self.state.players:
@@ -692,6 +712,9 @@ class Actions:
 
     def recall(self, inst: Inst) -> Gen:
         self._use(A.RECALL)
+        if is_protected(self.state, inst):
+            self.emit(f"{name(inst)} cannot be recalled from where it is beamed.")
+            return
         where = take_out(self.state, inst)
         owner = where.owner or self.ctx.me
         inst.at = None
@@ -1115,11 +1138,18 @@ class Actions:
                 self.state.shuffle(pools[z])
         return found, zone
 
-    def enlist_reserve(self) -> Gen:
+    def enlist_reserve(self, *, all_cards: bool = False) -> Gen:
+        """Enlist the top Reserve card onto the Draw deck, or the whole Reserve deck in its order (Founding the
+        Federation)."""
         self._use(A.ENLIST_RESERVE)
-        if self.ctx.me.reserve:
-            self.ctx.me.draw.insert(0, self.ctx.me.reserve.pop(0))
-            self.emit(f"{self.ctx.me.name} enlists a Reserve.")
+        me = self.ctx.me
+        cards = list(me.reserve) if all_cards else me.reserve[:1]
+        for inst in reversed(cards):
+            me.reserve.remove(inst)
+            me.draw.insert(0, inst)
+            raise_event(self.state, "enlist", me.seat, inst.uid)
+        if cards:
+            self.emit(f"{me.name} enlists {len(cards)} Reserve card(s).")
         return
         yield  # pragma: no cover
 
@@ -1139,6 +1169,7 @@ class Actions:
         self.ctx.me.development.remove(inst)
         self.ctx.me.draw.insert(0, inst)
         self.emit(f"{self.ctx.me.name} enlists {name(inst)}{' for free' if free else ''}.")
+        raise_event(self.state, "enlist", self.ctx.me.seat, inst.uid)
         return inst
 
     def free_play(self, inst: Inst) -> Gen:
@@ -1310,6 +1341,50 @@ class Actions:
             self.emit(f"{self.ctx.me.name} takes {name(inst)} from their Log.")
         return inst
 
+    def add_away_team(self, n: int) -> Gen:
+        """Move Away Teams from the set-aside supply onto your Captain (Archer, REQ-CD-ARC-01)."""
+        self._use(A.ADD_AWAY_TEAM)
+        moved = min(n, self.ctx.me.away_aside)
+        self.ctx.me.away_aside -= moved
+        self.ctx.me.away_pool += moved
+        self.emit(f"{self.ctx.me.name} adds {moved} Away Team(s) to their Captain.")
+        return moved
+        yield  # pragma: no cover
+
+    def put_on_reserve(self, inst: Inst) -> Gen:
+        """Put a card on top of your Reserve deck, recreating it if empty (REQ-CD-ARC-02)."""
+        self._use(A.PUT)
+        take_out(self.state, inst)
+        self.ctx.me.reserve.insert(0, inst)
+        self.emit(f"{self.ctx.me.name} puts {name(inst)} on top of their Reserve deck.")
+        return
+        yield  # pragma: no cover
+
+    def peek_and_reorder(self, n: int = 2) -> Gen:
+        """Look at the top n cards of your Reserve deck and put each on the top or bottom, in any order (Faith of the
+        Heart). Only you see them."""
+        self._use(A.PEEK)
+        self._use(A.REORDER)
+        deck = self.ctx.me.reserve
+        looked = deck[:n]
+        if not looked:
+            return
+        self.state.emit(f"{self.ctx.me.name} looks at the top {len(looked)} card(s) of their Reserve deck.",
+                        seat=self.ctx.me.seat, irreversible=True)
+        top, bottom = [], []
+        remaining = list(looked)
+        while remaining:
+            card_ = remaining[0] if len(remaining) == 1 else (
+                yield from self.pick_card("Place which card next?", remaining))
+            where = yield from self.choose(f"Put {name(card_)} on the top or the bottom?",
+                                           [("top", "Top (placed in this order, first on top)"), ("bottom", "Bottom")],
+                                           show=[card_])
+            (top if where == "top" else bottom).append(card_)
+            remaining.remove(card_)
+        del deck[:len(looked)]
+        deck[0:0] = top
+        deck.extend(bottom)
+
     def trigger_control(self, loc: Inst) -> Gen:
         """Resolve a Location's CONTROL operation as if control had just been taken (KW-TRIG). It does not count as
         taking control, and costs no action."""
@@ -1351,7 +1426,8 @@ class Actions:
         (Gomtuu moves an opponent's Ship to another neutral Location). The warp event belongs to the Ship's owner."""
         self._use(A.WARP)
         if destinations is None:
-            destinations = [loc for loc in [*self.ctx.me.locations, *self.state.neutral] if loc.uid != ship.at]
+            extra = [i for i in table_cards(self.ctx.me) if i.card in registry.WARP_DESTINATIONS]  # Earth
+            destinations = [loc for loc in [*self.ctx.me.locations, *self.state.neutral, *extra] if loc.uid != ship.at]
         dest = yield from self.pick_card(f"Warp {name(ship)} to which Location?", destinations)
         if dest is None:
             return None
@@ -1755,6 +1831,13 @@ def wildcards_owned_by_actor(cards: Iterable[Inst]) -> int:
     return out
 
 
+def is_protected(state: GameState, inst: Inst) -> bool:
+    """Whether the card is beamed to a card that protects its beamed cards (Archer's Earth)."""
+    where = locate(state, inst.uid)
+    return bool(where and where.zone == "beamed" and where.parent is not None
+                and where.parent.card in registry.PROTECTED_BEAMED)
+
+
 def over_duty_limit(state: GameState) -> Player | None:
     return next((p for p in state.players if not duty_fits(state, p, p.duty)), None)
 
@@ -1921,7 +2004,7 @@ def _complete_mission(ctx: Ctx, mission_id: str) -> Gen:
     yield from impl.reward(ctx, actions)
     for inst in contributors:
         where = locate(ctx.state, inst.uid)
-        if where is not None and where.zone == "beamed":
+        if where is not None and where.zone == "beamed" and not is_protected(ctx.state, inst):
             actions._dismiss(find_inst(ctx.state, inst.uid))
     ctx.me.missions_completed.append(mission_id)
     raise_event(ctx.state, "mission_completed", ctx.me.seat, None, mission=mission_id)
