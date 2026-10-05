@@ -21,7 +21,7 @@ scripts/start.sh --dev      # API with reload on :8000, client on :5173
 cd client && npm run build  # type-check and build the client
 scripts/process_scans.py    # raw scans -> server/content/images/<same folders>/<id>.webp
 scripts/build_content.py    # card and board specs -> server/content/cards/*.yaml and boards.yaml
-scripts/card_coverage.py    # how many card operations have code; --missing lists the rest
+scripts/card_coverage.py    # how many card operations, Bot rows and campaign bonuses have code; --missing lists the rest
 ```
 
 ## Engine
@@ -281,3 +281,4 @@ Automated Command rows use the same action names. In a Bot context the engine su
   - every printed operation and mission has code (`engine.cards.has_code`, `tests/test_registry.py`), except Khan's deck (on hold) and the solo-only cards that wait for the Bot.
 - The engine enforces `uses` at runtime too. A test must fail if an operation calls an action it did not declare.
 - Each acceptance scenario in `requirements/18-acceptance-scenarios.md`, `21-expansion-second-contact.md` §8 and `22-solo-mode.md` §13 has an engine test.
+- `tests/test_solo_sweep.py` plays a random game against every Bot at every difficulty, random campaign games with every challenge and random Boosts, and checks that undo stops at the Bot's turn (REQ-SOLO-200).

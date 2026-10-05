@@ -322,8 +322,8 @@ The Bot's difficulty depends on the human's current rank and the campaign mode.
   - A: the common card types the human may reinforce;
   - B: the alternative bonuses to pick from.
 - **REQ-CAMP-27** Example, Pike's upgrade card:
-  - WIN. A: Time Travel or Doctor. B: "BOOST: Before drawing the starting hand, take an Incident to enlist a Development" or "BOOST: After drawing the starting hand, discard a card to gain 1 Research, 1 Influence and 1 Military."
-  - LOSS. A: Ship. B: "REINFORCE: A card with Research, Influence or Military from your Draw deck or Reserve" or "BOOST: After drawing the starting hand, free play a non-Time Travel card, then recall it."
+  - WIN. A: Time Travel or Doctor. B: "BOOST: Before drawing the starting hand, take an Incident to enlist a Development" or "BOOST: Gain 1 Research, 1 Influence, and 1 Military."
+  - LOSS. A: Ship. B: "REINFORCE: A card with Research, Influence or Military from your Available cards or Reserve deck" or "BOOST: After drawing the starting hand, free play a non-Time Travel card, then recall it."
 - **REQ-CAMP-28** Example, Kirk's upgrade card: WIN lets the human reinforce any Person. LOSS allows a Market card of any suit with Vulcan, Time Travel or Klingon. LOSS bonuses include moving a non-Incident card from the human's own Reserve deck to the Reinforcement pile. WIN bonuses are Boosts: "gain 2 Research or 2 Influence or 2 Military", or "send an Away Team each to two different neutral Locations".
 - **REQ-CAMP-29 Reinforce bonuses** add one of the human's own cards to the Reinforcement pile. It starts there in every later game.
 - **REQ-CAMP-30 Boost bonuses** resolve at the start of every later game in the campaign, at the moment the bonus states.

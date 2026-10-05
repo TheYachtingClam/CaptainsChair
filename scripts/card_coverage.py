@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""How many printed card operations have code, by group (plans/card-implementation.md).
+"""How many printed card operations have code, by group (plans/card-implementation.md), plus the solo Bot's
+Automated Command rows and the Five-Year Mission bonuses (plans/solo-mode.md).
 
 Usage:
   scripts/card_coverage.py              the summary table
@@ -8,7 +9,7 @@ Usage:
 
 PASSIVE and ENDGAME operations count as done when the card has a registered modifier, trigger or
 ENDGAME function. Stardate WHEN EMPTIED and STARDATE RESOLUTION are run by the engine, so they are
-not listed.
+not listed, and neither are the "Surprise" rows of the Bot's TRAITS side, which run the card's own SURPRISE.
 """
 
 from __future__ import annotations
@@ -90,6 +91,8 @@ def main() -> int:
                     row[2] += 1
                 else:
                     row[3].append(f"{board.captain}: {mission.name}")
+    if not only or "bot" in only or "bonus" in only or "mission" in only:
+        _solo_rows(rows)
     width = max(len(g) for g in rows) if rows else 10
     print(f"{'Group':<{width}}  Cards  Operations with code")
     total = [0, 0]
@@ -106,6 +109,35 @@ def main() -> int:
                 for line in rows[group][3]:
                     print(f"  {line}")
     return 0
+
+
+def _solo_rows(rows: dict[str, list]) -> None:
+    """One group per Bot Crew for its Automated Command rows, and one for every Five-Year Mission bonus."""
+    from engine import bot, upgrades
+
+    upgrades.load()
+    for crew_id, crew in sorted(content().command.items()):
+        row = rows.setdefault(f"Bot rows: {crew_id}", [0, 0, 0, []])
+        for side in crew.sides:
+            row[0] += 1
+            for r in side.rows:
+                if "Surprise" in r.matches:
+                    continue
+                row[1] += 1
+                if (crew_id, side.side, r.number) in bot.ROWS:
+                    row[2] += 1
+                else:
+                    row[3].append(f"{side.side} row {r.number}: {', '.join(r.matches)}")
+        bonuses = rows.setdefault("Five-Year Mission bonuses", [0, 0, 0, []])
+        bonuses[0] += 1
+        for side, section in (("win", crew.upgrades.win), ("loss", crew.upgrades.loss)):
+            for i, printed in enumerate(section.bonuses):
+                key = upgrades.key(crew_id, side, i)
+                bonuses[1] += 1
+                if key in upgrades.BOOSTS or key in upgrades.REINFORCES:
+                    bonuses[2] += 1
+                else:
+                    bonuses[3].append(f"{key}: {printed}")
 
 
 if __name__ == "__main__":

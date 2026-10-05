@@ -237,15 +237,17 @@ The campaign without bonuses and challenges:
 
 **You test:** a campaign with two challenges on. Pick an option B bonus after an assignment and check it applies in the next game.
 
-**What was done:** every Bot's option B bonuses except Khan's are code in `engine/upgrades/<crew>.py`: 27 Boosts and 5 REINFORCE bonuses. Boosts run in a new `setup` step around the starting hand. The seven challenges are in `engine/campaign.py` (`game_setup`, `available_challenges`, `option_b`) and in setup or the engine (Only Ship, Tuesday). The campaign page offers options A and B, REINFORCE card picks, the Live Long resource choice, and the challenges, Boosts and next-game notes. The new-campaign page lists only the challenges the chosen crew can take, and the game mat shows the Reinforcement pile, Boosts, set-aside Away Teams and Only Ship. Rulings are in `resources/scans/OPEN_QUESTIONS.md`. REQ-CAMP-27's Pike example disagrees with the printed card; the code follows the card.
+**What was done:** every Bot's option B bonuses except Khan's are code in `engine/upgrades/<crew>.py`: 27 Boosts and 5 REINFORCE bonuses. Boosts run in a new `setup` step around the starting hand. The seven challenges are in `engine/campaign.py` (`game_setup`, `available_challenges`, `option_b`) and in setup or the engine (Only Ship, Tuesday). The campaign page offers options A and B, REINFORCE card picks, the Live Long resource choice, and the challenges, Boosts and next-game notes. The new-campaign page lists only the challenges the chosen crew can take, and the game mat shows the Reinforcement pile, Boosts, set-aside Away Teams and Only Ship. Rulings are in `resources/scans/OPEN_QUESTIONS.md`. REQ-CAMP-27's Pike example was corrected to match the printed card.
 
-## Step 9: Final sweep
+## Step 9: Final sweep (done)
 
 - The solo acceptance scenario (§13) and every command-card spec test pass, plus random games against each Bot at each difficulty.
 - An undo check: nothing in a Bot turn can be undone, and your own turn still can.
 - CLAUDE.md: the Bot runtime, the `@row` decorator, the Bot actions, and how human actions behave against a Bot.
 - Requirements updates: REQ-SRV-17 (design decision 1) and REQ-SRV-19 (solo games are no longer rejected).
 - `scripts/card_coverage.py` reports Bot rows and campaign bonuses alongside cards.
+
+**What was done:** `tests/test_solo_sweep.py` covers random games against all 8 available Bots at all 5 difficulties (Ticking Clock on every third), 6 random campaign games with all seven challenges, random Boosts and a Reinforcement pile, and an API check that your own moves can be undone but nothing across the Bot's turn can. REQ-SRV-17 and REQ-SRV-19 already described the in-engine Bot and solo games. `scripts/card_coverage.py` now has a group per Bot Crew and one for the bonuses: everything has code except Khan's rows, bonuses and SURPRISE cards, which wait with his deck.
 
 ## Not in this plan
 
