@@ -189,7 +189,9 @@ export function Board({ view, onChoose, onUndo, busy }: {
 
       {mine && (
         <PlayerMat p={mine} you active={view.active === mine.seat} locationNames={locationNames}
-          onEndTurn={endOption && !busy ? () => pick(endOption) : null} />
+          onEndTurn={endOption && !busy ? () => pick(endOption) : null}
+          missions={d?.kind === "action" && d.seat === view.you ? (d.options ?? []).filter((o) => o.id.startsWith("mission:")) : []}
+          onMission={busy ? undefined : pick} />
       )}
 
       <section className="card">

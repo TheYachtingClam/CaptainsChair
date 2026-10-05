@@ -123,7 +123,7 @@ Cards: Jennifer Sh'reyan, Ma'ah, Nova Fleet and Drones of Cube 90182.
 
 **You test:** with Ma'ah in hand, put a Klingon into play and use the offered SUPPORT.
 
-## Step 8: Missions
+## Step 8: Missions (done)
 
 The mission engine:
 

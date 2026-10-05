@@ -74,6 +74,21 @@ def main() -> int:
                 row[2] += 1
             else:
                 row[3].append(f"{card.id} {card.name}: {index} {op.kind}")
+    if not only or only in "crew board missions":
+        seen: set[str] = set()
+        row = rows.setdefault("Crew board missions", [0, 0, 0, []])
+        for board in sorted(content().boards.values(), key=lambda b: b.id):
+            for mission in board.missions:
+                if mission.id in seen:
+                    continue  # the same mission on both sides of a board
+                seen.add(mission.id)
+                row[0] += 1
+                row[1] += 1
+                impl = registry.MISSIONS.get(mission.id)
+                if impl and impl.goal and impl.reward:
+                    row[2] += 1
+                else:
+                    row[3].append(f"{board.captain}: {mission.name}")
     width = max(len(g) for g in rows) if rows else 10
     print(f"{'Group':<{width}}  Cards  Operations with code")
     total = [0, 0]

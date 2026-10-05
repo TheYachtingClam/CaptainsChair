@@ -89,7 +89,7 @@ This section is mandatory for every card. It also applies to everything else wit
 | Continuous PASSIVE | A registry decorator: `@hand_size_modifier`, `@skill_icons`, `DUTY_LIMIT[id] = n`, `SCANS_INCLUDE_JUNK.add(id)`, `@state_check`, `@dismiss_rewards` (resources gained when the card is dismissed), `@duty_slots` (extra Duty Officer slots, optionally for one trait), `@restriction` ("you cannot play or promote"), `@trait_modifier` ("treated as"). Pass `staging=True` for a SPECIAL that works from the Staging Area |
 | SPECIAL before final scoring | An `@operation` of kind SPECIAL, plus `BEFORE_SCORING.add(id)` | Runs at the start of final scoring wherever the owner has the card (Su'Kal) | No actions. Applies only while the card is in a table position |
 | ENDGAME | `@endgame(ids)` function `score(state, player) -> int` | No actions. Queries only |
-| Mission GOAL | `goal(ctx) -> bool` | Not implemented yet. Queries only. The REWARD is a normal generator |
+| Mission GOAL and REWARD | `@mission_goal(mission_id)` returning the contributing cards or None; `@mission_reward(mission_id, uses=...)` generator | One module per Captain: `engine/cards/<set>/missions_<captain>.py`. Mission ids come from `boards.yaml`. The engine offers completable missions in the Action Step (no action), then dismisses contributors that are beamed after the reward (REQ-MS-06) |
 | Development cost | `development_cost(ids, *costs)` in the card's module | Resources and side effects such as "take an Incident". A Development without one cannot be enlisted |
 
 `index` is the operation's position in the card spec, counting every printed operation. Identical copies in other decks register the same function by listing all their ids.

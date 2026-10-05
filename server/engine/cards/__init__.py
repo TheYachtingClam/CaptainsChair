@@ -37,6 +37,19 @@ class OpImpl:
 
 
 OPS: dict[tuple[str, int], OpImpl] = {}
+
+
+@dataclass
+class MissionImpl:
+    """A Crew board mission: GOAL check and REWARD (REQ-MS-01). Keyed by the mission id from boards.yaml."""
+
+    mission_id: str
+    goal: Callable | None = None  # (ctx) -> list of contributing cards when met, or None
+    reward: Callable | None = None  # generator (ctx, actions)
+    uses: frozenset[str] = frozenset()
+
+
+MISSIONS: dict[str, MissionImpl] = {}
 DEV_COSTS: dict[str, tuple[Any, ...]] = {}
 ENDGAME: dict[str, Callable[["GameState", "Player"], int]] = {}
 # Continuous PASSIVE modifiers. They apply only while the card is in a table position (REQ-AS-21).
@@ -67,6 +80,28 @@ def operation(card_ids, index: int, *, uses=(), cost=(), requires=None, trigger=
     def register(fn):
         for cid in _ids(card_ids):
             OPS[(cid, index)] = OpImpl(cid, index, fn, frozenset(uses), tuple(cost), requires, trigger)
+        return fn
+
+    return register
+
+
+def mission_goal(mission_id: str):
+    """GOAL: fn(ctx) -> the cards that meet it (beamed ones are dismissed on completion, REQ-MS-06), or None."""
+
+    def register(fn):
+        MISSIONS.setdefault(mission_id, MissionImpl(mission_id)).goal = fn
+        return fn
+
+    return register
+
+
+def mission_reward(mission_id: str, *, uses=()):
+    """REWARD: a generator fn(ctx, actions), like an operation, with the actions it declares."""
+
+    def register(fn):
+        impl = MISSIONS.setdefault(mission_id, MissionImpl(mission_id))
+        impl.reward = fn
+        impl.uses = frozenset(uses)
         return fn
 
     return register

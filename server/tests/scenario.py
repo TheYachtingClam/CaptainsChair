@@ -20,6 +20,7 @@ ZONE_ARGS = ("hand", "staging", "duty", "fleet", "locations", "discard", "draw",
 
 
 def given(deck: str = "georgiou", *, opponent: str | None = "soval", mode: str = "two_player", seed: int = 1,
+          board: str = "basic",
           expansions: list[str] | None = None, promos: bool = False, empty_hand: bool = False,
           opp: dict | None = None, tracks: dict[str, int] | None = None, **zones_and_resources) -> GameState:
     """A game at seat 0's Action Step.
@@ -30,7 +31,7 @@ def given(deck: str = "georgiou", *, opponent: str | None = "soval", mode: str =
     """
     if mode == "cadet":
         opponent = None
-    seats = [SeatSetup("Me", deck, "basic")] + ([SeatSetup("Opp", opponent, "basic")] if opponent else [])
+    seats = [SeatSetup("Me", deck, board)] + ([SeatSetup("Opp", opponent, "basic")] if opponent else [])
     state = new_game(seed, mode, seats, expansions, promos)
     state.active = state.first_seat = 0
     advance(state)

@@ -467,6 +467,9 @@ def step_action(state: GameState) -> None:
             if op.kind == "ACTIVATION" and ops.legal(state, player, inst, i):
                 options.append((f"activate:{inst.uid}:{i}", f"Activate {name(inst)}: {op.text}"))
     options.append(("end", "End the Action Step"))
+    for mission in ops.completable_missions(state, player):  # no action cost (REQ-MS-05)
+        options.append((f"mission:{mission.id}", f"Complete mission: {mission.name}"))
+    options.append(options.pop(next(i for i, o in enumerate(options) if o[0] == "end")))  # "End" stays last
     ask(state, player.seat, "action", f"Action Step. Actions left: {player.actions}.", options)
 
 
@@ -474,6 +477,9 @@ def handle_action(state: GameState, player: Player, option: str) -> None:
     if option == "end":
         state.step = "cleanup"
         state.substep = "ops"
+        return
+    if option.startswith("mission:"):
+        state.op_queue.append(ops.OpRef(mode="mission", seat=player.seat, system=option.split(":", 1)[1]))
         return
     verb, uid, index = option.split(":")
     mode = "play" if verb == "play" else "activate"

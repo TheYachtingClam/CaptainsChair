@@ -1632,11 +1632,50 @@ def _drawup(ctx: Ctx, actions: Actions) -> Gen:
         yield from actions._draw(missing)
 
 
+def completable_missions(state: GameState, player: Player) -> list:
+    """Missions on the player's board whose GOAL is met now and that are not completed (REQ-MS-05, -07, -09)."""
+    board = content().boards[player.board]
+    if len(player.missions_completed) >= player.mission_tokens:
+        return []
+    ctx = Ctx(state, OpRef(mode="mission", seat=player.seat))
+    out = []
+    for mission in board.missions:
+        impl = registry.MISSIONS.get(mission.id)
+        if mission.id in player.missions_completed or impl is None or impl.goal is None or impl.reward is None:
+            continue
+        if impl.goal(ctx) is not None:
+            out.append(mission)
+    return out
+
+
+def _complete_mission(ctx: Ctx, mission_id: str) -> Gen:
+    """REQ-MS-06: find the contributors, resolve the REWARD, dismiss contributors that are beamed afterwards, and
+    place a Mission Completion token."""
+    impl = registry.MISSIONS[mission_id]
+    mission = next(m for m in content().boards[ctx.me.board].missions if m.id == mission_id)
+    contributors = impl.goal(ctx)
+    if contributors is None:
+        ctx.state.emit(f"The goal of {mission.name} is no longer met.", seat=ctx.me.seat)
+        return
+    ctx.state.emit(f"{ctx.me.name} completes the mission {mission.name}.", seat=ctx.me.seat, irreversible=True)
+    actions = Actions(ctx, impl.uses)
+    yield from impl.reward(ctx, actions)
+    for inst in contributors:
+        where = locate(ctx.state, inst.uid)
+        if where is not None and where.zone == "beamed":
+            actions._dismiss(find_inst(ctx.state, inst.uid))
+    ctx.me.missions_completed.append(mission_id)
+    raise_event(ctx.state, "mission_completed", ctx.me.seat, None, mission=mission_id)
+
+
 def _execute(ctx: Ctx) -> Gen:
     ref = ctx.ref
     state = ctx.state
     if ref.mode == "system":
         yield from SYSTEM[ref.system](ctx, Actions(ctx, ()))
+        return
+    if ref.mode == "mission":
+        yield from _complete_mission(ctx, ref.system)
         return
     inst = ctx.this_card
     if inst is None:

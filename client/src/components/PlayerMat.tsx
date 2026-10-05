@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CardView, PlayerView } from "../api";
+import { CardView, OptionView, PlayerView } from "../api";
 import { Card, CardBack, PileViewer, Slot, imageUrl, usePreviewHandlers } from "./Cards";
 
 // Crew board track geometry, as fractions of the board image (measured from the scans).
@@ -54,7 +54,10 @@ function Section({ label, cards, place }: { label: string; cards: CardView[]; pl
   );
 }
 
-export function PlayerMat({ p, you, active, locationNames, onEndTurn }: {
+export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, onMission }: {
+  /** Missions you can complete now (REQ-MS-09: shown, never auto-completed). */
+  missions?: OptionView[];
+  onMission?: (o: OptionView) => void;
   p: PlayerView;
   you: boolean;
   active: boolean;
@@ -86,6 +89,15 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn }: {
           </button>
           <Tokens p={p} />
           <CrewBoard p={p} />
+          {missions && missions.length > 0 && onMission && (
+            <div className="mission-actions">
+              {missions.map((o) => (
+                <button key={o.id} className="mission-button" onClick={() => onMission(o)}>
+                  {o.irreversible && <span title="Cannot be undone">🔒 </span>}{o.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Duty Officer and Location Area (items 8) */}
