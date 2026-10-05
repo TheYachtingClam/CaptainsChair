@@ -122,6 +122,18 @@ def _process_event(state: GameState) -> None:
             elif (not inst.exhausted and all(c.can_pay(ctx) for c in impl.costs)
                   and not ops.reactions_blocked(state, seat)):
                 optional.append(ref)
+    # SUPPORT (Second Contact): matching cards in the owner's hand, during their own Action Step (REQ-EXP-30 to -37).
+    if ops.support_window(state, seat):
+        for inst in player.hand:
+            for index, op in enumerate(card(inst).operations):
+                impl = card_code.OPS.get((inst.card, index))
+                if op.kind != "SUPPORT" or impl is None or impl.trigger is None:
+                    continue
+                ref = ops.OpRef(mode="trigger", seat=seat, uid=inst.uid, index=index, event=trigger_event)
+                ctx = ops.Ctx(state, ref)
+                if impl.trigger(ctx, trigger_event) and (not impl.requires or impl.requires(ctx)) \
+                        and all(c.can_pay(ctx) for c in impl.costs):
+                    optional.append(ref)
     state.op_queue.extend(mandatory)
     if optional:
         state.offer = ops_offer(seat, optional)
@@ -138,15 +150,26 @@ def _ask_offer(state: GameState) -> None:
     valid = []
     for ref in offer.refs:
         inst = ops.find_inst(state, ref.uid)
-        if inst is not None and not inst.exhausted and inst in table_cards(state.player(ref.seat)):
+        if inst is None:
+            continue
+        player = state.player(ref.seat)
+        if card(inst).operations[ref.index].kind == "SUPPORT":
+            if inst in player.hand:  # SUPPORT is used from hand only (REQ-EXP-34)
+                valid.append(ref)
+        elif not inst.exhausted and inst in table_cards(player):
             valid.append(ref)
     if not valid:
         state.offer = None
         return
     offer.refs = valid
-    ask(state, offer.seat, "trigger", "Use a Reaction?",
-        [(f"use:{i}", f"Use {name(ops.find_inst(state, r.uid))}: {card(ops.find_inst(state, r.uid)).operations[r.index].text}")
-         for i, r in enumerate(valid)] + [("pass", "Do not use")])
+
+    def label(r):
+        inst = ops.find_inst(state, r.uid)
+        op = card(inst).operations[r.index]
+        return f"Use {name(inst)}{' (SUPPORT, from hand)' if op.kind == 'SUPPORT' else ''}: {op.text}"
+
+    ask(state, offer.seat, "trigger", "Use a Reaction or SUPPORT card?",
+        [(f"use:{i}", label(r)) for i, r in enumerate(valid)] + [("pass", "Do not use")])
 
 
 def handle_trigger(state: GameState, player: Player, option: str) -> None:

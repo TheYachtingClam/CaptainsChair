@@ -616,6 +616,8 @@ def _matching_event(s, cid, index):
         candidates.append({"kind": "attacked", "seat": seat, "uid": None, "attacker": 1 - seat})
         candidates.append({"kind": "would_attack", "seat": seat, "uid": None, "attacker": 1 - seat,
                            "removes_away_teams": True})
+        for m in [i for i in s.market.values() if i is not None]:
+            candidates.append({"kind": "would_junk", "seat": seat, "uid": m.uid})
         for inc in [i for i in p.hand if CARDS[i.card].suit == "Incident"]:
             candidates.append({"kind": "would_return_incident", "seat": seat, "uid": inc.uid})
         for kind in ("dilithium", "latinum", "glory"):
@@ -630,10 +632,11 @@ def _matching_event(s, cid, index):
     return None
 
 
-STEP_KINDS = ("REACTION", "RESUPPLY", "CLEAN-UP")
+STEP_KINDS = ("REACTION", "RESUPPLY", "CLEAN-UP", "SUPPORT")
+NEVER_TRIGGERS = {("0ALL01", 2)}  # assimilation has no rules in these boxes (KW-DRONE-01)
 
 
-@pytest.mark.parametrize("cid,index", [k for kind in STEP_KINDS for k in implemented(kind)])
+@pytest.mark.parametrize("cid,index", [k for kind in STEP_KINDS for k in implemented(kind) if k not in NEVER_TRIGGERS])
 def test_every_triggered_and_step_operation_runs(cid, index):
     """Run each Reaction (with an event it accepts), Resupply and Clean-up operation from a generous position."""
     from engine.game import advance
@@ -642,6 +645,8 @@ def test_every_triggered_and_step_operation_runs(cid, index):
     op = CARDS[cid].operations[index]
     zone = "staging" if op.kind == "CLEAN-UP" and CARDS[cid].suit in ("Ally", "Cargo") and \
         "Ongoing" not in CARDS[cid].traits else table_zone(cid)
+    if op.kind == "SUPPORT":
+        zone = "hand"  # SUPPORT is used from hand
     extra = {"hand": RICH["hand"] + ["2PER12", "2PER19", "3CAR01", "2PER20"],
              "staging": ["2PER22", "2PER10", "2PER19", "2ALL11", "2CAR15"], "locations": ["2GEO19"],
              "fleet": RICH["fleet"] + ["2CAR05"], "tracks": {"research": 7, "influence": 7, "military": 7}}
@@ -651,7 +656,7 @@ def test_every_triggered_and_step_operation_runs(cid, index):
                   opp={"fleet": ["2SHI03"], "staging": ["2PER10"]})
         host = card(s, cid, zone=zone)
         card(s, "2SHI03", zone="fleet").beamed.append(s.new_inst("2PER07"))  # a beamed card, for recall effects
-        if op.kind == "REACTION":
+        if op.kind in ("REACTION", "SUPPORT"):
             ev = _matching_event(s, cid, index)
             assert ev is not None, f"no event in the position triggers {cid} {index}"
             ref = OpRef(mode="trigger", seat=0, uid=host.uid, index=index, event=ev)
@@ -1260,3 +1265,71 @@ def test_sukal_returns_incidents_before_scoring():
     answer(s, "")
     answer(s, "")
     assert s.step == "over" and len(s.incident) == incidents + 2
+
+
+# --------------------------------------------------------------------------- Step 7: SUPPORT from hand
+
+
+def resolve_maah(s):
+    while s.decision.kind == "op":
+        text = " ".join(options(s))
+        answer(s, next(t for t in ("faceup", "Take an Incident", "Discard pile") if t in text))
+
+
+def test_maah_support_chains_with_a_second_maah():
+    """REQ-EXP-35: a card put into the Staging Area by SUPPORT is put into play and can trigger another SUPPORT."""
+    s = given(hand=["2PER10", "3PER12", "3PER12"], expansions=["second_contact"])
+    play(s, card(s, "2PER10", zone="hand"), 0)  # Lursa is a Klingon
+    while s.decision.kind == "op":
+        answer(s, "No")
+    assert s.decision.kind == "trigger" and "SUPPORT" in options(s)[0]
+    answer(s, "Ma'ah")
+    resolve_maah(s)
+    # Ma'ah himself is a Klingon put into play: the second Ma'ah is offered.
+    assert s.decision.kind == "trigger" and "Ma'ah" in " ".join(options(s))
+    answer(s, "Ma'ah")
+    resolve_maah(s)
+    assert [i.card for i in me(s).staging].count("3PER12") == 2
+
+
+def test_support_only_in_your_own_action_step():
+    s = given(hand=["3PER10"], expansions=["second_contact"])
+    choose_end(s)  # to Clean-up: a Person gained now would not offer SUPPORT
+    from engine.ops import support_window
+
+    assert not support_window(s, 0)
+    assert not support_window(s, 1)
+
+
+def test_jennifer_shreyan_after_gaining_a_person():
+    s = given(hand=["2GEO16", "3PER10"], expansions=["second_contact"])
+    play(s, card(s, "2GEO16", zone="hand"), 0)  # Recruit: put a card on top to gain a Person
+    answer(s, "Analyze")
+    answer(s, "faceup")
+    answer(s, "Discard pile")
+    assert s.decision.kind == "trigger"
+    hand = len(me(s).hand)
+    answer(s, "Jennifer")
+    assert card(s, "3PER10").uid in uids(me(s).staging) and len(me(s).hand) == hand - 1 + 1
+
+
+def test_nova_fleet_gains_the_junked_card():
+    s = given(hand=["2CAR14", "3ALL03"], expansions=["second_contact"], empty_hand=False)
+    play(s, card(s, "2CAR14", zone="hand"), 0)  # Phasers: draw 2, junk, deploy
+    target = s.market["Ally"]
+    answer(s, CARDS[target.card].name)
+    assert "Nova Fleet" in options(s)[0]
+    answer(s, "Nova Fleet")
+    assert any(i.uid == target.uid for i in me(s).hand) and target.uid not in uids(s.junk)
+    assert card(s, "3ALL03").uid in uids(me(s).staging)
+
+
+def test_drones_support_after_a_borg_enters_play():
+    s = given(hand=["2SHI01", "0ALL01"], promos=True)
+    play(s, card(s, "2SHI01", zone="hand"), 0)  # Borg Probe: deploy and warp
+    answer(s, "")  # warp destination
+    if "Spend an Action" in s.decision.prompt:
+        answer(s, "No")
+    assert s.decision.kind == "trigger" and "Drones" in options(s)[0]
+    answer(s, "Drones")
+    assert me(s).tracks["research"] == 2

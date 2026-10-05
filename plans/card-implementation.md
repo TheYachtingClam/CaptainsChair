@@ -17,7 +17,7 @@ Georgiou's deck and Cadet Training are done. This plan covers everything else, o
 
 | Group | Cards | Operations with code |
 |---|---|---|
-| Market cards (Person, Cargo, Ship, Ally), all sets | 90 | 0 of 208 |
+| Market cards (Person, Cargo, Ship, Ally), all sets | 90 | 228 of 228 (Steps 2 to 7) |
 | Locations, all sets | 23 | 0 of 56 |
 | Common Incidents, Encounters, Directives | 17 | 2 of 34 |
 | Reward pile (Second Contact) | 8 | 0 of 28 |
@@ -112,7 +112,7 @@ Cards: Tysess, Orb of Time, Holographic Drone Ship, Suliban, Vadic's Splinter Gr
 
 **You test:** use Orb of Time on a logged Denobulans. The Orb, not the Denobulans, should be logged (acceptance scenario AS-19).
 
-## Step 7: SUPPORT from hand (Second Contact)
+## Step 7: SUPPORT from hand (Second Contact) (done)
 
 - **SUPPORT offers:** when a trigger happens in your Action Step, matching SUPPORT cards in your hand are offered. A used card goes to the Staging Area and only its SUPPORT resolves. Chains can follow (REQ-EXP-30 to -37).
 - **"When … would" SUPPORT:** Nova Fleet gains a card instead of junking it.

@@ -770,6 +770,9 @@ class Actions:
         self._use(A.JUNK)
         cards = [i for i in self.state.market.values() if i is not None and not i.res]
         inst = yield from self.pick_card("Junk a card from the Market.", cards)
+        if inst and (yield from self._would(self.ctx.me.seat, {"kind": "would_junk", "seat": self.ctx.me.seat,
+                                                                "uid": inst.uid})):
+            return inst  # replaced, e.g. Nova Fleet gains it instead
         if inst:
             suit = card(inst).suit
             self.state.market[suit] = None
@@ -810,6 +813,10 @@ class Actions:
             return None
         if optional:
             options.append(("none", "Gain nothing"))
+        if len(options) == 1:
+            inst = self._take_gained(options[0][0])  # nothing to decide
+            yield from self._place_gained(inst, to_hand)
+            return inst
         junk_cards = [i for i in self.state.junk if f"junk:{i.uid}" in {o for o, _ in options}]
         answer = yield from self.choose(f"Gain {label}.", options, show=junk_cards)
         if answer == "none":
@@ -1292,33 +1299,39 @@ class Actions:
         A matching Reaction's function returns True when it replaced or cancelled the event. Returns True if one
         did. Reactions are not offered when an effect such as Pasalk blocks them (REQ-AS-31)."""
         player = self.state.player(seat)
-        if reactions_blocked(self.state, seat):
-            return False
+        blocked = reactions_blocked(self.state, seat)
         while True:
             options: list[tuple[str, str]] = []
             found: dict[str, tuple[Inst, int, Any]] = {}
-            for inst in table_cards(player):
-                if inst.exhausted:
-                    continue
+            sources = [] if blocked else [(i, "REACTION") for i in table_cards(player) if not i.exhausted]
+            if support_window(self.state, seat):
+                sources += [(i, "SUPPORT") for i in player.hand]
+            for inst, kind in sources:
                 for index, op in enumerate(card(inst).operations):
                     impl = impl_for(inst, index)
-                    if op.kind != "REACTION" or impl is None or impl.trigger is None:
+                    if op.kind != kind or impl is None or impl.trigger is None:
                         continue
                     sub = Ctx(self.state, OpRef(mode="trigger", seat=seat, uid=inst.uid, index=index, event=event))
-                    if impl.trigger(sub, event) and all(c.can_pay(sub) for c in impl.costs):
+                    if impl.trigger(sub, event) and (not impl.requires or impl.requires(sub)) \
+                            and all(c.can_pay(sub) for c in impl.costs):
                         key = f"{inst.uid}:{index}"
                         found[key] = (inst, index, impl)
-                        options.append((key, f"Use {name(inst)}: {op.text}"))
+                        extra = " (SUPPORT, from hand)" if kind == "SUPPORT" else ""
+                        options.append((key, f"Use {name(inst)}{extra}: {op.text}"))
             if not options:
                 return False
-            answer = yield from self.choose("Use a Reaction now?", options + [("none", "Do not use")], seat)
+            answer = yield from self.choose("Use a Reaction or SUPPORT card now?", options + [("none", "Do not use")],
+                                            seat)
             if answer == "none":
                 return False
             inst, index, impl = found[answer]
-            inst.exhausted = True
-            self.state.emit(f"{player.name} uses {name(inst)}.", seat=seat)
-            raise_event(self.state, "exhaust", seat, inst.uid)
             sub = Ctx(self.state, OpRef(mode="trigger", seat=seat, uid=inst.uid, index=index, event=event))
+            if card(inst).operations[index].kind == "SUPPORT":
+                _support_to_staging(sub, inst)
+            else:
+                inst.exhausted = True
+                self.state.emit(f"{player.name} uses {name(inst)}.", seat=seat)
+                raise_event(self.state, "exhaust", seat, inst.uid)
             acts = Actions(sub, impl.uses)
             for cost in impl.costs:
                 yield from cost.pay(acts)
@@ -1405,6 +1418,19 @@ def _refill(state: GameState, suit: str) -> None:
     from engine.setup import refill_market
 
     refill_market(state, suit)
+
+
+def support_window(state: GameState, seat: int) -> bool:
+    """SUPPORT can be used only during the owner's own Action Step (REQ-EXP-31)."""
+    return state.active == seat and state.step == "action"
+
+
+def _support_to_staging(ctx: Ctx, inst: Inst) -> None:
+    """Play a SUPPORT card from hand into the Staging Area; it counts as put into play (REQ-EXP-32, -35)."""
+    take_out(ctx.state, inst)
+    ctx.me.staging.append(inst)
+    ctx.state.emit(f"{ctx.me.name} uses {name(inst)}'s SUPPORT from their hand.", seat=ctx.me.seat)
+    put_into_play(ctx.state, ctx.me, inst)
 
 
 def owned_everywhere(player: Player) -> list[Inst]:
@@ -1624,6 +1650,8 @@ def _execute(ctx: Ctx) -> Gen:
         inst.exhausted = True
         state.emit(f"{ctx.me.name} uses {name(inst)}.", seat=ctx.me.seat)
         raise_event(state, "exhaust", ctx.me.seat, inst.uid)
+    if ref.mode == "trigger" and op.kind == "SUPPORT":
+        _support_to_staging(ctx, inst)
     if ref.mode == "activate" and op.action_cost:
         ctx.me.actions -= 1
     if impl is None:
