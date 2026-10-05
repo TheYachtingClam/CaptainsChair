@@ -159,7 +159,7 @@ Making every human card behave correctly against a Bot opponent, through the hoo
 
 **You test:** play your attack cards against the Soval Bot and answer the "did it succeed?" prompt. Then start a game with Ticking Clock on.
 
-## Step 4: The Georgiou, Kirk and Archer Bots
+## Step 4: The Georgiou, Kirk and Archer Bots (done)
 
 Three Crews with no Bot special rule, except that Archer's row adds Away Teams from the supply, up to 6 (`ADD_AWAY_TEAM`). Each row is written from its spec, with the spec's Tests cases.
 

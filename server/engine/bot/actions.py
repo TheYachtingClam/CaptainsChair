@@ -33,6 +33,10 @@ def card_matches(inst: Inst, token: str) -> bool:
     card = _card(inst)
     if token in SUITS:
         return card.suit == token
+    if token == "Any Species excluding Human":
+        from engine.ops import SPECIES
+
+        return bool(set(card.traits) & (SPECIES - {"Human"}))
     if token.startswith("[") and token.endswith(" Focus]"):
         focus = token[1:-len(" Focus]")]
         return card.focus in (focus, "Best")
@@ -137,6 +141,76 @@ class BotActions:
         self.bot.staging.append(inst)
         self.emit(f"{self.bot.name} resolves {_name(inst)} at once.", irreversible=True)
         yield from self._resolve(inst)
+
+    def _from_discard(self, token: str, pred: Callable[[Inst], bool] | None = None) -> Inst | None:
+        """The topmost matching card of the Bot Discard pile (REQ-SOLO-96)."""
+        return next((i for i in reversed(self.bot.discard) if card_matches(i, token) and (pred is None or pred(i))),
+                    None)
+
+    def resolve_from_discard(self, token: str) -> Gen:
+        """Resolve the topmost matching card of the Bot Discard pile, if able (REQ-SOLO-96, -100). Returns it."""
+        self._use(A.RESOLVE_CARD)
+        inst = self._from_discard(token)
+        if inst is None:
+            return None
+        self.bot.discard.remove(inst)
+        yield from self._resolve_now(inst)
+        return inst
+
+    def promote_from_discard(self, token: str = "Person", pred: Callable[[Inst], bool] | None = None) -> Gen:
+        """Promote the topmost matching Person of the Bot Discard pile, if able. Returns it."""
+        inst = self._from_discard(token, lambda i: _card(i).suit == "Person" and (pred is None or pred(i)))
+        if inst is None:
+            self._use(A.PROMOTE)
+            return None
+        yield from self.promote(inst)
+        return inst
+
+    def deploy_from_discard(self) -> Gen:
+        """Deploy the topmost Ship of the Bot Discard pile, if able. Returns it."""
+        ship = self._from_discard("Ship")
+        if ship is None:
+            self._use(A.DEPLOY)
+            return None
+        yield from self.deploy(ship)
+        return ship
+
+    def log_from_discard(self, pred: Callable[[Inst], bool]) -> Gen:
+        """Log the topmost matching card of the Bot Discard pile, if able. Returns it."""
+        self._use(A.LOG)
+        inst = next((i for i in reversed(self.bot.discard) if pred(i)), None)
+        if inst is not None:
+            self._log(inst)
+        return inst
+        yield  # pragma: no cover
+
+    def log_deployed_ship(self) -> Gen:
+        """Log a deployed Ship, if able: the most recently deployed (REQ-SOLO-166). Returns it."""
+        self._use(A.LOG)
+        ships = [s for s in self.bot.fleet if _card(s).suit == "Ship" or _card(s).ship_token]
+        if not ships:
+            return None
+        self._log(ships[-1])
+        return ships[-1]
+        yield  # pragma: no cover
+
+    def away_teams_on_board(self) -> int:
+        return sum(loc.away.get(self.bot.seat, 0) for loc in [*self.state.neutral, *self.bot.locations])
+
+    def can_log_location_and_remove_two(self) -> bool:
+        """"If able to do both, log a controlled Location and remove 2 [Away Team]" (Directive rows)."""
+        return bool(self.bot.locations) and self.away_teams_on_board() >= 2
+
+    def log_controlled_location(self) -> Gen:
+        """Log one of the Bot's controlled Locations: the least valuable to it, keeping the best in play."""
+        self._use(A.LOG)
+        from engine.bot import least_valuable
+
+        loc = least_valuable(self.state, self.bot.locations, self.bot)
+        if loc is not None:
+            self._log(loc)
+        return loc
+        yield  # pragma: no cover
 
     def discard_supplement_top(self) -> Gen:
         self._use(A.DISCARD)
@@ -259,7 +333,6 @@ class BotActions:
         matches ("if able"). Returns the card."""
         self._use(A.GAIN_CARD)
         from engine.bot import most_valuable
-        from engine.setup import refill_market
 
         market = [] if from_junk else [i for s in MARKET_SUITS if (i := self.state.market.get(s)) is not None]
         junk = list(reversed(self.state.junk)) if (from_junk or including_junk) else []  # most recent first
@@ -273,13 +346,34 @@ class BotActions:
         if chosen is None:
             self.emit(f"{self.bot.name} finds no {label or wanted} to {'take' if take else 'gain'}.")
             return None
+        return self._gain_exact(chosen, take=take)
+        yield  # pragma: no cover
+
+    def gain_most_glory(self) -> Gen:
+        """Gain the Market card with the most [Glory] on it (Kirk). Ties: the most valuable, then the leftmost."""
+        self._use(A.GAIN_CARD)
+        from engine.bot import market_cards, most_valuable
+
+        cards = market_cards(self.state)
+        if not cards:
+            return None
+        most = max(i.res.get("glory", 0) for i in cards)
+        target = most_valuable(self.state, [i for i in cards if i.res.get("glory", 0) == most], self.bot)
+        return self._gain_exact(target)
+        yield  # pragma: no cover
+
+    def _gain_exact(self, chosen: Inst, *, take: bool = False) -> Inst:
+        """Move a faceup Market or Junk card to the Bot: gained to its Discard pile, or taken onto its deck, with any
+        tokens on it (REQ-SOLO-147, -149). The Market slot refills."""
+        from engine.setup import refill_market
+
         suit = next((s for s, i in self.state.market.items() if i is chosen), None)
         if suit is not None:
             self.state.market[suit] = None
         else:
             self.state.junk.remove(chosen)
         for kind, n in sorted(chosen.res.items()):
-            setattr(self.bot, kind, getattr(self.bot, kind) + n)  # tokens on the card come too (REQ-SOLO-149)
+            setattr(self.bot, kind, getattr(self.bot, kind) + n)
             self.emit(f"{self.bot.name} also gains {n} {kind.capitalize()} from {_name(chosen)}.")
         chosen.res.clear()
         if take:
@@ -292,6 +386,22 @@ class BotActions:
         if suit is not None:
             refill_market(self.state, suit)
         return chosen
+
+    def gain_resources_from_market(self) -> Gen:
+        """Gain all resources from a Market card: the one with the most, then the leftmost (Archer's Attack row)."""
+        self._use(A.GAIN_RESOURCE)
+        from engine.bot import market_cards
+
+        cards = [i for i in market_cards(self.state) if i.res]
+        if not cards:
+            self.emit("No Market card has resources.")
+            return None
+        target = max(cards, key=lambda i: (sum(i.res.values()), -cards.index(i)))
+        for kind, n in sorted(target.res.items()):
+            setattr(self.bot, kind, getattr(self.bot, kind) + n)
+            self.emit(f"{self.bot.name} gains {n} {kind.capitalize()} from {_name(target)}.")
+        target.res.clear()
+        return target
         yield  # pragma: no cover
 
     def gain_incident(self) -> Gen:
@@ -322,13 +432,17 @@ class BotActions:
         return inst
         yield  # pragma: no cover
 
-    def take_encounter(self) -> Gen:
-        """Take the top Encounter onto the Bot deck."""
+    def take_encounter(self, *, gain: bool = False) -> Gen:
+        """Take the top Encounter onto the Bot deck, or `gain` it to the Bot Discard pile (REQ-SOLO-147)."""
         self._use(A.TAKE_ENCOUNTER)
         if self.state.encounter:
             inst = self.state.encounter.pop(0)
-            self.bot.draw.insert(0, inst)
-            self.emit(f"{self.bot.name} takes the Encounter {_name(inst)} onto its deck.", irreversible=True)
+            if gain:
+                self.bot.discard.append(inst)
+                self.emit(f"{self.bot.name} gains the Encounter {_name(inst)} to its Discard pile.", irreversible=True)
+            else:
+                self.bot.draw.insert(0, inst)
+                self.emit(f"{self.bot.name} takes the Encounter {_name(inst)} onto its deck.", irreversible=True)
         return
         yield  # pragma: no cover
 
@@ -352,13 +466,17 @@ class BotActions:
         yield  # pragma: no cover
 
     # ------------------------------------------------------------------ resources and tracks
-    def gain_glory(self, n: int = 1) -> Gen:
-        """Glory from the Stardate card, or the supply after a Resolution (REQ-SOLO-151)."""
+    def gain_glory(self, n: int = 1, *, supply: bool = False) -> Gen:
+        """Glory from the Stardate card, or the supply after a Resolution (REQ-SOLO-151); `supply=True` is Glory
+        "from the supply", which never touches the Stardate card."""
         self._use(A.GAIN_RESOURCE)
         from engine.game import gain_glory
 
-        gain_glory(self.state, self.bot, n)
-        self.emit(f"{self.bot.name} gains {n} Glory.")
+        if supply:
+            self.bot.glory += n
+        else:
+            gain_glory(self.state, self.bot, n)
+        self.emit(f"{self.bot.name} gains {n} Glory{' from the supply' if supply else ''}.")
         return
         yield  # pragma: no cover
 
@@ -442,23 +560,31 @@ class BotActions:
             return 0
         return sum(registry.SHIP_WEIGHT.get(s.card, 1) for s in player.fleet if s.at == loc.uid)
 
-    def can_send_to(self, loc: Inst) -> bool:
-        """Neutral, not where the human has more Ships (REQ-SOLO-168), and not already more than enough (-161)."""
-        return (loc in self.state.neutral and self._ships(loc, self.human) <= self._ships(loc, self.bot)
-                and not self._more_than_enough(loc))
+    def can_send_to(self, loc: Inst, *, ignore_ships: bool = False) -> bool:
+        """Neutral, not where the human has more Ships unless told to ignore them (REQ-SOLO-168), and not already
+        more than enough (REQ-SOLO-161)."""
+        return (loc in self.state.neutral and not self._more_than_enough(loc)
+                and (ignore_ships or self._ships(loc, self.human) <= self._ships(loc, self.bot)))
 
-    def send_away_team(self, prefer: str | None = None, *, target: Inst | None = None) -> Gen:
+    def send_away_team(self, prefer: str | None = None, *, target: Inst | None = None,
+                       ignore_ships: bool = False) -> Gen:
         """Send an Away Team to the neutral Location where the Bot has the most tokens; a trait preference such as
         "Xindi / Tellarite" comes first; ties go to the most valuable (REQ-SOLO-167 to -170). Returns the Location,
         or None if it could not."""
         self._use(A.SEND_AWAY_TEAM)
         if target is not None:
-            loc = target if self.can_send_to(target) else None
+            loc = target if self.can_send_to(target, ignore_ships=ignore_ships) else None
         else:
-            choices = [loc for loc in self.state.neutral if self.can_send_to(loc)]
+            choices = [loc for loc in self.state.neutral if self.can_send_to(loc, ignore_ships=ignore_ships)]
             if prefer:
-                preferred = [loc for loc in choices if any(card_matches(loc, t) for t in parse_wanted(prefer)[0])]
-                choices = preferred or choices
+                # "Xindi / Tellarite" allows only those; "Xindi / Tellarite > Location" prefers them, else any.
+                picked: list[Inst] = []
+                for group in parse_wanted(prefer):
+                    picked = choices if group == ["Location"] else [
+                        loc for loc in choices if any(card_matches(loc, term) for term in group)]
+                    if picked:
+                        break
+                choices = picked
             loc = self._pick_location(choices, lambda loc: self._tokens(loc, self.bot))
         if loc is None:
             self.emit(f"{self.bot.name} cannot send an Away Team there.")
@@ -491,6 +617,19 @@ class BotActions:
         self.bot.away_pool += 1
         self.emit(f"{self.bot.name} takes back an Away Team from {_name(source)}.")
         return True
+
+    def add_away_team(self, maximum: int = 6) -> Gen:
+        """Add an Away Team from the supply to the Bot Captain, up to `maximum` in all (Archer). Returns True if
+        added."""
+        self._use(A.ADD_AWAY_TEAM)
+        total = self.bot.away_pool + self.away_teams_on_board()
+        if total >= maximum:
+            self.emit(f"{self.bot.name} already has {maximum} Away Teams.")
+            return False
+        self.bot.away_pool += 1
+        self.emit(f"{self.bot.name} adds an Away Team from the supply to its Captain.")
+        return True
+        yield  # pragma: no cover
 
     def remove_away_team(self, n: int = 1) -> Gen:
         """Remove the Bot's own Away Teams: from where it has the fewest tokens (REQ-SOLO-170)."""
@@ -539,6 +678,74 @@ class BotActions:
         human.away_pool += 1
         self.state.emit(f"{human.name} removes an Away Team from {_name(loc)}.", seat=human.seat)
         return loc
+
+    def _human_actions(self, *uses: str) -> Actions:
+        """Actions for a bold part the human resolves themselves, as if it were their own effect."""
+        return Actions(Ctx(self.state, OpRef(mode="auto", seat=self.human.seat)), uses)
+
+    def human_discards(self) -> Gen:
+        """Bold "you discard a card": the human discards a card of their choice."""
+        self._use(A.DISCARD)
+        if self.human is not None and self.human.hand:
+            yield from self._human_actions(A.DISCARD).discard(1, label="a card (Bot attack)")
+
+    def human_dismisses_duty_officer(self) -> Gen:
+        """Bold "you dismiss a Duty Officer": the human picks one of theirs. Returns True if they could."""
+        self._use(A.DISMISS)
+        human = self.human
+        if human is None or not human.duty:
+            return False
+        officer = yield from self._ui.pick_card("Dismiss one of your Duty Officers (Bot attack).", list(human.duty),
+                                                seat=human.seat)
+        self._human_actions(A.DISMISS)._dismiss(officer)
+        return True
+
+    def human_takes_incident(self) -> Gen:
+        """Bold "you take an Incident"."""
+        self._use(A.TAKE_INCIDENT)
+        from engine.game import take_incident
+
+        if self.human is not None:
+            take_incident(self.state, self.human)
+        return
+        yield  # pragma: no cover
+
+    def human_removes_all_away_teams(self, where: Callable[[Inst], bool]) -> Gen:
+        """Bold "you remove all your [Away Team] from a Location ...": the human picks the Location. Returns it, or
+        None if they had no Away Team at any such Location."""
+        self._use(A.REMOVE_AWAY_TEAM)
+        human = self.human
+        if human is None:
+            return None
+        places = [loc for loc in self.state.neutral if loc.away.get(human.seat) and where(loc)]
+        loc = yield from self._ui.pick_card("Remove all your Away Teams from which Location (Bot attack)?", places,
+                                            seat=human.seat)
+        if loc is None:
+            return None
+        n = loc.away.pop(human.seat)
+        human.away_pool += n
+        self.state.emit(f"{human.name} removes {n} Away Team(s) from {_name(loc)}.", seat=human.seat)
+        return loc
+
+    def human_exhausts_location(self) -> Gen:
+        """Bold "you exhaust a controlled Location": the human picks one of their ready Locations."""
+        self._use(A.EXHAUST)
+        human = self.human
+        if human is None:
+            return None
+        ready = [loc for loc in human.locations if not loc.exhausted]
+        loc = yield from self._ui.pick_card("Exhaust one of your controlled Locations (Bot attack).", ready,
+                                            seat=human.seat)
+        if loc is not None:
+            yield from self._human_actions(A.EXHAUST).exhaust(loc)
+        return loc
+
+    def human_has(self, trait: str) -> bool:
+        """Whether the human has a card with the trait in play."""
+        if self.human is None:
+            return False
+        hctx = Ctx(self.state, OpRef(mode="auto", seat=self.human.seat))
+        return hctx.count_in_play(lambda i: card_matches(i, trait)) > 0
 
     def human_may_return_incident(self) -> Gen:
         """Bold "You may return an Incident from your hand or Discard pile": the human decides. Returns True if they
