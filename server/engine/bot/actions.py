@@ -166,7 +166,7 @@ class BotActions:
 
     def _resolve_now(self, inst: Inst) -> Gen:
         self.bot.staging.append(inst)
-        self.emit(f"{self.bot.name} resolves {_name(inst)} at once.", irreversible=True)
+        self.emit(f"{self.bot.name} resolves {_name(inst)} at once.", irreversible=True, card=inst.card)
         yield from self._resolve(inst)
 
     def _from_discard(self, token: str, pred: Callable[[Inst], bool] | None = None) -> Inst | None:

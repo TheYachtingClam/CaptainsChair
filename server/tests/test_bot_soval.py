@@ -286,3 +286,21 @@ def test_cancelled_bot_attack_skips_only_the_attack_part():
     assert s.neutral[0].away.get(0) == 1  # nothing removed
     assert the_bot(s).tracks["military"] == military + 2
     assert "ignores the negative effect" in log_text(s)
+
+
+def test_the_view_gives_the_latest_bot_turn_as_steps():
+    from engine.views import game_view
+
+    s = solo()
+    choose(s, 0, "end", flag_irreversible=False)
+    while s.decision is not None and not (s.decision.kind == "action" and s.decision.seat == 0):
+        d = s.decision
+        choose(s, d.seat, {"discard": "done"}.get(d.kind, d.options[0].id), flag_irreversible=False)
+    turn = game_view(s, 0)["bot_turn"]
+    assert turn["finished"] and turn["steps"][0]["text"].startswith("Turn 2: Soval Bot")
+    flips = [st for st in turn["steps"] if "flips" in st["text"] and "SUITS card" not in st["text"]]
+    assert flips and all("card" in st for st in flips)
+    matches = [st for st in turn["steps"] if "row" in st]
+    assert matches and {"side", "number"} <= set(matches[0]["row"])
+    sides = game_view(s, 0)["players"][1]["bot"]["command"]
+    assert [x["side"] for x in sides if x["up"]] == ["traits", the_bot(s).bot.suits_side] and len(sides) == 3

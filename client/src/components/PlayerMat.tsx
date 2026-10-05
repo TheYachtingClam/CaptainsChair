@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BotView, CardView, OptionView, PlayerView } from "../api";
+import { BotView, CardView, OptionView, PlayerView, RowRef } from "../api";
 import { Card, CardBack, PileViewer, Slot, imageUrl, usePreviewHandlers } from "./Cards";
 
 // Crew board track geometry, as fractions of the board image (measured from the scans).
@@ -50,17 +50,17 @@ const SIDE_LABEL: Record<string, string> = {
 };
 
 /** One side of an Automated Command card: hover to enlarge; the rows are also listed for reading. */
-function CommandSide({ side }: { side: BotView["command"][number] }) {
+function CommandSide({ side, highlight }: { side: BotView["command"][number]; highlight?: number }) {
   const preview = usePreviewHandlers(side.image ?? "", false);
   return (
-    <figure className="command-side">
+    <figure className={`command-side ${highlight ? "matched-side" : ""}`}>
       {side.image && <img src={imageUrl(side.image)} alt={SIDE_LABEL[side.side]} {...preview} />}
-      <figcaption>{SIDE_LABEL[side.side]}</figcaption>
-      <details>
+      <figcaption>{SIDE_LABEL[side.side]}{!side.up && " (while resolving)"}</figcaption>
+      <details open={!!highlight || undefined}>
         <summary>Rows</summary>
         <ol>
           {side.rows.map((r) => (
-            <li key={r.number} className={r.attack ? "attack-row" : ""}>
+            <li key={r.number} className={[r.attack ? "attack-row" : "", r.number === highlight ? "matched-row" : ""].join(" ")}>
               <strong>{r.matches.join(" / ")}</strong>: {r.text}
             </li>
           ))}
@@ -70,11 +70,17 @@ function CommandSide({ side }: { side: BotView["command"][number] }) {
   );
 }
 
-/** The Bot's two Automated Command cards: TRAITS, and whichever SUITS side is up (REQ-SOLO-32, -91). */
-function CommandCards({ bot }: { bot: BotView }) {
+/** The Bot's two Automated Command cards: TRAITS, and whichever SUITS side is up (REQ-SOLO-32, -91). While watching a
+ * Bot turn, the side holding the matched row is shown with that row highlighted, even if the card has flipped since. */
+function CommandCards({ bot, highlight }: { bot: BotView; highlight?: RowRef | null }) {
+  const suits = bot.command.find((s) => s.side !== "traits" && (highlight ? s.side === highlight.side : s.up))
+    ?? bot.command.find((s) => s.side !== "traits" && s.up);
+  const shown = [bot.command.find((s) => s.side === "traits"), suits].filter((s): s is NonNullable<typeof s> => !!s);
   return (
     <div className="command-cards" aria-label="Automated Command cards">
-      {bot.command.map((side) => <CommandSide key={side.side} side={side} />)}
+      {shown.map((side) => (
+        <CommandSide key={side.side} side={side} highlight={highlight?.side === side.side ? highlight.number : undefined} />
+      ))}
       {bot.special_rule && <p className="muted special-rule"><strong>Special rule:</strong> {bot.special_rule}</p>}
     </div>
   );
@@ -94,7 +100,9 @@ function Section({ label, cards, place }: { label: string; cards: CardView[]; pl
   );
 }
 
-export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, onMission }: {
+export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, onMission, highlight }: {
+  /** The Bot: the Automated Command row to highlight while watching its turn. */
+  highlight?: RowRef | null;
   /** Missions you can complete now (REQ-MS-09: shown, never auto-completed). */
   missions?: OptionView[];
   onMission?: (o: OptionView) => void;
@@ -130,7 +138,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
             <CardBack label={p.bot ? "Supplement" : "Reserve"} count={p.reserve_count} />
             {p.status.map((c) => <Card key={c.uid} card={c} />)}
           </div>
-          {p.bot ? <CommandCards bot={p.bot} /> : (
+          {p.bot ? <CommandCards bot={p.bot} highlight={highlight} /> : (
             <button type="button" className="dev-pile" onClick={() => setViewing("development")} disabled={!p.development.length}>
               <span>Development</span>
               <span className="count">{p.development.length}</span>

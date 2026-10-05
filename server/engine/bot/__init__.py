@@ -138,7 +138,7 @@ def step_bot(state: GameState) -> None:
         if bot.bot.facedown:
             uid = bot.bot.facedown.pop(0)
             inst = next(i for i in bot.staging if i.uid == uid)
-            state.emit(f"{bot.name} flips {_name(inst)}.", seat=bot.seat, irreversible=True)
+            state.emit(f"{bot.name} flips {_name(inst)}.", seat=bot.seat, irreversible=True, card=inst.card)
             queue_resolution(state, bot, inst)
         else:
             state.substep = "cleanup"
@@ -241,7 +241,7 @@ def resolve(ctx, inst: Inst) -> Iterable:
                 side = "traits"
             impl = ROWS.get((bot.bot.crew, side, r.number))
             state.emit(f"{card.name} matches {' / '.join(r.matches)} (row {r.number} of {SIDE_NAMES[side]}).",
-                       seat=bot.seat)
+                       seat=bot.seat, card=inst.card, row={"side": side, "number": r.number})
             resolved_any = True
             if impl is None:
                 state.emit("(This Automated Command row is not implemented yet.)", seat=bot.seat)

@@ -1,18 +1,30 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CardView, GameStateView, OptionView } from "../api";
+import { CardView, GameStateView, OptionView, RowRef } from "../api";
+import { BotPlayback } from "./BotPlayback";
+import { SoloAid } from "./SoloAid";
 import { Card, CardPreview, PlayableContext, Preview, PreviewContext, SelectContext, Selection, TargetContext } from "./Cards";
 import { CardPanel } from "./CardPanel";
 import { PlayerMat } from "./PlayerMat";
 import { CenterMat } from "./CenterMat";
 
-function Confirm({ option, onContinue, onBack }: { option: OptionView; onContinue: () => void; onBack: () => void }) {
+function Confirm({ option, onContinue, onBack, solo }: {
+  option: OptionView;
+  onContinue: () => void;
+  onBack: () => void;
+  /** Solo mode: ending your turn starts the Bot's turn (REQ-SOLO-200). */
+  solo?: boolean;
+}) {
   const back = useRef<HTMLButtonElement>(null);
   useEffect(() => back.current?.focus(), []);
   return (
     <div className="modal-backdrop" onKeyDown={(e) => e.key === "Escape" && onBack()}>
       <div className="card modal" role="alertdialog" aria-labelledby="confirm-title">
         <h2 id="confirm-title">This can't be undone</h2>
-        <p>{option.reason ?? "This reveals information or ends your turn."}</p>
+        <p>
+          {solo && (option.id === "end" || option.id === "done")
+            ? "This ends your turn and starts the Bot's turn. Nothing before this point can be undone afterwards."
+            : option.reason ?? "This reveals information or ends your turn."}
+        </p>
         <div className="row">
           <button ref={back} className="secondary" onClick={onBack}>Go back</button>
           <button onClick={onContinue}>Continue</button>
@@ -79,7 +91,8 @@ const SCORE_PART: Record<string, string> = {
   resources: "Dilithium and Latinum (1 per 2)",
 };
 
-export function Board({ view, onChoose, onUndo, busy }: {
+export function Board({ gameId, view, onChoose, onUndo, busy }: {
+  gameId: string;
   view: GameStateView;
   onChoose: (option: string) => void;
   onUndo: () => void;
@@ -88,6 +101,8 @@ export function Board({ view, onChoose, onUndo, busy }: {
   const [pending, setPending] = useState<OptionView | null>(null);
   const [preview, setPreview] = useState<Preview>(null);
   const [selection, setSelection] = useState<Selection>(null);
+  const [botRow, setBotRow] = useState<RowRef | null>(null);
+  const [aid, setAid] = useState(false);
   const decisionBox = useRef<HTMLElement>(null);
   const decisionBoxVisible = useOnScreen(decisionBox);
   const toggle = useCallback(
@@ -106,6 +121,12 @@ export function Board({ view, onChoose, onUndo, busy }: {
   const me = view.you;
   const others = view.players.filter((p) => p.seat !== me);
   const mine = view.players.find((p) => p.seat === me);
+  const bot = view.players.find((p) => p.bot);
+  const rowText = (row: RowRef) => {
+    const side = bot?.bot?.command.find((s) => s.side === row.side);
+    const r = side?.rows.find((x) => x.number === row.number);
+    return r ? `${r.matches.join(" / ")}: ${r.text}` : undefined;
+  };
   const d = view.decision;
   const endOption = d?.kind === "action" ? d.options?.find((o) => o.id === "end") : undefined;
   // Cards named by a "play" or "activate" option the viewer can choose right now.
@@ -173,6 +194,7 @@ export function Board({ view, onChoose, onUndo, busy }: {
           <span className="muted">
             Stardate: {view.stardate.glory} Glory, {view.stardate.remaining} card(s) left · Incidents {view.incident_count} ·
             Encounters {view.encounter_count}
+            {view.mode === "solo" && <> · <button className="link" onClick={() => setAid(true)}>Solo rules</button></>}
           </span>
         </div>
         {view.result ? (
@@ -210,7 +232,14 @@ export function Board({ view, onChoose, onUndo, busy }: {
         )}
       </section>
 
-      {others.map((p) => <PlayerMat key={p.seat} p={p} you={false} active={view.active === p.seat} locationNames={locationNames} />)}
+      {bot && (
+        <BotPlayback gameId={gameId} turn={view.bot_turn} botName={bot.name} rowText={rowText} onHighlight={setBotRow} />
+      )}
+
+      {others.map((p) => (
+        <PlayerMat key={p.seat} p={p} you={false} active={view.active === p.seat} locationNames={locationNames}
+          highlight={p.bot ? botRow : undefined} />
+      ))}
 
       <CenterMat view={view} />
 
@@ -227,7 +256,7 @@ export function Board({ view, onChoose, onUndo, busy }: {
       </section>
 
       {pending && (
-        <Confirm option={pending} onBack={() => setPending(null)} onContinue={() => { onChoose(pending.id); setPending(null); }} />
+        <Confirm option={pending} solo={view.mode === "solo"} onBack={() => setPending(null)} onContinue={() => { onChoose(pending.id); setPending(null); }} />
       )}
       {/* A question asked mid-operation (e.g. where to warp) stays in sight while the top box is scrolled away.
           The Action Step menu is left out: its choices are made from the cards and the End Turn button. */}
@@ -238,6 +267,7 @@ export function Board({ view, onChoose, onUndo, busy }: {
             hint={targets.size ? "Or click a highlighted card." : undefined} />
         </div>
       )}
+      {aid && <SoloAid onClose={() => setAid(false)} />}
       <CardPreview preview={preview} />
       {selection && (
         <CardPanel selection={selection} view={view} onClose={deselect}

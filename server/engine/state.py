@@ -50,6 +50,11 @@ class Event(BaseModel):
     seat: int | None = None  # who it concerns; None = the table
     private_to: int | None = None  # only this seat may see it
     irreversible: bool = False  # reveals information, uses randomness or ends a turn (REQ-UNDO-01)
+    # For following the Bot (REQ-SOLO-05, -56): the card the line is about, the Automated Command row it matched
+    # ({"side", "number"}), and "turn" on the line that starts a player's turn.
+    card: str | None = None
+    row: dict | None = None
+    tag: str | None = None
 
 
 class OpRef(BaseModel):
@@ -183,5 +188,7 @@ class GameState(BaseModel):
     def shuffle(self, cards: list[Inst]) -> None:
         self.rng().shuffle(cards)
 
-    def emit(self, text: str, *, seat: int | None = None, private_to: int | None = None, irreversible: bool = False) -> None:
-        self.log.append(Event(text=text, seat=seat, private_to=private_to, irreversible=irreversible))
+    def emit(self, text: str, *, seat: int | None = None, private_to: int | None = None, irreversible: bool = False,
+             card: str | None = None, row: dict | None = None, tag: str | None = None) -> None:
+        self.log.append(Event(text=text, seat=seat, private_to=private_to, irreversible=irreversible, card=card,
+                              row=row, tag=tag))

@@ -70,16 +70,44 @@ def _bot_view(player: Player) -> dict | None:
     if player.bot is None:
         return None
     crew = content().command[player.bot.crew]
-    traits, suits = crew.side("traits"), crew.side(player.bot.suits_side)
+    up = {"traits", player.bot.suits_side}
     return {
         "crew": player.bot.crew,
         "difficulty": player.bot.difficulty,
         "ticking_clock": player.bot.ticking_clock,
         "suits_side": player.bot.suits_side,
         "special_rule": crew.special_rule,
-        "command": [{"side": s.side, "image": s.image, "rows": [r.model_dump() for r in s.rows]}
-                    for s in (traits, suits) if s is not None],
+        # Every side, with `up` set on TRAITS and the SUITS side face up; the others are for showing the row a card
+        # matched while watching a Bot turn that flipped the SUITS card.
+        "command": [{"side": s.side, "image": s.image, "up": s.side in up, "rows": [r.model_dump() for r in s.rows]}
+                    for s in crew.sides if s.side != "exile_traits"],
     }
+
+
+def _bot_turn(state: GameState, viewer: int | None) -> dict | None:
+    """The latest Bot turn as steps the client can play back one at a time (REQ-SOLO-56): every log line from the
+    start of that turn, with the card it is about and the Automated Command row it matched. `start` is the turn's
+    position in the whole log, so the client knows which turn it has already watched."""
+    bot = next((p for p in state.players if p.bot is not None), None)
+    if bot is None:
+        return None
+    start = next((i for i in range(len(state.log) - 1, -1, -1)
+                  if state.log[i].tag == "turn" and state.log[i].seat == bot.seat), None)
+    if start is None:
+        return None
+    end = next((i for i in range(start + 1, len(state.log)) if state.log[i].tag == "turn"), len(state.log))
+    cards = content().cards
+    steps = []
+    for e in state.log[start:end]:
+        if e.private_to not in (None, viewer):
+            continue
+        step = {"text": e.text}
+        if e.card:
+            step["card"] = {"id": e.card, "name": cards[e.card].name, "image": cards[e.card].image}
+        if e.row:
+            step["row"] = e.row
+        steps.append(step)
+    return {"start": start, "finished": end < len(state.log) or state.step == "over", "steps": steps}
 
 
 def game_view(state: GameState, viewer: int | None) -> dict:
@@ -117,5 +145,6 @@ def game_view(state: GameState, viewer: int | None) -> dict:
         "last_turn": state.last_turn + 1 if state.last_turn is not None else None,
         "decision": decision,
         "log": [e.text for e in state.log[-60:] if e.private_to in (None, viewer)],
+        "bot_turn": _bot_turn(state, viewer),
         "result": state.result,
     }

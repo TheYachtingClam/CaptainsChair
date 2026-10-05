@@ -461,7 +461,7 @@ def wipe_neutral_zone(state: GameState) -> None:
 def step_start(state: GameState) -> None:
     player = state.player(state.active)
     player.controls_this_turn = 0
-    state.emit(f"Turn {state.turn + 1}: {player.name}.", seat=player.seat)
+    state.emit(f"Turn {state.turn + 1}: {player.name}.", seat=player.seat, tag="turn")
     if player.bot is not None:  # the Bot has no Resupply Step; its turn is run by engine/bot (REQ-SOLO-50)
         state.step = "bot"
         state.substep = "control"

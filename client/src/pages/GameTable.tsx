@@ -97,7 +97,7 @@ export function GameTable() {
       </section>
 
       {started && state.data ? (
-        <Board view={state.data} busy={command.isPending || undo.isPending}
+        <Board gameId={gameId} view={state.data} busy={command.isPending || undo.isPending}
           onChoose={(o) => command.mutate(o)} onUndo={() => undo.mutate()} />
       ) : (
         <section className="card">

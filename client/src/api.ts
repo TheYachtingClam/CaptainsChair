@@ -162,7 +162,27 @@ export interface BotView {
   ticking_clock: boolean;
   suits_side: "no_duty_officer" | "with_duty_officer";
   special_rule: string | null;
-  command: { side: string; image: string | null; rows: CommandRowView[] }[];
+  command: { side: string; image: string | null; up: boolean; rows: CommandRowView[] }[];
+}
+
+/** A row of an Automated Command card: which side, and its number on that side. */
+export interface RowRef {
+  side: string;
+  number: number;
+}
+
+/** One line of a Bot turn, for watching it step by step. */
+export interface BotStep {
+  text: string;
+  card?: { id: string; name: string; image: string };
+  row?: RowRef;
+}
+
+/** The latest Bot turn. `start` identifies it; `finished` is false while it waits for your answer. */
+export interface BotTurnView {
+  start: number;
+  finished: boolean;
+  steps: BotStep[];
 }
 
 export interface GameStateView {
@@ -187,6 +207,7 @@ export interface GameStateView {
   last_turn: number | null;
   decision: { seat: number; kind: string; prompt: string; options?: OptionView[]; cards?: CardView[] } | null;
   log: string[];
+  bot_turn: BotTurnView | null;
   result: { reason: string; winners: number[]; rating?: string; scores?: { seat: number; name: string; total: number; parts: Record<string, number> }[] } | null;
   can_undo: boolean;
   dev_tools?: boolean;

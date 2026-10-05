@@ -181,7 +181,7 @@ Then the strict check: the registry test requires a function for every row of ev
 
 **You test:** one game against each of these Bots. With Pike, watch his tracks rise as he resolves cards with Skill icons.
 
-## Step 6: Watching the Bot
+## Step 6: Watching the Bot (done)
 
 The client side of following a Bot turn:
 
