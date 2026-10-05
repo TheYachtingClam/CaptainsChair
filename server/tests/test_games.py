@@ -171,3 +171,32 @@ def test_delete_started_game_by_second_player(authed):
     authed.get(f"/api/games/{game_id}/state", headers={"X-Seat-Token": tokens[0]})  # fills the state cache
     assert authed.delete(f"/api/games/{game_id}", headers={"X-Seat-Token": tokens[1]}).status_code == 204
     assert authed.get(f"/api/games/{game_id}/state", headers={"X-Seat-Token": tokens[0]}).status_code == 404
+
+
+def test_moves_that_no_longer_apply_are_dropped(authed):
+    """A rules change can make saved moves invalid. The game drops them, says so, and carries on."""
+    from app import play
+    from app.db import get_db
+    from app.models import Game
+
+    grant = create(authed, mode="cadet").json()
+    game_id, h = grant["game"]["id"], {"X-Seat-Token": grant["seat_token"]}
+    db = next(get_db())
+    game = db.get(Game, game_id)
+    game.commands = [{"seat": 0, "option": "no-such-option", "irreversible": False, "turn": 0},
+                     {"seat": 0, "option": "end", "irreversible": False, "turn": 0}]
+    db.commit()
+    play._cache.clear()
+
+    view = authed.get(f"/api/games/{game_id}/state", headers=h).json()
+    assert view["decision"]["kind"] == "action"
+    assert "2 later move(s) no longer apply" in view["log"][-1]
+    assert view["can_undo"] is False
+
+    # The game continues normally, and the note survives later rebuilds.
+    r = authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}, headers=h)
+    assert r.status_code == 200 and r.json()["decision"]["kind"] == "wipe"
+    play._cache.clear()
+    view = authed.get(f"/api/games/{game_id}/state", headers=h).json()
+    assert view["decision"]["kind"] == "wipe"
+    assert any("no longer apply" in line for line in view["log"])

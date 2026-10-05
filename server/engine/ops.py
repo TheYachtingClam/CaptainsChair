@@ -46,7 +46,7 @@ class A:
     PLACE_RESOURCES = "PLACE_RESOURCES"; STEAL = "STEAL"; GAIN_ACTION = "GAIN_ACTION"
     GAIN_SPECIALTY = "GAIN_SPECIALTY"; WARP = "WARP"; SEND_AWAY_TEAM = "SEND_AWAY_TEAM"
     REMOVE_AWAY_TEAM = "REMOVE_AWAY_TEAM"; TAKE_CONTROL = "TAKE_CONTROL"; TRIGGER_CONTROL = "TRIGGER_CONTROL"
-    EXHAUST = "EXHAUST"; REFRESH = "REFRESH"; FORCE = "FORCE"; ATTACK = "ATTACK"
+    EXHAUST = "EXHAUST"; REFRESH = "REFRESH"; FORCE = "FORCE"; ATTACK = "ATTACK"; MOVE_RESOURCES = "MOVE_RESOURCES"
 
 
 class UndeclaredActionError(RuntimeError):
@@ -183,6 +183,12 @@ class Ctx:
         self.event = ref.event or {}
 
     @property
+    def event_card(self) -> Inst | None:
+        """The card a trigger event is about, e.g. the card put into play or gained, wherever it is now."""
+        uid = self.event.get("uid")
+        return find_inst(self.state, uid) if uid else None
+
+    @property
     def virtual_opponent(self) -> bool:
         """Cadet Training: `opponent` is None and a virtual opponent with one of everything stands in (REQ-CTM-12)."""
         return self.state.mode == "cadet"
@@ -299,23 +305,27 @@ def pay_resources(player: Player, dilithium: int = 0, latinum: int = 0, glory: i
 
 @dataclass
 class Spend(Cost):
+    """Spend resources, and/or available Action tokens (KW-ACT-03), as a cost."""
+
     dilithium: int = 0
     latinum: int = 0
     glory: int = 0
+    actions: int = 0
 
     def can_pay(self, ctx):
-        return can_afford(ctx.me, self.dilithium, self.latinum, self.glory)
+        return can_afford(ctx.me, self.dilithium, self.latinum, self.glory) and ctx.me.actions >= self.actions
 
     def pay(self, actions):
         pay_resources(actions.ctx.me, self.dilithium, self.latinum, self.glory)
-        actions.ctx.state.emit(f"{actions.ctx.me.name} spends {_res_text(self.dilithium, self.latinum, self.glory)}.",
-                               seat=actions.ctx.me.seat)
+        actions.ctx.me.actions -= self.actions
+        spent = _res_text(self.dilithium, self.latinum, self.glory, self.actions)
+        actions.ctx.state.emit(f"{actions.ctx.me.name} spends {spent}.", seat=actions.ctx.me.seat)
         return
         yield  # pragma: no cover
 
 
-def _res_text(d=0, l=0, g=0) -> str:
-    parts = [f"{n} {k}" for n, k in ((d, "Dilithium"), (l, "Latinum"), (g, "Glory")) if n]
+def _res_text(d=0, l=0, g=0, a=0) -> str:
+    parts = [f"{n} {k}" for n, k in ((d, "Dilithium"), (l, "Latinum"), (g, "Glory"), (a, "Action(s)")) if n]
     return ", ".join(parts) or "nothing"
 
 
@@ -371,19 +381,52 @@ class PutOnDeck(Cost):
 
 @dataclass
 class LogFromHand(Cost):
+    """Log a card as a cost. `zones` may name hand, discard and play (your table and Staging Area, beamed too)."""
+
     pred: Callable[[Ctx, Inst], bool] | None = None
     label: str = "a card"
+    zones: tuple[str, ...] = ("hand",)
+    include_self: bool = False  # Frank Hollander may log itself
 
     def candidates(self, ctx):
         this = ctx.this_card
-        return [i for i in ctx.me.hand if i is not this and (self.pred is None or self.pred(ctx, i))]
+        pool: list[Inst] = []
+        if "hand" in self.zones:
+            pool += ctx.me.hand
+        if "discard" in self.zones:
+            pool += ctx.me.discard
+        if "play" in self.zones:
+            pool += [i for i in ctx.in_play() if i is not ctx.me.captain]
+        return [i for i in pool if (self.include_self or i is not this) and (self.pred is None or self.pred(ctx, i))]
 
     def can_pay(self, ctx):
         return bool(self.candidates(ctx))
 
     def pay(self, actions):
-        inst = yield from actions.pick_card(f"Log {self.label} from your hand (cost).", self.candidates(actions.ctx))
+        where = {"hand": "your hand", "discard": "your Discard pile", "play": "play"}
+        text = " or ".join(where[z] for z in self.zones)
+        inst = yield from actions.pick_card(f"Log {self.label} from {text} (cost).", self.candidates(actions.ctx))
         actions._log(inst)
+        actions.paid.append(inst)
+
+
+@dataclass
+class DismissFromPlay(Cost):
+    """Dismiss one of your in-play cards (not in the Staging Area, KW-DSM-04) that matches, as a cost."""
+
+    pred: Callable[[Ctx, Inst], bool] | None = None
+    label: str = "a card"
+
+    def candidates(self, ctx):
+        table = [*ctx.me.fleet, *ctx.me.duty, *ctx.me.status]
+        return [i for i in table if i is not ctx.this_card and (self.pred is None or self.pred(ctx, i))]
+
+    def can_pay(self, ctx):
+        return bool(self.candidates(ctx))
+
+    def pay(self, actions):
+        inst = yield from actions.pick_card(f"Dismiss {self.label} (cost).", self.candidates(actions.ctx))
+        actions._dismiss(inst)
         actions.paid.append(inst)
 
 
@@ -455,6 +498,8 @@ class Actions:
                   none_label: str = "None") -> Gen:
         if not cards:
             return None
+        if len(cards) == 1 and not optional:
+            return cards[0]  # nothing to decide: a required pick with one candidate
         options = [(c.uid, f"{name(c)}") for c in cards]
         if optional:
             options.append(("none", none_label))
@@ -562,6 +607,7 @@ class Actions:
         owner = where.owner or self.ctx.me
         if card(inst).suit == "Location":
             self._clear_location(inst)
+        dismissal_rewards(self.state, owner, inst)
         inst.at = None
         inst.exhausted = False
         inst.res.clear()
@@ -602,9 +648,12 @@ class Actions:
         inst.at = None
         inst.exhausted = False
         inst.res.clear()
-        owner.log.extend(flatten_beamed(inst))
+        beamed = flatten_beamed(inst)
+        owner.log.extend(beamed)
         owner.log.append(inst)
         self.state.emit(f"{owner.name} logs {name(inst)}.", seat=owner.seat)
+        for logged in [inst, *beamed]:
+            raise_event(self.state, "log", owner.seat, logged.uid, by=self.ctx.me.seat)
 
     def beam(self, inst: Inst, onto: Inst) -> Gen:
         self._use(A.BEAM)
@@ -618,6 +667,9 @@ class Actions:
 
     def promote(self, inst: Inst) -> Gen:
         self._use(A.PROMOTE)
+        if card(inst).suit != "Person":
+            self.emit(f"{name(inst)} is not a Person, so it cannot be promoted.")  # KW-PROM-06
+            return
         where = take_out(self.state, inst)
         self.ctx.me.duty.append(inst)
         self.emit(f"{self.ctx.me.name} promotes {name(inst)} to Duty Officer.")
@@ -630,6 +682,9 @@ class Actions:
 
     def deploy(self, inst: Inst) -> Gen:
         self._use(A.DEPLOY)
+        if card(inst).suit != "Ship" and "Ongoing" not in card(inst).traits:
+            self.emit(f"{name(inst)} is neither a Ship nor Ongoing, so it cannot be deployed.")  # KW-DEP-03
+            return
         take_out(self.state, inst)
         inst.at = None
         self.ctx.me.fleet.append(inst)
@@ -670,6 +725,7 @@ class Actions:
         inst.res.clear()
         self.state.incident.append(inst)
         self.emit(f"{self.ctx.me.name} returns {name(inst)} to the Incident deck.")
+        raise_event(self.state, "return_incident", self.ctx.me.seat, inst.uid)
         return
         yield  # pragma: no cover
 
@@ -706,11 +762,17 @@ class Actions:
 
     # ------------------------------------------------------------ gaining cards (KW-GAIN, KW-SCAN, KW-FIND)
     def gain_card(self, suits: Iterable[str] | None = None, pred: Callable[[Inst], bool] | None = None,
-                  label: str = "a card", *, from_junk: bool = False, to_hand: bool = False) -> Gen:
-        """Gain [suit] (faceup Market card or unseen top of its deck) or gain [trait] (faceup cards only)."""
+                  label: str = "a card", *, from_junk: bool = False, only_junk: bool = False,
+                  to_hand: bool = False, optional: bool = False) -> Gen:
+        """Gain [suit] (faceup Market card or unseen top of its deck) or gain [trait] (faceup cards only).
+
+        `from_junk` adds the Junk as a source; `only_junk` is "gain ... from the Junk"."""
         self._use(A.GAIN_CARD)
         options: list[tuple[str, str]] = []
-        if suits is not None:
+        from_junk = from_junk or only_junk
+        if only_junk:
+            pass
+        elif suits is not None:
             for suit in suits:
                 inst = self.state.market.get(suit)
                 if inst is not None and (pred is None or pred(inst)):
@@ -728,7 +790,12 @@ class Actions:
         if not options:
             self.emit(f"No {label} can be gained.")
             return None
-        answer = yield from self.choose(f"Gain {label}.", options)
+        if optional:
+            options.append(("none", "Gain nothing"))
+        junk_cards = [i for i in self.state.junk if f"junk:{i.uid}" in {o for o, _ in options}]
+        answer = yield from self.choose(f"Gain {label}.", options, show=junk_cards)
+        if answer == "none":
+            return None
         inst = self._take_gained(answer)
         yield from self._place_gained(inst, to_hand)
         return inst
@@ -738,9 +805,10 @@ class Actions:
         if kind == "market":
             inst = self.state.market[key]
             self.state.market[key] = None
-            if inst.res.get("glory"):
-                self.ctx.me.glory += inst.res["glory"]
-                self.emit(f"{self.ctx.me.name} also gains {inst.res['glory']} Glory from it.")
+            # Every resource token on a Market card goes to the player who gains it (REQ-GN-06).
+            for kind, n in sorted(inst.res.items()):
+                if n:
+                    gain(self.state, self.ctx.me, kind, n, source=inst)
             inst.res.clear()
             _refill(self.state, key)
         elif kind == "deck":
@@ -761,7 +829,8 @@ class Actions:
             (self.ctx.me.draw.insert(0, inst) if answer == "top" else self.ctx.me.discard.append(inst))
             where = "on top of their deck" if answer == "top" else "into their Discard pile"
         self.emit(f"{self.ctx.me.name} gains {name(inst)} {where}.")
-        raise_event(self.state, "gain", self.ctx.me.seat, inst.uid)
+        to = "hand" if to_hand else ("top" if answer == "top" else "discard")
+        raise_event(self.state, "gain", self.ctx.me.seat, inst.uid, to=to)
 
     def _scans_junk(self) -> bool:
         return any(i.card in registry.SCANS_INCLUDE_JUNK for i in table_cards(self.ctx.me))
@@ -893,24 +962,76 @@ class Actions:
         self._use(A.FREE_PLAY)
         return (yield from play_inline(self.ctx, inst, free=True, parent=self))
 
-    def free_play_candidates(self, pred: Callable[[Inst], bool]) -> list[Inst]:
-        return [i for i in self.ctx.me.hand if pred(i) and playable_indexes(self.state, self.ctx.me, i, free=True)]
+    def free_play_candidates(self, pred: Callable[[Inst], bool], zones_: Iterable[str] = ("hand",),
+                             cards: Iterable[Inst] | None = None) -> list[Inst]:
+        """Cards that can be free played now: from the named zones of yours, or from `cards` (e.g. beamed cards)."""
+        pool = list(cards) if cards is not None else [i for z in zones_ for i in zones(self.ctx.me)[z]]
+        return [i for i in pool if pred(i) and playable_indexes(self.state, self.ctx.me, i, free=True)]
 
     # ------------------------------------------------------------ resources, actions, tracks
-    def gain_resource(self, kind: str, n: int = 1) -> Gen:
+    def gain_resource(self, kind: str, n: int = 1, *, source: Inst | None = None) -> Gen:
+        """Gain from the supply, or from the tokens on `source` (e.g. "gain 1 Dilithium from here")."""
         self._use(A.GAIN_RESOURCE)
-        gain(self.state, self.ctx.me, kind, n)
+        gain(self.state, self.ctx.me, kind, n, source=source)
         return
         yield  # pragma: no cover
 
-    def spend(self, dilithium: int = 0, latinum: int = 0, glory: int = 0) -> Gen:
+    def can_spend(self, dilithium: int = 0, latinum: int = 0, glory: int = 0, actions: int = 0) -> bool:
+        return can_afford(self.ctx.me, dilithium, latinum, glory) and self.ctx.me.actions >= actions
+
+    def spend(self, dilithium: int = 0, latinum: int = 0, glory: int = 0, actions: int = 0) -> Gen:
+        """Spend as an effect. Returns False, spending nothing, when it cannot all be paid."""
         self._use(A.SPEND)
-        if not can_afford(self.ctx.me, dilithium, latinum, glory):
+        if not self.can_spend(dilithium, latinum, glory, actions):
             return False
         pay_resources(self.ctx.me, dilithium, latinum, glory)
-        self.emit(f"{self.ctx.me.name} spends {_res_text(dilithium, latinum, glory)}.")
+        self.ctx.me.actions -= actions
+        self.emit(f"{self.ctx.me.name} spends {_res_text(dilithium, latinum, glory, actions)}.")
         return True
         yield  # pragma: no cover
+
+    def place_resources(self, inst: Inst, kind: str, n: int = 1) -> Gen:
+        """Put tokens from the supply on a card; Glory comes from the Stardate card if able (KW-PLACE-01)."""
+        self._use(A.PLACE_RESOURCES)
+        if n <= 0:
+            return
+        if kind == "glory":
+            from engine import game
+
+            for _ in range(n):
+                if not self.state.mode == "cadet":
+                    game.take_glory_from_stardate(self.state)
+        inst.res[kind] = inst.res.get(kind, 0) + n
+        self.emit(f"{self.ctx.me.name} places {n} {kind.capitalize()} on {name(inst)}.")
+        return
+        yield  # pragma: no cover
+
+    def move_resources(self, kind: str, n: int, onto: Inst, *, source: Inst | None = None) -> Gen:
+        """Move tokens onto a card, from your pool or from another card (`source`). Not spending, so Glory cannot
+        substitute (KW-MOVE-01, -02). Moves as many as are available, up to n."""
+        self._use(A.MOVE_RESOURCES)
+        have = source.res.get(kind, 0) if source is not None else getattr(self.ctx.me, kind)
+        n = min(n, have)
+        if n <= 0:
+            return 0
+        if source is not None:
+            source.res[kind] -= n
+            if not source.res[kind]:
+                del source.res[kind]
+        else:
+            setattr(self.ctx.me, kind, have - n)
+        onto.res[kind] = onto.res.get(kind, 0) + n
+        origin = f" from {name(source)}" if source is not None else ""
+        self.emit(f"{self.ctx.me.name} moves {n} {kind.capitalize()}{origin} onto {name(onto)}.")
+        return n
+        yield  # pragma: no cover
+
+    def trigger_control(self, loc: Inst) -> Gen:
+        """Resolve a Location's CONTROL operation as if control had just been taken (KW-TRIG). It does not count as
+        taking control, and costs no action."""
+        self._use(A.TRIGGER_CONTROL)
+        self.emit(f"{self.ctx.me.name} triggers the CONTROL operation of {name(loc)}.")
+        yield from run_inline(self.ctx, loc, "CONTROL")
 
     def gain_action(self, n: int = 1) -> Gen:
         self._use(A.GAIN_ACTION)
@@ -944,25 +1065,25 @@ class Actions:
         raise_event(self.state, "warp", self.ctx.me.seat, ship.uid, location=dest.uid)
         return dest
 
-    def away_targets(self, where: Callable[[Inst], bool] | None = None) -> list[Inst]:
-        """Locations an Away Team may be sent to (KW-SEND-03)."""
+    def away_targets(self, where: Callable[[Inst], bool] | None = None, *, ignore_ships: bool = False) -> list[Inst]:
+        """Locations an Away Team may be sent to (KW-SEND-03). `ignore_ships` skips the opponent-Ship rule."""
         opp = self.ctx.opponent
         out = list(self.ctx.me.locations)
         for loc in self.state.neutral:
             mine = len(self.ctx.ships_at(loc))
             theirs = len(self.ctx.ships_at(loc, opp)) if opp else 0
-            if theirs <= mine:
+            if ignore_ships or theirs <= mine:
                 out.append(loc)
         return [loc for loc in out if where is None or where(loc)]
 
     def send_away_team(self, n: int = 1, where: Callable[[Inst], bool] | None = None, *,
-                       same_location: bool = False, target: Inst | None = None) -> Gen:
+                       same_location: bool = False, target: Inst | None = None, ignore_ships: bool = False) -> Gen:
         self._use(A.SEND_AWAY_TEAM)
         me = self.ctx.me
         sent_to = target
         for _ in range(n):
             if sent_to is None or not same_location:
-                targets = self.away_targets(where) if target is None else [target]
+                targets = self.away_targets(where, ignore_ships=ignore_ships) if target is None else [target]
                 if not targets:
                     self.emit("There is nowhere to send an Away Team.")
                     return sent_to
@@ -981,6 +1102,8 @@ class Actions:
                     del src.away[me.seat]
             sent_to.away[me.seat] = sent_to.away.get(me.seat, 0) + 1
             self.emit(f"{me.name} sends an Away Team to {name(sent_to)}.")
+            raise_event(self.state, "send_away_team", me.seat, sent_to.uid, location=sent_to.uid,
+                        controlled=sent_to in me.locations, neutral=sent_to in self.state.neutral)
         return sent_to
 
     def remove_away_team(self, loc: Inst, player: Player) -> Gen:
@@ -1012,6 +1135,8 @@ class Actions:
     def exhaust(self, inst: Inst) -> Gen:
         self._use(A.EXHAUST)
         inst.exhausted = True
+        owner = locate(self.state, inst.uid)
+        raise_event(self.state, "exhaust", (owner.owner or self.ctx.me).seat if owner else self.ctx.me.seat, inst.uid)
         return
         yield  # pragma: no cover
 
@@ -1039,16 +1164,40 @@ class Actions:
 # =========================================================================== shared rules used by actions
 
 
-def gain(state: GameState, player: Player, kind: str, n: int) -> None:
+def gain(state: GameState, player: Player, kind: str, n: int, *, source: Inst | None = None) -> None:
+    """Gain resources, from the supply or from tokens on a card (`source`). Raises a gain_resource event."""
     if n <= 0:
         return
-    if kind == "glory":
-        from engine import game
-
-        game.gain_glory(state, player, n)
-    else:
+    if source is not None:
+        n = min(n, source.res.get(kind, 0))
+        if n <= 0:
+            return
+        source.res[kind] -= n
+        if not source.res[kind]:
+            del source.res[kind]
         setattr(player, kind, getattr(player, kind) + n)
-    state.emit(f"{player.name} gains {n} {kind.capitalize()}.", seat=player.seat)
+        state.emit(f"{player.name} gains {n} {kind.capitalize()} from {name(source)}.", seat=player.seat)
+    else:
+        if kind == "glory":
+            from engine import game
+
+            game.gain_glory(state, player, n)
+        else:
+            setattr(player, kind, getattr(player, kind) + n)
+        state.emit(f"{player.name} gains {n} {kind.capitalize()}.", seat=player.seat)
+    raise_event(state, "gain_resource", player.seat, source.uid if source else None, resource=kind, amount=n)
+
+
+def dismissal_rewards(state: GameState, owner: Player, inst: Inst) -> None:
+    """Before a dismissed card's resources return to the supply, apply its "when dismissed, gain" PASSIVE."""
+    reward = registry.DISMISS_REWARDS.get(inst.card)
+    if reward is None:
+        return
+    for kind, n in reward(state, owner, inst).items():
+        if n > 0:
+            setattr(owner, kind, getattr(owner, kind) + n)
+            state.emit(f"{owner.name} gains {n} {kind.capitalize()} from {name(inst)}.", seat=owner.seat)
+            raise_event(state, "gain_resource", owner.seat, inst.uid, resource=kind, amount=n)
 
 
 def _refill(state: GameState, suit: str) -> None:
@@ -1065,8 +1214,9 @@ def raise_event(state: GameState, kind: str, seat: int, uid: str | None, **data)
     state.pending_events.append({"kind": kind, "seat": seat, "uid": uid, **data})
 
 
-def put_into_play(state: GameState, player: Player, inst: Inst) -> None:
-    raise_event(state, "put_into_play", player.seat, inst.uid)
+def put_into_play(state: GameState, player: Player, inst: Inst, *, played: bool = False) -> None:
+    """KW-PIP-01. `played` marks a card put into play by playing it, for "after playing X" triggers."""
+    raise_event(state, "put_into_play", player.seat, inst.uid, played=played)
 
 
 def _payable_developments(ctx: Ctx, free: bool = False) -> list[Inst]:
@@ -1133,7 +1283,7 @@ def play_inline(ctx: Ctx, inst: Inst, *, free: bool, parent: Actions | None = No
     where = locate(state, inst.uid)
     if where is not None and where.zone not in ("hand", "draw", "discard", "reserve", "log"):
         # Not when the effect moved the card away again, e.g. Hostile Contact returning itself.
-        put_into_play(state, ctx.me, inst)
+        put_into_play(state, ctx.me, inst, played=True)
     return inst
 
 
@@ -1187,6 +1337,7 @@ def _execute(ctx: Ctx) -> Gen:
     if ref.mode == "activate" or (ref.mode == "trigger" and op.kind == "REACTION"):
         inst.exhausted = True
         state.emit(f"{ctx.me.name} uses {name(inst)}.", seat=ctx.me.seat)
+        raise_event(state, "exhaust", ctx.me.seat, inst.uid)
     if ref.mode == "activate" and op.action_cost:
         ctx.me.actions -= 1
     if impl is None:

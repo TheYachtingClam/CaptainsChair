@@ -39,7 +39,7 @@ def name(inst: Inst) -> str:
 # =========================================================================== public
 
 
-def choose(state: GameState, seat: int, option_id: str) -> None:
+def choose(state: GameState, seat: int, option_id: str, *, flag_irreversible: bool = True) -> None:
     decision = state.decision
     if decision is None:
         raise IllegalCommand("Nothing to decide")
@@ -49,7 +49,7 @@ def choose(state: GameState, seat: int, option_id: str) -> None:
         raise IllegalCommand(f"Unknown option {option_id!r}")
     state.decision = None
     HANDLERS[decision.kind](state, state.player(seat), option_id)
-    advance(state)
+    advance(state, flag_irreversible=flag_irreversible)
 
 
 def advance(state: GameState, *, flag_irreversible: bool = True) -> None:
@@ -275,6 +275,7 @@ def take_incident(state: GameState, player: Player) -> Inst | None:
     inst = state.incident.pop(0)
     player.hand.append(inst)
     state.emit(f"{player.name} takes an Incident.", seat=player.seat, irreversible=True)
+    ops.raise_event(state, "take_incident", player.seat, inst.uid)
     if not state.incident:
         burn(state)
     return inst
@@ -348,6 +349,7 @@ def dismiss(state: GameState, owner: Player, inst: Inst) -> None:
         if inst in zone:
             zone.remove(inst)
             break
+    ops.dismissal_rewards(state, owner, inst)
     inst.at = None
     inst.exhausted = False
     inst.res.clear()

@@ -50,22 +50,24 @@ def given(deck: str = "georgiou", *, opponent: str | None = "soval", mode: str =
 def _setup(state: GameState, seat: int, *, tracks: dict[str, int] | None = None, **kw) -> None:
     for zone in ZONE_ARGS:
         for card_id in kw.pop(zone, []):
-            dev.apply(state, seat, {"kind": "card", "card": card_id, "zone": zone})
+            dev.apply(state, seat, {"kind": "card", "card": card_id, "zone": zone}, flag_irreversible=False)
     for resource in dev.RESOURCES:
         if kw.get(resource):
-            dev.apply(state, seat, {"kind": "resource", "resource": resource, "amount": kw.pop(resource)})
+            dev.apply(state, seat, {"kind": "resource", "resource": resource, "amount": kw.pop(resource)},
+                      flag_irreversible=False)
     for track, amount in (tracks or {}).items():
-        dev.apply(state, seat, {"kind": "track", "track": track, "amount": amount})
+        dev.apply(state, seat, {"kind": "track", "track": track, "amount": amount}, flag_irreversible=False)
     unknown = set(kw) - set(dev.RESOURCES)
     if unknown:
         raise TypeError(f"Unknown setup arguments {sorted(unknown)}")
 
 
-def card(state: GameState, card_id: str, seat: int = 0) -> Inst:
-    """The newest copy of a card owned by the seat, wherever it is."""
+def card(state: GameState, card_id: str, seat: int = 0, zone: str | None = None) -> Inst:
+    """The newest copy of a card owned by the seat, in `zone` if given, otherwise anywhere."""
     from engine.ops import zones
 
-    found = [i for z in zones(state.player(seat)).values() for i in z if i.card == card_id]
+    pools = zones(state.player(seat))
+    found = [i for z, cards in pools.items() if zone in (None, z) for i in cards if i.card == card_id]
     if not found:
         raise LookupError(f"{card_id} not found for seat {seat}")
     return max(found, key=lambda i: int(i.uid[1:]))

@@ -50,7 +50,8 @@ def has_code(card_id: str, index: int, kind: str) -> bool:
         return card_id in registry.ENDGAME
     if kind == "PASSIVE":
         return any(card_id in reg for reg in (registry.HAND_SIZE, registry.DUTY_LIMIT, registry.SKILLS,
-                                              registry.SCANS_INCLUDE_JUNK, registry.STATE_CHECKS))
+                                              registry.SCANS_INCLUDE_JUNK, registry.STATE_CHECKS,
+                                              registry.DISMISS_REWARDS))
     return False
 
 

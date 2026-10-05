@@ -80,8 +80,9 @@ def test_shared_copies_have_the_same_text():
     data = content().cards
     by_fn = {}
     for (cid, index), impl in registry.OPS.items():
-        by_fn.setdefault((impl.fn, index), []).append(cid)
-    for (fn, index), ids in by_fn.items():
+        # Shared helpers (e.g. "warp this ship") are reused with different costs, so the costs are part of the key.
+        by_fn.setdefault((impl.fn, index, repr(impl.costs)), []).append(cid)
+    for (fn, index, _), ids in by_fn.items():
         texts = set()
         for cid in ids:
             text = data[cid].operations[index].text or ""

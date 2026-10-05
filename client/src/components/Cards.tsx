@@ -75,7 +75,11 @@ export function Card({ card, badges, style }: { card: CardView; badges?: React.R
     setPreview(null);
     toggle({ card, rect: { left: r.left, right: r.right, top: r.top, bottom: r.bottom } });
   };
-  const glory = card.resources?.glory;
+  // Resource tokens on the card: Glory on Market cards, Dilithium on Kaelon II or the Talvath, and so on.
+  const resourceText = Object.entries(card.resources ?? {})
+    .filter(([, n]) => n > 0)
+    .map(([kind, n]) => `${n} ${kind[0].toUpperCase()}${kind.slice(1)}`)
+    .join(" · ");
   const show = (x: number, y: number) => {
     if (!isSelected) setPreview({ image: card.image, beamed: card.beamed, x, y });
   };
@@ -104,7 +108,7 @@ export function Card({ card, badges, style }: { card: CardView; badges?: React.R
       onBlur={() => setPreview(null)}
     >
       <img src={imageUrl(card.image)} alt={card.name} loading="lazy" />
-      {glory ? <span className="badge">{glory} Glory</span> : null}
+      {resourceText ? <span className="badge">{resourceText}</span> : null}
       {card.away_teams && Object.keys(card.away_teams).length > 0 && (
         <span className="badge left">
           {Object.entries(card.away_teams).map(([seat, n]) => `P${Number(seat) + 1}:${n}`).join(" ")}

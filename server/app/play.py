@@ -6,12 +6,12 @@ import copy
 import secrets
 import threading
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, object_session
 from sqlalchemy.orm.attributes import flag_modified
 
 from app.models import Game
 from engine import dev
-from engine.game import IllegalCommand, advance, choose
+from engine.game import IllegalCommand, _flag_irreversible, advance, choose
 from engine.setup import SeatSetup, SetupError, new_game
 from engine.state import GameState
 from engine.views import game_view
@@ -34,22 +34,62 @@ def start(game: Game) -> None:
              game.expansions, game.promos)
 
 
+def _live(command: dict) -> bool:
+    """A move that still counts: not undone, not dropped, and not a note."""
+    return not command.get("undone") and not command.get("dropped") and "note" not in command
+
+
 def build(game: Game) -> GameState:
-    live = [c for c in game.commands if not c.get("undone")]
-    key = (len(game.commands), len(live))
+    key = (len(game.commands), sum(1 for c in game.commands if _live(c)))
     cached = _cache.get(game.id)
     if cached and cached[0] == key:
         return copy.deepcopy(cached[1])
     seats = [SeatSetup(s.display_name, s.deck_id, s.board_side) for s in game.seats]
     state = new_game(game.seed, game.mode, seats, game.expansions, game.promos)
-    advance(state)
-    for command in live:
-        if "dev" in command:
-            dev.apply(state, command["seat"], command["dev"])
-        else:
-            choose(state, command["seat"], command["option"])
+    advance(state, flag_irreversible=False)
+    # Replay without the can't-be-undone flagging (it tries every option on a copy), then flag the last question.
+    for i, command in enumerate(game.commands):
+        if "note" in command:
+            state.emit(command["note"])
+            continue
+        if not _live(command):
+            continue
+        try:
+            if "dev" in command:
+                dev.apply(state, command["seat"], command["dev"], flag_irreversible=False)
+            else:
+                choose(state, command["seat"], command["option"], flag_irreversible=False)
+        except (IllegalCommand, dev.DevCommandError):
+            _drop_from(game, i, state)
+            break
+    if state.decision is not None:
+        _flag_irreversible(state)
+    key = (len(game.commands), sum(1 for c in game.commands if _live(c)))
     _cache[game.id] = (key, copy.deepcopy(state))
     return state
+
+
+def _drop_from(game: Game, index: int, state: GameState) -> None:
+    """The rules engine changed since these moves were saved, and move `index` no longer applies.
+
+    That move and every later one are marked dropped (kept for debugging, never replayed), a note is added to the
+    game log, and the game continues from the last move that still applies. Saved at once so it happens only once.
+    """
+    commands = [dict(c) for c in game.commands]
+    dropped = 0
+    for c in commands[index:]:
+        if _live(c):
+            c["dropped"] = True
+            dropped += 1
+    note = (f"The rules engine changed since this game was saved. {dropped} later move(s) no longer apply and were "
+            "dropped; the game continues from here.")
+    commands.insert(index, {"note": note, "seat": None, "irreversible": True, "turn": state.turn})
+    state.emit(note)
+    game.commands = commands
+    flag_modified(game, "commands")
+    session = object_session(game)
+    if session is not None:
+        session.commit()
 
 
 def view(game: Game, seat: int | None) -> dict:
@@ -89,7 +129,9 @@ def apply_dev(db: Session, game: Game, seat: int, cmd: dict) -> None:
 
 
 def _last_live(game: Game) -> int | None:
-    return next((i for i in range(len(game.commands) - 1, -1, -1) if not game.commands[i].get("undone")), None)
+    """The last command still in play. A note (such as dropped moves) counts, and cannot be undone."""
+    return next((i for i in range(len(game.commands) - 1, -1, -1)
+                 if not game.commands[i].get("undone") and not game.commands[i].get("dropped")), None)
 
 
 def can_undo(game: Game, seat: int) -> bool:

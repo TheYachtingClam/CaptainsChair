@@ -36,7 +36,9 @@ Nothing in the game changes. This step makes every later step testable by hand.
 
 **You test:** turn on the panel, give yourself a Market card, and see it in your hand.
 
-## Step 2: Market cards that need no new engine features
+## Step 2: Market cards that need no new engine features (done)
+
+Done as: every Market operation that needs no later feature, on all 90 cards. Each card module's docstring names the operations still waiting and the step they arrive in.
 
 About 35 cards whose effects use only existing actions:
 
@@ -53,7 +55,7 @@ Small engine additions:
 
 **You test:** deploy and warp several Ships, beam cards to them, and play the Allies that log themselves.
 
-## Step 3: New trigger events and resources on cards
+## Step 3: New trigger events and resources on cards (done)
 
 New events, each with REACTIONs that use them:
 
@@ -176,5 +178,5 @@ These came out of the Market card specs. Each has a default I'd use if you have 
 
 - **Borg-only effects:** Borg Spatial Trajector's second PLAY, the Drones' second SUPPORT and the Borg Probe's assimilate branch need Borg content that doesn't exist. Default: they stay unusable.
 - **Cloaking Device** makes a Ship "treated as Cloak" until end of turn. Nothing in these sets reads Cloak afterwards. Default: no effect.
-- **Resources on a Market card** when someone gains it, for example Dilithium moved there by Kaelon. Default: the gainer takes them all, like Glory.
+- **Resources on a Market card** when someone gains it: settled by REQ-GN-06. The gainer takes every token on it.
 - **Attacks against the Cadet virtual opponent.** Default: they work once against its "one of everything". For example, Ash Tyler dismisses its Duty Officer for 2 Glory, and stealing takes 1 from the supply.

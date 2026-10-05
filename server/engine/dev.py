@@ -33,7 +33,7 @@ class DevCommandError(ValueError):
     pass
 
 
-def apply(state: GameState, seat: int, cmd: dict) -> None:
+def apply(state: GameState, seat: int, cmd: dict, *, flag_irreversible: bool = True) -> None:
     from engine.game import advance
 
     if state.step == "over":
@@ -76,4 +76,4 @@ def apply(state: GameState, seat: int, cmd: dict) -> None:
 
     # Ask the pending question again so its options reflect the new position.
     state.decision = None
-    advance(state)
+    advance(state, flag_irreversible=flag_irreversible)
