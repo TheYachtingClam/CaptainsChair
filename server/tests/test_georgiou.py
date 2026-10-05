@@ -68,6 +68,9 @@ def test_every_registered_operation_matches_the_card():
     claude = (Path(__file__).parents[2] / "CLAUDE.md").read_text()
     for (cid, index), impl in registry.OPS.items():
         ops_ = data[cid].operations
+        if index in registry.GRANTED_PLAYS:  # a PLAY this card's PASSIVE grants to other cards (Deanna Troi-Riker)
+            assert registry.GRANTED_PLAYS[index][0] == cid and any(op.kind == "PASSIVE" for op in ops_)
+            continue
         assert index < len(ops_), f"{cid} has no operation {index}"
         assert ops_[index].kind != "ENDGAME"
         for use in impl.uses:
@@ -80,6 +83,8 @@ def test_shared_copies_have_the_same_text():
     data = content().cards
     by_fn = {}
     for (cid, index), impl in registry.OPS.items():
+        if index in registry.GRANTED_PLAYS:
+            continue
         # Shared helpers (e.g. "warp this ship") are reused with different costs, so the costs are part of the key.
         by_fn.setdefault((impl.fn, index, repr(impl.costs)), []).append(cid)
     for (fn, index, _), ids in by_fn.items():

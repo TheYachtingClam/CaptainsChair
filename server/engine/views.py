@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from engine.content import content
 from engine.game import hand_size, secured_by
+from engine.ops import deck_face_up
 from engine.state import GameState, Inst, Player
 
 
@@ -38,6 +39,8 @@ def player_view(state: GameState, player: Player, viewer: int | None) -> dict:
         "hand_count": len(player.hand),
         "hand_size": hand_size(state, player),
         "draw_count": len(player.draw),
+        # Gluonic Distortion: the Draw deck is face-up, so both players see it, in order (REQ-SRV-20).
+        "draw": [card_view(i) for i in player.draw] if deck_face_up(player) else None,
         "reserve_count": len(player.reserve),
         "discard": [card_view(i) for i in player.discard],
         "development": [card_view(i) for i in player.development],

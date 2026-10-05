@@ -70,6 +70,13 @@ TRAIT_MODIFIERS: dict[str, tuple[Callable, bool | str]] = {}
 # "All [icon] on your cards are treated as [icon]" (La'an Noonien Singh): fn(state, owner, inst, icons) -> icons for
 # each of the owner's cards. Table positions.
 SKILL_REWRITES: dict[str, Callable] = {}
+# PASSIVE "Your Draw deck is face-up. When interacting with your deck you can choose any of its cards" (Gluonic
+# Distortion). Table positions.
+DECK_FACE_UP: set[str] = set()
+# PASSIVE "You may treat [cards]' play operation as [another PLAY]" (Deanna Troi-Riker): virtual operation index ->
+# (source card id, applies(inst) -> bool, the granted Operation). Its OpImpl is OPS[(source card id, index)]. The
+# owner's matching cards get the extra PLAY while the source is in a table position.
+GRANTED_PLAYS: dict[int, tuple[str, Callable, Any]] = {}
 # PASSIVE "Operations that find, free play, or return Incident from your hand can also target cards from your Log"
 # (Christopher Pike). Table positions.
 INCIDENTS_FROM_LOG: set[str] = set()
@@ -98,6 +105,23 @@ def operation(card_ids, index: int, *, uses=(), cost=(), requires=None, trigger=
     def register(fn):
         for cid in _ids(card_ids):
             OPS[(cid, index)] = OpImpl(cid, index, fn, frozenset(uses), tuple(cost), requires, trigger)
+        return fn
+
+    return register
+
+
+def granted_play(source_id: str, index: int, *, applies, text: str, action_cost: bool = False, uses=(), cost=(),
+                 requires=None):
+    """Register a PLAY that `source_id` grants to other cards (see GRANTED_PLAYS). `index` must be 100 or more, so it
+    never clashes with a printed operation."""
+    from engine.content import Operation
+
+    assert index >= 100
+
+    def register(fn):
+        OPS[(source_id, index)] = OpImpl(source_id, index, fn, frozenset(uses), tuple(cost), requires, None)
+        GRANTED_PLAYS[index] = (source_id, applies, Operation(kind="PLAY", text=text, action_cost=action_cost,
+                                                             uses=tuple(uses)))
         return fn
 
     return register

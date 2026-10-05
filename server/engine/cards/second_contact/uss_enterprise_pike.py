@@ -1,12 +1,14 @@
-"""3PIK19 U.S.S. Enterprise (Ship). Spec: resources/scans/second_contact/cards/captains/pike/3PIK19.md"""
+"""3PIK19 U.S.S. Enterprise (Ship), and the shared operations of 3RIK02 U.S.S. Titan. Spec: resources/scans/second_contact/cards/captains/pike/3PIK19.md"""
 
 from engine.cards import operation
 from engine.ops import A, DiscardFromHand, Spend
 
 from ._util import beam_a_card_here, can_discard_then_beam, is_suit, others_in_hand, status_of, warp_this_ship
 
+IDS = ("3PIK19", "3RIK02")  # Riker's U.S.S. Titan prints the same first three operations
 
-@operation("3PIK19", 0, uses=[A.DEPLOY, A.WARP, A.BEAM])
+
+@operation(IDS, 0, uses=[A.DEPLOY, A.WARP, A.BEAM])
 def launch(ctx, actions):
     """PLAY: Deploy this ship. Warp this ship OR beam a card here."""
     yield from actions.deploy(ctx.this_card)
@@ -18,8 +20,8 @@ def launch(ctx, actions):
         yield from beam_a_card_here(ctx, actions)
 
 
-operation("3PIK19", 1, uses=[A.WARP], cost=[Spend(dilithium=1)])(warp_this_ship)
-operation("3PIK19", 2, uses=[A.DISCARD, A.BEAM], cost=[DiscardFromHand(1)], requires=can_discard_then_beam)(beam_a_card_here)
+operation(IDS, 1, uses=[A.WARP], cost=[Spend(dilithium=1)])(warp_this_ship)
+operation(IDS, 2, uses=[A.DISCARD, A.BEAM], cost=[DiscardFromHand(1)], requires=can_discard_then_beam)(beam_a_card_here)
 
 
 @operation("3PIK19", 3, uses=[A.PROMOTE, A.REFRESH], requires=lambda ctx: any(is_suit(i, "Person") for i in ctx.me.hand))

@@ -474,8 +474,8 @@ def step_action(state: GameState) -> None:
     player = state.player(state.active)
     options: list[tuple[str, str]] = []
     for inst in player.hand:
-        for i, op in enumerate(card(inst).operations):
-            if op.kind == "PLAY" and ops.legal(state, player, inst, i):
+        for i, op in ops.play_operations(player, inst):
+            if ops.legal(state, player, inst, i):
                 cost = " (action)" if op.action_cost else ""
                 options.append((f"play:{inst.uid}:{i}", f"Play {name(inst)}{cost}: {op.text}"))
     for inst in table_cards(player):

@@ -48,7 +48,7 @@ class A:
     PLACE_RESOURCES = "PLACE_RESOURCES"; STEAL = "STEAL"; GAIN_ACTION = "GAIN_ACTION"
     TAKE_FROM_REWARD_PILE = "TAKE_FROM_REWARD_PILE"; SWAP_JUNK_WITH_MARKET = "SWAP_JUNK_WITH_MARKET"
     REMOVE_STARDATE_GLORY = "REMOVE_STARDATE_GLORY"; DRAW_FROM_LOG = "DRAW_FROM_LOG"
-    ADD_AWAY_TEAM = "ADD_AWAY_TEAM"; REORDER = "REORDER"
+    ADD_AWAY_TEAM = "ADD_AWAY_TEAM"; REORDER = "REORDER"; SHUFFLE_INTO = "SHUFFLE_INTO"
     GAIN_SPECIALTY = "GAIN_SPECIALTY"; WARP = "WARP"; SEND_AWAY_TEAM = "SEND_AWAY_TEAM"
     REMOVE_AWAY_TEAM = "REMOVE_AWAY_TEAM"; TAKE_CONTROL = "TAKE_CONTROL"; TRIGGER_CONTROL = "TRIGGER_CONTROL"
     EXHAUST = "EXHAUST"; REFRESH = "REFRESH"; FORCE = "FORCE"; ATTACK = "ATTACK"; MOVE_RESOURCES = "MOVE_RESOURCES"
@@ -177,6 +177,11 @@ def flatten_beamed(inst: Inst) -> list[Inst]:
 
 def table_cards(p: Player) -> list[Inst]:
     return [p.captain, *p.status, *p.fleet, *p.locations, *p.duty]
+
+
+def deck_face_up(p: Player) -> bool:
+    """Whether the player's Draw deck is face-up (Gluonic Distortion in play)."""
+    return any(i.card in registry.DECK_FACE_UP for i in table_cards(p))
 
 
 def is_khan(p: Player) -> bool:
@@ -511,6 +516,37 @@ class ExhaustCaptain(Cost):
 
 
 @dataclass
+class SpendVariable(Cost):
+    """Spend an amount worked out when paying, e.g. "[Dilithium] x every 2 [Military]": `amounts(ctx)` returns the
+    keyword arguments of a Spend."""
+
+    amounts: Callable[[Ctx], dict] = lambda ctx: {}
+
+    def can_pay(self, ctx):
+        return Spend(**self.amounts(ctx)).can_pay(ctx)
+
+    def pay(self, actions):
+        yield from Spend(**self.amounts(actions.ctx)).pay(actions)
+
+
+@dataclass
+class EffectCost(Cost):
+    """A cost that is an effect, such as William Boimler's "find 3 Person and beam them to the same Ship". `test(ctx)`
+    says whether it can be paid; `effect(ctx, actions)` pays it with an Actions object holding only `uses`."""
+
+    test: Callable[[Ctx], bool] = lambda ctx: True
+    effect: Callable = None  # type: ignore[assignment]
+    uses: tuple[str, ...] = ()
+    label: str = ""
+
+    def can_pay(self, ctx):
+        return self.test(ctx)
+
+    def pay(self, actions):
+        yield from self.effect(actions.ctx, Actions(actions.ctx, self.uses))
+
+
+@dataclass
 class Condition(Cost):
     """A precondition that is checked like a cost but pays nothing, e.g. Mount Seleya's development cost "and have 1+
     Vulcan logged"."""
@@ -632,11 +668,66 @@ class Actions:
                 ok = yield from self._cycle(player)
                 if not ok:
                     break
-            player.hand.append(player.draw.pop(0))
+            top = yield from self._deck_card(player, "Draw which card from your face-up deck?")
+            player.draw.remove(top)
+            player.hand.append(top)
             drawn += 1
         if drawn:
             self.state.emit(f"{player.name} draws {drawn} card(s).", seat=player.seat, irreversible=True)
         return drawn
+
+    def _deck_card(self, player: Player, prompt: str) -> Gen:
+        """The top card of the player's Draw deck, or any card of their choice while it is face-up (Gluonic
+        Distortion)."""
+        if len(player.draw) > 1 and deck_face_up(player):
+            return (yield from self.pick_card(prompt, list(player.draw), seat=player.seat))
+        return player.draw[0]
+        yield  # pragma: no cover
+
+    def discard_from_deck(self, inst: Inst | None = None) -> Gen:
+        """Discard the top card of your Draw deck (Chief Engineer), cycling if it is empty, or `inst`, a deck card
+        you have looked at (Deanna Troi-Riker)."""
+        self._use(A.DISCARD)
+        me = self.ctx.me
+        if inst is None:
+            if not me.draw and not (yield from self._cycle(me)):
+                return None
+            inst = yield from self._deck_card(me, "Discard which card from your face-up deck?")
+        me.draw.remove(inst)
+        me.discard.append(inst)
+        self.state.emit(f"{me.name} discards {name(inst)} from the top of their deck.", irreversible=True)
+        return inst
+
+    def peek_deck(self) -> Gen:
+        """Look privately at the top card of your Draw deck (Deanna Troi-Riker); any card while it is face-up. The
+        card stays where it is."""
+        self._use(A.PEEK)
+        me = self.ctx.me
+        if not me.draw and not (yield from self._cycle(me)):
+            return None
+        inst = yield from self._deck_card(me, "Look at which card of your face-up deck?")
+        self.state.emit(f"{me.name} looks at the top card of their deck.", seat=me.seat, irreversible=True)
+        self.state.emit(f"It is {name(inst)}.", seat=me.seat, private_to=me.seat)
+        return inst
+
+    def shuffle_deck(self) -> Gen:
+        """Shuffle your Draw deck (Gluonic Distortion)."""
+        self._use(A.SHUFFLE_INTO)
+        self.state.shuffle(self.ctx.me.draw)
+        self.state.emit(f"{self.ctx.me.name} shuffles their deck.", irreversible=True)
+        return
+        yield  # pragma: no cover
+
+    def put_into_status(self, inst: Inst) -> Gen:
+        """Put a Status card into play above the Crew board (Gluonic Distortion: "when enlisted, put it into play
+        immediately", REQ-EXP-RIK-02)."""
+        self._use(A.PUT)
+        take_out(self.state, inst)
+        self.ctx.me.status.append(inst)
+        self.emit(f"{self.ctx.me.name} puts {name(inst)} into play.")
+        put_into_play(self.state, self.ctx.me, inst)
+        return
+        yield  # pragma: no cover
 
     def _cycle(self, player: Player) -> Gen:
         """Deck cycling with enlisting (REQ-DK-01, -02, -10)."""
@@ -777,9 +868,10 @@ class Actions:
         return
         yield  # pragma: no cover
 
-    def promote(self, inst: Inst) -> Gen:
+    def promote(self, inst: Inst, *, as_person: bool = False) -> Gen:
+        """Promote to Duty Officer. `as_person` promotes a non-Person "as if it is a Person" (The Riker Maneuver)."""
         self._use(A.PROMOTE)
-        if card(inst).suit != "Person":
+        if card(inst).suit != "Person" and not as_person:
             self.emit(f"{name(inst)} is not a Person, so it cannot be promoted.")  # KW-PROM-06
             return
         if inst.card in registry.CANNOT_PROMOTE:
@@ -877,13 +969,14 @@ class Actions:
         self.emit(f"{self.ctx.me.name} returns {name(inst)} to the Incident deck.")
         raise_event(self.state, "return_incident", self.ctx.me.seat, inst.uid)
 
-    def take_encounter(self, look: int = 1, *, to: str = "hand") -> Gen:
+    def take_encounter(self, look: int = 1, *, to: str = "hand", bottom: bool = False) -> Gen:
         """Take the top Encounter (or choose 1 of the top `look`, the rest go to the bottom) into hand, or `to` "top" of
-        your Draw deck (Infinite Diversity in Infinite Combinations)."""
+        your Draw deck (Infinite Diversity in Infinite Combinations). `bottom=True` takes the bottom card instead
+        (Messages from Old Friends)."""
         self._use(A.TAKE_ENCOUNTER)
         if not self.state.encounter:
             return None
-        top = self.state.encounter[:look]
+        top = self.state.encounter[-1:] if bottom else self.state.encounter[:look]
         if len(top) == 1:
             chosen = top[0]
         else:
@@ -1212,11 +1305,13 @@ class Actions:
         return [i for i in pool if pred(i) and playable_indexes(self.state, self.ctx.me, i, free=True)]
 
     # ------------------------------------------------------------ resources, actions, tracks
-    def gain_resource(self, kind: str, n: int = 1, *, source: Inst | None = None, player: Player | None = None) -> Gen:
+    def gain_resource(self, kind: str, n: int = 1, *, source: Inst | None = None, player: Player | None = None,
+                      supply: bool = False) -> Gen:
         """Gain from the supply, or from the tokens on `source` (e.g. "gain 1 Dilithium from here"). `player` makes
-        someone else gain, e.g. "your opponent gains 2 Dilithium"."""
+        someone else gain, e.g. "your opponent gains 2 Dilithium". `supply=True` is Glory "from the supply", which
+        does not come off the Stardate card (Chateau Picard)."""
         self._use(A.GAIN_RESOURCE)
-        gain(self.state, player or self.ctx.me, kind, n, source=source)
+        gain(self.state, player or self.ctx.me, kind, n, source=source, supply=supply)
         return
         yield  # pragma: no cover
 
@@ -1677,7 +1772,8 @@ class Actions:
 # =========================================================================== shared rules used by actions
 
 
-def gain(state: GameState, player: Player, kind: str, n: int, *, source: Inst | None = None) -> None:
+def gain(state: GameState, player: Player, kind: str, n: int, *, source: Inst | None = None,
+         supply: bool = False) -> None:
     """Gain resources, from the supply or from tokens on a card (`source`). Raises a gain_resource event."""
     if n <= 0:
         return
@@ -1691,7 +1787,7 @@ def gain(state: GameState, player: Player, kind: str, n: int, *, source: Inst | 
         setattr(player, kind, getattr(player, kind) + n)
         state.emit(f"{player.name} gains {n} {kind.capitalize()} from {name(source)}.", seat=player.seat)
     else:
-        if kind == "glory":
+        if kind == "glory" and not supply:
             from engine import game
 
             game.gain_glory(state, player, n)
@@ -1896,7 +1992,30 @@ def _payable_developments(ctx: Ctx, free: bool = False) -> list[Inst]:
 
 
 def impl_for(inst: Inst, index: int):
+    granted = registry.GRANTED_PLAYS.get(index)
+    if granted is not None:
+        return registry.OPS.get((granted[0], index))
     return registry.OPS.get((inst.card, index))
+
+
+def op_at(inst: Inst, index: int):
+    """The operation at `index`: printed, or a PLAY granted by another card (GRANTED_PLAYS)."""
+    granted = registry.GRANTED_PLAYS.get(index)
+    return granted[2] if granted is not None else card(inst).operations[index]
+
+
+def granted_indexes(player: Player, inst: Inst) -> list[int]:
+    """Indexes of PLAYs other cards grant this card now (Deanna Troi-Riker for Incidents)."""
+    if not registry.GRANTED_PLAYS:
+        return []
+    table = {i.card for i in table_cards(player)}
+    return [index for index, (source, applies, _) in registry.GRANTED_PLAYS.items() if source in table and applies(inst)]
+
+
+def play_operations(player: Player, inst: Inst) -> list[tuple[int, Any]]:
+    """(index, operation) for every PLAY the card has: printed ones, then granted ones."""
+    printed = [(i, op) for i, op in enumerate(card(inst).operations) if op.kind == "PLAY"]
+    return printed + [(i, op_at(inst, i)) for i in granted_indexes(player, inst)]
 
 
 def legal(state: GameState, player: Player, inst: Inst, index: int, *, free: bool = False) -> bool:
@@ -1906,7 +2025,9 @@ def legal(state: GameState, player: Player, inst: Inst, index: int, *, free: boo
 
 def _legal(state: GameState, player: Player, inst: Inst, index: int, *, free: bool = False) -> bool:
     impl = impl_for(inst, index)
-    op = card(inst).operations[index]
+    op = op_at(inst, index)
+    if index in registry.GRANTED_PLAYS and index not in granted_indexes(player, inst):
+        return False
     if impl is None:
         return True  # placeholder operation
     ctx = Ctx(state, OpRef(mode="play", seat=player.seat, uid=inst.uid, index=index))
@@ -1920,7 +2041,7 @@ def _legal(state: GameState, player: Player, inst: Inst, index: int, *, free: bo
 
 
 def playable_indexes(state: GameState, player: Player, inst: Inst, *, free: bool = False) -> list[int]:
-    return [i for i, op in enumerate(card(inst).operations) if op.kind == "PLAY" and legal(state, player, inst, i, free=free)]
+    return [i for i, _ in play_operations(player, inst) if legal(state, player, inst, i, free=free)]
 
 
 def play_inline(ctx: Ctx, inst: Inst, *, free: bool, parent: Actions | None = None, index: int | None = None) -> Gen:
@@ -1930,11 +2051,11 @@ def play_inline(ctx: Ctx, inst: Inst, *, free: bool, parent: Actions | None = No
     if not indexes:
         return None
     if index is None and len(indexes) > 1:
-        options = [(str(i), card(inst).operations[i].text or "PLAY") for i in indexes]
+        options = [(str(i), op_at(inst, i).text or "PLAY") for i in indexes]
         index = int((yield from Actions(ctx, ()).choose(f"Which PLAY operation of {name(inst)}?", options)))
     elif index is None:
         index = indexes[0]
-    op = card(inst).operations[index]
+    op = op_at(inst, index)
     take_out(state, inst)
     ctx.me.staging.append(inst)
     state.emit(f"{ctx.me.name} {'free ' if free else ''}plays {name(inst)}.", seat=ctx.me.seat)
@@ -2053,7 +2174,7 @@ def _execute(ctx: Ctx) -> Gen:
     if ref.mode == "play":
         yield from play_inline(ctx, inst, free=False, index=ref.index)
         return
-    op = card(inst).operations[ref.index]
+    op = op_at(inst, ref.index)
     impl = impl_for(inst, ref.index)
     if ref.mode == "activate" or (ref.mode == "trigger" and op.kind == "REACTION"):
         inst.exhausted = True

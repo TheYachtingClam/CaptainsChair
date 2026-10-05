@@ -118,6 +118,7 @@ export interface PlayerView {
   hand_count: number;
   hand_size: number;
   draw_count: number;
+  draw: CardView[] | null; // set while the Draw deck is face-up (Gluonic Distortion), top card first
   reserve_count: number;
   discard: CardView[];
   development: CardView[];

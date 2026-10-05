@@ -1,5 +1,5 @@
 """Utilize (Directive): 2GEO18 and identical copies 2SOV23, 2KIRK19, and Riker's 3RIK08 (whose
-development cost is not implemented yet). Spec: resources/scans/to_boldly_go/cards/captains/georgiou/2GEO18.md"""
+development cost is in engine/cards/second_contact/utilize_riker.py). Spec: resources/scans/to_boldly_go/cards/captains/georgiou/2GEO18.md"""
 
 from engine.cards import operation
 from engine.ops import A

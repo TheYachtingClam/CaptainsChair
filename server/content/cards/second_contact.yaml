@@ -3691,6 +3691,7 @@ cards:
     - DISCARD
     - SCAN
     - DRAW
+    - DRAW_FROM_DISCARD
     undoable: false
   - kind: CLEAN-UP
     text: If Brad Boimler, Lt. jg is in play, temporarily increase your hand size by 1.
@@ -3898,8 +3899,9 @@ cards:
     action_cost: false
     attack: false
     uses:
+    - SHUFFLE_INTO
     - LOG
-    undoable: true
+    undoable: false
   - kind: PASSIVE
     text: Your Draw deck is face-up. When interacting with your deck you can choose any of its cards.
     action_cost: false
@@ -3909,6 +3911,8 @@ cards:
     action_cost: false
     attack: false
     trigger: You enlist Gluonic Distortion.
+    uses:
+    - PUT
   - kind: DEVELOPMENT COST
     text: '[Dilithium] x3, have an Encounter in play'
     action_cost: false

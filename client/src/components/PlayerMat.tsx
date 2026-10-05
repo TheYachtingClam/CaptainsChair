@@ -65,8 +65,13 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
   /** Shown on your own mat. Undefined while ending the turn is not possible. */
   onEndTurn?: (() => void) | null;
 }) {
-  const [viewing, setViewing] = useState<null | "discard" | "development" | "log">(null);
-  const piles = { discard: ["Discard pile", p.discard], development: ["Development pile", p.development], log: ["Captain's Log", p.log] } as const;
+  const [viewing, setViewing] = useState<null | "discard" | "development" | "log" | "draw">(null);
+  const piles = {
+    discard: ["Discard pile", p.discard],
+    development: ["Development pile", p.development],
+    log: ["Captain's Log", p.log],
+    draw: ["Draw deck (face-up, top first)", p.draw ?? []],
+  } as const;
   const topDiscard = p.discard[p.discard.length - 1];
 
   return (
@@ -124,7 +129,13 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
 
         {/* Draw deck, Staging Area, Discard pile (items 5, 10) */}
         <div className="cell draw">
-          <CardBack label="Draw deck" count={p.draw_count} />
+          {p.draw && p.draw.length ? (
+            <button type="button" className="discard-pile" onClick={() => setViewing("draw")}
+              aria-label={`Face-up Draw deck: ${p.draw.length} card(s)`} title="The Draw deck is face-up (Gluonic Distortion)">
+              <img src={imageUrl(p.draw[0].image)} alt="" />
+              <span className="badge">{p.draw.length}</span>
+            </button>
+          ) : <CardBack label="Draw deck" count={p.draw_count} />}
         </div>
         <div className="cell staging">
           {p.staging.length ? <div className="lane">{p.staging.map((c) => <Card key={c.uid} card={c} />)}</div> : <span className="staging-label">Staging Area</span>}
