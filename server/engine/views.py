@@ -58,7 +58,16 @@ def player_view(state: GameState, player: Player, viewer: int | None) -> dict:
         "missions_completed": list(player.missions_completed),
         "bot": _bot_view(player),
         "reinforcement": [card_view(i) for i in player.reinforcement],
+        "boosts": [_boost_text(k) for k in player.boosts],
+        "only_ship": player.only_ship,
+        "teams_aside": player.teams_until_reserve_empty,
     }
+
+
+def _boost_text(key: str) -> str:
+    from engine import upgrades
+
+    return upgrades.text(key)
 
 
 def _facedown(player: Player, inst: Inst) -> bool:

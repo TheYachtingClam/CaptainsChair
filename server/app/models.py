@@ -25,7 +25,8 @@ class Game(Base):
     commands: Mapped[list[dict]] = mapped_column(JSON, default=list, server_default=text("'[]'"))
     # Solo mode: the Bot's Crew, difficulty and Ticking Clock (REQ-SRV-18). Null for other modes.
     bot: Mapped[dict | None] = mapped_column(JSON, nullable=True)
-    # A Five-Year Mission assignment: {"id": campaign id, "assignment": number, "reinforcement": [card ids]}.
+    # A Five-Year Mission assignment: {"id": campaign id, "assignment": number, "reinforcement": [card ids],
+    # "setup": CampaignSetup fields (Boosts and challenges)}.
     campaign: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="waiting")
 
@@ -68,4 +69,6 @@ class Campaign(Base):
     # One row per assignment: number, game_id, date, rank, bot, difficulty, board_side, outcome, scores, upgrade.
     assignments: Mapped[list[dict]] = mapped_column(JSON, default=list, server_default=text("'[]'"))
     reinforcement: Mapped[list[str]] = mapped_column(JSON, default=list, server_default=text("'[]'"))
+    challenges: Mapped[list[str]] = mapped_column(JSON, default=list, server_default=text("'[]'"))  # §14.4
+    boosts: Mapped[list[str]] = mapped_column(JSON, default=list, server_default=text("'[]'"))  # REQ-CAMP-30
     status: Mapped[str] = mapped_column(String(20), default="active")

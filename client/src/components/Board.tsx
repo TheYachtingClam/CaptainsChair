@@ -205,6 +205,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
               <p><strong>
                 {view.result.winners.includes(view.you ?? -1) ? "You beat the Bot!"
                   : view.result.reason === "burn" ? "The Burn: the Bot wins."
+                  : view.result.reason === "only_ship" ? "Your only Ship left play: the assignment fails."
                   : "The Bot wins. (A tie counts as a loss.)"}
               </strong></p>
             )}

@@ -12,7 +12,7 @@ from sqlalchemy.orm.attributes import flag_modified
 from app.models import Game
 from engine import dev
 from engine.game import IllegalCommand, _flag_irreversible, advance, choose
-from engine.setup import BotSetup, SeatSetup, SetupError, new_game
+from engine.setup import BotSetup, CampaignSetup, SeatSetup, SetupError, new_game
 from engine.state import GameState
 from engine.views import game_view
 
@@ -35,8 +35,12 @@ def start(game: Game) -> None:
 
 def seat_setups(game: Game) -> list[SeatSetup]:
     """Each seat's setup; a campaign game also brings the human's Reinforcement pile (REQ-CAMP-20)."""
-    reinforcement = tuple((game.campaign or {}).get("reinforcement", []))
-    return [SeatSetup(s.display_name, s.deck_id, s.board_side, reinforcement if s.index == 0 else ())
+    campaign = game.campaign or {}
+    reinforcement = tuple(campaign.get("reinforcement", []))
+    extras = CampaignSetup(**{k: tuple(v) if isinstance(v, list) else v for k, v in campaign["setup"].items()}) \
+        if campaign.get("setup") else None
+    return [SeatSetup(s.display_name, s.deck_id, s.board_side, reinforcement if s.index == 0 else (),
+                      extras if s.index == 0 else None)
             for s in game.seats]
 
 

@@ -218,7 +218,7 @@ The campaign without bonuses and challenges:
 
 **What was done:** `engine/campaign.py` holds the rules (ranks, the difficulty table, upgrade restrictions, option A cards, the review). `app/routes/campaigns.py` stores the campaign (`Campaign` model, `X-Campaign-Token`) and records each result when its game is over; a deleted game counts as a failure. Each assignment is an ordinary solo game whose `campaign` column carries the Reinforcement pile; *Reinforce* (2DIR02) is card code. The client has New Five-Year Mission (from the Lobby), the campaign page, which starts each assignment itself rather than through New Game, a "Your Five-Year Missions" list in the Lobby, and a link back from the game. With no option A card the upgrade is skipped until option B arrives in Step 8.
 
-## Step 8: Campaign bonuses and challenges
+## Step 8: Campaign bonuses and challenges (done)
 
 - **Option B bonuses:** every Bot's WIN and LOSS bonuses, written as code (CLAUDE.md "Card effects are code" covers campaign upgrade bonuses).
   - REINFORCE bonuses move one of your own cards to the Reinforcement pile.
@@ -236,6 +236,8 @@ The campaign without bonuses and challenges:
 - **Tests:** each bonus and challenge.
 
 **You test:** a campaign with two challenges on. Pick an option B bonus after an assignment and check it applies in the next game.
+
+**What was done:** every Bot's option B bonuses except Khan's are code in `engine/upgrades/<crew>.py`: 27 Boosts and 5 REINFORCE bonuses. Boosts run in a new `setup` step around the starting hand. The seven challenges are in `engine/campaign.py` (`game_setup`, `available_challenges`, `option_b`) and in setup or the engine (Only Ship, Tuesday). The campaign page offers options A and B, REINFORCE card picks, the Live Long resource choice, and the challenges, Boosts and next-game notes. The new-campaign page lists only the challenges the chosen crew can take, and the game mat shows the Reinforcement pile, Boosts, set-aside Away Teams and Only Ship. Rulings are in `resources/scans/OPEN_QUESTIONS.md`. REQ-CAMP-27's Pike example disagrees with the printed card; the code follows the card.
 
 ## Step 9: Final sweep
 

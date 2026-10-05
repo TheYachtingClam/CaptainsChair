@@ -13,11 +13,17 @@ export function NewCampaign() {
   const [mode, setMode] = useState<CampaignMode>("set_phasers_to_stun");
   const [chosen, setChosen] = useState<string[]>([]);
   const [promos, setPromos] = useState(false);
+  const [challenges, setChallenges] = useState<string[]>([]);
+  // REQ-CAMP-41: only the challenges this Crew deck can take are shown.
+  const available = useQuery({ queryKey: ["challenges", deck], queryFn: () => campaignApi.challenges(deck), enabled: !!deck });
   const sets = ["to_boldly_go", ...chosen];
-  const available = (decks.data ?? []).filter((d: Deck) => sets.includes(d.set)).sort((a, b) => a.complexity - b.complexity);
+  const crews = (decks.data ?? []).filter((d: Deck) => sets.includes(d.set)).sort((a, b) => a.complexity - b.complexity);
 
   const create = useMutation({
-    mutationFn: () => campaignApi.create({ display_name: name.trim(), deck_id: deck, mode, expansions: chosen, promos }),
+    mutationFn: () => campaignApi.create({
+      display_name: name.trim(), deck_id: deck, mode, expansions: chosen, promos,
+      challenges: challenges.filter((c) => available.data?.some((a) => a.id === c)),
+    }),
     onSuccess: ({ campaign, token }) => {
       saveCampaignToken(campaign.id, token);
       navigate(`/campaigns/${campaign.id}?key=${encodeURIComponent(token)}`);
@@ -59,7 +65,7 @@ export function NewCampaign() {
           Your Crew deck
           <select value={deck} onChange={(e) => setDeck(e.target.value)}>
             <option value="">Choose a captain…</option>
-            {available.map((d) => (
+            {crews.map((d) => (
               <option key={d.id} value={d.id}>{d.captain} ({d.faction}) – complexity {d.complexity}/10</option>
             ))}
           </select>
@@ -73,6 +79,18 @@ export function NewCampaign() {
             </label>
           ))}
         </fieldset>
+        {deck && (
+          <fieldset>
+            <legend>Challenges (optional)</legend>
+            {(available.data ?? []).map((c) => (
+              <label key={c.id} className="inline challenge">
+                <input type="checkbox" checked={challenges.includes(c.id)}
+                  onChange={() => setChallenges((cs) => (cs.includes(c.id) ? cs.filter((x) => x !== c.id) : [...cs, c.id]))} />
+                <span><strong>{c.name}</strong> <span className="muted">{c.rule}</span></span>
+              </label>
+            ))}
+          </fieldset>
+        )}
         {create.error && <p className="error" role="alert">{create.error.message}</p>}
         <button type="submit" disabled={create.isPending || !name.trim() || !deck}>Start the campaign</button>
       </form>

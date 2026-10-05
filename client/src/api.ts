@@ -71,7 +71,21 @@ export interface Assignment {
   board_side: BoardSide;
   outcome: "win" | "loss" | null;
   scores: Record<string, number> | null;
-  upgrade: { option: string; card?: string } | null;
+  upgrade: { option: "A" | "B" | "none"; card?: string; bonus?: string; text?: string; cards?: string[] } | null;
+}
+
+export interface Challenge {
+  id: string;
+  name: string;
+  rule: string;
+}
+
+export interface CampaignBonus {
+  key: string;
+  text: string;
+  kind: "boost" | "reinforce";
+  each?: boolean; // REINFORCE "X and/or Y": at most one card from each pool
+  pools?: CampaignCard[][];
 }
 
 export interface CampaignView {
@@ -90,7 +104,11 @@ export interface CampaignView {
   next_difficulty: string | null;
   opponents: { deck_id: string; captain: string }[];
   game_id?: string;
-  upgrade?: { won: boolean; restriction: string | null; options: CampaignCard[] };
+  upgrade?: { won: boolean; restriction: string | null; options: CampaignCard[]; bonuses: CampaignBonus[] };
+  challenges: Challenge[];
+  boosts: string[];
+  next_notes: string[];
+  choose_resource: boolean;
   evaluation?: string;
 }
 
@@ -227,6 +245,11 @@ export interface PlayerView {
   actions: number;
   tracks: Record<string, number>;
   away_pool: number;
+  // Five-Year Mission games only
+  reinforcement?: CardView[];
+  boosts?: string[];
+  only_ship?: string | null;
+  teams_aside?: number;
   mission_tokens: number;
   missions_completed: string[];
   bot: BotView | null; // the solo-mode Bot
@@ -316,15 +339,17 @@ function seatHeaders(id: string): Record<string, string> {
 }
 
 export const campaignApi = {
-  create: (body: { display_name: string; deck_id: string; mode: CampaignMode; expansions: string[]; promos: boolean }) =>
+  challenges: (deckId: string) => request<Challenge[]>(`/api/campaigns/challenges/${deckId}`),
+  create: (body: { display_name: string; deck_id: string; mode: CampaignMode; expansions: string[]; promos: boolean;
+    challenges: string[] }) =>
     request<{ campaign: CampaignView; token: string }>("/api/campaigns", { method: "POST", body: JSON.stringify(body) }),
   get: (id: string) => request<CampaignView>(`/api/campaigns/${id}`, { headers: campaignHeaders(id) }),
-  start: (id: string, body: { bot_deck_id: string | null; board_side: BoardSide }) =>
+  start: (id: string, body: { bot_deck_id: string | null; board_side: BoardSide; drop: "dilithium" | "latinum" | null }) =>
     request<{ game_id: string; seat_token: string; campaign: CampaignView }>(`/api/campaigns/${id}/assignments`,
       { method: "POST", body: JSON.stringify(body), headers: campaignHeaders(id) }),
-  upgrade: (id: string, card_id: string | null) =>
+  upgrade: (id: string, choice: { card_id?: string; bonus?: string; cards?: string[] }) =>
     request<CampaignView>(`/api/campaigns/${id}/upgrade`,
-      { method: "POST", body: JSON.stringify({ card_id }), headers: campaignHeaders(id) }),
+      { method: "POST", body: JSON.stringify(choice), headers: campaignHeaders(id) }),
 };
 
 export const api = {

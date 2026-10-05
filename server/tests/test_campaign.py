@@ -183,16 +183,18 @@ def test_assignment_flow(authed, monkeypatch):
     assert [c["id"] for c in state["players"][0]["reinforcement"]] == ["2PER16"]
 
 
-def test_a_loss_keeps_the_rank_and_with_no_card_the_upgrade_is_skipped(authed, monkeypatch):
+def test_a_loss_keeps_the_rank_and_with_no_card_option_b_is_required(authed, monkeypatch):
     grant = create(authed).json()
     cid, h = grant["campaign"]["id"], {"X-Campaign-Token": grant["token"]}
-    authed.post(f"/api/campaigns/{cid}/assignments", json={}, headers=h)  # a random opponent
+    authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "soval"}, headers=h)
     _finish_game(monkeypatch, won=False)
     view = authed.get(f"/api/campaigns/{cid}", headers=h).json()
     assert view["rank"] == "ensign" and view["phase"] == "upgrade" and not view["upgrade"]["won"]
-    if not view["upgrade"]["options"]:
-        view = authed.post(f"/api/campaigns/{cid}/upgrade", json={"card_id": None}, headers=h).json()
-        assert view["assignments"][0]["upgrade"] == {"option": "none"} and view["phase"] == "start"
+    assert view["upgrade"]["options"] == []
+    assert [b["key"] for b in view["upgrade"]["bonuses"]] == ["soval:loss:0", "soval:loss:1"]
+    assert authed.post(f"/api/campaigns/{cid}/upgrade", json={}, headers=h).status_code == 422  # must pick B
+    view = authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "soval:loss:0"}, headers=h).json()
+    assert view["boosts"] == ["BOOST: Gain 1 [Research]/[Military]."] and view["phase"] == "start"
 
 
 def test_reaching_admiral_ends_the_campaign(authed, monkeypatch):

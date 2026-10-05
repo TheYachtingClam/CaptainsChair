@@ -430,6 +430,19 @@ def dismiss(state: GameState, owner: Player, inst: Inst) -> None:
     owner.discard.append(inst)
     state.emit(f"{name(inst)} is dismissed.", seat=owner.seat)
     ops.raise_event(state, "dismiss", owner.seat, inst.uid)
+    check_only_ship(state, inst)
+
+
+def check_only_ship(state: GameState, inst: Inst) -> None:
+    """Only Ship in the Quadrant: if the human's starting Ship is dismissed or recalled, the assignment fails at once
+    (REQ-CAMP-40)."""
+    for p in state.players:
+        if p.only_ship == inst.uid and state.step != "over":
+            bot = next((q for q in state.players if q.bot is not None), None)
+            state.emit(f"{name(inst)} has left play: {p.name} fails the assignment (Only Ship in the Quadrant).")
+            state.result = {"reason": "only_ship", "winners": [bot.seat] if bot else []}
+            state.step = "over"
+            state.decision = None
 
 
 def wipe_market(state: GameState) -> None:
@@ -456,6 +469,35 @@ def wipe_neutral_zone(state: GameState) -> None:
 
 
 # =========================================================================== turn steps
+
+
+def step_setup(state: GameState) -> None:
+    """Five-Year Mission Boosts (REQ-CAMP-30): those for before drawing the starting hand, then the hand is drawn,
+    then those for after it and those with no moment printed. Then the first turn starts."""
+    if state.substep == "":
+        state.substep = "draw"
+        _queue_boosts(state, "before_hand")
+    elif state.substep == "draw":
+        for p in state.players:
+            if p.boosts:
+                draw(state, p, hand_size(state, p), announce=False)
+        state.substep = "after"
+        _queue_boosts(state, "after_hand")
+        _queue_boosts(state, "start")
+    else:
+        state.substep = ""
+        state.step = "start"
+
+
+def _queue_boosts(state: GameState, moment: str) -> None:
+    from engine import upgrades
+
+    upgrades.load()
+    for p in state.players:
+        for key in p.boosts:
+            impl = upgrades.BOOSTS.get(key)
+            if impl is not None and impl.moment == moment:
+                state.op_queue.append(ops.OpRef(mode="boost", seat=p.seat, system=key))
 
 
 def step_start(state: GameState) -> None:
@@ -666,6 +708,7 @@ def step_bot(state: GameState) -> None:
 
 
 STEPS = {
+    "setup": step_setup,
     "start": step_start,
     "bot": step_bot,
     "resupply": step_resupply,

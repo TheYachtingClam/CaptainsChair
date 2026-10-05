@@ -23,6 +23,22 @@ class SeatSetup:
     deck: str
     board_side: str
     reinforcement: tuple[str, ...] = ()  # Five-Year Mission: card ids in the Reinforcement pile (REQ-CAMP-20)
+    campaign: CampaignSetup | None = None
+
+
+@dataclass(frozen=True)
+class CampaignSetup:
+    """A Five-Year Mission game's extras for the human (requirements/22-solo-mode.md §14), worked out by
+    engine/campaign.py from the campaign record: Boosts and the challenges' effects on this game."""
+
+    boosts: tuple[str, ...] = ()  # bonus keys, e.g. "pike:win:1" (REQ-CAMP-30)
+    no_dilithium: bool = False  # Live Long and Prosper
+    no_latinum: bool = False
+    mixed_reserve: bool = False  # That Is Not a Weakness; That Is Life
+    reinforce_in_reserve: bool = False  # Two Weeks to the Closest Outpost
+    extra_incident: bool = False  # Running Like a Baby Gazelle
+    only_ship: bool = False  # Only Ship in the Quadrant
+    teams_aside: int = 0  # They Will Arrive on Tuesday
 
 
 @dataclass(frozen=True)
@@ -67,6 +83,12 @@ def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str]
     if mode == "solo":
         state.players.append(_bot_setup(state, len(state.players), bot, data))
     state.shuffle(state.incident)  # after Crew cards marked Incident Deck were added (REQ-PS-11)
+    for seat, choice in enumerate(seats):
+        if choice.campaign and choice.campaign.extra_incident and state.incident:
+            # Running Like a Baby Gazelle: one Incident from the Incident deck goes into the starting deck.
+            player = state.players[seat]
+            player.draw.append(state.incident.pop(0))
+            state.shuffle(player.draw)
 
     # REQ-CS-17; in solo mode the human takes the Starting Player token (REQ-SOLO-21).
     state.first_seat = 0 if mode == "solo" else state.rng().randrange(len(state.players))
@@ -74,8 +96,10 @@ def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str]
     for player in state.players:
         from engine.game import draw, hand_size  # local import: game imports setup
 
-        if player.bot is None:  # the Bot has no hand (REQ-SOLO-34)
+        if player.bot is None and not player.boosts:  # the Bot has no hand (REQ-SOLO-34)
             draw(state, player, hand_size(state, player), announce=False)
+    if any(p.boosts for p in state.players):
+        state.step = "setup"  # Boosts run around drawing the starting hand (game.step_setup)
     state.emit(f"{state.players[state.first_seat].name} takes the Starting Player token.")
     return state
 
@@ -182,12 +206,44 @@ def _player_setup(state: GameState, seat: int, choice: SeatSetup, data) -> Playe
     if choice.deck == "pike":
         starbase = next(i for i in player.locations if i.card == "3PIK03")
         starbase.away[seat] = 1  # REQ-EXP-PIK-01
+    if choice.campaign:
+        _campaign_setup(state, player, choice.campaign)
     if choice.reinforcement:
+        # REQ-CAMP-29: the human's own cards in the Reinforcement pile start there instead of in their deck.
+        for card_id in choice.reinforcement:
+            for zone in (player.draw, player.reserve):
+                own = next((i for i in zone if i.card == card_id), None)
+                if own is not None:
+                    zone.remove(own)
+                    break
         # REQ-CAMP-21: with cards in the Reinforcement pile, Reinforce is shuffled into the starting deck.
         player.reinforcement = [state.new_inst(c) for c in choice.reinforcement]
-        player.draw.append(state.new_inst(REINFORCE))
-        state.shuffle(player.draw)
+        camp = choice.campaign
+        deck = player.reserve if camp and camp.reinforce_in_reserve else player.draw  # Two Weeks to the Closest Outpost
+        deck.append(state.new_inst(REINFORCE))
+        state.shuffle(deck)
     return player
+
+
+def _campaign_setup(state: GameState, player: Player, camp: CampaignSetup) -> None:
+    """The challenges that change setup (requirements/22-solo-mode.md §14.4), and the Boosts to run."""
+    player.boosts = list(camp.boosts)
+    if camp.no_dilithium:
+        player.dilithium = 0  # Live Long and Prosper
+    if camp.no_latinum:
+        player.latinum = 0
+    if camp.mixed_reserve:
+        # That Is Not a Weakness; That Is Life: a new Reserve deck of the same size, dealt from both piles.
+        size = len(player.reserve)
+        pool = player.reserve + player.draw
+        state.shuffle(pool)
+        player.reserve, player.draw = pool[:size], pool[size:]
+    if camp.only_ship and player.fleet:
+        player.only_ship = player.fleet[0].uid
+    if camp.teams_aside:
+        aside = min(camp.teams_aside, player.away_pool)
+        player.away_pool -= aside
+        player.teams_until_reserve_empty = aside
 
 
 # --------------------------------------------------------------------------- the Bot (requirements/22-solo-mode.md §2)

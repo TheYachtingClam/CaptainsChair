@@ -926,6 +926,9 @@ class Actions:
         owner.discard.append(inst)
         self.state.emit(f"{name(inst)} is dismissed.", seat=owner.seat)
         raise_event(self.state, "dismiss", owner.seat, inst.uid)
+        from engine.game import check_only_ship
+
+        check_only_ship(self.state, inst)
 
     def _clear_location(self, loc: Inst) -> None:
         for p in self.state.players:
@@ -951,6 +954,9 @@ class Actions:
         owner.hand.extend(flatten_beamed(inst))
         owner.hand.append(inst)
         self.state.emit(f"{owner.name} recalls {name(inst)}.", seat=owner.seat)
+        from engine.game import check_only_ship
+
+        check_only_ship(self.state, inst)
         return
         yield  # pragma: no cover
 
@@ -2337,6 +2343,11 @@ def _execute(ctx: Ctx) -> Gen:
     if ref.mode == "mission":
         yield from _complete_mission(ctx, ref.system)
         return
+    if ref.mode == "boost":  # a Five-Year Mission Boost (engine/upgrades)
+        from engine import upgrades
+
+        yield from upgrades.run(ctx, ref.system)
+        return
     if ref.mode == "bot":  # the Bot resolves a card with its Automated Command cards (solo mode)
         from engine import bot
 
@@ -2400,6 +2411,10 @@ def _resume_inner(state: GameState) -> None:
     try:
         ask = next(gen)
         while True:
+            if state.step == "over":  # the game ended inside the operation (Only Ship in the Quadrant)
+                state.running = None
+                state.decision = None
+                return
             reply = next(answers, None)
             if reply is None:
                 state.decision = Decision(seat=ask.seat, kind="op", prompt=ask.prompt,
@@ -2419,6 +2434,12 @@ def _resume_inner(state: GameState) -> None:
 def _state_checks(state: GameState) -> None:
     """State-based PASSIVE effects, e.g. Thruster Pack is dismissed when nothing is beamed to it."""
     for p in state.players:
+        if p.teams_until_reserve_empty and not p.reserve:
+            # They Will Arrive on Tuesday: the set-aside Away Teams return to the Captain (REQ-CAMP-40).
+            p.away_pool += p.teams_until_reserve_empty
+            state.emit(f"{p.name}'s Reserve deck is empty: {p.teams_until_reserve_empty} set-aside Away Team(s) "
+                       "return to their Captain.", seat=p.seat)
+            p.teams_until_reserve_empty = 0
         if p.bot is not None and not p.duty and p.bot.suits_side == "with_duty_officer":
             p.bot.suits_side = "no_duty_officer"  # its Duty Officer was dismissed or logged (REQ-SOLO-93)
             state.emit(f"{p.name} flips its SUITS card to WITH NO DUTY OFFICER.", seat=p.seat)

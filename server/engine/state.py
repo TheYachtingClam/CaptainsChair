@@ -11,7 +11,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Step = Literal["start", "resupply", "control", "action", "cleanup", "bot", "final", "over"]
+Step = Literal["setup", "start", "resupply", "control", "action", "cleanup", "bot", "final", "over"]
 Resource = Literal["dilithium", "latinum", "glory"]
 SPECIALTIES = ("research", "influence", "military")
 
@@ -130,6 +130,12 @@ class Player(BaseModel):
     # not owned, so they never score, until taken.
     reinforcement: list[Inst] = Field(default_factory=list)
     hand_bonus: int = 0  # temporary hand size change until the end of this turn (Betazed Intelligence)
+    # Five-Year Mission: the Boosts that run in this game's setup (REQ-CAMP-30), the starting Ship whose loss fails the
+    # assignment (Only Ship in the Quadrant), and Away Teams set aside until the Reserve deck empties (They Will
+    # Arrive on Tuesday).
+    boosts: list[str] = Field(default_factory=list)
+    only_ship: str | None = None
+    teams_until_reserve_empty: int = 0
 
 
 class GameState(BaseModel):

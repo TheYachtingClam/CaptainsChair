@@ -129,6 +129,16 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
         {p.bot && <span className="pill bot-pill">Bot · {p.bot.difficulty[0].toUpperCase() + p.bot.difficulty.slice(1)}</span>}
         {p.bot?.ticking_clock && <span className="pill">Ticking Clock</span>}
         {active && <span className="pill">Active player</span>}
+        {p.reinforcement && p.reinforcement.length > 0 && (
+          <span className="pill" title={p.reinforcement.map((c) => c.name).join(", ")}>Reinforcement pile: {p.reinforcement.length}</span>
+        )}
+        {(p.boosts?.length ?? 0) > 0 && <span className="pill" title={p.boosts!.join("\n")}>Boosts: {p.boosts!.length}</span>}
+        {(p.teams_aside ?? 0) > 0 && (
+          <span className="pill" title="They Will Arrive on Tuesday: they return when your Reserve deck empties">
+            {p.teams_aside} Away Team(s) set aside
+          </span>
+        )}
+        {p.only_ship && <span className="pill" title="Only Ship in the Quadrant">Only Ship</span>}
       </header>
 
       <div className="mat-grid">

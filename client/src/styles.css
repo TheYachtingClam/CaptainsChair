@@ -403,3 +403,7 @@ button.link { background: none; border: 0; padding: 0; color: inherit; text-deco
 .campaign-log { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .campaign-log th, .campaign-log td { text-align: left; padding: 0.25rem 0.5rem; border-bottom: 1px solid #ccc4; }
 .evaluation { font-size: 1.3rem; font-style: italic; }
+.campaign-card.picked img { outline: 3px solid #2e7d32; }
+.bonus-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.bonus-list li { display: flex; gap: 0.75rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+label.challenge { align-items: flex-start; }

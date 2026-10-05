@@ -29,6 +29,19 @@ Each is implemented as described. Confirm, or say which to change.
 - **Rebner's deck in Cadet Training**: the Clumpships draw 1 card for the virtual opponent's Ship but the forced log does nothing; Rumdar may dismiss its Spy for 1 Glory; Big Enough Helmet's cost has nobody to draw.
 - **Put into play after playing** (KW-PIP-01, AS-16): a played card now counts as put into play after its PLAY resolves even when the PLAY moved it away again (logged, returned, recalled). Before, cards that left play did not count. This is what the rulebook example (Bynars and V'Lar) needs.
 
+## Rulings made for the Five-Year Mission bonuses and challenges
+
+- **Requirements disagree with the card:** REQ-CAMP-27 gives Pike's second WIN bonus as "After drawing the starting hand, discard a card to gain 1 Research, 1 Influence and 1 Military". The printed card (`pike-five-year-mission-upgrades.jpg`) and the spec say "BOOST: Gain 1 [Research], 1 [Influence], and 1 [Military]", with no discard. The code follows the card; the requirement's example should be corrected.
+- **Boosts with a cost** ("take an Incident to …", "spend 1 [Dilithium] to …") are optional: the human is asked each game, and the Boost is skipped when the cost cannot be paid. Boosts without a cost always resolve.
+- **Boosts with no moment printed** ("BOOST: Gain an [Action].") resolve at the start of the game: after the starting hand and the "after drawing" Boosts, before the first turn. An Action gained then lasts through the first turn.
+- **Before drawing the starting hand:** cards found or taken then stay in hand, and the full starting hand is drawn afterwards.
+- **The same Boost twice:** losing to the same Bot again may offer a Boost you already have. Taking it again adds a second copy, which resolves twice.
+- **Pike's LOSS REINFORCE** ("a card with [Research]/[Influence]/[Military]") counts [Any Skill] cards.
+- **Option B with nothing to choose:** a REINFORCE bonus with no qualifying card cannot be taken. With no option A card and no option B available (for example Rules of Acquisition after a success), there is no upgrade.
+- **Live Long and Prosper:** after exactly one success, the human chooses on the assignment form which resource to start without.
+- **Two Weeks to the Closest Outpost, They Will Arrive on Tuesday:** "after a success" means the previous assignment was a success. After a failure, Tuesday sets one Away Team aside again.
+- **Only Ship in the Quadrant:** the assignment fails only when the starting Ship is dismissed or recalled, as printed; logging or destroying it does not.
+
 ## Gaps in the CLAUDE.md action list
 
 None. Every action named in the specs is in the CLAUDE.md action list.
