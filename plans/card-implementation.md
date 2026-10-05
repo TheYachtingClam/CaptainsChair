@@ -165,7 +165,7 @@ Stardates kept their engine handling: the 7 printed effects are resolved by the 
 Each step covers the deck's cards, development costs, Passives, ENDGAME, deck-specific rules (REQ-CD-*), mission goals and rewards, and any Cadet Training differences. The order runs from simplest to most rule-changing:
 
 11. Soval (done)
-12. Kirk
+12. Kirk (done)
 13. Archer: the set-aside Away Teams and putting cards on the Reserve
 14. Pike (Second Contact)
 15. Riker (Second Contact)

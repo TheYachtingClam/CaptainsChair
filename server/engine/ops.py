@@ -47,6 +47,7 @@ class A:
     REVEAL = "REVEAL"; PEEK = "PEEK"; GAIN_RESOURCE = "GAIN_RESOURCE"; SPEND = "SPEND"
     PLACE_RESOURCES = "PLACE_RESOURCES"; STEAL = "STEAL"; GAIN_ACTION = "GAIN_ACTION"
     TAKE_FROM_REWARD_PILE = "TAKE_FROM_REWARD_PILE"; SWAP_JUNK_WITH_MARKET = "SWAP_JUNK_WITH_MARKET"
+    REMOVE_STARDATE_GLORY = "REMOVE_STARDATE_GLORY"; DRAW_FROM_LOG = "DRAW_FROM_LOG"
     GAIN_SPECIALTY = "GAIN_SPECIALTY"; WARP = "WARP"; SEND_AWAY_TEAM = "SEND_AWAY_TEAM"
     REMOVE_AWAY_TEAM = "REMOVE_AWAY_TEAM"; TAKE_CONTROL = "TAKE_CONTROL"; TRIGGER_CONTROL = "TRIGGER_CONTROL"
     EXHAUST = "EXHAUST"; REFRESH = "REFRESH"; FORCE = "FORCE"; ATTACK = "ATTACK"; MOVE_RESOURCES = "MOVE_RESOURCES"
@@ -454,6 +455,23 @@ class DismissFromPlay(Cost):
         inst = yield from actions.pick_card(f"Dismiss {self.label} (cost).", self.candidates(actions.ctx))
         actions._dismiss(inst)
         actions.paid.append(inst)
+
+
+@dataclass
+class SpendUnless(Cost):
+    """Spend resources, or nothing when a condition holds: "[Dilithium] x6 OR free if ..." (development costs)."""
+
+    spend: "Spend" = None  # type: ignore[assignment]
+    free_if: Callable[[Ctx], bool] = lambda ctx: False
+
+    def can_pay(self, ctx):
+        return self.free_if(ctx) or self.spend.can_pay(ctx)
+
+    def pay(self, actions):
+        if self.free_if(actions.ctx):
+            actions.emit("The development cost is waived.")
+            return
+        yield from self.spend.pay(actions)
 
 
 @dataclass
@@ -1263,6 +1281,34 @@ class Actions:
         put_into_play(self.state, self.ctx.me, inst)
         return
         yield  # pragma: no cover
+
+    def remove_stardate_glory(self, n: int) -> Gen:
+        """Remove Glory from the current Stardate card to the supply; emptying it follows the usual rules (REQ-SD-02).
+        Cadet Training ignores this outside your Clean-up Step (REQ-CTM-11)."""
+        self._use(A.REMOVE_STARDATE_GLORY)
+        from engine import game
+
+        if self.state.mode == "cadet" and self.state.step != "cleanup":
+            self.emit("Cadet Training: Glory is not removed from the Stardate card outside Clean-up.")
+            return
+        for _ in range(n):
+            if self.state.resolution or not self.state.stardates:
+                break
+            game.take_glory_from_stardate(self.state)
+        self.emit(f"{self.ctx.me.name} removes {n} Glory from the Stardate card.")
+        return
+        yield  # pragma: no cover
+
+    def draw_from_log(self, pred: Callable[[Inst], bool] | None = None, label: str = "a card") -> Gen:
+        """Take a card from your Captain's Log into hand, only when an effect says so (KW-LOG-05)."""
+        self._use(A.DRAW_FROM_LOG)
+        cards = [i for i in self.ctx.me.log if pred is None or pred(i)]
+        inst = yield from self.pick_card(f"Take {label} from your Log.", cards)
+        if inst:
+            self.ctx.me.log.remove(inst)
+            self.ctx.me.hand.append(inst)
+            self.emit(f"{self.ctx.me.name} takes {name(inst)} from their Log.")
+        return inst
 
     def trigger_control(self, loc: Inst) -> Gen:
         """Resolve a Location's CONTROL operation as if control had just been taken (KW-TRIG). It does not count as

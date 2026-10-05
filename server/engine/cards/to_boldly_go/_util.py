@@ -152,3 +152,18 @@ def ctx_for(state, player) -> Ctx:
     from engine.state import OpRef
 
     return Ctx(state, OpRef(mode="auto", seat=player.seat))
+
+
+def highest_multiplier(player) -> int:
+    """The highest multiplier the player has reached on any Specialty track (REQ-SP-04)."""
+    from engine.content import content
+
+    board = content().boards[player.board]
+    return max((board.multiplier(t, player.highest[t]) for t in ("research", "influence", "military")), default=0)
+
+
+def stardate_sequence(state) -> int:
+    """The sequence number of the current (top) Stardate card."""
+    from engine.ops import card
+
+    return (card(state.stardates[0]).sequence or 0) if state.stardates else 0
