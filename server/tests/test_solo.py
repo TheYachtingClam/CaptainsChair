@@ -159,8 +159,11 @@ def test_bot_location_goes_to_the_control_area():
     bot = the_bot(s)
     location = s.new_inst("2SOV11")  # Paan Mokar
     bot.staging.append(location)
-    bot_rules.resolve(s, bot, location)
-    assert location in bot.locations and location not in bot.staging
+    s.decision = None
+    bot_rules.queue_resolution(s, bot, location)
+    advance(s, flag_irreversible=False)
+    bot = the_bot(s)  # rebuilt by the operation's replay
+    assert any(i.uid == location.uid for i in bot.locations) and not bot.staging
 
 
 def test_bot_facedown_cards_are_hidden():

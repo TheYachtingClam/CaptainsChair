@@ -54,6 +54,8 @@ class A:
     REMOVE_AWAY_TEAM = "REMOVE_AWAY_TEAM"; TAKE_CONTROL = "TAKE_CONTROL"; TRIGGER_CONTROL = "TRIGGER_CONTROL"
     EXHAUST = "EXHAUST"; REFRESH = "REFRESH"; FORCE = "FORCE"; ATTACK = "ATTACK"; MOVE_RESOURCES = "MOVE_RESOURCES"
     ADJUST_HAND_SIZE = "ADJUST_HAND_SIZE"
+    # Bot rows only (solo mode): engine/bot
+    EXPLORE = "EXPLORE"; ENGAGE = "ENGAGE"; RESOLVE_CARD = "RESOLVE_CARD"; CONTINUE_RESOLUTION = "CONTINUE_RESOLUTION"
 
 
 class UndeclaredActionError(RuntimeError):
@@ -2247,6 +2249,11 @@ def _execute(ctx: Ctx) -> Gen:
         return
     if ref.mode == "mission":
         yield from _complete_mission(ctx, ref.system)
+        return
+    if ref.mode == "bot":  # the Bot resolves a card with its Automated Command cards (solo mode)
+        from engine import bot
+
+        yield from bot.resolve_op(ctx)
         return
     inst = ctx.this_card
     if inst is None:

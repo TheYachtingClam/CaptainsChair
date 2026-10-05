@@ -4,16 +4,52 @@ The Bot's turn runs inside the turn loop as the "bot" step. It never asks the Bo
 the fixed rules, so the engine runs the whole turn and stops only when the human must decide something. Each step is
 logged in plain words so the human can follow it (REQ-SOLO-05).
 
-Automated Command rows arrive in plans/solo-mode.md Step 2. Until then a resolved card just stays in the Staging Area,
-except a Location, which goes to the Control Area (REQ-SOLO-89).
+Each card the Bot resolves runs as an operation of mode "bot" (`resolve_op`), so a row that asks the human something
+pauses and replays like any card operation. Rows are code, one function per row, in `engine/bot/<crew>.py`.
 """
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+import importlib
+import pkgutil
+from collections.abc import Callable, Iterable
+from dataclasses import dataclass
 
+import engine.game  # noqa: F401 - loads the card registry in the right order before the Crew row modules
 from engine.content import MARKET_SUITS, content
-from engine.state import GameState, Inst, Player
+from engine.state import GameState, Inst, OpRef, Player
+
+
+# =========================================================================== registries
+
+
+@dataclass(frozen=True)
+class RowImpl:
+    crew: str
+    side: str  # traits | no_duty_officer | with_duty_officer
+    number: int
+    fn: Callable
+    uses: frozenset[str]
+
+
+ROWS: dict[tuple[str, str, int], RowImpl] = {}
+SIDE_NAMES = {"traits": "TRAITS", "no_duty_officer": "SUITS WITH NO DUTY OFFICER",
+              "with_duty_officer": "SUITS WITH DUTY OFFICER"}
+# Crew special rules that are data: card traits discarded instead of logged when logging the top of the Bot deck
+# (Soval: Path of Surak; Freeman: Lower Decker), and value bonuses for the Bot (Riker, Freeman).
+LOG_TOP_DISCARDS: dict[str, tuple[str, ...]] = {}
+VALUE_BONUS: dict[str, Callable[[Inst], int]] = {}
+
+
+def row(crew: str, side: str, number: int, *, uses=()):
+    """Register one Automated Command row: `fn(ctx, actions)` generator, with `actions` a BotActions holding only the
+    `uses` actions. `number` is the row's number on the card side, as in the spec."""
+
+    def register(fn):
+        ROWS[(crew, side, number)] = RowImpl(crew, side, number, fn, frozenset(uses))
+        return fn
+
+    return register
 
 TRACKS = ("research", "influence", "military")  # the Bot's tie order: topmost first (REQ-SOLO-85)
 
@@ -45,6 +81,8 @@ def value(state: GameState, inst: Inst, player: Player) -> int:
     board = data.boards[player.board]
     multipliers = {t: board.multiplier(t, player.highest[t]) for t in TRACKS}
     total = printed_vp(card.vp)
+    if player.bot is not None and player.bot.crew in VALUE_BONUS:
+        total += VALUE_BONUS[player.bot.crew](inst)  # Riker, Freeman: some traits are worth 1 more to the Bot
     if card.focus == "Best":
         total += max(multipliers.values(), default=0)
     elif card.focus and card.focus.lower() in multipliers:
@@ -99,7 +137,7 @@ def step_bot(state: GameState) -> None:
             uid = bot.bot.facedown.pop(0)
             inst = next(i for i in bot.staging if i.uid == uid)
             state.emit(f"{bot.name} flips {_name(inst)}.", seat=bot.seat, irreversible=True)
-            resolve(state, bot, inst)
+            queue_resolution(state, bot, inst)
         else:
             state.substep = "cleanup"
     elif state.substep == "cleanup":
@@ -116,7 +154,7 @@ def _control(state: GameState, bot: Player) -> None:
         state.emit(f"{bot.name} has not secured a Location.", seat=bot.seat)
         return
     take_control(state, bot, location, run_control=False)  # the Bot ignores the card's CONTROL text
-    resolve(state, bot, location)
+    queue_resolution(state, bot, location)
 
 
 def bot_actions(state: GameState) -> int:
@@ -150,15 +188,83 @@ def _draw_actions(state: GameState, bot: Player) -> None:
     state.emit(f"{bot.name} has {n} action(s) and draws {drawn} card(s) facedown.", seat=bot.seat, irreversible=True)
 
 
-def resolve(state: GameState, bot: Player, inst: Inst) -> None:
-    """Resolve a Bot card with its Automated Command cards. Placeholder until plans/solo-mode.md Step 2: the card has
-    no effect, but a Location still goes to the Control Area (REQ-SOLO-89)."""
+def queue_resolution(state: GameState, bot: Player, inst: Inst) -> None:
+    """Resolve a Bot card as an operation, so human questions inside it pause and replay."""
+    state.op_queue.append(OpRef(mode="bot", seat=bot.seat, uid=inst.uid))
+
+
+def resolve_op(ctx) -> Iterable:
+    """The "bot" operation: resolve ctx.this_card with the Automated Command cards."""
+    inst = ctx.this_card
+    if inst is not None:
+        yield from resolve(ctx, inst)
+
+
+def _rows_for(bot: Player, inst: Inst, side_key: str):
+    crew = content().command[bot.bot.crew]
+    side = crew.side(side_key)
+    return list(side.rows) if side else []
+
+
+def resolve(ctx, inst: Inst) -> Iterable:
+    """REQ-SOLO-82, -87, -120, -121: SURPRISE first; otherwise the first TRAITS row with one of the card's traits (a
+    Wildcard matches every trait row, in order); otherwise the card's suit row on the SUITS side face up. "Continue
+    resolution" moves on to the next match. Afterwards a Location still in the Staging Area goes to the Control Area
+    (REQ-SOLO-89)."""
+    from engine.bot.actions import BotActions
+    from engine.ops import Ctx
+
+    state, bot = ctx.state, ctx.me
     card = content().cards[inst.card]
-    state.emit(f"{bot.name} resolves {card.name}: no Automated Command row yet.", seat=bot.seat)
+    sub = Ctx(state, OpRef(mode="bot", seat=bot.seat, uid=inst.uid))
+    if "Surprise" in card.traits:
+        yield from _surprise(sub, inst)
+    else:
+        traits = set(card.traits)
+        wildcard = "Wildcard" in traits
+        trait_rows = [r for r in _rows_for(bot, inst, "traits") if "Surprise" not in r.matches
+                      and (wildcard or traits & set(r.matches))]
+        resolved_any = False
+        for r in trait_rows + [None]:  # None: the SUITS row, looked up when reached (the side may have flipped)
+            if r is None:
+                side = bot.bot.suits_side
+                r = next((x for x in _rows_for(bot, inst, side) if card.suit in x.matches), None)
+                if r is None:
+                    break
+            else:
+                side = "traits"
+            impl = ROWS.get((bot.bot.crew, side, r.number))
+            state.emit(f"{card.name} matches {' / '.join(r.matches)} (row {r.number} of {SIDE_NAMES[side]}).",
+                       seat=bot.seat)
+            resolved_any = True
+            if impl is None:
+                state.emit("(This Automated Command row is not implemented yet.)", seat=bot.seat)
+                break
+            actions = BotActions(sub, impl.uses, inst, lambda other: resolve(ctx, other))
+            yield from impl.fn(sub, actions)
+            if not actions.continued:
+                break
+        if not resolved_any:
+            state.emit(f"{card.name} matches no Automated Command row.", seat=bot.seat)
     if card.suit == "Location" and inst in bot.staging:
         bot.staging.remove(inst)
         bot.locations.append(inst)
         state.emit(f"{card.name} goes to {bot.name}'s Control Area.", seat=bot.seat)
+
+
+def _surprise(ctx, inst: Inst) -> Iterable:
+    """REQ-SOLO-87: a card with the Surprise trait resolves its own SURPRISE (Bot only) operation instead."""
+    from engine import cards as registry
+    from engine.ops import Actions
+
+    card = content().cards[inst.card]
+    index = next((k for k, op in enumerate(card.operations) if op.kind == "SURPRISE"), None)
+    impl = registry.OPS.get((inst.card, index)) if index is not None else None
+    ctx.state.emit(f"{card.name} has the Surprise trait: the Bot resolves its SURPRISE operation.", seat=ctx.me.seat)
+    if impl is None:
+        ctx.state.emit("(This SURPRISE operation is not implemented yet.)", seat=ctx.me.seat)
+        return
+    yield from impl.fn(ctx, Actions(ctx, impl.uses))
 
 
 def _cleanup(state: GameState, bot: Player) -> None:
@@ -194,3 +300,13 @@ def answer(state: GameState) -> str:
     """The option the Bot picks when a human card puts a choice to it: the first listed one (REQ-SOLO-112). Plans Step
     3 refines this (declining to return Incidents, attacks on its hand)."""
     return state.decision.options[0].id
+
+
+def load_rows() -> None:
+    """Import every Crew module in engine/bot so its rows register."""
+    for mod in pkgutil.iter_modules(__path__):
+        if mod.name != "actions":
+            importlib.import_module(f"{__name__}.{mod.name}")
+
+
+load_rows()

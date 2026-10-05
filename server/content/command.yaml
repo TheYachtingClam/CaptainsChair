@@ -3298,10 +3298,10 @@ crews:
     - number: 8
       matches:
       - Location
-      text: Gain 1 [Influence]. Gain a [Research] > Starfleet > Cargo. Log Duty Officer.
+      text: Gain 1 [Influence]. Gain a [Research Focus] > Starfleet > Cargo. Log Duty Officer.
       steps:
       - 1. Gain 1 Influence.
-      - 2. Gain a card with a Research Skill; else a Starfleet; else a Cargo.
+      - 2. Gain a card with a Research Focus icon; else a Starfleet; else a Cargo.
       - 3. Log the Duty Officer and flip SUITS.
       uses:
       - GAIN_SPECIALTY

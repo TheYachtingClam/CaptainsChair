@@ -72,7 +72,7 @@ Used while the Bot has a Duty Officer. Flip back when it is dismissed or logged 
 | 5 | Person | If Ship is in Bot Discard, put it on top of the Bot deck. Gain a [Research Focus] > [Military Focus] > [Influence Focus] > Ship and dismiss Duty Officer. | 1. If a Ship is in the Bot Discard pile, put the topmost one on top of the Bot deck.<br>2. Gain a card with Research Focus; else Military Focus; else Influence Focus; else a Ship.<br>3. Dismiss the Duty Officer and flip SUITS. | `PUT`, `GAIN_CARD`, `DISMISS` | no |
 | 6 | Directive | Gain 1 [Research]. Gain 1 [Influence] / [Military] (whichever is lower). If Duty Officer is Vulcan, discard the top 2 cards of the Bot deck; otherwise gain 1 [Glory]. | 1. Gain 1 Research.<br>2. Gain 1 in whichever of Influence or Military is lower.<br>3. If the Duty Officer is Vulcan, discard the top 2 cards of the Bot deck; otherwise gain 1 Glory. | `GAIN_SPECIALTY`, `DISCARD`, `GAIN_RESOURCE` | yes |
 | 7 | Encounter | Gain 1 [Research]. Gain 1 [Influence]. Resolve the top card of the Supplement deck. Log this card. | 1. Gain 1 Research and 1 Influence.<br>2. Resolve the top card of the Supplement deck.<br>3. Log this card. | `GAIN_SPECIALTY`, `RESOLVE_CARD`, `LOG` | no |
-| 8 | Location | Gain 1 [Influence]. Gain a [Research] > Starfleet > Cargo. Log Duty Officer. | 1. Gain 1 Influence.<br>2. Gain a card with a Research Skill; else a Starfleet; else a Cargo.<br>3. Log the Duty Officer and flip SUITS. | `GAIN_SPECIALTY`, `GAIN_CARD`, `LOG` | no |
+| 8 | Location | Gain 1 [Influence]. Gain a [Research Focus] > Starfleet > Cargo. Log Duty Officer. | 1. Gain 1 Influence.<br>2. Gain a card with a Research Focus icon; else a Starfleet; else a Cargo.<br>3. Log the Duty Officer and flip SUITS. | `GAIN_SPECIALTY`, `GAIN_CARD`, `LOG` | no |
 
 ## Five-Year Mission upgrades
 
@@ -93,6 +93,8 @@ Image id: `soval-five-year-mission-upgrades`. Used only in the solo campaign (RE
   - BOOST: After drawing the starting hand, find a Person in your Draw deck.
 
 ## Rulings and open questions
+
+- The Location row with a Duty Officer gains a Research **Focus** card first: the icon on the card has the folded corner, and the solo example (p. 14) says no Market card had a Research Focus.
 
 - The solo rulebook's full turn example (solo pp. 11–15) uses these rows and is the acceptance test for this file (REQ-SOLO in 22-solo-mode.md §13).
 - "Take [Research] / [Influence] / [Military]" is read as taking a card with any of those Skill icons, most valuable first, matching the solo example where the Bot takes Vidiians.

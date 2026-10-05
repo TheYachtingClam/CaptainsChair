@@ -107,7 +107,7 @@ Everything except the Automated Command rows. The Bot plays real turns, but ever
 
 **You test:** start a solo game against any Bot at any difficulty. Play your turns and watch the Bot draw its cards, place Glory and reshuffle. Then play to the end and check the score breakdown and the win or loss.
 
-## Step 2: The Bot runtime, with the Soval Bot
+## Step 2: The Bot runtime, with the Soval Bot (done)
 
 The engine that resolves Bot cards, proven on one Crew. Soval comes first because the solo rulebook's full Bot turn uses him.
 
