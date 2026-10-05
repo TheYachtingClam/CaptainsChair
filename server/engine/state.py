@@ -11,7 +11,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Step = Literal["start", "resupply", "control", "action", "cleanup", "over"]
+Step = Literal["start", "resupply", "control", "action", "cleanup", "final", "over"]
 Resource = Literal["dilithium", "latinum", "glory"]
 SPECIALTIES = ("research", "influence", "military")
 

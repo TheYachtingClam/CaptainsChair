@@ -475,6 +475,7 @@ class Actions:
         self.uses = set(uses)
         self.paid: list[Inst] = []  # cards used to pay costs, e.g. the discarded card
         self._attack: bool | None = None  # result of this operation's attack check, once made
+        self.in_duplicate = False  # resolving a duplicated operation: it cannot duplicate again (KW-DUP-05)
 
     def _use(self, action: str) -> None:
         if action not in self.uses:
@@ -1043,6 +1044,76 @@ class Actions:
         return n
         yield  # pragma: no cover
 
+    def duplicate(self, cards: list[Inst], *, label: str = "a card", optional: bool = True) -> Gen:
+        """Resolve a PLAY operation of one of `cards` as this card (KW-DUP). No extra action is spent; requirements
+        and costs still apply; "this card" in the copied text means the duplicating card. A Duplicate resolved by a
+        Duplicate does nothing (KW-DUP-05). Returns (card, index) or None."""
+        self._use(A.DUPLICATE)
+        if self.in_duplicate:
+            self.emit("A Duplicate effect cannot duplicate another one.")
+            return None
+        this = self.ctx.this_card
+        sub = Ctx(self.state, OpRef(mode="play", seat=self.ctx.me.seat, uid=this.uid if this else None,
+                                    index=self.ctx.ref.index))
+        found: dict[str, tuple[Inst, int, Any]] = {}
+        options: list[tuple[str, str]] = []
+        for c in cards:
+            for index, op in enumerate(card(c).operations):
+                impl = impl_for(c, index)
+                if op.kind != "PLAY" or impl is None:
+                    continue
+                if impl.requires and not impl.requires(sub):
+                    continue
+                if not all(cost.can_pay(sub) for cost in impl.costs):
+                    continue
+                key = f"{c.uid}:{index}"
+                found[key] = (c, index, impl)
+                options.append((key, f"{name(c)}: {op.text}"))
+        if not options:
+            self.emit(f"There is no operation of {label} that can be duplicated.")
+            return None
+        if optional:
+            options.append(("none", "Do not duplicate"))
+        answer = yield from self.choose(f"Duplicate a PLAY operation of {label}.", options, show=cards)
+        if answer == "none":
+            return None
+        source, index, impl = found[answer]
+        self.emit(f"{self.ctx.me.name} duplicates {name(source)}.")
+        acts = Actions(sub, impl.uses)
+        acts.in_duplicate = True
+        for cost in impl.costs:
+            yield from cost.pay(acts)
+        yield from impl.fn(sub, acts)
+        if card(source).operations[index].attack and acts._attack is None:
+            yield from acts._attack_check()
+        return source, index
+
+    def peek_market_deck(self, suits: Iterable[str] = MARKET_SUITS) -> Gen:
+        """Look privately at the top card of a Market deck; it stays there (Sarina Douglas)."""
+        self._use(A.PEEK)
+        decks = [s for s in suits if self.state.market_decks.get(s)]
+        if not decks:
+            self.emit("Every Market deck is empty.")
+            return None
+        suit = decks[0] if len(decks) == 1 else (
+            yield from self.choose("Look at the top card of which Market deck?", [(s, f"{s} deck") for s in decks]))
+        top = self.state.market_decks[suit][0]
+        self.state.emit(f"{self.ctx.me.name} looks at the top card of the {suit} deck.", seat=self.ctx.me.seat)
+        self.state.emit(f"You see {name(top)} on top of the {suit} deck.", private_to=self.ctx.me.seat,
+                        irreversible=True)
+        yield from self.choose(f"Top card of the {suit} deck (only you see it):", [("ok", "Done")], show=[top])
+        return top
+
+    def put_into_staging(self, inst: Inst) -> Gen:
+        """Put a card into your Staging Area without resolving its PLAY. It counts as put into play (KW-PIP-01)."""
+        self._use(A.PUT)
+        take_out(self.state, inst)
+        self.ctx.me.staging.append(inst)
+        self.emit(f"{self.ctx.me.name} puts {name(inst)} into their Staging Area.")
+        put_into_play(self.state, self.ctx.me, inst)
+        return
+        yield  # pragma: no cover
+
     def trigger_control(self, loc: Inst) -> Gen:
         """Resolve a Location's CONTROL operation as if control had just been taken (KW-TRIG). It does not count as
         taking control, and costs no action."""
@@ -1143,10 +1214,18 @@ class Actions:
         yield  # pragma: no cover
 
     def take_control(self, loc: Inst) -> Gen:
+        """Take control of a neutral Location, a Crew Location being played, or the top of the Location deck
+        (Landru: no Location is revealed to replace it)."""
         self._use(A.TAKE_CONTROL)
         from engine import game
 
-        if loc in self.state.neutral:
+        if loc in self.state.location_deck:
+            self.state.location_deck.remove(loc)
+            self.ctx.me.locations.append(loc)
+            self.ctx.me.controls_this_turn += 1
+            self.state.emit(f"{self.ctx.me.name} takes control of {name(loc)} from the Location deck.", irreversible=True)
+            put_into_play(self.state, self.ctx.me, loc)
+        elif loc in self.state.neutral:
             game.take_control(self.state, self.ctx.me, loc, run_control=False)
             put_into_play(self.state, self.ctx.me, loc)
         else:
@@ -1326,6 +1405,14 @@ def _refill(state: GameState, suit: str) -> None:
     from engine.setup import refill_market
 
     refill_market(state, suit)
+
+
+def owned_everywhere(player: Player) -> list[Inst]:
+    """Every card the player owns, in any zone, beamed cards included."""
+    cards = [player.captain, *[i for z in zones(player).values() for i in z]]
+    for inst in list(cards):
+        cards.extend(_all_beamed(inst))
+    return cards
 
 
 def reactions_blocked(state: GameState, seat: int) -> bool:

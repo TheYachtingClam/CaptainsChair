@@ -546,20 +546,33 @@ def end_turn(state: GameState) -> None:
     for p in state.players:
         p.hand_bonus = 0
     if state.last_turn is not None and state.turn >= state.last_turn:
-        from engine.scoring import score_game
-
-        state.result = {"reason": "resolution", **score_game(state)}
-        if is_cadet(state):
-            total = state.result["scores"][0]["total"]
-            state.result["rating"] = next((text for vp, text in CADET_RATINGS if total >= vp),
-                                          "Keep practising: 70 VP shows you understand how to play.")
-        state.step = "over"
-        state.emit("The game is over.")
+        # SPECIAL "before scoring" operations run first (Su'Kal), then final scoring.
+        state.step = "final"
+        for p in state.players:
+            for inst in ops.owned_everywhere(p):
+                if inst.card not in card_code.BEFORE_SCORING:
+                    continue
+                for index, op in enumerate(card(inst).operations):
+                    if op.kind == "SPECIAL" and (inst.card, index) in card_code.OPS:
+                        state.op_queue.append(ops.OpRef(mode="auto", seat=p.seat, uid=inst.uid, index=index))
         return
     state.turn += 1
     state.active = (state.active + 1) % len(state.players)
     state.step = "start"
     state.substep = ""
+
+
+def step_final(state: GameState) -> None:
+    """Final scoring (requirements/13-final-scoring.md)."""
+    from engine.scoring import score_game
+
+    state.result = {"reason": "resolution", **score_game(state)}
+    if is_cadet(state):
+        total = state.result["scores"][0]["total"]
+        state.result["rating"] = next((text for vp, text in CADET_RATINGS if total >= vp),
+                                      "Keep practising: 70 VP shows you understand how to play.")
+    state.step = "over"
+    state.emit("The game is over.")
 
 
 def step_over(state: GameState) -> None:  # pragma: no cover - advance() stops first
@@ -572,6 +585,7 @@ STEPS = {
     "control": step_control,
     "action": step_action,
     "cleanup": step_cleanup,
+    "final": step_final,
     "over": step_over,
 }
 HANDLERS = {

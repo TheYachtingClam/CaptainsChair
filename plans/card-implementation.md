@@ -100,7 +100,7 @@ Cards: every Market card with ATTACK, about 20, plus Riva, Phasers and Jarok's R
 
 **You test:** promote extra Starfleet officers with Jarok on duty. Try to play an Attack card and see it greyed out with the reason.
 
-## Step 6: Duplicate, peek, and putting cards into the Staging Area
+## Step 6: Duplicate, peek, and putting cards into the Staging Area (done)
 
 - **`DUPLICATE`:** no extra action, requirements still apply, "this card" means the duplicating card, and a Duplicate can't copy a Duplicate (KW-DUP-01 to -05).
 - **`PEEK`,** shown only to the player looking.

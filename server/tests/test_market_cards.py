@@ -65,6 +65,7 @@ NEEDS_OWN_SETUP = {
     ("3SHI01", 3),  # needs a Starfleet Person beamed to Fesarius
     ("2PER03", 1),  # needs Klingon >= Starfleet in play
     ("2PER21", 0),  # needs one of your Away Teams on a Location
+    ("2PER09", 1),  # needs two Persons beamed to Landru
 }
 
 
@@ -1136,3 +1137,126 @@ def test_betazed_intelligence_raises_hand_size_for_the_draw():
         choose(s, d.seat, d.options[0].id, flag_irreversible=False)
     assert len(me(s).hand) == 7 and me(s).log[-1].card == "3ALL01"
     assert me(s).hand_bonus == 0  # reset at the end of the turn
+
+
+# --------------------------------------------------------------------------- Step 6: duplicate, peek, staging
+
+
+def test_orb_of_time_duplicating_denobulans_logs_the_orb():
+    """AS-19: Orb of Time copying a self-logging Denobulans logs the Orb, not the Denobulans."""
+    s = given(hand=["2CAR13"], log=["2ALL04"])
+    incidents = len(s.incident)
+    play(s, card(s, "2CAR13", zone="hand"), 0)
+    answer(s, "Yes")  # take an Incident to duplicate
+    answer(s, "Gain a Person")  # Denobulans' first PLAY
+    answer(s, "faceup")
+    answer(s, "Discard pile")
+    assert len(s.incident) == incidents - 1
+    assert me(s).log[-1].card == "2CAR13" and [i.card for i in me(s).log].count("2ALL04") == 1
+
+
+def test_a_duplicated_duplicate_only_recalls():
+    """AS-19: copying Orb of Time with another Duplicate allows only its recall (KW-DUP-05)."""
+    s = given(hand=["2ALL15"], staging=["2CAR13", "2PER22"], log=["2ALL04"])
+    incidents = len(s.incident)
+    play(s, card(s, "2ALL15", zone="hand"), 0)
+    answer(s, "Orb of Time")
+    answer(s, "Tevrin")  # the Orb's recall
+    assert any(i.card == "2PER22" for i in me(s).hand) and len(s.incident) == incidents
+
+
+def test_vadic_copying_cloaking_device_cannot_deploy():
+    """AS-19: Vadic's Splinter Group duplicating Cloaking Device refreshes, draws and junks, but cannot deploy."""
+    s = given(hand=["2ALL15"], fleet=["2CAR03"], empty_hand=True)
+    play(s, card(s, "2ALL15", zone="hand"), 0)
+    answer(s, "Cloaking Device")
+    while s.decision.kind == "op" and "Then choose" not in s.decision.prompt:
+        answer(s, "")
+    assert card(s, "2ALL15").uid in uids(me(s).staging)  # not deployed
+    assert len(me(s).hand) >= 2
+
+
+def test_holographic_drone_ship_duplicating_deploy_deploys_itself():
+    s = given(hand=["2SHI05"], fleet=["2SHI04"], tracks={"research": 7})
+    play(s, card(s, "2SHI05", zone="hand"), 0)
+    answer(s, "D'Var")
+    assert card(s, "2SHI05").uid in uids(me(s).fleet)
+
+
+def test_tysess_duplicates_the_promoted_person():
+    s = given(hand=["2PER04"], discard=["2PER07"], empty_hand=True)
+    actions = me(s).actions
+    play(s, card(s, "2PER04", zone="hand"), 0)
+    answer(s, "Hoshi")
+    answer(s, "Yes")  # spend an Action to duplicate Hoshi's PLAY
+    answer(s, "Find a card")
+    while s.decision.kind == "op":
+        answer(s, "No" if "No" in options(s) else "")
+    assert card(s, "2PER07").uid in uids(me(s).duty) and me(s).actions == actions - 1
+
+
+def test_suliban_duplicates_the_market_ally():
+    s = given(hand=["2ALL12"])
+    s.market["Ally"] = s.new_inst("2ALL11")  # Salt Vampires: draw 2
+    hand = len(me(s).hand)
+    play(s, card(s, "2ALL12", zone="hand"), 0)
+    answer(s, "Salt Vampires")
+    assert len(me(s).hand) == hand - 1 + 2
+
+
+def test_sarina_peeks_privately():
+    from engine.views import game_view
+
+    s = given(hand=["2PER18", "2PER14"])
+    play(s, card(s, "2PER18", zone="hand"), 0)  # discards Phlox (Doctor); nothing to free play, so it peeks
+    answer(s, "Person")
+    top = s.market_decks["Person"][0]
+    view = game_view(s, 0)
+    assert [c["uid"] for c in view["decision"]["cards"]] == [top.uid]
+    assert any("You see" in line for line in view["log"])
+    assert not any("You see" in line for line in game_view(s, 1)["log"])
+
+
+def test_hoshi_puts_a_reserve_card_into_staging():
+    s = given(duty=["2PER07"], fleet=["2SHI07"])  # Medusan Vessel is Alien
+    hand = len(me(s).hand)
+    reserve = len(me(s).reserve)
+    activate(s, card(s, "2PER07", zone="duty"), 2)
+    answer(s, "Yes")
+    answer(s, "")
+    assert len(me(s).hand) == hand + 1 and len(me(s).reserve) == reserve - 1 and len(me(s).staging) == 1
+
+
+def test_landru_takes_control_of_the_top_location():
+    s = given(duty=["2PER09"], tracks={"influence": 2})
+    landru = card(s, "2PER09", zone="duty")
+    landru.beamed += [s.new_inst("2PER07"), s.new_inst("2PER11")]
+    top = s.location_deck[0]
+    neutral = [l.uid for l in s.neutral]
+    from engine.game import advance
+
+    s.decision = None
+    advance(s, flag_irreversible=False)
+    activate(s, landru, 1)
+    while s.decision.kind == "op":
+        answer(s, "")
+    assert top.uid in uids(me(s).locations) and [l.uid for l in s.neutral] == neutral
+    assert any(i.card == "2PER09" for i in me(s).hand)
+
+
+def test_sukal_returns_incidents_before_scoring():
+    s = given(hand=["2PER20", "2INC01", "2INC02", "2INC03"])
+    s.last_turn = s.turn
+    incidents = len(s.incident)
+    choose_end(s)
+    from engine.game import choose
+
+    for _ in range(20):
+        d = s.decision
+        if d is None or s.step == "over" or "Su'Kal" in d.prompt:
+            break
+        choose(s, d.seat, {"discard": "done"}.get(d.kind, d.options[0].id), flag_irreversible=False)
+    assert "Su'Kal" in s.decision.prompt
+    answer(s, "")
+    answer(s, "")
+    assert s.step == "over" and len(s.incident) == incidents + 2

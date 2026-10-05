@@ -1,10 +1,9 @@
-"""2SHI05 Holographic Drone Ship (Ship). Spec: resources/scans/to_boldly_go/cards/ships/2SHI05.md
-The first PLAY duplicates, which arrives in Step 6."""
+"""2SHI05 Holographic Drone Ship (Ship). Spec: resources/scans/to_boldly_go/cards/ships/2SHI05.md"""
 
 from engine.cards import operation
 from engine.ops import A, DiscardFromHand
 
-from ._util import deploy_and_warp_this, has_trait, warp_this_ship
+from ._util import deploy_and_warp_this, has_trait, is_suit, warp_this_ship
 
 operation("2SHI05", 1, uses=[A.DEPLOY, A.WARP],
           cost=[DiscardFromHand(1, lambda ctx, i: has_trait(i, "Telepath"), "a Telepath")])(deploy_and_warp_this)
@@ -20,3 +19,14 @@ def dismiss_for_glory(ctx, actions):
 
 
 operation("2SHI05", 3, uses=[A.WARP])(warp_this_ship)
+
+
+@operation("2SHI05", 0, uses=[A.DRAW, A.DUPLICATE], requires=lambda ctx: ctx.track("research") >= 7)
+def mimic(ctx, actions):
+    """PLAY: Requires [Research] 7. Draw a card. Duplicate a play operation of a non-Time Travel Ship from the Market
+    or deployed by any player. Ruling: duplicating "deploy this ship" deploys the Drone Ship itself (KW-DUP-04)."""
+    yield from actions.draw(1)
+    candidates = [i for i in [ctx.state.market.get("Ship"), *ctx.me.fleet,
+                              *(ctx.opponent.fleet if ctx.opponent else [])]
+                  if i is not None and is_suit(i, "Ship") and not has_trait(i, "Time Travel")]
+    yield from actions.duplicate(candidates, label="a Ship", optional=False)

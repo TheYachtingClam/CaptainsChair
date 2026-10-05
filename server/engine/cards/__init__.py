@@ -54,6 +54,9 @@ RESTRICTIONS: dict[str, Callable] = {}
 # "Treated as": fn(state, owner, inst, target) -> extra traits for one of the owner's cards. Table positions, or the
 # Staging Area when registered with staging=True.
 TRAIT_MODIFIERS: dict[str, tuple[Callable, bool]] = {}
+# SPECIAL "before scoring": card ids whose SPECIAL operation runs at the start of final scoring, wherever the owner
+# has the card (Su'Kal).
+BEFORE_SCORING: set[str] = set()
 # SPECIAL: while this card is in its owner's play (not beamed), the opponent cannot use REACTIONs on the owner's turn.
 NO_OPPONENT_REACTIONS: set[str] = set()
 # Resources a player gains when this card is dismissed, instead of the usual return to the supply (R.I.S. Talvath).
