@@ -8,8 +8,14 @@ function watchedKey(gameId: string) {
   return `cc.botwatched.${gameId}`;
 }
 
-/** How far the player has watched: the Bot turn (its log position) and how many of its steps. */
-function loadWatched(gameId: string): { start: number; count: number } {
+interface Watched {
+  start: number; // the Bot turn, by its log position
+  count: number; // the step being shown
+  closed?: boolean; // the player closed the panel after the turn
+}
+
+/** How far the player has watched the latest Bot turn. */
+function loadWatched(gameId: string): Watched {
   try {
     const raw = localStorage.getItem(watchedKey(gameId));
     if (raw) return JSON.parse(raw);
@@ -19,9 +25,9 @@ function loadWatched(gameId: string): { start: number; count: number } {
   return { start: -1, count: 0 };
 }
 
-function saveWatched(gameId: string, start: number, count: number) {
+function saveWatched(gameId: string, watched: Watched) {
   try {
-    localStorage.setItem(watchedKey(gameId), JSON.stringify({ start, count }));
+    localStorage.setItem(watchedKey(gameId), JSON.stringify(watched));
   } catch {
     // ignore
   }
@@ -43,7 +49,8 @@ function context(steps: BotStep[], index: number): { card?: BotStep["card"]; row
 
 /**
  * Watch the Bot's turn one step at a time (REQ-SOLO-56): the card it flipped, the Automated Command row that matched
- * (highlighted on its command card through `onHighlight`), and each thing it did. Next, Auto-play and Skip.
+ * (highlighted on its command card through `onHighlight`), and each thing it did. Previous, Next, Auto-play and Skip.
+ * Playback stops on the last step so the player can step back through the turn; Done closes the panel.
  */
 export function BotPlayback({ gameId, turn, botName, rowText, onHighlight }: {
   gameId: string;
@@ -52,32 +59,42 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight }: {
   rowText: (row: RowRef) => string | undefined;
   onHighlight: (row: RowRef | null) => void;
 }) {
+  const steps = turn?.steps ?? [];
+  const last = Math.max(steps.length - 1, 0);
   const [index, setIndex] = useState(() => {
-    if (!turn) return 0;
     const w = loadWatched(gameId);
-    return w.start === turn.start ? w.count : 0;
+    return turn && w.start === turn.start ? Math.min(w.count, last) : 0;
+  });
+  const [closed, setClosed] = useState(() => {
+    const w = loadWatched(gameId);
+    // Older saves marked a finished turn by counting past its last step.
+    return !!turn && w.start === turn.start && (!!w.closed || (turn.finished && w.count >= turn.steps.length));
   });
   const [auto, setAuto] = useState(true);
-  const steps = turn?.steps ?? [];
 
-  // A new Bot turn starts from its first step; more steps of the same turn continue where we were.
+  // A new Bot turn opens at its first step; more steps of the same turn continue where we were.
   useEffect(() => {
     if (!turn) return;
     const w = loadWatched(gameId);
-    setIndex(w.start === turn.start ? Math.min(w.count, turn.steps.length) : 0);
+    if (w.start === turn.start) return;
+    setIndex(0);
+    setClosed(false);
+    setAuto(true);
   }, [gameId, turn?.start]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const watching = !!turn && index < steps.length;
+  const watching = !!turn && steps.length > 0 && !closed;
+  const atEnd = index >= last;
 
   useEffect(() => {
-    if (turn) saveWatched(gameId, turn.start, index);
-  }, [gameId, turn, index]);
+    if (turn) saveWatched(gameId, { start: turn.start, count: index, closed });
+  }, [gameId, turn, index, closed]);
 
+  // Auto-play stops on the last step; steps that arrive later (a turn waiting on your answer) carry on.
   useEffect(() => {
-    if (!watching || !auto) return;
-    const timer = setTimeout(() => setIndex((i) => i + 1), AUTO_DELAY_MS);
+    if (!watching || !auto || atEnd) return;
+    const timer = setTimeout(() => setIndex((i) => Math.min(i + 1, last)), AUTO_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [watching, auto, index]);
+  }, [watching, auto, atEnd, index, last]);
 
   const shown = useMemo(() => context(steps, index), [steps, index]);
   useEffect(() => {
@@ -85,13 +102,16 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight }: {
   }, [watching, shown.row?.side, shown.row?.number]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!watching) return null;
-  const step = steps[index];
+  const step = steps[Math.min(index, last)];
   const rowLabel = shown.row ? rowText(shown.row) : undefined;
   return (
     <div className="bot-playback card" role="region" aria-label={`${botName}'s turn`} aria-live="polite">
       <header className="row">
         <strong>{botName}'s turn</strong>
-        <span className="muted">Step {index + 1} of {steps.length}{turn!.finished ? "" : "+"}</span>
+        <span className="muted">
+          Step {Math.min(index, last) + 1} of {steps.length}{turn!.finished ? "" : "+"}
+          {atEnd && turn!.finished && " · turn over"}
+        </span>
       </header>
       <div className="bot-playback-body">
         {shown.card && (
@@ -103,9 +123,15 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight }: {
         </div>
       </div>
       <div className="row">
-        <button onClick={() => { setAuto(false); setIndex((i) => i + 1); }}>Next</button>
-        <button className="secondary" onClick={() => setAuto((a) => !a)}>{auto ? "Pause" : "Auto-play"}</button>
-        <button className="secondary" onClick={() => setIndex(steps.length)}>Skip to the end</button>
+        <button className="secondary" disabled={index === 0} onClick={() => { setAuto(false); setIndex((i) => Math.max(i - 1, 0)); }}>
+          Previous
+        </button>
+        <button disabled={atEnd} onClick={() => { setAuto(false); setIndex((i) => Math.min(i + 1, last)); }}>Next</button>
+        <button className="secondary" disabled={atEnd} onClick={() => setAuto((a) => !a)}>
+          {auto ? "Pause" : "Auto-play"}
+        </button>
+        <button className="secondary" disabled={atEnd} onClick={() => { setAuto(false); setIndex(last); }}>Skip to the end</button>
+        {turn!.finished && <button onClick={() => setClosed(true)}>Done</button>}
       </div>
     </div>
   );
