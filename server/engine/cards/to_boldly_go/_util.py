@@ -14,9 +14,10 @@ def _card(a, b):
 
 
 def is_suit(inst, *suits) -> bool:
-    from engine.ops import card
+    """The card's suit, or a suit a SPECIAL says it is also considered (Gomtuu is a Ship, Species 10-C an Ally)."""
+    from engine.ops import suits_of
 
-    return card(inst).suit in suits
+    return bool(suits_of(inst) & set(suits))
 
 
 def has_trait(inst, *traits) -> bool:

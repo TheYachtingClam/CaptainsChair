@@ -30,7 +30,12 @@ except ImportError:  # not inside the server environment: re-run there
 ENGINE_KINDS = {"WHEN EMPTIED", "STARDATE RESOLUTION"}
 
 
+SOLO = "Solo only (needs the Bot)"
+
+
 def group_of(card) -> str:
+    if (card.position or "").startswith("Solo"):
+        return SOLO
     if card.suit == "Stardate":
         return "Stardates"
     if card.position == "Rewards":
@@ -52,7 +57,8 @@ def has_code(card_id: str, index: int, kind: str) -> bool:
         return any(card_id in reg for reg in (registry.HAND_SIZE, registry.DUTY_LIMIT, registry.SKILLS,
                                               registry.SCANS_INCLUDE_JUNK, registry.STATE_CHECKS,
                                               registry.DISMISS_REWARDS, registry.NO_OPPONENT_REACTIONS,
-                                              registry.DUTY_SLOTS, registry.RESTRICTIONS, registry.TRAIT_MODIFIERS))
+                                              registry.DUTY_SLOTS, registry.RESTRICTIONS, registry.TRAIT_MODIFIERS,
+                                              registry.ALSO_SUIT))
     return False
 
 
@@ -68,6 +74,13 @@ def main() -> int:
         row[0] += 1
         for index, op in enumerate(card.operations):
             if op.kind in ENGINE_KINDS:
+                continue
+            if op.kind == "SURPRISE" and group != SOLO:  # Bot-only operations on ordinary cards
+                solo = rows.setdefault(SOLO, [0, 0, 0, []])
+                solo[1] += 1
+                solo[2] += has_code(card.id, index, op.kind)
+                if not has_code(card.id, index, op.kind):
+                    solo[3].append(f"{card.id} {card.name}: {index} {op.kind}")
                 continue
             row[1] += 1
             if has_code(card.id, index, op.kind):

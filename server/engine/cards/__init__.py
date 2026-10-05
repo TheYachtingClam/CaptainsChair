@@ -67,6 +67,8 @@ RESTRICTIONS: dict[str, Callable] = {}
 # "Treated as": fn(state, owner, inst, target) -> extra traits for one of the owner's cards. Table positions, or the
 # Staging Area when registered with staging=True.
 TRAIT_MODIFIERS: dict[str, tuple[Callable, bool]] = {}
+# SPECIAL "This card is considered a [suit] for all purposes" (Gomtuu, Species 10-C): card id -> extra suit.
+ALSO_SUIT: dict[str, str] = {}
 # SPECIAL "before scoring": card ids whose SPECIAL operation runs at the start of final scoring, wherever the owner
 # has the card (Su'Kal).
 BEFORE_SCORING: set[str] = set()

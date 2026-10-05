@@ -142,7 +142,9 @@ The engine has no Wildcard rules yet (REQ-TR-05 to -07, AS-12). A Wildcard card 
 
 **You test:** discard a Wildcard card as an Engineer for Forced Singularity's Activation.
 
-## Step 9: Common Incidents, Encounters and the two common Directives
+## Step 9: Common Incidents, Encounters and the two common Directives (done)
+
+Done for the Incidents and Encounters. The two Directives are solo-only (Time Is Running Out: Solo Challenge; Reinforce: Solo Campaign), as are SURPRISE operations, so they wait for solo mode below.
 
 17 cards. They mostly reuse Steps 2 to 4.
 
@@ -186,3 +188,7 @@ These came out of the Market card specs. Each has a default I'd use if you have 
 - **Cloaking Device** makes a Ship "treated as Cloak" until end of turn. Nothing in these sets reads Cloak afterwards. Default: no effect.
 - **Resources on a Market card** when someone gains it: settled by REQ-GN-06. The gainer takes every token on it.
 - **Attacks against the Cadet virtual opponent.** Default: they work once against its "one of everything". For example, Ash Tyler dismisses its Duty Officer for 2 Glory, and stealing takes 1 from the supply.
+
+## Not in this plan: solo mode against the Bot
+
+Solo play against the Bot (requirements/22-solo-mode.md) is a separate project: the Bot's Automated Command cards, its deck, difficulty levels, and the Five-Year Mission campaign. `scripts/card_coverage.py` lists what waits for it under "Solo only (needs the Bot)": the solo Directives (Time Is Running Out, Reinforce) and every SURPRISE operation. It needs its own plan once the cards are done.

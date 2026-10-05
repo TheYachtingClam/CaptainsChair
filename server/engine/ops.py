@@ -74,6 +74,14 @@ def card(inst: Inst) -> Card:
     return content().cards[inst.card]
 
 
+def suits_of(inst: Inst) -> set[str]:
+    """The printed suit, plus one a SPECIAL adds ("considered a Ship for all purposes")."""
+    suits = {card(inst).suit}
+    if inst.card in registry.ALSO_SUIT:
+        suits.add(registry.ALSO_SUIT[inst.card])
+    return suits
+
+
 def name(inst: Inst) -> str:
     return card(inst).name
 
@@ -701,7 +709,7 @@ class Actions:
 
     def deploy(self, inst: Inst) -> Gen:
         self._use(A.DEPLOY)
-        if card(inst).suit != "Ship" and "Ongoing" not in card(inst).traits:
+        if "Ship" not in suits_of(inst) and "Ongoing" not in card(inst).traits:
             self.emit(f"{name(inst)} is neither a Ship nor Ongoing, so it cannot be deployed.")  # KW-DEP-03
             return
         take_out(self.state, inst)
@@ -997,10 +1005,11 @@ class Actions:
         return [i for i in pool if pred(i) and playable_indexes(self.state, self.ctx.me, i, free=True)]
 
     # ------------------------------------------------------------ resources, actions, tracks
-    def gain_resource(self, kind: str, n: int = 1, *, source: Inst | None = None) -> Gen:
-        """Gain from the supply, or from the tokens on `source` (e.g. "gain 1 Dilithium from here")."""
+    def gain_resource(self, kind: str, n: int = 1, *, source: Inst | None = None, player: Player | None = None) -> Gen:
+        """Gain from the supply, or from the tokens on `source` (e.g. "gain 1 Dilithium from here"). `player` makes
+        someone else gain, e.g. "your opponent gains 2 Dilithium"."""
         self._use(A.GAIN_RESOURCE)
-        gain(self.state, self.ctx.me, kind, n, source=source)
+        gain(self.state, player or self.ctx.me, kind, n, source=source)
         return
         yield  # pragma: no cover
 
@@ -1160,15 +1169,20 @@ class Actions:
         yield  # pragma: no cover
 
     # ------------------------------------------------------------ board
-    def warp(self, ship: Inst) -> Gen:
+    def warp(self, ship: Inst, *, destinations: list[Inst] | None = None) -> Gen:
+        """Move a Ship token to a Location: one of your controlled or a neutral Location, or `destinations`
+        (Gomtuu moves an opponent's Ship to another neutral Location). The warp event belongs to the Ship's owner."""
         self._use(A.WARP)
-        destinations = [loc for loc in [*self.ctx.me.locations, *self.state.neutral] if loc.uid != ship.at]
+        if destinations is None:
+            destinations = [loc for loc in [*self.ctx.me.locations, *self.state.neutral] if loc.uid != ship.at]
         dest = yield from self.pick_card(f"Warp {name(ship)} to which Location?", destinations)
         if dest is None:
             return None
         ship.at = dest.uid
+        where = locate(self.state, ship.uid)
+        owner = where.owner if where and where.owner else self.ctx.me
         self.emit(f"{self.ctx.me.name} warps {name(ship)} to {name(dest)}.")
-        raise_event(self.state, "warp", self.ctx.me.seat, ship.uid, location=dest.uid)
+        raise_event(self.state, "warp", owner.seat, ship.uid, location=dest.uid)
         return dest
 
     def away_targets(self, where: Callable[[Inst], bool] | None = None, *, ignore_ships: bool = False) -> list[Inst]:
