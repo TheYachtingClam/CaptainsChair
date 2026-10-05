@@ -472,6 +472,7 @@ class Actions:
         self.state = ctx.state
         self.uses = set(uses)
         self.paid: list[Inst] = []  # cards used to pay costs, e.g. the discarded card
+        self._attack: bool | None = None  # result of this operation's attack check, once made
 
     def _use(self, action: str) -> None:
         if action not in self.uses:
@@ -568,13 +569,17 @@ class Actions:
         return inst
 
     def discard(self, n: int = 1, pred: Callable[[Inst], bool] | None = None, label: str = "a card",
-                optional: bool = False) -> Gen:
+                optional: bool = False, player: Player | None = None) -> Gen:
+        """Discard from hand. With `player` set to the opponent, they discard and choose which (KW-FORCE)."""
         self._use(A.DISCARD)
+        player = player or self.ctx.me
+        if player is not self.ctx.me:
+            self._use(A.FORCE)
         out = []
         for _ in range(n):
             this = self.ctx.this_card
-            cards = [i for i in self.ctx.me.hand if i is not this and (pred is None or pred(i))]
-            inst = yield from self.pick_card(f"Discard {label}.", cards, optional=optional)
+            cards = [i for i in player.hand if i is not this and (pred is None or pred(i))]
+            inst = yield from self.pick_card(f"Discard {label}.", cards, optional=optional, seat=player.seat)
             if not inst:
                 break
             self._discard(inst)
@@ -721,13 +726,15 @@ class Actions:
 
     def return_incident(self, inst: Inst) -> Gen:
         self._use(A.RETURN_INCIDENT)
+        # "When you would return an Incident" replacements, e.g. Ambassador Gral (REQ-AS-27).
+        if (yield from self._would(self.ctx.me.seat, {"kind": "would_return_incident", "seat": self.ctx.me.seat,
+                                                      "uid": inst.uid})):
+            return
         take_out(self.state, inst)
         inst.res.clear()
         self.state.incident.append(inst)
         self.emit(f"{self.ctx.me.name} returns {name(inst)} to the Incident deck.")
         raise_event(self.state, "return_incident", self.ctx.me.seat, inst.uid)
-        return
-        yield  # pragma: no cover
 
     def take_encounter(self, look: int = 1) -> Gen:
         self._use(A.TAKE_ENCOUNTER)
@@ -1154,11 +1161,108 @@ class Actions:
         return
         yield  # pragma: no cover
 
-    def attack(self) -> None:
-        """Mark the start of an attack's negative effect on the opponent (KW-ATK)."""
+    def attack(self, *, removes_away_teams: bool = False) -> Gen:
+        """The attack check (KW-ATK). Call it once, before the parts that target the opponent, and resolve those
+        parts only if it returns True. The defender may first use a "when you would be attacked" Reaction to ignore
+        the negative effect (Riva; Phasers when the attack removes Away Teams). Later calls return the same answer.
+
+        In Cadet Training it returns True and card code resolves the effect against the virtual opponent."""
         self._use(A.ATTACK)
-        if self.ctx.opponent:
-            self.state.emit(f"{self.ctx.me.name} attacks {self.ctx.opponent.name}.", irreversible=True)
+        return (yield from self._attack_check(removes_away_teams))
+
+    def _attack_check(self, removes_away_teams: bool = False) -> Gen:
+        if self._attack is not None:
+            return self._attack
+        opp = self.ctx.opponent
+        if opp is None:
+            self._attack = self.ctx.virtual_opponent
+            if self._attack:
+                self.emit(f"{self.ctx.me.name} attacks the virtual opponent.")
+            return self._attack
+        self.state.emit(f"{self.ctx.me.name} attacks {opp.name}.", irreversible=True)
+        raise_event(self.state, "attacked", opp.seat, None, attacker=self.ctx.me.seat)
+        ignored = yield from self._would(opp.seat, {"kind": "would_attack", "seat": opp.seat, "uid": None,
+                                                    "attacker": self.ctx.me.seat,
+                                                    "removes_away_teams": removes_away_teams})
+        self._attack = not ignored
+        if ignored:
+            self.state.emit(f"{opp.name} ignores the negative effect of the attack.", seat=opp.seat)
+        return self._attack
+
+    def _would(self, seat: int, event: dict) -> Gen:
+        """Offer `seat` their "when … would" REACTIONs for an event that has not happened yet (REQ-AS-27).
+
+        A matching Reaction's function returns True when it replaced or cancelled the event. Returns True if one
+        did. Reactions are not offered when an effect such as Pasalk blocks them (REQ-AS-31)."""
+        player = self.state.player(seat)
+        if reactions_blocked(self.state, seat):
+            return False
+        while True:
+            options: list[tuple[str, str]] = []
+            found: dict[str, tuple[Inst, int, Any]] = {}
+            for inst in table_cards(player):
+                if inst.exhausted:
+                    continue
+                for index, op in enumerate(card(inst).operations):
+                    impl = impl_for(inst, index)
+                    if op.kind != "REACTION" or impl is None or impl.trigger is None:
+                        continue
+                    sub = Ctx(self.state, OpRef(mode="trigger", seat=seat, uid=inst.uid, index=index, event=event))
+                    if impl.trigger(sub, event) and all(c.can_pay(sub) for c in impl.costs):
+                        key = f"{inst.uid}:{index}"
+                        found[key] = (inst, index, impl)
+                        options.append((key, f"Use {name(inst)}: {op.text}"))
+            if not options:
+                return False
+            answer = yield from self.choose("Use a Reaction now?", options + [("none", "Do not use")], seat)
+            if answer == "none":
+                return False
+            inst, index, impl = found[answer]
+            inst.exhausted = True
+            self.state.emit(f"{player.name} uses {name(inst)}.", seat=seat)
+            raise_event(self.state, "exhaust", seat, inst.uid)
+            sub = Ctx(self.state, OpRef(mode="trigger", seat=seat, uid=inst.uid, index=index, event=event))
+            acts = Actions(sub, impl.uses)
+            for cost in impl.costs:
+                yield from cost.pay(acts)
+            if (yield from impl.fn(sub, acts)):
+                return True
+
+    def steal(self, kind: str, n: int = 1) -> Gen:
+        """Take resources from the opponent, up to what they have (KW-STEAL). Stealing is not gaining, so no
+        gain_resource event. Against the Cadet virtual opponent it takes at most 1, from the supply (REQ-CTM-12)."""
+        self._use(A.STEAL)
+        opp = self.ctx.opponent
+        if opp is None:
+            taken = min(n, 1) if self.ctx.virtual_opponent else 0
+        else:
+            taken = min(n, getattr(opp, kind))
+            setattr(opp, kind, getattr(opp, kind) - taken)
+        if taken:
+            setattr(self.ctx.me, kind, getattr(self.ctx.me, kind) + taken)
+        self.emit(f"{self.ctx.me.name} steals {taken} {kind.capitalize()}.")
+        return taken
+        yield  # pragma: no cover
+
+    def give_incident(self, inst: Inst | None) -> Gen:
+        """Give an Incident from your hand to the opponent (KW-GIVE). It counts as them taking one (KW-GIVE-03).
+        To the Cadet virtual opponent: return it and gain 1 Glory instead (REQ-CTM-13)."""
+        self._use(A.GIVE)
+        if inst is None:
+            return None
+        opp = self.ctx.opponent
+        take_out(self.state, inst)
+        inst.res.clear()
+        if opp is None:
+            self.state.incident.append(inst)
+            self.emit(f"{self.ctx.me.name} gives {name(inst)} to the virtual opponent: it is returned.")
+            gain(self.state, self.ctx.me, "glory", 1)
+            return inst
+        opp.hand.append(inst)
+        self.state.emit(f"{self.ctx.me.name} gives {name(inst)} to {opp.name}.", irreversible=True)
+        raise_event(self.state, "take_incident", opp.seat, inst.uid)
+        return inst
+        yield  # pragma: no cover
 
 
 # =========================================================================== shared rules used by actions
@@ -1204,6 +1308,14 @@ def _refill(state: GameState, suit: str) -> None:
     from engine.setup import refill_market
 
     refill_market(state, suit)
+
+
+def reactions_blocked(state: GameState, seat: int) -> bool:
+    """True while the active player, not `seat`, has a card such as Vice Admiral Pasalk in play (REQ-AS-31)."""
+    if state.active == seat:
+        return False
+    active = state.player(state.active)
+    return any(i.card in registry.NO_OPPONENT_REACTIONS for i in [*table_cards(active), *active.staging])
 
 
 def duty_limit(state: GameState, player: Player) -> int:
@@ -1280,6 +1392,8 @@ def play_inline(ctx: Ctx, inst: Inst, *, free: bool, parent: Actions | None = No
         for cost in impl.costs:
             yield from cost.pay(actions)
         yield from impl.fn(sub, actions)
+        if op.attack and actions._attack is None:
+            yield from actions._attack_check()  # an ATTACK operation always counts as an attack (KW-ATK-01)
     where = locate(state, inst.uid)
     if where is not None and where.zone not in ("hand", "draw", "discard", "reserve", "log"):
         # Not when the effect moved the card away again, e.g. Hostile Contact returning itself.
@@ -1347,6 +1461,8 @@ def _execute(ctx: Ctx) -> Gen:
     for cost in impl.costs:
         yield from cost.pay(actions)
     yield from impl.fn(ctx, actions)
+    if op.attack and actions._attack is None:
+        yield from actions._attack_check()  # an ATTACK operation always counts as an attack (KW-ATK-01)
 
 
 def start(state: GameState, ref: OpRef) -> None:

@@ -1,8 +1,7 @@
-"""3CAR02 Moopsy (Cargo). Spec: resources/scans/second_contact/cards/cargo/3CAR02.md
-The attack PLAY arrives in Step 4."""
+"""3CAR02 Moopsy (Cargo). Spec: resources/scans/second_contact/cards/cargo/3CAR02.md"""
 
 from engine.cards import operation
-from engine.ops import A
+from engine.ops import A, Spend
 
 from ._util import is_suit
 
@@ -23,3 +22,17 @@ def feed(ctx, actions):
 def snack(ctx, actions):
     """REACTION: After you or your opponent logs a Person, draw a card."""
     yield from actions.draw(1)
+
+
+@operation("3CAR02", 0, uses=[A.DEPLOY, A.ATTACK, A.FORCE, A.LOG], cost=[Spend(latinum=1)])
+def hungry(ctx, actions):
+    """ATTACK PLAY: Spend 1 [Latinum] to deploy this card. Force your opponent to log a Person from their hand,
+    Discard pile, or in play."""
+    yield from actions.deploy(ctx.this_card)
+    opp = ctx.opponent
+    if (yield from actions.attack()) and opp is not None:
+        people = [i for i in opp.hand + opp.discard + ctx.in_play(opp) if is_suit(i, "Person")]
+        person = yield from actions.pick_card("Moopsy: log one of your Persons (hand, Discard pile or play).", people,
+                                              seat=opp.seat)
+        if person:
+            yield from actions.log(person)

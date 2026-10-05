@@ -1,5 +1,5 @@
 """2PER12 Malik (Person). Spec: resources/scans/to_boldly_go/cards/person/2PER12.md
-The attack PLAY arrives in Step 4 and the Skill-icon PASSIVE in Step 5."""
+The Skill-icon PASSIVE arrives in Step 5."""
 
 from engine.cards import operation
 from engine.ops import A, DiscardFromHand, LogFromHand
@@ -21,3 +21,11 @@ def augment_program(ctx, actions):
 def aggression(ctx, actions):
     """REACTION: After putting an Attack into play (including this), discard a card to gain an [Action]."""
     yield from actions.gain_action(1)
+
+
+@operation("2PER12", 0, uses=[A.DISCARD, A.ATTACK, A.STEAL],
+           cost=[DiscardFromHand(1, lambda ctx, i: has_trait(i, "Weapon"), "a Weapon")])
+def augment_strike(ctx, actions):
+    """ATTACK PLAY: Discard a Weapon to steal 1 [Glory]."""
+    if (yield from actions.attack()):
+        yield from actions.steal("glory", 1)

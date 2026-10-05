@@ -1,5 +1,4 @@
-"""3PER13 Parmen (Person). Spec: resources/scans/second_contact/cards/person/3PER13.md
-The attack PLAY arrives in Step 4."""
+"""3PER13 Parmen (Person). Spec: resources/scans/second_contact/cards/person/3PER13.md"""
 
 from engine.cards import operation
 from engine.ops import A, DiscardFromHand
@@ -24,3 +23,17 @@ def compel(ctx, actions):
     gained = ctx.event_card
     if gained is not None and actions.free_play_candidates(lambda i: i is gained, cards=[gained]):
         yield from actions.free_play(gained)
+
+
+@operation("3PER13", 0, uses=[A.FIND, A.ATTACK, A.EXHAUST])
+def mind_control(ctx, actions):
+    """ATTACK PLAY: Find any card in your Draw deck. Exhaust an opponent Duty Officer and their Captain."""
+    yield from actions.find(lambda i: True, "any card in your Draw deck", zones_=("draw",))
+    opp = ctx.opponent
+    if (yield from actions.attack()) and opp is not None:
+        officer = yield from actions.pick_card("Exhaust which opponent Duty Officer?",
+                                               [i for i in opp.duty if not i.exhausted])
+        if officer:
+            yield from actions.exhaust(officer)
+        if not opp.captain.exhausted:
+            yield from actions.exhaust(opp.captain)

@@ -16,11 +16,12 @@ def attack_duty_officers(ctx, actions):
         own = yield from actions.pick_card("Dismiss one of your Duty Officers.", list(ctx.me.duty))
         yield from actions.dismiss(own)
     opp = ctx.opponent
+    if not (yield from actions.attack()):
+        return
     if opp is None or not opp.duty:
         # Cadet Training: the virtual opponent has a Duty Officer and chooses to log it, so nothing happens
         # for you (REQ-CTM-12; ruling assumed, see OPEN_QUESTIONS.md).
         return
-    actions.attack()
     choice = yield from actions.choose(
         "Cmdr. Burnham attacks: log one of your Duty Officers, or dismiss one and your opponent gains 3 Glory?",
         [("log", "Log a Duty Officer"), ("dismiss", "Dismiss a Duty Officer (opponent gains 3 Glory)")], seat=opp.seat)

@@ -33,16 +33,14 @@ def security(ctx, actions):
         yield from actions.refresh(ship)
     opp = ctx.opponent
     if opp is None:
-        return
+        return  # Cadet: the virtual opponent's Away Teams cannot be removed for any benefit
     directives = ctx.count_in_play(lambda i: is_suit(i, "Directive"))
-    attacked = False
     for _ in range(directives):
         targets = [loc for loc in ctx.all_locations() if ctx.ships_at(loc) and ctx.away_at(loc, opp) > 0]
         loc = yield from actions.pick_card("Remove an opponent Away Team from which Location?", targets,
                                            optional=True, none_label="Stop")
         if not loc:
             break
-        if not attacked:
-            actions.attack()
-            attacked = True
+        if not (yield from actions.attack(removes_away_teams=True)):
+            break
         yield from actions.remove_away_team(loc, opp)

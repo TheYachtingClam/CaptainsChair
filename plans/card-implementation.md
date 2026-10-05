@@ -73,7 +73,7 @@ New actions: `PLACE_RESOURCES`, `MOVE_RESOURCES` and `TRIGGER_CONTROL`. Also the
 
 **You test:** use Horta's Reaction after gaining Dilithium. Place Dilithium on Kaelon and watch it move to the Market at Clean-up.
 
-## Step 4: Attacks done properly
+## Step 4: Attacks done properly (done)
 
 - **The attack check:** an attack asks the defender whether to use a "when you would be attacked" Reaction, such as Riva or Phasers. If they use one, the negative effect is skipped (KW-ATK-03).
 - **The "you were attacked" event,** for Admiral Jarok.

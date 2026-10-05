@@ -45,6 +45,8 @@ DUTY_LIMIT: dict[str, int] = {}  # extra Duty Officers allowed while this card i
 SKILLS: dict[str, Callable[["GameState", "Player", "Inst"], list[str]]] = {}  # replaces "Variable" icons
 SCANS_INCLUDE_JUNK: set[str] = set()
 STATE_CHECKS: dict[str, Callable[["GameState", "Player", "Inst"], bool]] = {}  # True = dismiss the card
+# SPECIAL: while this card is in its owner's play (not beamed), the opponent cannot use REACTIONs on the owner's turn.
+NO_OPPONENT_REACTIONS: set[str] = set()
 # Resources a player gains when this card is dismissed, instead of the usual return to the supply (R.I.S. Talvath).
 DISMISS_REWARDS: dict[str, Callable[["GameState", "Player", "Inst"], dict[str, int]]] = {}
 

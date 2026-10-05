@@ -1,5 +1,4 @@
-"""2CAR14 Phasers (Cargo). Spec: resources/scans/to_boldly_go/cards/cargo/2CAR14.md
-The Reaction against attacks arrives in Step 4."""
+"""2CAR14 Phasers (Cargo). Spec: resources/scans/to_boldly_go/cards/cargo/2CAR14.md"""
 
 from engine.cards import operation
 from engine.ops import A, Spend
@@ -21,3 +20,13 @@ def ready(ctx, actions):
     yield from actions.gain_action(1)
     yield from actions.junk()
     yield from actions.deploy(ctx.this_card)
+
+
+@operation("2CAR14", 2, uses=[A.DISMISS],
+           trigger=lambda ctx, ev: ev["kind"] == "would_attack" and ev["seat"] == ctx.me.seat
+           and ev.get("removes_away_teams"))
+def stun(ctx, actions):
+    """REACTION: When you would be forced by an attack to remove 1 or more [Away Team], dismiss this card to ignore
+    the negative effect."""
+    yield from actions.dismiss(ctx.this_card)
+    return True

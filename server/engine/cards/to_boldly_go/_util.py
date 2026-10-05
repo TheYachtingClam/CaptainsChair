@@ -92,3 +92,15 @@ def deploy_and_warp_this(ctx, actions):
     yield from actions.deploy(ctx.this_card)
     if ctx.this_card in ctx.me.fleet:
         yield from actions.warp(ctx.this_card)
+
+
+def virtual(ctx: Ctx) -> bool:
+    """Cadet Training: the opponent is the virtual opponent with one of everything (REQ-CTM-12)."""
+    return ctx.opponent is None and ctx.virtual_opponent
+
+
+def opponent_has(ctx: Ctx, pred) -> bool:
+    """Whether the opponent has a matching card in play. The virtual opponent has one of everything."""
+    if ctx.opponent is None:
+        return ctx.virtual_opponent
+    return ctx.count_in_play(pred, ctx.opponent) > 0

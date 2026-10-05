@@ -117,7 +117,8 @@ def _process_event(state: GameState) -> None:
                 continue
             if op.kind == "PASSIVE":
                 mandatory.append(ref)
-            elif not inst.exhausted and all(c.can_pay(ctx) for c in impl.costs):
+            elif (not inst.exhausted and all(c.can_pay(ctx) for c in impl.costs)
+                  and not ops.reactions_blocked(state, seat)):
                 optional.append(ref)
     state.op_queue.extend(mandatory)
     if optional:

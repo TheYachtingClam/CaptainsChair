@@ -57,6 +57,8 @@ NEEDS_OWN_SETUP = {
     ("2CAR02", 1),  # Borg-only: can never be played (KW-DRONE-01)
     ("2PER08", 1),  # needs a Ship with 2 Ships beamed to it
     ("3SHI01", 3),  # needs a Starfleet Person beamed to Fesarius
+    ("2PER03", 1),  # needs Klingon >= Starfleet in play
+    ("2PER21", 0),  # needs one of your Away Teams on a Location
 }
 
 
@@ -605,6 +607,11 @@ def _matching_event(s, cid, index):
                            for k in ("log", "take_incident", "return_incident", "exhaust")]
             if inst in p.fleet:
                 candidates.append({"kind": "warp", "seat": seat, "uid": inst.uid, "location": s.neutral[0].uid})
+        candidates.append({"kind": "attacked", "seat": seat, "uid": None, "attacker": 1 - seat})
+        candidates.append({"kind": "would_attack", "seat": seat, "uid": None, "attacker": 1 - seat,
+                           "removes_away_teams": True})
+        for inc in [i for i in p.hand if CARDS[i.card].suit == "Incident"]:
+            candidates.append({"kind": "would_return_incident", "seat": seat, "uid": inc.uid})
         for kind in ("dilithium", "latinum", "glory"):
             candidates.append({"kind": "gain_resource", "seat": seat, "uid": None, "resource": kind, "amount": 1})
         for loc in [*s.neutral, *p.locations]:
@@ -858,3 +865,170 @@ def test_gaining_a_market_card_with_dilithium_on_it():
     answer(s, "Discard pile")
     gained = next(i for i in me(s).discard if i.uid == ship.uid)
     assert me(s).dilithium == dil + 2 and not gained.res
+
+
+# --------------------------------------------------------------------------- Step 4: attacks
+
+
+def opp(s):
+    return s.players[1]
+
+
+def test_attack_counts_and_riva_ignores_it():
+    """Malik steals 1 Glory; with Riva on duty the defender may discard to ignore it and gain Glory."""
+    s = given(hand=["2PER12", "2CAR14"], opp={"glory": 4})
+    their = opp(s).glory
+    play(s, card(s, "2PER12", zone="hand"), 0)  # discard Phasers (the only Weapon) as the cost
+    assert opp(s).glory == their - 1 and me(s).glory == 2
+    s = given(hand=["2PER12", "2CAR14"], opp={"glory": 4, "duty": ["2PER16"], "hand": ["2PER15"]})
+    their = opp(s).glory
+    play(s, card(s, "2PER12", zone="hand"), 0)
+    assert s.decision.seat == 1 and "Riva" in options(s)[0]
+    answer(s, "Use Riva")
+    answer(s, "Rillak")  # Ambassador shares 1 trait with Riva
+    assert opp(s).glory == their + 1 and me(s).glory == 1
+
+
+def test_jarok_gains_glory_after_being_attacked():
+    s = given(hand=["2PER12", "2CAR14"], opp={"duty": ["2PER01"], "glory": 2})
+    their = opp(s).glory
+    play(s, card(s, "2PER12", zone="hand"), 0)
+    assert s.decision.kind == "trigger" and s.decision.seat == 1
+    answer(s, "Use")
+    answer(s, "No")
+    assert opp(s).glory == their - 1 + 1
+
+
+def test_pasalk_blocks_opponent_reactions_on_your_turn():
+    s = given(hand=["2PER12", "2CAR14"], staging=["2PER26"], opp={"duty": ["2PER16"], "hand": ["2PER15"], "glory": 2})
+    their = opp(s).glory
+    play(s, card(s, "2PER12", zone="hand"), 0)
+    assert s.decision.kind == "action" and opp(s).glory == their - 1  # no Riva offer, the steal happens
+
+
+def test_pasalk_repeats_against_an_augment():
+    s = given(hand=["2PER26"], opp={"staging": ["2PER12"]})
+    hand = len(opp(s).hand)
+    glory = me(s).glory
+    play(s, card(s, "2PER26", zone="hand"), 0)
+    while s.decision.kind == "op":
+        answer(s, "")
+    assert len(opp(s).hand) == hand - 2 and me(s).glory == glory + 1
+
+
+def test_gral_gives_an_incident_instead_of_returning_it():
+    s = given(hand=["2GEO23", "2CAR14"], duty=["2PER02"])  # Hostile Contact returns itself
+    hc = card(s, "2GEO23", zone="hand")
+    play(s, hc, 0)
+    answer(s, "Phasers")  # discard cost
+    assert "Ambassador Gral" in options(s)[0]
+    answer(s, "Use")
+    assert any(i.uid == hc.uid for i in opp(s).hand)
+
+
+def test_phasers_ignore_away_team_removal():
+    s = given(hand=["2CAR17", "2PER10"], opp={"fleet": ["2CAR14"]})
+    loc = s.neutral[0]
+    loc.away[1] = 2
+    play(s, card(s, "2CAR17", zone="hand"), 0)
+    answer(s, "")  # junk
+    answer(s, "Yes")
+    assert "Phasers" in options(s)[0] and s.decision.seat == 1
+    answer(s, "Use")
+    assert loc.uid and next(l for l in s.neutral if l.uid == loc.uid).away[1] == 2
+
+
+def test_disruptor_pistols_remove_two_for_two_glory():
+    s = given(hand=["2CAR17", "2PER10"])
+    s.neutral[0].away[1] = 2
+    glory = me(s).glory
+    play(s, card(s, "2CAR17", zone="hand"), 0)
+    answer(s, "")
+    answer(s, "Yes")
+    answer(s, "Yes")  # remove the second one too
+    assert me(s).glory == glory + 2 and not s.neutral[0].away.get(1)
+
+
+def test_ash_tyler_dismisses_an_opponent_duty_officer():
+    # Georgiou's Captain and the Shenzhou are Starfleet, so three Klingons are needed.
+    s = given(hand=["2PER03"], staging=["2PER10", "2ALL01", "2ALL01"], opp={"duty": ["2SOV05"]})
+    glory = me(s).glory
+    play(s, card(s, "2PER03", zone="hand"), 1)
+    answer(s, "No")
+    assert not opp(s).duty and me(s).glory == glory + 2
+
+
+def test_talok_opponent_takes_an_incident():
+    s = given(hand=["2PER21"])
+    s.neutral[0].away[0] = 1
+    from engine.game import advance
+
+    s.decision = None
+    advance(s, flag_irreversible=False)
+    hand = len(opp(s).hand)
+    play(s, card(s, "2PER21", zone="hand"), 0)
+    answer(s, "faceup") if "faceup" in " ".join(options(s)) else None
+    while s.decision.kind == "op":
+        answer(s, "")
+    assert len(opp(s).hand) == hand + 1
+
+
+def test_harry_mudd_forces_a_log_or_an_incident():
+    s = given(hand=["2PER06"], tracks={"influence": 3}, opp={"hand": []})
+    opp(s).hand.clear()
+    opp(s).discard.clear()
+    from engine.game import advance
+
+    s.decision = None
+    advance(s, flag_irreversible=False)
+    play(s, card(s, "2PER06", zone="hand"), 0)
+    answer(s, "No")  # don't promote
+    assert len(opp(s).hand) == 1 and CARDS[opp(s).hand[0].card].suit == "Incident"
+
+
+def test_tellarites_give_an_incident():
+    s = given(hand=["2ALL13", "2INC01"])
+    play(s, card(s, "2ALL13", zone="hand"), 0)
+    assert any(i.card == "2INC01" for i in opp(s).hand)
+
+
+def test_computer_virus_with_no_beamed_cards_gives_an_incident():
+    s = given(hand=["2CAR04"])
+    hand = len(opp(s).hand)
+    play(s, card(s, "2CAR04", zone="hand"), 0)
+    assert len(opp(s).hand) == hand + 1
+
+
+def test_computer_virus_logs_itself_when_opponent_plays_an_engineer():
+    s = given(fleet=["2CAR04"], opp={"hand": ["2PER17"]})
+    choose_end(s)
+    run_to_action_for(s, 1)
+    glory = me(s).glory
+    play(s, card(s, "2PER17", seat=1, zone="hand"), 0)
+    while s.decision.kind == "op":
+        answer(s, "No")
+    run_to_action_for(s, 1)
+    assert me(s).log[-1].card == "2CAR04" and me(s).glory == glory + 1
+
+
+def test_lirpa_with_no_opponent_duty_officer_still_draws_for_vulcans():
+    s = given(hand=["2CAR11"], staging=["2GEO04"], empty_hand=True)  # Sarek is Vulcan
+    opp(s).duty.clear()
+    play(s, card(s, "2CAR11", zone="hand"), 0)
+    assert len(me(s).hand) == 1
+
+
+def test_steal_in_cadet_takes_one_from_the_supply():
+    s = given(hand=["2PER12", "2CAR14"], mode="cadet")
+    play(s, card(s, "2PER12", zone="hand"), 0)
+    assert me(s).glory == 2
+
+
+def test_cadet_disruptor_removes_one_virtual_team():
+    s = given(hand=["2CAR17", "2PER10"], mode="cadet")
+    glory = me(s).glory
+    play(s, card(s, "2CAR17", zone="hand"), 0)
+    answer(s, "")
+    answer(s, "Yes")
+    answer(s, "")
+    assert me(s).glory == glory + 1

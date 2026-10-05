@@ -1,5 +1,4 @@
-"""2CAR01 Augmentation Plague (Cargo). Spec: resources/scans/to_boldly_go/cards/cargo/2CAR01.md
-The attack Reaction (opponent puts a Klingon into play) arrives in Step 4."""
+"""2CAR01 Augmentation Plague (Cargo). Spec: resources/scans/to_boldly_go/cards/cargo/2CAR01.md"""
 
 from engine.cards import operation
 from engine.ops import A, Spend
@@ -24,3 +23,12 @@ def outbreak(ctx, actions):
 def klingon_glory(ctx, actions):
     """REACTION: After putting a Klingon into play, gain 1 [Glory]."""
     yield from actions.gain_resource("glory", 1)
+
+
+@operation("2CAR01", 1, uses=[A.ATTACK, A.FORCE, A.DISCARD],
+           trigger=lambda ctx, ev: ev["kind"] == "put_into_play" and ev["seat"] != ctx.me.seat
+           and ctx.event_card is not None and has_trait(ctx.event_card, "Klingon"))
+def infect(ctx, actions):
+    """ATTACK REACTION: After your opponent puts a Klingon into play force them to discard a card."""
+    if (yield from actions.attack()) and ctx.opponent is not None:
+        yield from actions.discard(1, player=ctx.opponent)
