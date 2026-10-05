@@ -255,5 +255,6 @@ Automated Command rows use the same action names. In a Bot context the engine su
   - every printed operation has a function;
   - every `uses` list contains only actions from the action list;
   - card modules import only the allowed modules.
+  - every printed operation and mission has code (`engine.cards.has_code`, `tests/test_registry.py`), except Khan's deck (on hold) and the solo-only cards that wait for the Bot.
 - The engine enforces `uses` at runtime too. A test must fail if an operation calls an action it did not declare.
 - Each acceptance scenario in `requirements/18-acceptance-scenarios.md`, `21-expansion-second-contact.md` §8 and `22-solo-mode.md` §13 has an engine test.

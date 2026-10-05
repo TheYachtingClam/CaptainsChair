@@ -252,6 +252,28 @@ def dismiss_rewards(card_ids):
     return register
 
 
+# Registries that hold continuous PASSIVE and SPECIAL effects: a card listed in any of them has code for those.
+def _passive_registries():
+    return (HAND_SIZE, DUTY_LIMIT, SKILLS, SCANS_INCLUDE_JUNK, STATE_CHECKS, DISMISS_REWARDS, NO_OPPONENT_REACTIONS,
+            DUTY_SLOTS, RESTRICTIONS, TRAIT_MODIFIERS, ALSO_SUIT, INCIDENTS_FROM_JUNK, CANNOT_PROMOTE, CANNOT_LOG,
+            VP_SPECIAL, WARP_DESTINATIONS, PROTECTED_BEAMED, SKILL_REWRITES, INCIDENTS_FROM_LOG, DECK_FACE_UP,
+            SHIP_WEIGHT, RESOURCES_INTERCHANGEABLE, {source for source, _, _ in GRANTED_PLAYS.values()})
+
+
+def has_code(card_id: str, index: int, kind: str) -> bool:
+    """Whether a printed operation has code: a registered operation, development cost, ENDGAME, or (for PASSIVE and
+    SPECIAL) an entry in a modifier registry. Used by scripts/card_coverage.py and the registry test."""
+    if (card_id, index) in OPS:
+        return True
+    if kind == "DEVELOPMENT COST":
+        return card_id in DEV_COSTS
+    if kind == "ENDGAME":
+        return card_id in ENDGAME
+    if kind in ("PASSIVE", "SPECIAL"):
+        return any(card_id in reg for reg in _passive_registries())
+    return False
+
+
 def load_all() -> None:
     """Import every card module so its registrations run."""
     for setpkg in pkgutil.iter_modules(__path__):

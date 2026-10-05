@@ -2101,7 +2101,9 @@ def _legal(state: GameState, player: Player, inst: Inst, index: int, *, free: bo
     if index in registry.GRANTED_PLAYS and index not in granted_indexes(player, inst):
         return False
     if impl is None:
-        return True  # placeholder operation
+        # Placeholder: only Khan's cards still lack code (plans/card-implementation.md Step 18 is on hold). They stay
+        # playable so a Khan game can run; their effects are skipped with a note.
+        return card(inst).deck == "khan"
     ctx = Ctx(state, OpRef(mode="play", seat=player.seat, uid=inst.uid, index=index))
     if op.action_cost and not free and player.actions <= 0:
         return False
@@ -2144,10 +2146,9 @@ def play_inline(ctx: Ctx, inst: Inst, *, free: bool, parent: Actions | None = No
         yield from impl.fn(sub, actions)
         if op.attack and actions._attack is None:
             yield from actions._attack_check()  # an ATTACK operation always counts as an attack (KW-ATK-01)
-    where = locate(state, inst.uid)
-    if where is not None and where.zone not in ("hand", "draw", "discard", "reserve", "log"):
-        # Not when the effect moved the card away again, e.g. Hostile Contact returning itself.
-        put_into_play(state, ctx.me, inst, played=True, index=index)
+    # KW-PIP-01: a played card is put into play right after its PLAY resolves, even if the PLAY moved it away again
+    # (AS-16: Bynars logs itself and V'Lar's "after putting an Ally into play" still triggers).
+    put_into_play(state, ctx.me, inst, played=True, index=index)
     return inst
 
 

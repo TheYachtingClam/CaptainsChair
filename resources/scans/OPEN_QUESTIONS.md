@@ -12,6 +12,23 @@ Collected from the "Rulings and open questions" sections of every card, board an
 - **Attacks against the Cadet virtual opponent** (REQ-CTM-12): Implemented as: each attack works once against its "one of everything". Stealing takes 1 from the supply, removing Away Teams removes 1 (1 Glory for the Disruptor Pistols), and dismissing its Duty Officer still pays (2 Glory for Ash Tyler). Effects that only hurt it do nothing. Confirm.
 - **Wildcard choice** (REQ-TR-07): The rules let the owner decide each time whether a Wildcard counts as the trait. Implemented as: your own Wildcard always counts for your own effects, without a prompt. This only matters when counting hurts you, for example the Universal Translator dismissing your Alien Ships. Confirm, or ask for a prompt in those cases.
 
+## Rulings made while implementing the Crew decks
+
+Each is implemented as described. Confirm, or say which to change.
+
+- **Hemmer** (3PIK20): his Activation is offered only when you have a secured neutral Location to take, so he is never logged for nothing.
+- **Lt. Spock** (3PIK21): his RESUPPLY asks before exhausting him. The printed text has no "may", but the exhaust is the price of the effect.
+- **Starbase One** (3PIK03): the draw Activation is offered even with fewer than 2 Ships, as the spec has no requirement; it then draws nothing.
+- **William T. Riker** (3RIK01): his first Activation is offered only when a card in hand shares a suit with one in your Discard pile.
+- **Chateau Picard** (3RIK10): the second PLAY is offered only when there is an Incident to return. In Cadet Training its CLEAN-UP gives Glory only to you.
+- **Deanna Troi-Riker** (3RIK15): "Refresh your Captain" is offered only when the Captain is exhausted.
+- **U.S.S. Zheng He and Proximity Blast** (3RIK06, 3RIK07) in Cadet Training: the virtual opponent has no Ships at Locations (REQ-CTM-12), so their attacks do nothing.
+- **T88 Diagnostic Tool** (3FRE07): replaces only gains of a single suit; for "a Person or Ship" the "same suit" is unclear, so it is not offered.
+- **Kayshon and Shax** (3FRE09, 3FRE10) in Cadet Training: the virtual opponent counts as having 1 Spy, and an Away Team at every neutral Location.
+- **Rebelution** (2REB15): dismisses only your own Helmets, and not ones in your Staging Area, which cannot be dismissed (KW-DSM-04).
+- **Rebner's deck in Cadet Training**: the Clumpships draw 1 card for the virtual opponent's Ship but the forced log does nothing; Rumdar may dismiss its Spy for 1 Glory; Big Enough Helmet's cost has nobody to draw.
+- **Put into play after playing** (KW-PIP-01, AS-16): a played card now counts as put into play after its PLAY resolves even when the PLAY moved it away again (logged, returned, recalled). Before, cards that left play did not count. This is what the rulebook example (Bynars and V'Lar) needs.
+
 ## Gaps in the CLAUDE.md action list
 
 None. Every action named in the specs is in the CLAUDE.md action list.

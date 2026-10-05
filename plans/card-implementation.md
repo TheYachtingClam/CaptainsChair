@@ -171,16 +171,22 @@ Each step covers the deck's cards, development costs, Passives, ENDGAME, deck-sp
 15. Riker (done)
 16. Freeman (done), including the K'ranch, Boimler and Tendi SUPPORT chain test
 17. Rebner (done)
-18. Khan: marked traits, the double-sided Captain, his Incident rules, and his Cadet rules. Khan has two open questions to answer first.
+18. Khan: on hold. Marked traits, the double-sided Captain, his Incident rules, and his Cadet rules. Khan has two open questions to answer first, so his deck and missions are left out for now; his cards keep the "not implemented yet" placeholder.
 
 **You test:** play a Cadet game with the new deck, then a two-player game against Georgiou.
 
-## Step 19: Final sweep
+## Step 19: Final sweep (done, Khan excepted)
 
 - An engine test for every acceptance scenario AS-01 to AS-19 and the expansion and solo scenario lists that apply.
 - The registry test made strict: every card in the content has a module.
 - Remove the "not implemented yet" fallback.
 - Go through the leftover open questions.
+
+What was done: `server/tests/test_acceptance.py` covers AS-01 to AS-11, AS-13, AS-14, AS-16, AS-17 and AS-18 (AS-12 is in
+test_wildcard.py, AS-15 in test_missions.py, AS-19 in test_market_cards.py; the Second Contact SUPPORT chain in
+test_freeman.py). The solo scenarios wait for the Bot. `server/tests/test_registry.py` requires code for every printed
+operation and mission, except Khan's and the solo-only ones. The placeholder now applies to Khan's cards only. The open
+questions, with the rulings made during Steps 13 to 17, are in `resources/scans/OPEN_QUESTIONS.md`.
 
 ## Known rulings to settle when we reach them
 
@@ -193,4 +199,4 @@ These came out of the Market card specs. Each has a default I'd use if you have 
 
 ## Not in this plan: solo mode against the Bot
 
-Solo play against the Bot (requirements/22-solo-mode.md) is a separate project: the Bot's Automated Command cards, its deck, difficulty levels, and the Five-Year Mission campaign. `scripts/card_coverage.py` lists what waits for it under "Solo only (needs the Bot)": the solo Directives (Time Is Running Out, Reinforce) and every SURPRISE operation. It needs its own plan once the cards are done.
+Solo play against the Bot (requirements/22-solo-mode.md) is a separate project: the Bot's Automated Command cards, its deck, difficulty levels, and the Five-Year Mission campaign. `scripts/card_coverage.py` lists what waits for it under "Solo only (needs the Bot)": the solo Directives (Time Is Running Out, Reinforce) and every SURPRISE operation. Its plan is [solo-mode.md](solo-mode.md).

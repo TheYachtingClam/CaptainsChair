@@ -47,23 +47,7 @@ def group_of(card) -> str:
 
 
 def has_code(card_id: str, index: int, kind: str) -> bool:
-    if (card_id, index) in registry.OPS:
-        return True
-    if kind == "DEVELOPMENT COST":
-        return card_id in registry.DEV_COSTS
-    if kind == "ENDGAME":
-        return card_id in registry.ENDGAME
-    if kind in ("PASSIVE", "SPECIAL"):
-        return any(card_id in reg for reg in (registry.HAND_SIZE, registry.DUTY_LIMIT, registry.SKILLS,
-                                              registry.SCANS_INCLUDE_JUNK, registry.STATE_CHECKS,
-                                              registry.DISMISS_REWARDS, registry.NO_OPPONENT_REACTIONS,
-                                              registry.DUTY_SLOTS, registry.RESTRICTIONS, registry.TRAIT_MODIFIERS,
-                                              registry.ALSO_SUIT, registry.INCIDENTS_FROM_JUNK, registry.CANNOT_PROMOTE,
-                                              registry.VP_SPECIAL, registry.WARP_DESTINATIONS, registry.SKILL_REWRITES, registry.INCIDENTS_FROM_LOG, registry.DECK_FACE_UP,
-                                              registry.SHIP_WEIGHT, registry.RESOURCES_INTERCHANGEABLE, registry.CANNOT_LOG,
-                                              {s for s, _, _ in registry.GRANTED_PLAYS.values()},
-                                              registry.PROTECTED_BEAMED))
-    return False
+    return registry.has_code(card_id, index, kind)
 
 
 def main() -> int:
