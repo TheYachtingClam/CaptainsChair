@@ -23,7 +23,7 @@ def refit(ctx, actions):
 def inspection(ctx, actions):
     """ATTACK PLAY: Refresh a Starfleet and force your opponent to discard a card. If your opponent has an Augment in
     play, repeat this and gain 1 [Glory]."""
-    times = 2 if opponent_has(ctx, lambda i: has_trait(i, "Augment")) else 1
+    times = 2 if opponent_has(ctx, lambda i: "Augment" in ctx.traits(i)) else 1
     for _ in range(times):
         tired = [i for i in ctx.in_play(beamed=False) if i.exhausted and has_trait(i, "Starfleet")]
         card = yield from actions.pick_card("Refresh which Starfleet?", tired)

@@ -1,7 +1,6 @@
-"""3ALL02 Illyrians (Ally). Spec: resources/scans/second_contact/cards/ally/3ALL02.md
-The SPECIAL (two extra Duty Officers) arrives in Step 5."""
+"""3ALL02 Illyrians (Ally). Spec: resources/scans/second_contact/cards/ally/3ALL02.md"""
 
-from engine.cards import operation
+from engine.cards import duty_slots, operation
 from engine.ops import A, DiscardFromHand
 
 from ._util import count_traits, has_trait, is_suit
@@ -33,3 +32,10 @@ def colony(ctx, actions):
         yield from actions.gain_specialty("research", len(ctx.me.duty))
     if not count_traits(ctx, "Augment", exclude=ctx.this_card):
         yield from actions.log(ctx.this_card)
+
+
+@duty_slots("3ALL02", staging=True)
+def colony_officers(state, owner, inst):
+    """SPECIAL: While this card is in your Staging Area, you may have up to two additional Person on duty.
+    When it leaves at Clean-up, extra Duty Officers must be dismissed (KW-PROM-04)."""
+    return [None, None]

@@ -1,8 +1,7 @@
-"""2PER01 Admiral Jarok (Person). Spec: resources/scans/to_boldly_go/cards/person/2PER01.md
-The PASSIVE (restriction and extra Duty Officer) arrives in Step 5."""
+"""2PER01 Admiral Jarok (Person). Spec: resources/scans/to_boldly_go/cards/person/2PER01.md"""
 
-from engine.cards import operation
-from engine.ops import A
+from engine.cards import duty_slots, operation, restriction
+from engine.ops import A, traits_of
 
 
 @operation("2PER01", 0, uses=[A.DRAW, A.ENLIST_DEVELOPMENT], requires=lambda ctx: ctx.track("military") >= 3)
@@ -23,3 +22,15 @@ def counsel(ctx, actions):
                                         optional=True, none_label="No")
     if card:
         yield from actions.log(card)
+
+
+@restriction("2PER01")
+def no_attacks(state, owner, inst, target, verb):
+    """PASSIVE: You cannot play or promote cards with Attack."""
+    return verb in ("play", "promote") and "Attack" in traits_of(state, target)
+
+
+@duty_slots("2PER01")
+def starfleet_officer(state, owner, inst):
+    """PASSIVE: You may have an additional Person with Starfleet on duty (for the others, KW-PROM-04)."""
+    return ["Starfleet"]

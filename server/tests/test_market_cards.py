@@ -47,6 +47,12 @@ def finish(s, seed: int = 0, limit: int = 300) -> None:
     raise AssertionError(f"still answering after {limit} questions: {s.decision.prompt}")
 
 
+def table_position(card_id: str) -> dict:
+    """The generous position with the card in its table zone. A Person is the only Duty Officer (one slot)."""
+    zone = table_zone(card_id)
+    return {**RICH, zone: [card_id] if zone == "duty" else RICH[zone] + [card_id]}
+
+
 def table_zone(card_id: str) -> str:
     c = CARDS[card_id]
     return "duty" if c.suit == "Person" else "fleet"
@@ -69,15 +75,14 @@ def test_every_operation_runs(cid, index):
         s = given(**{**RICH, "hand": RICH["hand"] + [cid]})
         legal = can_play(s, card(s, cid, zone="hand"), index)
     else:
-        s = given(**{**RICH, table_zone(cid): RICH[table_zone(cid)] + [cid]})
+        s = given(**table_position(cid))
         legal = f"activate:{card(s, cid, zone=table_zone(cid)).uid}:{index}" in {o.id for o in s.decision.options}
     if (cid, index) in NEEDS_OWN_SETUP:
         assert not legal
         return
     assert legal, f"{cid} {index} {op.kind} is not available in the generous position"
     for seed in range(2):
-        trial = given(**({**RICH, "hand": RICH["hand"] + [cid]} if op.kind == "PLAY"
-                         else {**RICH, table_zone(cid): RICH[table_zone(cid)] + [cid]}))
+        trial = given(**({**RICH, "hand": RICH["hand"] + [cid]} if op.kind == "PLAY" else table_position(cid)))
         inst = card(trial, cid, zone="hand" if op.kind == "PLAY" else table_zone(cid))
         (play if op.kind == "PLAY" else activate)(trial, inst, index)
         finish(trial, seed)
@@ -640,7 +645,8 @@ def test_every_triggered_and_step_operation_runs(cid, index):
              "staging": ["2PER22", "2PER10", "2PER19", "2ALL11", "2CAR15"], "locations": ["2GEO19"],
              "fleet": RICH["fleet"] + ["2CAR05"], "tracks": {"research": 7, "influence": 7, "military": 7}}
     for seed in range(2):
-        s = given(**{**RICH, **extra, zone: (extra.get(zone) or RICH.get(zone, [])) + [cid]},
+        base = {**RICH, **extra}
+        s = given(**{**base, zone: [cid] if zone == "duty" else (base.get(zone) or []) + [cid]},
                   opp={"fleet": ["2SHI03"], "staging": ["2PER10"]})
         host = card(s, cid, zone=zone)
         card(s, "2SHI03", zone="fleet").beamed.append(s.new_inst("2PER07"))  # a beamed card, for recall effects
@@ -1032,3 +1038,101 @@ def test_cadet_disruptor_removes_one_virtual_team():
     answer(s, "Yes")
     answer(s, "")
     assert me(s).glory == glory + 1
+
+
+# --------------------------------------------------------------------------- Step 5: Duty Officer slots and modifiers
+
+
+def promote_with_illyrians(s, person_name):
+    """Play Illyrians (no action) to promote a Person from hand. Illyrians stays in the Staging Area."""
+    play(s, card(s, "3ALL02", zone="hand"), 0)
+    answer(s, person_name)
+
+
+def test_jarok_forbids_attack_cards():
+    s = given(hand=["2PER12", "2CAR14"], duty=["2PER01"])
+    malik = card(s, "2PER12", zone="hand")
+    assert not any(o.id.startswith(f"play:{malik.uid}") for o in s.decision.options)
+
+
+def test_jarok_extra_slot_is_for_a_starfleet_officer():
+    from engine.ops import duty_fits
+
+    s = given(duty=["2PER01"])
+    me_ = me(s)
+    reed = s.new_inst("2PER11")  # Starfleet
+    lursa = s.new_inst("2PER10")  # not Starfleet
+    assert duty_fits(s, me_, [*me_.duty, reed])
+    assert not duty_fits(s, me_, [*me_.duty, lursa])
+    # Jarok's own slot is for the others: a second Jarok cannot use the first's... but the first is not Starfleet,
+    # so with only Jarok and a non-Starfleet the extra slot stays empty.
+
+
+def test_promoting_beyond_the_limit_asks_which_to_dismiss():
+    s = given(hand=["3ALL02", "2PER10"], duty=["2PER11"], expansions=["second_contact"])
+    # Illyrians in the Staging Area adds two slots, so promoting Lursa fits.
+    promote_with_illyrians(s, "Lursa")
+    assert {i.card for i in me(s).duty} == {"2PER11", "2PER10"}
+    # When Illyrians leaves the Staging Area at Clean-up, one Duty Officer must be dismissed.
+    choose_end(s)
+    for _ in range(10):
+        if "too many Duty Officers" in s.decision.prompt:
+            break
+        from engine.game import choose
+
+        d = s.decision
+        choose(s, d.seat, {"discard": "done", "action": "end"}.get(d.kind, d.options[0].id), flag_irreversible=False)
+    assert "too many Duty Officers" in s.decision.prompt
+    answer(s, "Lursa")
+    assert [i.card for i in me(s).duty] == ["2PER11"]
+
+
+def test_forced_singularity_gives_a_second_slot_at_military_3():
+    from engine.ops import duty_fits
+
+    s = given(duty=["2PER11"], fleet=["2CAR06"], tracks={"military": 3})
+    two = [*me(s).duty, s.new_inst("2PER10")]
+    assert duty_fits(s, me(s), two)
+    me(s).tracks["military"] = 2
+    assert not duty_fits(s, me(s), two)
+
+
+def test_rillak_extra_slot_for_an_ambassador():
+    from engine.ops import duty_fits
+
+    s = given(duty=["2PER15"])
+    assert duty_fits(s, me(s), [*me(s).duty, s.new_inst("2PER16")])  # Riva is an Ambassador
+    assert not duty_fits(s, me(s), [*me(s).duty, s.new_inst("2PER10")])
+
+
+def test_malik_skills_follow_augments_and_protocol_12():
+    from engine.ops import Ctx
+    from engine.state import OpRef
+
+    s = given(duty=["2PER12"], staging=["2PER18"])  # Sarina Douglas is an Augment
+    malik = card(s, "2PER12", zone="duty")
+    ctx = Ctx(s, OpRef(mode="auto", seat=0))
+    assert ctx.skills(malik) == ["Military", "Military"]
+    s = given(duty=["2PER12"], staging=["3CAR03", "2PER14"], expansions=["second_contact"])  # Phlox: Doctor
+    ctx = Ctx(s, OpRef(mode="auto", seat=0))
+    assert ctx.skills(card(s, "2PER12", zone="duty")) == ["Military", "Military"]
+    assert "Augment" in ctx.traits(card(s, "2PER14", zone="staging"))
+
+
+def test_betazed_intelligence_raises_hand_size_for_the_draw():
+    s = given(hand=["3ALL01"], staging=["2PER16"], expansions=["second_contact"], empty_hand=True)
+    # Riva is an Ambassador; Georgiou's Captain is Starfleet: +2, so Betazed logs itself.
+    play(s, card(s, "3ALL01", zone="hand"), 0)
+    while s.decision.kind == "op":
+        answer(s, "")
+    choose_end(s)
+    from engine.game import choose
+
+    for _ in range(20):
+        d = s.decision
+        if d.kind == "discard":
+            choose(s, 0, "done", flag_irreversible=False)
+            break
+        choose(s, d.seat, d.options[0].id, flag_irreversible=False)
+    assert len(me(s).hand) == 7 and me(s).log[-1].card == "3ALL01"
+    assert me(s).hand_bonus == 0  # reset at the end of the turn

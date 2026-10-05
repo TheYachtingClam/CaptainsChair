@@ -87,7 +87,7 @@ Cards: every Market card with ATTACK, about 20, plus Riva, Phasers and Jarok's R
 
 **You test:** two browser windows, one per player. Attack from one and answer the forced choice in the other. With Riva on duty, ignore an attack.
 
-## Step 5: Duty Officer slots, restrictions and modifiers
+## Step 5: Duty Officer slots, restrictions and modifiers (done)
 
 - **Duty Officer slots** that only a certain trait may fill: Jarok for Starfleet, Rillak for Ambassador. Forced Singularity adds a slot only while you have 3 Military. Illyrians adds two slots from the Staging Area. A Duty Officer can't fill a slot it provides itself (KW-PROM-04).
 - **Too many Duty Officers:** you're asked to dismiss one, including when Illyrians leaves at Clean-up.
@@ -135,6 +135,12 @@ The mission engine:
 Goals and rewards for Georgiou's and Soval's board sides are included here. Each later Crew step adds its own.
 
 **You test:** meet Georgiou's goal and complete the mission from the Action Step menu.
+
+## Step 8b: Wildcard
+
+The engine has no Wildcard rules yet (REQ-TR-05 to -07, AS-12). A Wildcard card counts as any single trait of its owner's choice: when finding or discarding by trait, and for "different species" counts. An opponent's attack cannot force it to count, and it is not any other trait at final scoring (REQ-FS-11). Vadic's Splinter Group already gains the Wildcard trait (Step 5); this step makes the trait mean something. Several Crew decks have Wildcard cards, so it comes before the Crew decks.
+
+**You test:** discard a Wildcard card as an Engineer for Forced Singularity's Activation.
 
 ## Step 9: Common Incidents, Encounters and the two common Directives
 

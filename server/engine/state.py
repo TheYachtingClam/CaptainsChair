@@ -107,6 +107,7 @@ class Player(BaseModel):
     mission_tokens: int = 1
     missions_completed: list[str] = Field(default_factory=list)
     controls_this_turn: int = 0
+    hand_bonus: int = 0  # temporary hand size change until the end of this turn (Betazed Intelligence)
 
 
 class GameState(BaseModel):

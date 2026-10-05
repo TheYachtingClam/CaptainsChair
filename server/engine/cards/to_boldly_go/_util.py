@@ -47,8 +47,9 @@ def opponent_ships(ctx: Ctx):
 
 
 def count_traits(ctx: Ctx, *traits, player=None, beamed: bool = True, exclude=None) -> int:
-    """Cards in play (Staging Area and table, beamed too unless excluded) with any of the traits."""
-    return ctx.count_in_play(lambda i: has_trait(i, *traits) and i is not exclude, player, beamed=beamed)
+    """Cards in play (Staging Area and table, beamed too unless excluded) with any of the traits, counting "treated
+    as" traits such as Protocol 12's Augment Doctors."""
+    return ctx.count_in_play(lambda i: bool(ctx.traits(i) & set(traits)) and i is not exclude, player, beamed=beamed)
 
 
 def others_in_hand(ctx: Ctx, pred=None):

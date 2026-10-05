@@ -45,6 +45,15 @@ DUTY_LIMIT: dict[str, int] = {}  # extra Duty Officers allowed while this card i
 SKILLS: dict[str, Callable[["GameState", "Player", "Inst"], list[str]]] = {}  # replaces "Variable" icons
 SCANS_INCLUDE_JUNK: set[str] = set()
 STATE_CHECKS: dict[str, Callable[["GameState", "Player", "Inst"], bool]] = {}  # True = dismiss the card
+# Extra Duty Officer slots: fn(state, owner, inst) -> list of slots, each None (any Person) or a trait the officer
+# must have. From table positions, or from the Staging Area when registered with staging=True.
+DUTY_SLOTS: dict[str, tuple[Callable, bool]] = {}
+# Restrictions on the owner: fn(state, owner, inst, target, verb) -> True when `verb` ("play" or "promote") of `target`
+# is not allowed. Table positions only.
+RESTRICTIONS: dict[str, Callable] = {}
+# "Treated as": fn(state, owner, inst, target) -> extra traits for one of the owner's cards. Table positions, or the
+# Staging Area when registered with staging=True.
+TRAIT_MODIFIERS: dict[str, tuple[Callable, bool]] = {}
 # SPECIAL: while this card is in its owner's play (not beamed), the opponent cannot use REACTIONs on the owner's turn.
 NO_OPPONENT_REACTIONS: set[str] = set()
 # Resources a player gains when this card is dismissed, instead of the usual return to the supply (R.I.S. Talvath).
@@ -96,6 +105,39 @@ def state_check(card_ids):
     def register(fn):
         for cid in _ids(card_ids):
             STATE_CHECKS[cid] = fn
+        return fn
+
+    return register
+
+
+def duty_slots(card_ids, *, staging: bool = False):
+    """PASSIVE/SPECIAL "you may have an additional Person (with X) on duty"."""
+
+    def register(fn):
+        for cid in _ids(card_ids):
+            DUTY_SLOTS[cid] = (fn, staging)
+        return fn
+
+    return register
+
+
+def restriction(card_ids):
+    """PASSIVE "you cannot play or promote ..."."""
+
+    def register(fn):
+        for cid in _ids(card_ids):
+            RESTRICTIONS[cid] = fn
+        return fn
+
+    return register
+
+
+def trait_modifier(card_ids, *, staging: bool = False):
+    """PASSIVE/SPECIAL "... are additionally treated as [trait]" (KW-TREAT-02)."""
+
+    def register(fn):
+        for cid in _ids(card_ids):
+            TRAIT_MODIFIERS[cid] = (fn, staging)
         return fn
 
     return register

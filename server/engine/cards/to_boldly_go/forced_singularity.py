@@ -1,7 +1,6 @@
-"""2CAR06 Forced Singularity (Cargo). Spec: resources/scans/to_boldly_go/cards/cargo/2CAR06.md
-The extra Duty Officer PASSIVE arrives in Step 5."""
+"""2CAR06 Forced Singularity (Cargo). Spec: resources/scans/to_boldly_go/cards/cargo/2CAR06.md"""
 
-from engine.cards import operation
+from engine.cards import duty_slots, operation
 from engine.ops import A, DiscardFromHand, Spend
 
 from ._util import has_trait, others_in_hand
@@ -28,3 +27,9 @@ def engineering(ctx, actions):
     if drawn:
         card = yield from actions.pick_card("Put which drawn card on top of your deck?", drawn)
         yield from actions.put_on_deck(card)
+
+
+@duty_slots("2CAR06")
+def extra_officer(state, owner, inst):
+    """PASSIVE: Requires [Military] 3. You may have an additional Person on duty."""
+    return [None] if owner.tracks["military"] >= 3 else []

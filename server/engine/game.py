@@ -84,6 +84,8 @@ def _advance_untracked(state: GameState) -> None:
             _ask_offer(state)
         elif state.pending_events:
             _process_event(state)
+        elif (over := ops.over_duty_limit(state)) is not None:
+            state.op_queue.append(ops.OpRef(mode="system", seat=over.seat, system="duty_trim"))  # KW-PROM-04
         else:
             STEPS[state.step](state)
 
@@ -168,7 +170,7 @@ def hand_size(state: GameState, player: Player) -> int:
         modifier = card_code.HAND_SIZE.get(inst.card)
         if modifier:
             size = modifier(state, player, size)
-    return size
+    return max(0, size + player.hand_bonus)
 
 
 def table_cards(player: Player) -> list[Inst]:
@@ -541,6 +543,8 @@ def handle_discard(state: GameState, player: Player, option: str) -> None:
 
 def end_turn(state: GameState) -> None:
     state.emit(f"{state.player(state.active).name} ends their turn.", irreversible=True)
+    for p in state.players:
+        p.hand_bonus = 0
     if state.last_turn is not None and state.turn >= state.last_turn:
         from engine.scoring import score_game
 

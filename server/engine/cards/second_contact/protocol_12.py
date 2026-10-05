@@ -1,8 +1,7 @@
-"""3CAR03 Protocol 12 (Cargo). Spec: resources/scans/second_contact/cards/cargo/3CAR03.md
-The SPECIAL (Doctors treated as Augment) arrives in Step 5."""
+"""3CAR03 Protocol 12 (Cargo). Spec: resources/scans/second_contact/cards/cargo/3CAR03.md"""
 
-from engine.cards import operation
-from engine.ops import A, LogFromHand, TakeIncidentCost
+from engine.cards import operation, trait_modifier
+from engine.ops import A, LogFromHand, TakeIncidentCost, card
 
 from ._util import count_traits, is_suit
 
@@ -29,3 +28,10 @@ def classified(ctx, actions):
     """PLAY: Take an Incident and log a Person/Directive from your hand or in play to gain 1 [Military]."""
     yield from actions.gain_specialty("military", 1)
 
+
+@trait_modifier("3CAR03", staging=True)
+def augmented_doctors(state, owner, inst, target):
+    """SPECIAL: While this card is in your Staging Area, all of your Person with Doctor are additionally treated as
+    Augment."""
+    c = card(target)
+    return {"Augment"} if c.suit == "Person" and "Doctor" in c.traits else set()

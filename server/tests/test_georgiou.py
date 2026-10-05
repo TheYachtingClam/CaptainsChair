@@ -241,8 +241,8 @@ def test_burnham_attack_lets_opponent_choose():
 
 def test_danby_logs_himself_with_three_starfleet():
     s = at_action()
-    for cid in ("2GEO12", "2GEO21"):
-        me(s).duty.append(s.new_inst(cid))
+    me(s).duty.append(s.new_inst("2GEO12"))
+    me(s).staging.append(s.new_inst("2GEO21"))  # in play too; one Duty Officer slot
     danby = give(s, "2GEO20")
     play(s, danby, 0)
     assert me(s).tracks["military"] == 3

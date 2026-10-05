@@ -86,7 +86,7 @@ This section is mandatory for every card. It also applies to everything else wit
 |---|---|---|
 | PLAY, ACTIVATION, CONTROL, RESUPPLY, CLEAN-UP, SPECIAL, SURPRISE, SUPPORT | `@operation(ids, index, ...)` generator `fn(ctx, actions)` | ACTIVATION and REACTION exhaust automatically. Do not declare exhaust as a cost |
 | REACTION, triggered PASSIVE, SUPPORT | The same, plus `trigger=lambda ctx, event: bool` | Events are dicts with `kind`, `seat` (whose event it is) and `uid` (the card, which `ctx.event_card` finds). Kinds: `put_into_play` (`played` when by playing it), `deploy`, `warp` (`location`), `gain` (`to`: hand, top or discard), `gain_resource` (`resource`, `amount`; not on stealing), `gain_specialty`, `log` (`by`: who logged it), `send_away_team` (`location`, `controlled`, `neutral`), `take_incident` (also when given one), `return_incident`, `exhaust` and `attacked` (`attacker`). "When … would" Reactions see `would_attack` (`removes_away_teams`) and `would_return_incident`; their function returns True when it replaced or cancelled the event. Triggered PASSIVEs are mandatory. REACTION and SUPPORT are offered to the player. Both work only from table positions |
-| Continuous PASSIVE | A registry decorator: `@hand_size_modifier`, `@skill_icons`, `DUTY_LIMIT[id] = n`, `SCANS_INCLUDE_JUNK.add(id)`, `@state_check`, `@dismiss_rewards` (resources gained when the card is dismissed) | No actions. Applies only while the card is in a table position |
+| Continuous PASSIVE | A registry decorator: `@hand_size_modifier`, `@skill_icons`, `DUTY_LIMIT[id] = n`, `SCANS_INCLUDE_JUNK.add(id)`, `@state_check`, `@dismiss_rewards` (resources gained when the card is dismissed), `@duty_slots` (extra Duty Officer slots, optionally for one trait), `@restriction` ("you cannot play or promote"), `@trait_modifier` ("treated as"). Pass `staging=True` for a SPECIAL that works from the Staging Area | No actions. Applies only while the card is in a table position |
 | ENDGAME | `@endgame(ids)` function `score(state, player) -> int` | No actions. Queries only |
 | Mission GOAL | `goal(ctx) -> bool` | Not implemented yet. Queries only. The REWARD is a normal generator |
 | Development cost | `development_cost(ids, *costs)` in the card's module | Resources and side effects such as "take an Incident". A Development without one cannot be enlisted |
@@ -201,6 +201,7 @@ These are the only actions card code may call. Each maps to a keyword in `requir
 | `MOVE_RESOURCES` | Move own resources onto a card | KW-MOVE | No |
 | `STEAL` | Take resources from the opponent | KW-STEAL | No |
 | `GAIN_ACTION` | Gain an extra action this turn | KW-ACT | No |
+| `ADJUST_HAND_SIZE` | Change your hand size until the end of this turn (Betazed Intelligence). It resets when the turn ends | — | No |
 | `GAIN_SPECIALTY` | Move a Specialty track. Positive amounts advance it; a negative amount moves it back (Dak'Rah's "lose 1 Military"), never below 0. The highest multiplier already reached is kept (REQ-SP-04) | REQ-SP-02 | No |
 | `REMOVE_STARDATE_GLORY` | Remove Glory from the current Stardate card and return it to the supply (Kirk's and Pike's missions). If this empties the card, it is emptied as normal (REQ-SD-02) | REQ-SD-02 | No |
 

@@ -47,6 +47,7 @@ class A:
     GAIN_SPECIALTY = "GAIN_SPECIALTY"; WARP = "WARP"; SEND_AWAY_TEAM = "SEND_AWAY_TEAM"
     REMOVE_AWAY_TEAM = "REMOVE_AWAY_TEAM"; TAKE_CONTROL = "TAKE_CONTROL"; TRIGGER_CONTROL = "TRIGGER_CONTROL"
     EXHAUST = "EXHAUST"; REFRESH = "REFRESH"; FORCE = "FORCE"; ATTACK = "ATTACK"; MOVE_RESOURCES = "MOVE_RESOURCES"
+    ADJUST_HAND_SIZE = "ADJUST_HAND_SIZE"
 
 
 class UndeclaredActionError(RuntimeError):
@@ -208,7 +209,8 @@ class Ctx:
         return card(inst).suit
 
     def traits(self, inst: Inst) -> set[str]:
-        return set(card(inst).traits)
+        """Printed traits plus any "treated as" modifiers (KW-TREAT)."""
+        return traits_of(self.state, inst)
 
     def has(self, inst: Inst, trait: str) -> bool:
         return trait in self.traits(inst)
@@ -675,14 +677,22 @@ class Actions:
         if card(inst).suit != "Person":
             self.emit(f"{name(inst)} is not a Person, so it cannot be promoted.")  # KW-PROM-06
             return
+        if restricted(self.state, self.ctx.me, inst, "promote"):
+            self.emit(f"{name(inst)} cannot be promoted: a card in play forbids it.")
+            return
         where = take_out(self.state, inst)
         self.ctx.me.duty.append(inst)
         self.emit(f"{self.ctx.me.name} promotes {name(inst)} to Duty Officer.")
         if where.zone in ("hand", "discard"):
             put_into_play(self.state, self.ctx.me, inst)
-        limit = duty_limit(self.state, self.ctx.me)
-        while len(self.ctx.me.duty) > limit:
-            extra = yield from self.pick_card("You have too many Duty Officers. Dismiss one.", list(self.ctx.me.duty))
+        yield from self._trim_duty(self.ctx.me)
+
+    def _trim_duty(self, player: Player) -> Gen:
+        """KW-PROM-04: while a player has more Duty Officers than their slots allow, they dismiss one."""
+        while not duty_fits(self.state, player, player.duty):
+            fits = [i for i in player.duty if duty_fits(self.state, player, [d for d in player.duty if d is not i])]
+            extra = yield from self.pick_card("You have too many Duty Officers. Dismiss one.", fits or list(player.duty),
+                                              seat=player.seat)
             self._dismiss(extra)
 
     def deploy(self, inst: Inst) -> Gen:
@@ -1040,6 +1050,14 @@ class Actions:
         self.emit(f"{self.ctx.me.name} triggers the CONTROL operation of {name(loc)}.")
         yield from run_inline(self.ctx, loc, "CONTROL")
 
+    def adjust_hand_size(self, n: int) -> Gen:
+        """Temporarily change your hand size until the end of this turn (Betazed Intelligence)."""
+        self._use(A.ADJUST_HAND_SIZE)
+        self.ctx.me.hand_bonus += n
+        self.emit(f"{self.ctx.me.name}'s hand size is {n:+d} this turn.")
+        return
+        yield  # pragma: no cover
+
     def gain_action(self, n: int = 1) -> Gen:
         self._use(A.GAIN_ACTION)
         self.ctx.me.actions += n
@@ -1318,8 +1336,67 @@ def reactions_blocked(state: GameState, seat: int) -> bool:
     return any(i.card in registry.NO_OPPONENT_REACTIONS for i in [*table_cards(active), *active.staging])
 
 
+def duty_slots(state: GameState, player: Player) -> list[tuple[str | None, str | None]]:
+    """Every Duty Officer slot: (trait the officer must have or None, uid of the card providing it or None)."""
+    slots: list[tuple[str | None, str | None]] = [(None, None)]  # the normal limit of 1 (KW-PROM-04)
+    for inst in table_cards(player):
+        slots += [(None, inst.uid)] * registry.DUTY_LIMIT.get(inst.card, 0)
+    for inst, from_staging in [*((i, False) for i in table_cards(player)), *((i, True) for i in player.staging)]:
+        entry = registry.DUTY_SLOTS.get(inst.card)
+        if entry and entry[1] == from_staging:
+            slots += [(trait, inst.uid) for trait in entry[0](state, player, inst)]
+    return slots
+
+
+def duty_fits(state: GameState, player: Player, officers: list[Inst]) -> bool:
+    """Whether the officers can all fill a slot. A card's extra slots are for the others, never itself (KW-PROM-04)."""
+    slots = duty_slots(state, player)
+    if len(officers) > len(slots):
+        return False
+    match: dict[int, Inst] = {}
+
+    def place(officer: Inst, seen: set[int]) -> bool:
+        for k, (trait, provider) in enumerate(slots):
+            if k in seen or provider == officer.uid or (trait and trait not in traits_of(state, officer)):
+                continue
+            seen.add(k)
+            if k not in match or place(match[k], seen):
+                match[k] = officer
+                return True
+        return False
+
+    return all(place(o, set()) for o in officers)
+
+
 def duty_limit(state: GameState, player: Player) -> int:
-    return 1 + sum(registry.DUTY_LIMIT.get(i.card, 0) for i in player.duty)
+    """The number of Duty Officer slots, ignoring trait limits (for display)."""
+    return len(duty_slots(state, player))
+
+
+def restricted(state: GameState, player: Player, target: Inst, verb: str) -> bool:
+    """Whether a restriction on the player (e.g. Admiral Jarok) forbids `verb` ("play"/"promote") of target."""
+    return any(registry.RESTRICTIONS[i.card](state, player, i, target, verb)
+               for i in table_cards(player) if i.card in registry.RESTRICTIONS)
+
+
+def traits_of(state: GameState, inst: Inst) -> set[str]:
+    """Printed traits plus "treated as" modifiers from the owner's cards (KW-TREAT-02)."""
+    traits = set(card(inst).traits)
+    if not registry.TRAIT_MODIFIERS:
+        return traits
+    where = locate(state, inst.uid)
+    owner = where.owner if where else None
+    if owner is None:
+        return traits
+    for source, from_staging in [*((i, False) for i in table_cards(owner)), *((i, True) for i in owner.staging)]:
+        entry = registry.TRAIT_MODIFIERS.get(source.card)
+        if entry and entry[1] == from_staging:
+            traits |= set(entry[0](state, owner, source, inst))
+    return traits
+
+
+def over_duty_limit(state: GameState) -> Player | None:
+    return next((p for p in state.players if not duty_fits(state, p, p.duty)), None)
 
 
 def raise_event(state: GameState, kind: str, seat: int, uid: str | None, **data) -> None:
@@ -1358,6 +1435,8 @@ def legal(state: GameState, player: Player, inst: Inst, index: int, *, free: boo
     if op.action_cost and not free and player.actions <= 0:
         return False
     if impl.requires and not impl.requires(ctx):
+        return False
+    if op.kind == "PLAY" and restricted(state, player, inst, "play"):
         return False
     return all(cost.can_pay(ctx) for cost in impl.costs)
 
@@ -1423,6 +1502,12 @@ def system(name_: str):
         return fn
 
     return register
+
+
+@system("duty_trim")
+def _duty_trim(ctx: Ctx, actions: Actions) -> Gen:
+    """A player has more Duty Officers than their slots allow, e.g. Illyrians left the Staging Area."""
+    yield from actions._trim_duty(ctx.me)
 
 
 @system("drawup")

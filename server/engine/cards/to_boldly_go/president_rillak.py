@@ -1,7 +1,6 @@
-"""2PER15 President Rillak (Person). Spec: resources/scans/to_boldly_go/cards/person/2PER15.md
-The extra Ambassador Duty Officer arrives in Step 5."""
+"""2PER15 President Rillak (Person). Spec: resources/scans/to_boldly_go/cards/person/2PER15.md"""
 
-from engine.cards import operation
+from engine.cards import duty_slots, operation
 from engine.ops import A
 
 from ._util import is_suit
@@ -32,3 +31,9 @@ def diplomacy(ctx, actions):
 def inspired(ctx, actions):
     """REACTION: After playing Utilize or Inspire, gain an [Action]."""
     yield from actions.gain_action(1)
+
+
+@duty_slots("2PER15")
+def ambassador_officer(state, owner, inst):
+    """PASSIVE: You may additionally have another Person with Ambassador on duty."""
+    return ["Ambassador"]
