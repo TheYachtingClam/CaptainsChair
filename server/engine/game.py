@@ -76,7 +76,17 @@ def _flag_irreversible(state: GameState) -> None:
 
 def _advance_untracked(state: GameState) -> None:
     """Run queued operations, then offered triggers, then trigger events, then the turn steps."""
-    while state.decision is None and state.step != "over":
+    while state.step != "over":
+        if state.decision is not None:
+            if state.player(state.decision.seat).bot is None:
+                break
+            # A human card put a choice to the Bot: it answers by the fixed rules (REQ-SOLO-112).
+            from engine import bot as bot_rules
+
+            option = bot_rules.answer(state)
+            decision, state.decision = state.decision, None
+            HANDLERS[decision.kind](state, state.player(decision.seat), option)
+            continue
         if state.op_queue:
             ops.start(state, state.op_queue.pop(0))
         elif state.offer is not None:
@@ -109,6 +119,8 @@ def _process_event(state: GameState) -> None:
 
 def _collect_triggers(state: GameState, seat: int, trigger_event: dict) -> None:
     player = state.player(seat)
+    if player.bot is not None:
+        return  # the Bot ignores the text on its cards, Reactions included (REQ-SOLO-80)
     mandatory, optional = [], []
     for inst in table_cards(player):
         for index, op in enumerate(card(inst).operations):
@@ -325,8 +337,12 @@ def take_incident(state: GameState, player: Player) -> Inst | None:
         burn(state)
         return None
     inst = state.incident.pop(0)
-    player.hand.append(inst)
-    state.emit(f"{player.name} takes an Incident.", seat=player.seat, irreversible=True)
+    if player.bot is not None:  # the Bot has no hand: a taken Incident goes on top of the Bot deck (REQ-SOLO-148)
+        player.draw.insert(0, inst)
+        state.emit(f"{player.name} takes an Incident onto the top of its deck.", seat=player.seat, irreversible=True)
+    else:
+        player.hand.append(inst)
+        state.emit(f"{player.name} takes an Incident.", seat=player.seat, irreversible=True)
     ops.raise_event(state, "take_incident", player.seat, inst.uid)
     if not state.incident:
         burn(state)
@@ -339,7 +355,10 @@ def burn(state: GameState) -> None:
 
     counts = {p.seat: incidents_owned(p) for p in state.players}
     state.emit("The Incident deck is empty. The Burn ends the game.")
-    if len(state.players) == 1:
+    bot = next((p for p in state.players if p.bot is not None), None)
+    if bot is not None:  # solo mode: the Burn is always a win for the Bot (REQ-SOLO-70)
+        state.result = {"reason": "burn", "winners": [bot.seat], "incidents": counts}
+    elif len(state.players) == 1:
         state.result = {"reason": "burn", "winners": [], "incidents": counts}
     elif len(set(counts.values())) == 1:
         state.result = {"reason": "burn-tie", **score_game(state)}
@@ -443,6 +462,10 @@ def step_start(state: GameState) -> None:
     player = state.player(state.active)
     player.controls_this_turn = 0
     state.emit(f"Turn {state.turn + 1}: {player.name}.", seat=player.seat)
+    if player.bot is not None:  # the Bot has no Resupply Step; its turn is run by engine/bot (REQ-SOLO-50)
+        state.step = "bot"
+        state.substep = "control"
+        return
     state.step = "resupply"
 
 
@@ -636,8 +659,15 @@ def step_over(state: GameState) -> None:  # pragma: no cover - advance() stops f
     pass
 
 
+def step_bot(state: GameState) -> None:
+    from engine import bot as bot_rules
+
+    bot_rules.step_bot(state)
+
+
 STEPS = {
     "start": step_start,
+    "bot": step_bot,
     "resupply": step_resupply,
     "control": step_control,
     "action": step_action,

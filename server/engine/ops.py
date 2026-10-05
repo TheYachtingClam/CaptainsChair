@@ -986,7 +986,7 @@ class Actions:
                 return None
             player = self.ctx.opponent
         taken = game.take_incident(self.state, player or self.ctx.me)
-        if taken is not None and to != "hand":
+        if taken is not None and to != "hand" and (player or self.ctx.me).bot is None:
             owner = player or self.ctx.me
             owner.hand.remove(taken)
             if to == "deck_bottom":
@@ -1745,6 +1745,8 @@ class Actions:
         A matching Reaction's function returns True when it replaced or cancelled the event. Returns True if one
         did. Reactions are not offered when an effect such as Pasalk blocks them (REQ-AS-31)."""
         player = self.state.player(seat)
+        if player.bot is not None:
+            return False  # the Bot ignores its card text, "when … would" Reactions included (REQ-SOLO-80)
         blocked = reactions_blocked(self.state, seat)
         while True:
             options: list[tuple[str, str]] = []
@@ -1817,7 +1819,10 @@ class Actions:
             self.emit(f"{self.ctx.me.name} gives {name(inst)} to the virtual opponent: it is returned.")
             gain(self.state, self.ctx.me, "glory", 1)
             return inst
-        opp.hand.append(inst)
+        if opp.bot is not None:  # the Bot has no hand: on top of the Bot deck (REQ-SOLO-148)
+            opp.draw.insert(0, inst)
+        else:
+            opp.hand.append(inst)
         self.state.emit(f"{self.ctx.me.name} gives {name(inst)} to {opp.name}.", irreversible=True)
         raise_event(self.state, "take_incident", opp.seat, inst.uid)
         return inst
@@ -1902,6 +1907,8 @@ def reactions_blocked(state: GameState, seat: int) -> bool:
 def duty_slots(state: GameState, player: Player) -> list[tuple[str | None, str | None]]:
     """Every Duty Officer slot: (trait the officer must have or None, uid of the card providing it or None)."""
     slots: list[tuple[str | None, str | None]] = [(None, None)]  # the normal limit of 1 (KW-PROM-04)
+    if player.bot is not None:
+        return slots  # the Bot has exactly one, whatever its cards say (REQ-SOLO-80, -92)
     for inst in table_cards(player):
         slots += [(None, inst.uid)] * registry.DUTY_LIMIT.get(inst.card, 0)
     for inst, from_staging in [*((i, False) for i in table_cards(player)), *((i, True) for i in player.staging)]:

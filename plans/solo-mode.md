@@ -72,7 +72,7 @@ These shape every step. Each has a recommended default, which I'll use unless yo
 
 ---
 
-## Step 1: A solo game with a placeholder Bot
+## Step 1: A solo game with a placeholder Bot (done)
 
 Everything except the Automated Command rows. The Bot plays real turns, but every card it resolves just goes to its Discard pile with a "no row yet" note.
 

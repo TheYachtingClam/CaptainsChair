@@ -130,8 +130,19 @@ def test_state_needs_a_seat_to_act(authed):
     assert authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}).status_code == 403
 
 
-def test_solo_not_available(authed):
-    assert create(authed, mode="solo").status_code == 422
+def test_solo_needs_an_available_bot(authed):
+    assert create(authed, mode="solo").status_code == 422  # no Bot chosen
+    assert create(authed, mode="solo", bot={"deck_id": "khan"}).status_code == 422  # waits with Khan
+    assert create(authed, mode="solo", bot={"deck_id": "riker"}).status_code == 422  # needs Second Contact
+
+
+def test_solo_game_starts_at_once_against_the_bot(authed):
+    r = create(authed, mode="solo", bot={"deck_id": "soval", "difficulty": "admiral", "ticking_clock": True})
+    assert r.status_code == 201
+    grant = r.json()
+    assert grant["game"]["status"] == "active" and grant["game"]["bot"]["difficulty"] == "admiral"
+    bots = {d["id"]: d["bot"] for d in authed.get("/api/content/decks").json()}
+    assert bots["soval"] and not bots["khan"]
 
 
 def test_card_text_endpoint(authed):

@@ -363,3 +363,14 @@ button.secondary { background: var(--bg); color: var(--text); border: 1px solid 
   box-shadow: 0 0 0 2px #5ee08a88, 0 0 12px 2px #5ee08a66;
 }
 .mission-button:hover { background: #276b44; }
+
+/* Solo mode: the Bot's Automated Command cards and labels */
+.bot-pill { background: #7a3db8; color: #fff; }
+.command-cards { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: flex-start; }
+.command-side { margin: 0; width: calc(var(--cw) * 1.1); font-size: 0.7rem; }
+.command-side img { width: 100%; border-radius: 6px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.5); cursor: zoom-in; }
+.command-side figcaption { font-weight: 700; text-transform: uppercase; color: #ffffffcc; }
+.command-side details { color: #ffffffcc; }
+.command-side ol { padding-left: 1.1rem; margin: 0.2rem 0; max-height: 14rem; overflow: auto; }
+.command-side .attack-row strong { color: #ff7b7b; }
+.special-rule { font-size: 0.72rem; flex-basis: 100%; margin: 0; }

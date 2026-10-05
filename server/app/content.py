@@ -18,6 +18,15 @@ def deck_ids_for(expansions: list[str]) -> set[str]:
     return {d["id"] for d in decks() if d["set"] in allowed}
 
 
+def bot_ids_for(expansions: list[str]) -> set[str]:
+    """Crews that can be the Bot in solo mode: they have Automated Command cards, and Khan's Bot waits with his deck
+    (plans/solo-mode.md)."""
+    from engine.content import content
+    from engine.setup import BOT_UNAVAILABLE
+
+    return {d for d in deck_ids_for(expansions) if d in content().command and d not in BOT_UNAVAILABLE}
+
+
 # Processed images (cards, crew boards, command cards), produced by scripts/process_scans.py.
 IMAGES_DIR = CONTENT_DIR / "images"
 _manifest_cache: tuple[float, dict[str, dict]] | None = None

@@ -100,11 +100,65 @@ class Board(BaseModel):
         return max(reached, default=0)
 
 
+class CommandRow(BaseModel):
+    """One row of an Automated Command card (requirements/22-solo-mode.md §6). Its effect is code in engine/bot."""
+
+    model_config = ConfigDict(frozen=True)
+
+    number: int
+    matches: tuple[str, ...]  # traits on a TRAITS side, suits on a SUITS side
+    text: str
+    steps: tuple[str, ...] = ()
+    uses: tuple[str, ...] = ()
+    attack: bool = False
+    undoable: bool = False
+
+
+class CommandSide(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    side: Literal["traits", "exile_traits", "no_duty_officer", "with_duty_officer"]
+    image: str | None = None
+    rows: tuple[CommandRow, ...] = ()
+
+
+class Upgrade(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    reinforce: str | None = None  # option A: the common card types you may reinforce
+    bonuses: tuple[str, ...] = ()  # option B
+
+
+class Upgrades(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    image: str | None = None
+    win: Upgrade
+    loss: Upgrade
+
+
+class BotCrew(BaseModel):
+    """A Bot Crew's two Automated Command cards and its Five-Year Mission upgrade card."""
+
+    model_config = ConfigDict(frozen=True)
+
+    deck: str
+    set: str
+    name: str
+    special_rule: str | None = None
+    sides: tuple[CommandSide, ...]
+    upgrades: Upgrades
+
+    def side(self, key: str) -> CommandSide | None:
+        return next((s for s in self.sides if s.side == key), None)
+
+
 class Content(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     cards: dict[str, Card]
     boards: dict[str, Board]
+    command: dict[str, BotCrew] = {}
 
     def by_set(self, *sets: str) -> list[Card]:
         return [c for c in self.cards.values() if c.set in sets]
@@ -131,7 +185,11 @@ def load_content(content_dir: Path = CONTENT_DIR) -> Content:
             cards[card.id] = card
     boards_data = yaml.safe_load((content_dir / "boards.yaml").read_text())
     boards = {b["id"]: Board(**b) for b in boards_data["boards"]}
-    return Content(cards=cards, boards=boards)
+    command_path = content_dir / "command.yaml"
+    command = {}
+    if command_path.exists():
+        command = {c["deck"]: BotCrew(**c) for c in yaml.safe_load(command_path.read_text())["crews"]}
+    return Content(cards=cards, boards=boards, command=command)
 
 
 @lru_cache

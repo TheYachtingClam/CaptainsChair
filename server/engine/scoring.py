@@ -53,7 +53,8 @@ def score_player(state: GameState, player: Player) -> dict:
 
     focus = {s: 0 for s in SPECIALTIES}
     best = 0
-    if player.missions_completed:  # REQ-MS-08
+    bot = player.bot is not None
+    if player.missions_completed or bot:  # REQ-MS-08; the Bot scores Focus icons without missions (REQ-SOLO-72)
         for c in cards:
             if c.focus == "Best":
                 best += max(multipliers.values(), default=0)
@@ -64,19 +65,36 @@ def score_player(state: GameState, player: Player) -> dict:
     parts = {
         "glory": player.glory,
         "neutral_tokens": neutral_tokens,
-        "endgame": sum(registry.ENDGAME[i.card](state, player) for i in _table(player) if i.card in registry.ENDGAME),
+        "endgame": _bot_endgame(player) if bot else sum(registry.ENDGAME[i.card](state, player)
+                                                        for i in _table(player) if i.card in registry.ENDGAME),
         "printed_vp": sum(registry.VP_SPECIAL[i.card](state, player, i) if i.card in registry.VP_SPECIAL
                           else printed_vp(data.cards[i.card].vp) for i in owned_cards(player)),
         "focus_research": focus["research"],
         "focus_influence": focus["influence"],
         "focus_military": focus["military"],
         "focus_best": best,
-        "missions": missions,
+        "missions": 0 if bot else missions,
     }
+    if bot:  # 1 VP for every 2 Dilithium and Latinum combined (REQ-SOLO-72)
+        parts["resources"] = (player.dilithium + player.latinum) // 2
     return {"seat": player.seat, "name": player.name, "parts": parts, "total": sum(parts.values())}
+
+
+def _bot_endgame(player: Player) -> int:
+    """The Bot scores 5 VP for each ENDGAME operation it owns, in play or not, its Captain's included, instead of
+    evaluating them (REQ-SOLO-72)."""
+    cards = content().cards
+    return 5 * sum(1 for inst in owned_cards(player) for op in cards[inst.card].operations if op.kind == "ENDGAME")
 
 
 def score_game(state: GameState) -> dict:
     scores = [score_player(state, p) for p in state.players]
     top = max(s["total"] for s in scores)
+    bot = next((p for p in state.players if p.bot is not None), None)
+    if bot is not None:
+        # Solo mode: the human wins only with more VP than the Bot; a tie is a loss (REQ-SOLO-73, REQ-SOLO-03).
+        human = next(s for s in scores if s["seat"] != bot.seat)
+        theirs = next(s for s in scores if s["seat"] == bot.seat)
+        winner = human["seat"] if human["total"] > theirs["total"] else bot.seat
+        return {"scores": scores, "winners": [winner]}
     return {"scores": scores, "winners": [s["seat"] for s in scores if s["total"] == top]}  # a tie means both win

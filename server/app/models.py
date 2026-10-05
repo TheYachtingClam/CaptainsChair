@@ -23,6 +23,8 @@ class Game(Base):
     # The engine state is rebuilt by replaying commands from the seed (REQ-SRV-14).
     seed: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     commands: Mapped[list[dict]] = mapped_column(JSON, default=list, server_default=text("'[]'"))
+    # Solo mode: the Bot's Crew, difficulty and Ticking Clock (REQ-SRV-18). Null for other modes.
+    bot: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="waiting")
 
     seats: Mapped[list["Seat"]] = relationship(

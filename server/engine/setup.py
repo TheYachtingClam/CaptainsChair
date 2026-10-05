@@ -8,7 +8,10 @@ from engine.content import MARKET_SUITS, Card, content
 from engine.state import GameState, Inst, Player
 
 BASE_SET = "to_boldly_go"
-STARDATE_MODE = {"two_player": "2-Player", "cadet": "Solo Cadet Practice"}
+STARDATE_MODE = {"two_player": "2-Player", "cadet": "Solo Cadet Practice", "solo": "Solo vs {difficulty} Bot"}
+DIFFICULTIES = ("ensign", "lieutenant", "commander", "captain", "admiral")  # REQ-SOLO-10, easiest first
+BOT_UNAVAILABLE = {"khan"}  # the Khan Bot waits with Khan's deck (plans/solo-mode.md)
+TIME_IS_RUNNING_OUT = "2DIR01"
 SOLO_ONLY = {"Solo Challenge", "Solo Campaign"}  # Reinforce, Time Is Running Out
 SUBSPACE_RHAPSODY = "0INC03"
 
@@ -20,35 +23,57 @@ class SeatSetup:
     board_side: str
 
 
+@dataclass(frozen=True)
+class BotSetup:
+    """Solo mode: the Bot's Crew, difficulty and the optional Ticking Clock challenge (REQ-SRV-18)."""
+
+    deck: str
+    difficulty: str = "ensign"
+    ticking_clock: bool = False
+
+
 class SetupError(ValueError):
     pass
 
 
-def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str] | None = None, promos: bool = False) -> GameState:
+def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str] | None = None, promos: bool = False,
+             bot: BotSetup | None = None) -> GameState:
     if mode not in STARDATE_MODE:
         raise SetupError(f"Mode {mode!r} is not supported by the engine yet")
     expected = 2 if mode == "two_player" else 1
     if len(seats) != expected:
         raise SetupError(f"Mode {mode} needs {expected} player(s)")
+    if mode == "solo":
+        if bot is None:
+            raise SetupError("Solo mode needs a Bot")
+        if bot.difficulty not in DIFFICULTIES:
+            raise SetupError(f"Unknown difficulty {bot.difficulty!r}")
+        if bot.deck in BOT_UNAVAILABLE or bot.deck not in content().command:
+            raise SetupError(f"There is no {bot.deck!r} Bot yet")
     expansions = list(expansions or [])
     data = content()
     sets = {BASE_SET, *expansions} | ({"promo2"} if promos else set())
 
     # Players are created first so their captains exist; central setup follows the rulebook order.
-    state = GameState(seed=seed, mode=mode, expansions=expansions, promos=promos, players=[], first_seat=0, active=0)
+    state = GameState(seed=seed, mode=mode, expansions=expansions, promos=promos, players=[], first_seat=0, active=0,
+                      difficulty=bot.difficulty if bot else None)
     common = [c for c in data.cards.values() if c.is_common and c.set in sets and c.position not in SOLO_ONLY]
 
     _central_setup(state, common, data)
     for seat, choice in enumerate(seats):
         state.players.append(_player_setup(state, seat, choice, data))
+    if mode == "solo":
+        state.players.append(_bot_setup(state, len(state.players), bot, data))
     state.shuffle(state.incident)  # after Crew cards marked Incident Deck were added (REQ-PS-11)
 
-    state.first_seat = state.rng().randrange(len(state.players))  # REQ-CS-17
+    # REQ-CS-17; in solo mode the human takes the Starting Player token (REQ-SOLO-21).
+    state.first_seat = 0 if mode == "solo" else state.rng().randrange(len(state.players))
     state.active = state.first_seat
     for player in state.players:
         from engine.game import draw, hand_size  # local import: game imports setup
 
-        draw(state, player, hand_size(state, player), announce=False)
+        if player.bot is None:  # the Bot has no hand (REQ-SOLO-34)
+            draw(state, player, hand_size(state, player), announce=False)
     state.emit(f"{state.players[state.first_seat].name} takes the Starting Player token.")
     return state
 
@@ -98,7 +123,7 @@ def _central_setup(state: GameState, common: list[Card], data) -> None:
     state.neutral = starting[:3]
 
     # Stardates (REQ-CS-11, REQ-CS-13)
-    pile = data.stardates(STARDATE_MODE[state.mode])
+    pile = data.stardates(STARDATE_MODE[state.mode].format(difficulty=(state.difficulty or "").capitalize()))
     state.stardates = [state.new_inst(c.id) for c in pile]
     state.stardate_glory = pile[0].starting_glory or 0 if pile else 0
 
@@ -156,3 +181,48 @@ def _player_setup(state: GameState, seat: int, choice: SeatSetup, data) -> Playe
         starbase = next(i for i in player.locations if i.card == "3PIK03")
         starbase.away[seat] = 1  # REQ-EXP-PIK-01
     return player
+
+
+# --------------------------------------------------------------------------- the Bot (requirements/22-solo-mode.md §2)
+
+
+def _bot_setup(state: GameState, seat: int, choice: BotSetup, data) -> Player:
+    """REQ-SOLO-24 to -33: Basic board, no resources, actions or mission tokens; the Supplement deck (Reserves on top
+    of Developments) and the Bot deck (Deployed and Controlled Location cards on top of the Available cards)."""
+    from engine.state import BotState
+
+    cards = [c for c in data.crew_deck(choice.deck) if not c.id.endswith("B")]
+    board = data.board(choice.deck, "basic")
+    captain_card = next(c for c in cards if c.suit == "Captain")
+    player = Player(seat=seat, name=f"{captain_card.name} Bot", deck=choice.deck, board=board.id,
+                    captain=state.new_inst(captain_card.id),
+                    bot=BotState(crew=choice.deck, difficulty=choice.difficulty, ticking_clock=choice.ticking_clock))
+    player.actions = 0
+    player.mission_tokens = 0
+
+    by_position: dict[str | None, list[Card]] = {}
+    for card in cards:
+        if card.suit not in ("Captain", "Status"):  # Status cards go back to the box (REQ-SOLO-26)
+            by_position.setdefault(card.position, []).append(card)
+    state.incident.extend(_insts(state, by_position.pop("Incident Deck", [])))  # REQ-SOLO-25
+
+    developments = _insts(state, by_position.pop("Development", []))
+    reserves = _insts(state, by_position.pop("Reserve", []))
+    if choice.ticking_clock:  # REQ-SOLO-130
+        reserves.append(state.new_inst(TIME_IS_RUNNING_OUT))
+    state.shuffle(developments)
+    state.shuffle(reserves)
+    player.reserve = reserves + developments  # REQ-SOLO-27: the Supplement deck
+
+    available = _insts(state, by_position.pop("Available", []))
+    state.shuffle(available)
+    on_top = _insts(state, by_position.pop("Deployed", []) + by_position.pop("Controlled Location", []))
+    state.shuffle(on_top)
+    player.draw = on_top + available  # REQ-SOLO-28: the Bot deck
+    player.discard = _insts(state, by_position.pop("Discard", []))  # REQ-SOLO-29
+    if by_position:
+        raise SetupError(f"{choice.deck} Bot: cards with unexpected positions {sorted(map(str, by_position))}")
+
+    teams = captain_card.away_teams
+    player.away_pool = int(str(teams).rstrip("+")) if teams is not None else 0  # REQ-SOLO-31
+    return player  # no resources at all, not even Glory (REQ-SOLO-33)

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CardView, OptionView, PlayerView } from "../api";
+import { BotView, CardView, OptionView, PlayerView } from "../api";
 import { Card, CardBack, PileViewer, Slot, imageUrl, usePreviewHandlers } from "./Cards";
 
 // Crew board track geometry, as fractions of the board image (measured from the scans).
@@ -22,9 +22,11 @@ function CrewBoard({ p }: { p: PlayerView }) {
           style={{ left: `${(TRACK_X0 + Math.min(value, 15) * TRACK_STEP) * 100}%`, top: `${TRACK_Y[track] * 100}%`, background: TRACK_COLOUR[track] }}
         />
       ))}
-      <span className="mission-tokens" title="Mission Completion tokens">
-        Missions {p.missions_completed.length}/{p.mission_tokens}
-      </span>
+      {!p.bot && (
+        <span className="mission-tokens" title="Mission Completion tokens">
+          Missions {p.missions_completed.length}/{p.mission_tokens}
+        </span>
+      )}
     </div>
   );
 }
@@ -32,10 +34,48 @@ function CrewBoard({ p }: { p: PlayerView }) {
 function Tokens({ p }: { p: PlayerView }) {
   return (
     <div className="tokens" aria-label="Resources and actions">
-      <span className="token action" title="Available actions">{p.actions} Action{p.actions === 1 ? "" : "s"}</span>
+      {!p.bot && <span className="token action" title="Available actions">{p.actions} Action{p.actions === 1 ? "" : "s"}</span>}
       <span className="token glory" title="Glory">{p.resources.glory} Glory</span>
       <span className="token dilithium" title="Dilithium">{p.resources.dilithium} Dilithium</span>
       <span className="token latinum" title="Latinum">{p.resources.latinum} Latinum</span>
+    </div>
+  );
+}
+
+const SIDE_LABEL: Record<string, string> = {
+  traits: "Traits",
+  exile_traits: "Khan in Exile traits",
+  no_duty_officer: "Suits with no Duty Officer",
+  with_duty_officer: "Suits with Duty Officer",
+};
+
+/** One side of an Automated Command card: hover to enlarge; the rows are also listed for reading. */
+function CommandSide({ side }: { side: BotView["command"][number] }) {
+  const preview = usePreviewHandlers(side.image ?? "", false);
+  return (
+    <figure className="command-side">
+      {side.image && <img src={imageUrl(side.image)} alt={SIDE_LABEL[side.side]} {...preview} />}
+      <figcaption>{SIDE_LABEL[side.side]}</figcaption>
+      <details>
+        <summary>Rows</summary>
+        <ol>
+          {side.rows.map((r) => (
+            <li key={r.number} className={r.attack ? "attack-row" : ""}>
+              <strong>{r.matches.join(" / ")}</strong>: {r.text}
+            </li>
+          ))}
+        </ol>
+      </details>
+    </figure>
+  );
+}
+
+/** The Bot's two Automated Command cards: TRAITS, and whichever SUITS side is up (REQ-SOLO-32, -91). */
+function CommandCards({ bot }: { bot: BotView }) {
+  return (
+    <div className="command-cards" aria-label="Automated Command cards">
+      {bot.command.map((side) => <CommandSide key={side.side} side={side} />)}
+      {bot.special_rule && <p className="muted special-rule"><strong>Special rule:</strong> {bot.special_rule}</p>}
     </div>
   );
 }
@@ -78,6 +118,8 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
     <section className={`mat ${active ? "active" : ""}`} aria-label={`${p.name}'s play area`}>
       <header className="mat-header">
         <h2>{p.name}{you && " (you)"}</h2>
+        {p.bot && <span className="pill bot-pill">Bot · {p.bot.difficulty[0].toUpperCase() + p.bot.difficulty.slice(1)}</span>}
+        {p.bot?.ticking_clock && <span className="pill">Ticking Clock</span>}
         {active && <span className="pill">Active player</span>}
       </header>
 
@@ -85,13 +127,15 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
         {/* Left column: Reserve, Status, Development, tokens, Crew board (items 7, 4, 6, 12, 1) */}
         <div className="mat-left">
           <div className="row top">
-            <CardBack label="Reserve" count={p.reserve_count} />
+            <CardBack label={p.bot ? "Supplement" : "Reserve"} count={p.reserve_count} />
             {p.status.map((c) => <Card key={c.uid} card={c} />)}
           </div>
-          <button type="button" className="dev-pile" onClick={() => setViewing("development")} disabled={!p.development.length}>
-            <span>Development</span>
-            <span className="count">{p.development.length}</span>
-          </button>
+          {p.bot ? <CommandCards bot={p.bot} /> : (
+            <button type="button" className="dev-pile" onClick={() => setViewing("development")} disabled={!p.development.length}>
+              <span>Development</span>
+              <span className="count">{p.development.length}</span>
+            </button>
+          )}
           <Tokens p={p} />
           <CrewBoard p={p} />
           {missions && missions.length > 0 && onMission && (
@@ -135,10 +179,16 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
               <img src={imageUrl(p.draw[0].image)} alt="" />
               <span className="badge">{p.draw.length}</span>
             </button>
-          ) : <CardBack label="Draw deck" count={p.draw_count} />}
+          ) : <CardBack label={p.bot ? "Bot deck" : "Draw deck"} count={p.draw_count} />}
         </div>
         <div className="cell staging">
-          {p.staging.length ? <div className="lane">{p.staging.map((c) => <Card key={c.uid} card={c} />)}</div> : <span className="staging-label">Staging Area</span>}
+          {p.staging.length ? (
+            <div className="lane">
+              {p.staging.map((c) => (c.facedown
+                ? <div key={c.uid} className="card-back" aria-label="A facedown Bot card" title="Not resolved yet" />
+                : <Card key={c.uid} card={c} />))}
+            </div>
+          ) : <span className="staging-label">Staging Area</span>}
         </div>
         <div className="cell discard">
           {topDiscard ? (
@@ -156,8 +206,8 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
         </div>
       </div>
 
-      {/* Hand (item 14) */}
-      <div className="hand" aria-label={you ? "Your hand" : `${p.name}'s hand`}>
+      {/* Hand (item 14). The Bot has none (REQ-SOLO-34). */}
+      {!p.bot && <div className="hand" aria-label={you ? "Your hand" : `${p.name}'s hand`}>
         {p.hand
           ? p.hand.map((c, i) => {
               const mid = (p.hand!.length - 1) / 2;
@@ -165,7 +215,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
             })
           : Array.from({ length: p.hand_count }, (_, i) => <div key={i} className="card-back small" aria-hidden />)}
         <span className="muted hand-size">Hand {p.hand_count} / {p.hand_size}</span>
-      </div>
+      </div>}
 
       {viewing && <PileViewer title={piles[viewing][0]} cards={[...piles[viewing][1]]} onClose={() => setViewing(null)} />}
     </section>

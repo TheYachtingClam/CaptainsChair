@@ -29,6 +29,7 @@ def summarize(game: Game) -> dict:
         "status": game.status,
         "seats": [SeatOut.model_validate(s, from_attributes=True) for s in game.seats],
         "open_seats": seat_count(game) - len(game.seats),
+        "bot": game.bot,
     }
 
 
@@ -83,9 +84,14 @@ def create_game(body: CreateGameRequest, db: Session = Depends(get_db)) -> dict:
     if unknown:
         raise HTTPException(422, f"Unknown expansion: {', '.join(sorted(unknown))}")
     validate_deck(body.deck_id, body.expansions)
+    bot = None
     if body.mode == "solo":
-        raise HTTPException(422, "Solo play against the Bot is not available yet")
-    game = Game(mode=body.mode, expansions=body.expansions, promos=body.promos)
+        if body.bot is None:
+            raise HTTPException(422, "Choose a Bot to play against")
+        if body.bot.deck_id not in content.bot_ids_for(body.expansions):
+            raise HTTPException(422, "That Bot is not available in this game")
+        bot = body.bot.model_dump()
+    game = Game(mode=body.mode, expansions=body.expansions, promos=body.promos, bot=bot)
     db.add(game)
     seat, token = add_seat(db, game, body)
     return {"game": {**summarize(game), "your_seat": seat.index}, "seat_index": seat.index, "seat_token": token}

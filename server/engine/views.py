@@ -44,7 +44,8 @@ def player_view(state: GameState, player: Player, viewer: int | None) -> dict:
         "reserve_count": len(player.reserve),
         "discard": [card_view(i) for i in player.discard],
         "development": [card_view(i) for i in player.development],
-        "staging": [card_view(i) for i in player.staging + player.received_stardates],
+        "staging": [card_view(i) if not _facedown(player, i) else {"uid": i.uid, "facedown": True}
+                    for i in player.staging + player.received_stardates],
         "fleet": [card_view(i) for i in player.fleet],
         "locations": [card_view(i) for i in player.locations],
         "duty": [card_view(i) for i in player.duty],
@@ -55,6 +56,29 @@ def player_view(state: GameState, player: Player, viewer: int | None) -> dict:
         "away_pool": player.away_pool,
         "mission_tokens": player.mission_tokens,
         "missions_completed": list(player.missions_completed),
+        "bot": _bot_view(player),
+    }
+
+
+def _facedown(player: Player, inst: Inst) -> bool:
+    """The Bot's cards drawn this turn stay facedown until flipped (REQ-SOLO-53, -54)."""
+    return player.bot is not None and inst.uid in player.bot.facedown
+
+
+def _bot_view(player: Player) -> dict | None:
+    """The Bot's Automated Command cards as they lie: the TRAITS side and whichever SUITS side is up (REQ-SOLO-32)."""
+    if player.bot is None:
+        return None
+    crew = content().command[player.bot.crew]
+    traits, suits = crew.side("traits"), crew.side(player.bot.suits_side)
+    return {
+        "crew": player.bot.crew,
+        "difficulty": player.bot.difficulty,
+        "ticking_clock": player.bot.ticking_clock,
+        "suits_side": player.bot.suits_side,
+        "special_rule": crew.special_rule,
+        "command": [{"side": s.side, "image": s.image, "rows": [r.model_dump() for r in s.rows]}
+                    for s in (traits, suits) if s is not None],
     }
 
 
@@ -69,6 +93,7 @@ def game_view(state: GameState, viewer: int | None) -> dict:
     top = state.stardates[0] if state.stardates else None
     return {
         "mode": state.mode,
+        "difficulty": state.difficulty,
         "turn": state.turn + 1,
         "active": state.active,
         "first_seat": state.first_seat,

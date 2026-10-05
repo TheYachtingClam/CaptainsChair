@@ -66,6 +66,19 @@ function useOnScreen(ref: React.RefObject<HTMLElement | null>): boolean {
   return visible;
 }
 
+const SCORE_PART: Record<string, string> = {
+  glory: "Glory",
+  neutral_tokens: "Tokens in the Neutral Zone",
+  endgame: "ENDGAME",
+  printed_vp: "Printed VP",
+  focus_research: "Research Focus",
+  focus_influence: "Influence Focus",
+  focus_military: "Military Focus",
+  focus_best: "Best Focus",
+  missions: "Missions",
+  resources: "Dilithium and Latinum (1 per 2)",
+};
+
 export function Board({ view, onChoose, onUndo, busy }: {
   view: GameStateView;
   onChoose: (option: string) => void;
@@ -166,10 +179,24 @@ export function Board({ view, onChoose, onUndo, busy }: {
           <div>
             <h2>Game over ({view.result.reason})</h2>
             {view.mode === "cadet" && view.result.reason === "burn" && <p>The Burn ends Cadet Training: you lose.</p>}
+            {view.mode === "solo" && (
+              <p><strong>
+                {view.result.winners.includes(view.you ?? -1) ? "You beat the Bot!"
+                  : view.result.reason === "burn" ? "The Burn: the Bot wins."
+                  : "The Bot wins. (A tie counts as a loss.)"}
+              </strong></p>
+            )}
             {view.result.scores?.map((s) => (
-              <p key={s.seat}>
-                {s.name}: {s.total} VP {view.mode !== "cadet" && view.result!.winners.includes(s.seat) && "— winner"}
-              </p>
+              <details key={s.seat}>
+                <summary>
+                  {s.name}: {s.total} VP {view.mode !== "cadet" && view.result!.winners.includes(s.seat) && "— winner"}
+                </summary>
+                <ul className="score-parts">
+                  {Object.entries(s.parts).filter(([, v]) => v !== 0).map(([k, v]) => (
+                    <li key={k}>{SCORE_PART[k] ?? k}: {v}</li>
+                  ))}
+                </ul>
+              </details>
             ))}
             {view.result.rating && <p><strong>{view.result.rating}</strong></p>}
           </div>

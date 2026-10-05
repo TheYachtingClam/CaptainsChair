@@ -46,6 +46,15 @@ Rules for engine code:
 - The server stores the seed and the list of commands, and rebuilds a game by replaying them (`server/app/play.py`). Undo marks the last command undone and replays.
 - Developer commands (`engine/dev.py`) put any card into a zone or change resources and tracks, for testing by hand. The server accepts them only when `DEV_TOOLS=true`. They are stored and replayed like moves. Card tests build positions the same way with `given(...)` in `server/tests/scenario.py`.
 
+## Solo mode (the Bot)
+
+`server/engine/bot/` runs the Bot in solo mode ([plans/solo-mode.md](plans/solo-mode.md), requirements/22-solo-mode.md):
+
+- The Bot is the second entry in `state.players`, with `player.bot` set (Crew, difficulty, SUITS side, Ticking Clock, facedown cards). Its cards use the normal zones: `draw` is the Bot deck, `reserve` the Supplement deck, `discard` the Bot Discard pile, `staging` its Staging Area, and `duty`, `locations` and `fleet` its Control Area. It never has a hand.
+- Its turn is the `bot` step of the turn loop. The engine runs it without stored commands, so replay still needs only the seed and the human's commands. A question put to the Bot is answered at once by `bot.answer` (REQ-SOLO-112). The Bot never gets Reactions or "when … would" offers, and has exactly one Duty Officer slot.
+- `bot.value`, `most_valuable` and `least_valuable` are the one value function for every Bot choice (REQ-SOLO-43).
+- Automated Command data is built by `scripts/build_content.py` from `resources/scans/<set>/command/*.md` into `server/content/command.yaml` (`content().command`). Rows become code in Step 2 of the plan.
+
 ## Card specs
 
 Every card scan in `resources/scans/<set>/cards/` has a spec file beside it with the same name and a `.md` extension. Crew board specs are in `resources/scans/<set>/boards/` and command-card specs in `resources/scans/<set>/command/`. The format is in `resources/scans/CARD_SPEC.md`.

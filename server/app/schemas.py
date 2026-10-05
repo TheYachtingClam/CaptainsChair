@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 GameMode = Literal["two_player", "solo", "cadet"]
 BoardSide = Literal["basic", "advanced"]
+Difficulty = Literal["ensign", "lieutenant", "commander", "captain", "admiral"]
 
 
 class LoginRequest(BaseModel):
@@ -17,10 +18,19 @@ class SeatChoice(BaseModel):
     board_side: BoardSide = "basic"
 
 
+class BotChoice(BaseModel):
+    """Solo mode: the Bot to play against (REQ-SRV-18)."""
+
+    deck_id: str
+    difficulty: Difficulty = "ensign"
+    ticking_clock: bool = False
+
+
 class CreateGameRequest(SeatChoice):
     mode: GameMode = "two_player"
     expansions: list[str] = []
     promos: bool = False
+    bot: BotChoice | None = None
 
 
 class CommandRequest(BaseModel):
@@ -54,6 +64,7 @@ class GameSummary(BaseModel):
     status: str
     seats: list[SeatOut]
     open_seats: int
+    bot: BotChoice | None = None
 
 
 class GameView(GameSummary):

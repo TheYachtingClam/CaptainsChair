@@ -2,6 +2,15 @@ export class AuthError extends Error {}
 
 export type GameMode = "two_player" | "solo" | "cadet";
 export type BoardSide = "basic" | "advanced";
+export type Difficulty = "ensign" | "lieutenant" | "commander" | "captain" | "admiral";
+export const DIFFICULTIES: Difficulty[] = ["ensign", "lieutenant", "commander", "captain", "admiral"];
+
+/** Solo mode: the Bot to play against. */
+export interface BotChoice {
+  deck_id: string;
+  difficulty: Difficulty;
+  ticking_clock: boolean;
+}
 
 export interface Deck {
   id: string;
@@ -10,6 +19,7 @@ export interface Deck {
   complexity: number;
   set: string;
   summary: string;
+  bot?: boolean; // can be the solo-mode Bot
 }
 
 export interface Seat {
@@ -29,6 +39,7 @@ export interface Game {
   seats: Seat[];
   open_seats: number;
   your_seat?: number | null;
+  bot?: BotChoice | null;
 }
 
 export interface SeatGrant {
@@ -98,6 +109,7 @@ export interface CardView {
   beamed?: CardView[];
   away_teams?: Record<string, number>;
   secured_by?: number[];
+  facedown?: boolean; // a Bot card drawn this turn and not yet flipped; only uid is set
 }
 
 export interface OptionView {
@@ -133,10 +145,29 @@ export interface PlayerView {
   away_pool: number;
   mission_tokens: number;
   missions_completed: string[];
+  bot: BotView | null; // the solo-mode Bot
+}
+
+export interface CommandRowView {
+  number: number;
+  matches: string[];
+  text: string;
+  attack: boolean;
+}
+
+/** The Bot's Automated Command cards as they lie, and its settings. */
+export interface BotView {
+  crew: string;
+  difficulty: Difficulty;
+  ticking_clock: boolean;
+  suits_side: "no_duty_officer" | "with_duty_officer";
+  special_rule: string | null;
+  command: { side: string; image: string | null; rows: CommandRowView[] }[];
 }
 
 export interface GameStateView {
   mode: GameMode;
+  difficulty: Difficulty | null;
   turn: number;
   active: number;
   first_seat: number;
@@ -191,7 +222,7 @@ export const api = {
     const token = loadSeatToken(id);
     return request<Game>(`/api/games/${id}`, { headers: token ? { "X-Seat-Token": token } : {} });
   },
-  createGame: (body: SeatChoice & { mode: GameMode; expansions: string[]; promos: boolean }) =>
+  createGame: (body: SeatChoice & { mode: GameMode; expansions: string[]; promos: boolean; bot?: BotChoice }) =>
     request<SeatGrant>("/api/games", { method: "POST", body: JSON.stringify(body) }),
   cardText: () => request<Record<string, CardText>>("/api/content/cards"),
   state: (id: string) => request<GameStateView>(`/api/games/${id}/state`, { headers: seatHeaders(id) }),

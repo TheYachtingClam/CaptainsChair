@@ -12,7 +12,7 @@ from sqlalchemy.orm.attributes import flag_modified
 from app.models import Game
 from engine import dev
 from engine.game import IllegalCommand, _flag_irreversible, advance, choose
-from engine.setup import SeatSetup, SetupError, new_game
+from engine.setup import BotSetup, SeatSetup, SetupError, new_game
 from engine.state import GameState
 from engine.views import game_view
 
@@ -31,7 +31,14 @@ def start(game: Game) -> None:
     game.status = "active"
     # Validate setup now rather than on the first view. The game id may not exist yet, so no caching.
     new_game(game.seed, game.mode, [SeatSetup(s.display_name, s.deck_id, s.board_side) for s in game.seats],
-             game.expansions, game.promos)
+             game.expansions, game.promos, bot_setup(game))
+
+
+def bot_setup(game: Game) -> BotSetup | None:
+    """The stored Bot choice of a solo game (REQ-SRV-18)."""
+    if not game.bot:
+        return None
+    return BotSetup(game.bot["deck_id"], game.bot.get("difficulty", "ensign"), bool(game.bot.get("ticking_clock")))
 
 
 def _live(command: dict) -> bool:
@@ -45,7 +52,7 @@ def build(game: Game) -> GameState:
     if cached and cached[0] == key:
         return copy.deepcopy(cached[1])
     seats = [SeatSetup(s.display_name, s.deck_id, s.board_side) for s in game.seats]
-    state = new_game(game.seed, game.mode, seats, game.expansions, game.promos)
+    state = new_game(game.seed, game.mode, seats, game.expansions, game.promos, bot_setup(game))
     advance(state, flag_irreversible=False)
     # Replay without the can't-be-undone flagging (it tries every option on a copy), then flag the last question.
     for i, command in enumerate(game.commands):

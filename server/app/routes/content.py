@@ -9,7 +9,8 @@ router = APIRouter(prefix="/api/content", tags=["content"], dependencies=[Depend
 
 @router.get("/decks")
 def list_decks() -> list[dict]:
-    return content.decks()
+    bots = content.bot_ids_for(list(content.EXPANSIONS))
+    return [{**d, "bot": d["id"] in bots} for d in content.decks()]  # "bot": can be the solo-mode Bot
 
 
 @router.get("/expansions")

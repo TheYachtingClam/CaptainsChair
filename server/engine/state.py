@@ -11,7 +11,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Step = Literal["start", "resupply", "control", "action", "cleanup", "final", "over"]
+Step = Literal["start", "resupply", "control", "action", "cleanup", "bot", "final", "over"]
 Resource = Literal["dilithium", "latinum", "glory"]
 SPECIALTIES = ("research", "influence", "military")
 
@@ -78,6 +78,18 @@ class Offer(BaseModel):
     refs: list[OpRef]
 
 
+class BotState(BaseModel):
+    """The Bot's own bookkeeping in solo mode (requirements/22-solo-mode.md). Its cards use the ordinary Player zones:
+    `draw` is the Bot deck, `reserve` the Supplement deck, `discard` the Bot Discard pile, `staging` its Staging Area,
+    and `duty`, `locations` and `fleet` together its Control Area. It never has a hand."""
+
+    crew: str  # the Bot's Crew deck id, which picks its Automated Command cards
+    difficulty: str  # ensign, lieutenant, commander, captain or admiral
+    suits_side: str = "no_duty_officer"  # or "with_duty_officer" (REQ-SOLO-91 to -93)
+    ticking_clock: bool = False  # Time Is Running Out is in the Supplement deck (REQ-SOLO-130)
+    facedown: list[str] = Field(default_factory=list)  # uids drawn this turn, not yet flipped (REQ-SOLO-53, -54)
+
+
 class Player(BaseModel):
     seat: int
     name: str
@@ -108,6 +120,7 @@ class Player(BaseModel):
     missions_completed: list[str] = Field(default_factory=list)
     enlisted: list[str] = Field(default_factory=list)  # card ids of Developments enlisted this game
     controls_this_turn: int = 0
+    bot: BotState | None = None  # set for the Bot in solo mode
     hand_bonus: int = 0  # temporary hand size change until the end of this turn (Betazed Intelligence)
 
 
@@ -119,6 +132,7 @@ class GameState(BaseModel):
     promos: bool = False
     players: list[Player]
     first_seat: int  # holds the Starting Player token
+    difficulty: str | None = None  # solo mode: the Bot's difficulty, which picks the Stardate cards (REQ-SOLO-11)
     active: int
     turn: int = 0  # 0-based count of turns taken
     step: Step = "start"
