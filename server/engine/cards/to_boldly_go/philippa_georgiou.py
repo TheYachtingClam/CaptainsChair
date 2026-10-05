@@ -2,9 +2,8 @@
 
 from engine.cards import endgame, operation
 from engine.ops import A, RemoveOwnAwayTeam
-from engine.scoring import _table
 
-from ._util import is_suit
+from ._util import is_suit, table_of
 
 
 @operation("2GEO01", 0, uses=[A.RETURN_INCIDENT], cost=[RemoveOwnAwayTeam()],
@@ -20,5 +19,5 @@ def one_per_three_in_play(state, player):
     """ENDGAME: Score 1 VP for every 3 cards you have in play."""
     from engine.ops import _all_beamed
 
-    cards = _table(player)
+    cards = table_of(player)
     return (len(cards) + sum(len(_all_beamed(i)) for i in cards)) // 3

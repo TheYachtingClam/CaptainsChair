@@ -65,7 +65,8 @@ def score_player(state: GameState, player: Player) -> dict:
         "glory": player.glory,
         "neutral_tokens": neutral_tokens,
         "endgame": sum(registry.ENDGAME[i.card](state, player) for i in _table(player) if i.card in registry.ENDGAME),
-        "printed_vp": sum(printed_vp(c.vp) for c in cards),
+        "printed_vp": sum(registry.VP_SPECIAL[i.card](state, player, i) if i.card in registry.VP_SPECIAL
+                          else printed_vp(data.cards[i.card].vp) for i in owned_cards(player)),
         "focus_research": focus["research"],
         "focus_influence": focus["influence"],
         "focus_military": focus["military"],

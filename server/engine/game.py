@@ -139,6 +139,17 @@ def _collect_triggers(state: GameState, seat: int, trigger_event: dict) -> None:
                 if impl.trigger(ctx, trigger_event) and (not impl.requires or impl.requires(ctx)) \
                         and all(c.can_pay(ctx) for c in impl.costs):
                     optional.append(ref)
+    # SPECIAL operations that trigger on the card itself wherever it is, e.g. "When you log this card" (Tahal-Meeroj).
+    own = ops.find_inst(state, trigger_event.get("uid")) if trigger_event.get("uid") else None
+    if own is not None and own not in table_cards(player):
+        where = ops.locate(state, own.uid)
+        if where is not None and where.owner is player:
+            for index, op in enumerate(card(own).operations):
+                impl = card_code.OPS.get((own.card, index))
+                if op.kind == "SPECIAL" and impl is not None and impl.trigger is not None:
+                    ref = ops.OpRef(mode="trigger", seat=seat, uid=own.uid, index=index, event=trigger_event)
+                    if impl.trigger(ops.Ctx(state, ref), trigger_event):
+                        mandatory.append(ref)
     state.op_queue.extend(mandatory)
     if optional:
         state.offer = ops_offer(seat, optional)
@@ -364,6 +375,7 @@ def take_control(state: GameState, player: Player, location: Inst, *, run_contro
     player.locations.append(location)
     player.controls_this_turn += 1
     state.emit(f"{player.name} takes control of {name(location)}.")
+    ops.raise_event(state, "take_control", player.seat, location.uid)
     if run_control:
         ops.put_into_play(state, player, location)
         for index, op in enumerate(card(location).operations):

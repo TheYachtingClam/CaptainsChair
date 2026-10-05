@@ -58,7 +58,8 @@ def has_code(card_id: str, index: int, kind: str) -> bool:
                                               registry.SCANS_INCLUDE_JUNK, registry.STATE_CHECKS,
                                               registry.DISMISS_REWARDS, registry.NO_OPPONENT_REACTIONS,
                                               registry.DUTY_SLOTS, registry.RESTRICTIONS, registry.TRAIT_MODIFIERS,
-                                              registry.ALSO_SUIT))
+                                              registry.ALSO_SUIT, registry.INCIDENTS_FROM_JUNK, registry.CANNOT_PROMOTE,
+                                              registry.VP_SPECIAL))
     return False
 
 

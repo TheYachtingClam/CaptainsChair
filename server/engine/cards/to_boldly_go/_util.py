@@ -128,3 +128,27 @@ def opponent_has(ctx: Ctx, pred) -> bool:
     if ctx.opponent is None:
         return ctx.virtual_opponent
     return ctx.count_in_play(pred, ctx.opponent) > 0
+
+
+# ----------------------------------------------------------------------- scoring-time helpers (ENDGAME, VP_SPECIAL)
+
+
+def owned_cards(player):
+    """Every card the player owns that counts at final scoring: not Reserve or Development (REQ-FS-02)."""
+    from engine.scoring import owned_cards as owned
+
+    return owned(player)
+
+
+def table_of(player):
+    """The player's table positions: Captain, Status, Fleet, Locations, Duty Officers."""
+    from engine.ops import table_cards
+
+    return table_cards(player)
+
+
+def ctx_for(state, player) -> Ctx:
+    """A query context for a player outside an operation, e.g. in an ENDGAME or a modifier."""
+    from engine.state import OpRef
+
+    return Ctx(state, OpRef(mode="auto", seat=player.seat))

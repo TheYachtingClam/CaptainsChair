@@ -296,3 +296,19 @@ def test_gained_card_is_shown_with_the_where_question():
     assert view["decision"]["prompt"].endswith("where?")
     assert [c["uid"] for c in view["decision"]["cards"]] == [ship]
     assert "cards" not in game_view(s, 1)["decision"]  # only the deciding player sees them
+
+
+def test_card_modules_import_only_allowed_modules():
+    """CLAUDE.md: card modules import only engine.cards, engine.ops and their set's _util."""
+    import re
+
+    root = Path(__file__).parents[1] / "engine" / "cards"
+    allowed = ("engine.cards", "engine.ops", "engine import cards")
+    for path in root.rglob("*.py"):
+        if path.name.startswith("_"):
+            continue
+        for line in path.read_text().splitlines():
+            m = re.match(r"\s*(from|import) (engine[\w.]*)( import \w+)?", line)
+            if m:
+                target = m.group(2) + (m.group(3) or "")
+                assert target.startswith(allowed), f"{path.relative_to(root)} imports {target}"

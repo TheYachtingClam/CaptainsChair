@@ -3,7 +3,7 @@
 from engine.cards import operation, skill_icons
 from engine.ops import A, DiscardFromHand, LogFromHand, traits_of
 
-from ._util import has_trait
+from ._util import ctx_for, has_trait
 
 
 @operation("2PER12", 1, uses=[A.LOG, A.ENLIST_DEVELOPMENT],
@@ -34,9 +34,6 @@ def augment_strike(ctx, actions):
 def augment_skills(state, owner, inst):
     """PASSIVE: This card has 1 [Military] for each Augment you have in play (including this, max 3).
     Each of the 3 Variable icons is Military while that many Augments are in play; the rest have no icon."""
-    from engine.ops import Ctx
-    from engine.state import OpRef
-
-    ctx = Ctx(state, OpRef(mode="auto", seat=owner.seat))
+    ctx = ctx_for(state, owner)
     augments = ctx.count_in_play(lambda i: "Augment" in traits_of(state, i))
     return ["Military"] * min(3, augments)

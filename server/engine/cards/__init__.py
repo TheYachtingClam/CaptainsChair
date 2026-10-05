@@ -69,6 +69,12 @@ RESTRICTIONS: dict[str, Callable] = {}
 TRAIT_MODIFIERS: dict[str, tuple[Callable, bool]] = {}
 # SPECIAL "This card is considered a [suit] for all purposes" (Gomtuu, Species 10-C): card id -> extra suit.
 ALSO_SUIT: dict[str, str] = {}
+# PASSIVE "When taking an Incident, you may take it from the Junk" (Starbase 80). Table positions.
+INCIDENTS_FROM_JUNK: set[str] = set()
+# SPECIAL "This card cannot be promoted" (Ensign Boimler, Ensign Mariner).
+CANNOT_PROMOTE: set[str] = set()
+# Asterisk VP: fn(state, player, inst) -> the card's VP at final scoring, wherever it is (REQ-FS-02 component 4).
+VP_SPECIAL: dict[str, Callable] = {}
 # SPECIAL "before scoring": card ids whose SPECIAL operation runs at the start of final scoring, wherever the owner
 # has the card (Su'Kal).
 BEFORE_SCORING: set[str] = set()

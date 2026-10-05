@@ -3,9 +3,8 @@
 from engine import cards as registry
 from engine.cards import development_cost, endgame, operation
 from engine.ops import A, Spend, TakeIncidentCost
-from engine.scoring import owned_cards
 
-from ._util import has_trait, is_suit
+from ._util import has_trait, is_suit, owned_cards
 
 development_cost("2GEO05", Spend(dilithium=3), TakeIncidentCost())
 registry.SCANS_INCLUDE_JUNK.add("2GEO05")  # PASSIVE: Whenever scanning, include cards in the Junk too.

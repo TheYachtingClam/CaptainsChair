@@ -46,6 +46,7 @@ class A:
     ENLIST_DEVELOPMENT = "ENLIST_DEVELOPMENT"; FREE_PLAY = "FREE_PLAY"; DUPLICATE = "DUPLICATE"
     REVEAL = "REVEAL"; PEEK = "PEEK"; GAIN_RESOURCE = "GAIN_RESOURCE"; SPEND = "SPEND"
     PLACE_RESOURCES = "PLACE_RESOURCES"; STEAL = "STEAL"; GAIN_ACTION = "GAIN_ACTION"
+    TAKE_FROM_REWARD_PILE = "TAKE_FROM_REWARD_PILE"
     GAIN_SPECIALTY = "GAIN_SPECIALTY"; WARP = "WARP"; SEND_AWAY_TEAM = "SEND_AWAY_TEAM"
     REMOVE_AWAY_TEAM = "REMOVE_AWAY_TEAM"; TAKE_CONTROL = "TAKE_CONTROL"; TRIGGER_CONTROL = "TRIGGER_CONTROL"
     EXHAUST = "EXHAUST"; REFRESH = "REFRESH"; FORCE = "FORCE"; ATTACK = "ATTACK"; MOVE_RESOURCES = "MOVE_RESOURCES"
@@ -307,13 +308,18 @@ def can_afford(player: Player, dilithium: int = 0, latinum: int = 0, glory: int 
     return player.glory >= glory + short_l + math.ceil(short_d / 2)
 
 
-def pay_resources(player: Player, dilithium: int = 0, latinum: int = 0, glory: int = 0) -> None:
-    """Spend resources, substituting Glory where needed: 1 Glory = 1 Latinum or 2 Dilithium (KW-SPEND-02)."""
+def pay_resources(player: Player, dilithium: int = 0, latinum: int = 0, glory: int = 0,
+                  state: GameState | None = None) -> None:
+    """Spend resources, substituting Glory where needed: 1 Glory = 1 Latinum or 2 Dilithium (KW-SPEND-02).
+    With `state`, raises a spend event with what was actually paid (Barry Waddle reacts to spending Latinum)."""
     use_l = min(latinum, player.latinum)
     use_d = min(dilithium, player.dilithium)
     player.latinum -= use_l
     player.dilithium -= use_d
-    player.glory -= glory + (latinum - use_l) + math.ceil((dilithium - use_d) / 2)
+    used_g = glory + (latinum - use_l) + math.ceil((dilithium - use_d) / 2)
+    player.glory -= used_g
+    if state is not None and (use_d or use_l or used_g):
+        raise_event(state, "spend", player.seat, None, dilithium=use_d, latinum=use_l, glory=used_g)
 
 
 @dataclass
@@ -329,7 +335,7 @@ class Spend(Cost):
         return can_afford(ctx.me, self.dilithium, self.latinum, self.glory) and ctx.me.actions >= self.actions
 
     def pay(self, actions):
-        pay_resources(actions.ctx.me, self.dilithium, self.latinum, self.glory)
+        pay_resources(actions.ctx.me, self.dilithium, self.latinum, self.glory, actions.ctx.state)
         actions.ctx.me.actions -= self.actions
         spent = _res_text(self.dilithium, self.latinum, self.glory, self.actions)
         actions.ctx.state.emit(f"{actions.ctx.me.name} spends {spent}.", seat=actions.ctx.me.seat)
@@ -457,9 +463,14 @@ class DismissDutyOfficer(Cost):
 
 @dataclass
 class RemoveOwnAwayTeam(Cost):
-    """Remove one of your Away Teams from any Location; it returns to your Captain."""
+    """Remove one of your Away Teams from any Location (or, with here=True, from this Location); it returns to your
+    Captain."""
+
+    here: bool = False
 
     def locations(self, ctx):
+        if self.here:
+            return [ctx.this_card] if ctx.this_card is not None and ctx.away_at(ctx.this_card) > 0 else []
         return [loc for loc in ctx.all_locations() if ctx.away_at(loc) > 0]
 
     def can_pay(self, ctx):
@@ -605,6 +616,7 @@ class Actions:
         take_out(self.state, inst)
         owner.discard.append(inst)
         self.emit(f"{owner.name} discards {name(inst)}.")
+        raise_event(self.state, "discard", owner.seat, inst.uid, step=self.state.step)
 
     def discard_top(self) -> Gen:
         self._use(A.DISCARD)
@@ -613,6 +625,7 @@ class Actions:
         inst = self.ctx.me.draw.pop(0)
         self.ctx.me.discard.append(inst)
         self.emit(f"{self.ctx.me.name} discards {name(inst)} from the top of their deck.", irreversible=True)
+        raise_event(self.state, "discard", self.ctx.me.seat, inst.uid, step=self.state.step)
         return inst
 
     def dismiss(self, inst: Inst) -> Gen:
@@ -689,6 +702,9 @@ class Actions:
         if card(inst).suit != "Person":
             self.emit(f"{name(inst)} is not a Person, so it cannot be promoted.")  # KW-PROM-06
             return
+        if inst.card in registry.CANNOT_PROMOTE:
+            self.emit(f"{name(inst)} cannot be promoted.")
+            return
         if restricted(self.state, self.ctx.me, inst, "promote"):
             self.emit(f"{name(inst)} cannot be promoted: a card in play forbids it.")
             return
@@ -697,6 +713,7 @@ class Actions:
         self.emit(f"{self.ctx.me.name} promotes {name(inst)} to Duty Officer.")
         if where.zone in ("hand", "discard"):
             put_into_play(self.state, self.ctx.me, inst)
+        raise_event(self.state, "promote", self.ctx.me.seat, inst.uid)
         yield from self._trim_duty(self.ctx.me)
 
     def _trim_duty(self, player: Player) -> Gen:
@@ -729,12 +746,25 @@ class Actions:
         return
         yield  # pragma: no cover
 
-    def take_incident(self, player: Player | None = None, *, opponent: bool = False, _cost: bool = False) -> Gen:
-        """Take the top Incident. `opponent=True` makes the opponent take it instead."""
+    def take_incident(self, player: Player | None = None, *, opponent: bool = False, to: str = "hand",
+                      _cost: bool = False) -> Gen:
+        """Take the top Incident into hand, or `to` "discard" (Ensign Mariner) or "deck_bottom" (Solum).
+        `opponent=True` makes the opponent take it instead."""
         if not _cost:
             self._use(A.TAKE_INCIDENT)
         from engine import game
 
+        if not opponent and (player is None or player is self.ctx.me):
+            from_junk = [i for i in self.state.junk if card(i).suit == "Incident"]
+            if from_junk and any(i.card in registry.INCIDENTS_FROM_JUNK for i in table_cards(self.ctx.me)):
+                choice = yield from self.pick_card("Take an Incident from the Junk instead of the Incident deck?",
+                                                   from_junk, optional=True, none_label="Take from the Incident deck")
+                if choice is not None:
+                    self.state.junk.remove(choice)
+                    self.ctx.me.hand.append(choice)
+                    self.state.emit(f"{self.ctx.me.name} takes {name(choice)} from the Junk.", seat=self.ctx.me.seat)
+                    raise_event(self.state, "take_incident", self.ctx.me.seat, choice.uid)
+                    return choice
         if opponent:
             if self.ctx.opponent is None:
                 if self.ctx.virtual_opponent:
@@ -743,8 +773,17 @@ class Actions:
                     gain(self.state, self.ctx.me, "glory", 1)
                 return None
             player = self.ctx.opponent
-        return game.take_incident(self.state, player or self.ctx.me)
-        yield  # pragma: no cover
+        taken = game.take_incident(self.state, player or self.ctx.me)
+        if taken is not None and to != "hand":
+            owner = player or self.ctx.me
+            owner.hand.remove(taken)
+            if to == "deck_bottom":
+                owner.draw.append(taken)
+                self.emit(f"{owner.name} puts the Incident on the bottom of their Draw deck.")
+            else:
+                owner.discard.append(taken)
+                self.emit(f"{owner.name} puts the Incident into their Discard pile.")
+        return taken
 
     def return_incident(self, inst: Inst) -> Gen:
         self._use(A.RETURN_INCIDENT)
@@ -789,17 +828,65 @@ class Actions:
             self.state.market[suit] = None
             self.state.junk.append(inst)
             self.emit(f"{self.ctx.me.name} junks {name(inst)}.")
+            raise_event(self.state, "junk", self.ctx.me.seat, inst.uid, source="market")
             _refill(self.state, suit)
         return inst
+
+    def junk_card(self, inst: Inst) -> Gen:
+        """Junk a card from your hand or Discard pile (Starbase 80). The Market does not refill (KW-JUNK)."""
+        self._use(A.JUNK)
+        take_out(self.state, inst)
+        inst.res.clear()
+        self.state.junk.append(inst)
+        self.emit(f"{self.ctx.me.name} junks {name(inst)}.")
+        raise_event(self.state, "junk", self.ctx.me.seat, inst.uid, source="player")
+        return inst
+        yield  # pragma: no cover
+
+    def take_from_reward_pile(self, n: int = 2) -> Gen:
+        """Look at n random cards from the Reward pile and take one into hand (REQ-EXP-41 to -46). Returns
+        (taken, the others), still in the Reward pile, for the card to destroy or keep. Uses randomness."""
+        self._use(A.TAKE_FROM_REWARD_PILE)
+        pool = list(self.state.rewards)
+        if not pool:
+            self.emit("The Reward pile is empty.")
+            return None, []
+        looked = self.state.rng().sample(pool, min(n, len(pool)))
+        self.state.emit(f"{self.ctx.me.name} looks at {len(looked)} random card(s) from the Reward pile.",
+                        seat=self.ctx.me.seat, irreversible=True)
+        taken = yield from self.pick_card("Take which Reward card?", looked)
+        self.state.rewards.remove(taken)
+        self.ctx.me.hand.append(taken)
+        self.emit(f"{self.ctx.me.name} takes {name(taken)} from the Reward pile.")
+        return taken, [i for i in looked if i is not taken]
+
+    def destroy(self, inst: Inst) -> Gen:
+        """Return a card to the box: it leaves the game (KW-DES)."""
+        self._use(A.DESTROY)
+        if inst in self.state.rewards:
+            self.state.rewards.remove(inst)
+        elif locate(self.state, inst.uid) is not None:
+            take_out(self.state, inst)
+        self.emit(f"{name(inst)} is destroyed.")
+        return
+        yield  # pragma: no cover
 
     # ------------------------------------------------------------ gaining cards (KW-GAIN, KW-SCAN, KW-FIND)
     def gain_card(self, suits: Iterable[str] | None = None, pred: Callable[[Inst], bool] | None = None,
                   label: str = "a card", *, from_junk: bool = False, only_junk: bool = False,
-                  to_hand: bool = False, optional: bool = False) -> Gen:
+                  to_hand: bool = False, optional: bool = False, deck_only: bool = False) -> Gen:
         """Gain [suit] (faceup Market card or unseen top of its deck) or gain [trait] (faceup cards only).
 
         `from_junk` adds the Junk as a source; `only_junk` is "gain ... from the Junk"."""
         self._use(A.GAIN_CARD)
+        # "When you would gain a card" (REQ-AS-27): Lieutenant Dax replaces a Market gain; Starbase 80 adds the Junk.
+        if not only_junk and suits is not None and (yield from self._would(
+                self.ctx.me.seat, {"kind": "would_gain_market", "seat": self.ctx.me.seat, "uid": None,
+                                   "suits": list(suits)})):
+            return None
+        if not only_junk and not from_junk and (yield from self._would(
+                self.ctx.me.seat, {"kind": "would_gain", "seat": self.ctx.me.seat, "uid": None})):
+            from_junk = True
         options: list[tuple[str, str]] = []
         from_junk = from_junk or only_junk
         if only_junk:
@@ -807,7 +894,7 @@ class Actions:
         elif suits is not None:
             for suit in suits:
                 inst = self.state.market.get(suit)
-                if inst is not None and (pred is None or pred(inst)):
+                if inst is not None and not deck_only and (pred is None or pred(inst)):
                     options.append((f"market:{suit}", f"{name(inst)} (faceup {suit})"))
                 if pred is None and self.state.market_decks.get(suit):
                     options.append((f"deck:{suit}", f"Top card of the {suit} deck (unseen)"))
@@ -1021,7 +1108,7 @@ class Actions:
         self._use(A.SPEND)
         if not self.can_spend(dilithium, latinum, glory, actions):
             return False
-        pay_resources(self.ctx.me, dilithium, latinum, glory)
+        pay_resources(self.ctx.me, dilithium, latinum, glory, self.state)
         self.ctx.me.actions -= actions
         self.emit(f"{self.ctx.me.name} spends {_res_text(dilithium, latinum, glory, actions)}.")
         return True
@@ -1063,7 +1150,8 @@ class Actions:
         return n
         yield  # pragma: no cover
 
-    def duplicate(self, cards: list[Inst], *, label: str = "a card", optional: bool = True) -> Gen:
+    def duplicate(self, cards: list[Inst], *, label: str = "a card", optional: bool = True,
+                  indexes: Iterable[int] | None = None) -> Gen:
         """Resolve a PLAY operation of one of `cards` as this card (KW-DUP). No extra action is spent; requirements
         and costs still apply; "this card" in the copied text means the duplicating card. A Duplicate resolved by a
         Duplicate does nothing (KW-DUP-05). Returns (card, index) or None."""
@@ -1079,7 +1167,7 @@ class Actions:
         for c in cards:
             for index, op in enumerate(card(c).operations):
                 impl = impl_for(c, index)
-                if op.kind != "PLAY" or impl is None:
+                if op.kind != "PLAY" or impl is None or (indexes is not None and index not in indexes):
                     continue
                 if impl.requires and not impl.requires(sub):
                     continue
@@ -1249,6 +1337,7 @@ class Actions:
             self.ctx.me.controls_this_turn += 1
             self.state.emit(f"{self.ctx.me.name} takes control of {name(loc)} from the Location deck.", irreversible=True)
             put_into_play(self.state, self.ctx.me, loc)
+            raise_event(self.state, "take_control", self.ctx.me.seat, loc.uid)
         elif loc in self.state.neutral:
             game.take_control(self.state, self.ctx.me, loc, run_control=False)
             put_into_play(self.state, self.ctx.me, loc)
@@ -1487,8 +1576,9 @@ def duty_fits(state: GameState, player: Player, officers: list[Inst]) -> bool:
 
     def place(officer: Inst, seen: set[int]) -> bool:
         for k, (trait, provider) in enumerate(slots):
+            wanted = (trait,) if isinstance(trait, str) else trait
             if k in seen or provider == officer.uid or (
-                    trait and not trait_matches(officer, (trait,), state=state, actor=player.seat)):
+                    trait and not trait_matches(officer, wanted, state=state, actor=player.seat)):
                 continue
             seen.add(k)
             if k not in match or place(match[k], seen):
@@ -1584,9 +1674,11 @@ def raise_event(state: GameState, kind: str, seat: int, uid: str | None, **data)
     state.pending_events.append({"kind": kind, "seat": seat, "uid": uid, **data})
 
 
-def put_into_play(state: GameState, player: Player, inst: Inst, *, played: bool = False) -> None:
-    """KW-PIP-01. `played` marks a card put into play by playing it, for "after playing X" triggers."""
-    raise_event(state, "put_into_play", player.seat, inst.uid, played=played)
+def put_into_play(state: GameState, player: Player, inst: Inst, *, played: bool = False,
+                  index: int | None = None) -> None:
+    """KW-PIP-01. `played` marks a card put into play by playing it, with the PLAY `index`, for "after playing X"
+    triggers."""
+    raise_event(state, "put_into_play", player.seat, inst.uid, played=played, index=index)
 
 
 def _payable_developments(ctx: Ctx, free: bool = False) -> list[Inst]:
@@ -1662,7 +1754,7 @@ def play_inline(ctx: Ctx, inst: Inst, *, free: bool, parent: Actions | None = No
     where = locate(state, inst.uid)
     if where is not None and where.zone not in ("hand", "draw", "discard", "reserve", "log"):
         # Not when the effect moved the card away again, e.g. Hostile Contact returning itself.
-        put_into_play(state, ctx.me, inst, played=True)
+        put_into_play(state, ctx.me, inst, played=True, index=index)
     return inst
 
 

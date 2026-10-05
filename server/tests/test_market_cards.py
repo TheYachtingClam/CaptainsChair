@@ -613,6 +613,15 @@ def _matching_event(s, cid, index):
                            for k in ("log", "take_incident", "return_incident", "exhaust")]
             if inst in p.fleet:
                 candidates.append({"kind": "warp", "seat": seat, "uid": inst.uid, "location": s.neutral[0].uid})
+        for inst in [*p.hand, *p.discard, *p.staging, *p.duty, *p.fleet]:
+            candidates += [{"kind": "discard", "seat": seat, "uid": inst.uid, "step": "action"},
+                           {"kind": "promote", "seat": seat, "uid": inst.uid},
+                           {"kind": "junk", "seat": seat, "uid": inst.uid, "source": "market"}]
+        for loc in [*p.locations, *s.neutral]:
+            candidates.append({"kind": "take_control", "seat": seat, "uid": loc.uid})
+        candidates.append({"kind": "spend", "seat": seat, "uid": None, "dilithium": 1, "latinum": 1, "glory": 0})
+        candidates.append({"kind": "would_gain", "seat": seat, "uid": None})
+        candidates.append({"kind": "would_gain_market", "seat": seat, "uid": None, "suits": ["Person"]})
         candidates.append({"kind": "attacked", "seat": seat, "uid": None, "attacker": 1 - seat})
         candidates.append({"kind": "would_attack", "seat": seat, "uid": None, "attacker": 1 - seat,
                            "removes_away_teams": True})

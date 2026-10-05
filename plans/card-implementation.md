@@ -150,7 +150,9 @@ Done for the Incidents and Encounters. The two Directives are solo-only (Time Is
 
 **You test:** take each Incident and play or return it. Take Encounters with Strange New Worlds.
 
-## Step 10: Locations, the Reward pile and Stardates
+## Step 10: Locations, the Reward pile and Stardates (done)
+
+Stardates kept their engine handling: the 7 printed effects are resolved by the engine, and a test fails on any Stardate whose effect it does not recognise.
 
 - **Locations:** all 23 neutral Locations, with their CONTROL and ACTIVATION operations.
 - **The Reward pile:** Krulmuth-B needs `TAKE_FROM_REWARD_PILE`, and the 8 Reward cards are added.
