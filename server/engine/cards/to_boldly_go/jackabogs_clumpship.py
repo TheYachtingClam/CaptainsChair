@@ -38,7 +38,8 @@ def ram(ctx, actions):
     yield from actions.log(weapon)
     opp = ctx.opponent
     if opp is not None and (yield from actions.attack()):
-        ships = [i for i in opp.hand + opp.discard + ctx.in_play(opp) if is_suit(i, "Ship")]
+        ships = [i for i in ([] if opp.bot is not None else opp.hand + opp.discard) + ctx.in_play(opp)
+                 if is_suit(i, "Ship")]  # the Bot never chooses from its Discard pile (REQ-SOLO-190)
         ship = yield from actions.pick_card("Log one of your Ships (Clumpship).", ships, seat=opp.seat)
         if ship:
             yield from actions.log(ship)

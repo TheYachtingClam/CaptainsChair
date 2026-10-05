@@ -296,10 +296,29 @@ def _cleanup(state: GameState, bot: Player) -> None:
 # =========================================================================== choices put to the Bot
 
 
+DECLINE = ("none", "no", "pass", "stop")
+
+
 def answer(state: GameState) -> str:
-    """The option the Bot picks when a human card puts a choice to it: the first listed one (REQ-SOLO-112). Plans Step
-    3 refines this (declining to return Incidents, attacks on its hand)."""
-    return state.decision.options[0].id
+    """The option the Bot picks when a human card puts a choice to it (REQ-SOLO-111, -112, -166, -187):
+
+    - it declines any chance to return an Incident;
+    - asked which of its Ships to give up, it picks the most recently deployed one;
+    - otherwise it takes the first option it can legally resolve, which is the first one listed (the engine only
+      lists legal options), even if that option does nothing."""
+    decision = state.decision
+    ids = [o.id for o in decision.options]
+    prompt = decision.prompt.lower()
+    if "return" in prompt and "incident" in prompt:
+        decline = next((i for i in ids if i in DECLINE), None)
+        if decline is not None:
+            return decline
+    bot = state.player(decision.seat)
+    fleet = [s.uid for s in bot.fleet]
+    ships = [i for i in ids if i in fleet]
+    if ships and len(ships) == len([i for i in ids if i not in DECLINE]):
+        return max(ships, key=fleet.index)
+    return ids[0]
 
 
 def load_rows() -> None:

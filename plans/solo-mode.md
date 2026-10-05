@@ -136,7 +136,7 @@ The engine that resolves Bot cards, proven on one Crew. Soval comes first becaus
 
 **You test:** play against the Soval Bot at Admiral. The log names each card flipped, the row it matched and what happened. Check a few turns against the command card on screen.
 
-## Step 3: Your cards against the Bot, SURPRISE operations, and Ticking Clock
+## Step 3: Your cards against the Bot, SURPRISE operations, and Ticking Clock (done)
 
 Making every human card behave correctly against a Bot opponent, through the hook from design decision 4:
 

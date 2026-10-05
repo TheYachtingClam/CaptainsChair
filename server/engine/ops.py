@@ -681,6 +681,18 @@ class Actions:
 
     def _draw(self, n: int, player: Player | None = None) -> Gen:
         player = player or self.ctx.me
+        if player.bot is not None:
+            # The Bot has no hand: a draw offered or forced on it discards the top card of its deck (REQ-SOLO-186).
+            from engine.bot import draw_card
+
+            for _ in range(n):
+                inst = draw_card(self.state, player)
+                if inst is None:
+                    break
+                player.discard.append(inst)
+                self.state.emit(f"{player.name} discards {name(inst)} from the top of its deck instead of drawing.",
+                                irreversible=True)
+            return 0
         drawn = 0
         for _ in range(n):
             if not player.draw:
@@ -731,6 +743,36 @@ class Actions:
         self.state.emit(f"{me.name} looks at the top card of their deck.", seat=me.seat, irreversible=True)
         self.state.emit(f"It is {name(inst)}.", seat=me.seat, private_to=me.seat)
         return inst
+
+    def discard_from_reserve(self, *, bottom: bool = False) -> Gen:
+        """Discard the top (or bottom) card of your Reserve deck, the Bot's Supplement deck (Knowledge of a Terrible
+        Fate's SURPRISE)."""
+        self._use(A.DISCARD)
+        me = self.ctx.me
+        if not me.reserve:
+            return None
+        inst = me.reserve.pop(-1 if bottom else 0)
+        me.discard.append(inst)
+        self.emit(f"{me.name} discards {name(inst)} from the {'bottom' if bottom else 'top'} of its "
+                  f"{'Supplement' if me.bot is not None else 'Reserve'} deck.")
+        return inst
+        yield  # pragma: no cover
+
+    def junk_top_incident(self) -> Gen:
+        """Move the top card of the Incident deck to the Junk (Time Is Running Out). An emptied Incident deck is the
+        Burn (REQ-OV-23)."""
+        self._use(A.JUNK)
+        from engine.game import burn
+
+        if not self.state.incident:
+            return None
+        inst = self.state.incident.pop(0)
+        self.state.junk.append(inst)
+        self.state.emit(f"The top Incident, {name(inst)}, is junked.", irreversible=True)
+        if not self.state.incident:
+            burn(self.state)
+        return inst
+        yield  # pragma: no cover
 
     def shuffle_into(self, inst: Inst) -> Gen:
         """Shuffle a card into your Draw deck (Second Contact, Dooplers)."""
@@ -796,6 +838,9 @@ class Actions:
         player = player or self.ctx.me
         if player is not self.ctx.me:
             self._use(A.FORCE)
+        if player.bot is not None:
+            yield from self.bot_hand_attack(player, n)
+            return []
         out = []
         for _ in range(n):
             this = self.ctx.this_card
@@ -806,6 +851,30 @@ class Actions:
             self._discard(inst)
             out.append(inst)
         return out
+
+    def bot_hand_attack(self, bot: Player, times: int = 1) -> Gen:
+        """An attack on the Bot's hand, or one forcing it to find a card or choose from its Discard pile, does nothing:
+        the human chooses whether it succeeded, and on a success may move the top card of the Bot Discard pile onto
+        the Bot deck (REQ-SOLO-190 to -194). Returns True if the human called it a success."""
+        self._use(A.FORCE)
+        me = self.ctx.me
+        succeeded = False
+        for _ in range(times):
+            top = bot.discard[-1] if bot.discard else None
+            options = ([("move", f"It succeeded: move {name(top)} from the Bot Discard pile onto its deck")]
+                       if top is not None else [])
+            options += [("succeeded", "It succeeded (nothing else happens)"), ("failed", "It failed")]
+            answer = yield from self.choose(f"{bot.name} has no hand, so this does nothing. Did it succeed?", options,
+                                            me.seat, show=[top] if top is not None else None)
+            succeeded = answer != "failed"
+            if answer == "move" and bot.discard:
+                moved = bot.discard.pop()
+                bot.draw.insert(0, moved)
+                self.emit(f"{me.name} moves {name(moved)} from the top of {bot.name}'s Discard pile onto its deck.")
+            else:
+                outcome = "a success" if answer == "succeeded" else "failed"
+                self.emit(f"{me.name} treats the attack on {bot.name}'s hand as {outcome}.")
+        return succeeded
 
     def _discard(self, inst: Inst) -> None:
         owner = locate(self.state, inst.uid).owner
@@ -857,6 +926,11 @@ class Actions:
         self._use(A.RECALL)
         if is_protected(self.state, inst):
             self.emit(f"{name(inst)} cannot be recalled from where it is beamed.")
+            return
+        bot_owner = locate(self.state, inst.uid)
+        if bot_owner is not None and bot_owner.owner is not None and bot_owner.owner.bot is not None:
+            # The Bot has no hand: its recalled Duty Officer or Ship is discarded instead (REQ-SOLO-94, -165).
+            self._dismiss(inst)
             return
         where = take_out(self.state, inst)
         owner = where.owner or self.ctx.me
@@ -1798,6 +1872,8 @@ class Actions:
         opp = self.ctx.opponent
         if opp is None:
             taken = min(n, 1) if self.ctx.virtual_opponent else 0
+        elif opp.bot is not None:
+            taken = n  # against the Bot a steal always succeeds, from the supply, never from the Bot (REQ-SOLO-195)
         else:
             taken = min(n, getattr(opp, kind))
             setattr(opp, kind, getattr(opp, kind) - taken)
@@ -2332,6 +2408,9 @@ def _resume_inner(state: GameState) -> None:
 def _state_checks(state: GameState) -> None:
     """State-based PASSIVE effects, e.g. Thruster Pack is dismissed when nothing is beamed to it."""
     for p in state.players:
+        if p.bot is not None and not p.duty and p.bot.suits_side == "with_duty_officer":
+            p.bot.suits_side = "no_duty_officer"  # its Duty Officer was dismissed or logged (REQ-SOLO-93)
+            state.emit(f"{p.name} flips its SUITS card to WITH NO DUTY OFFICER.", seat=p.seat)
         for inst in list(table_cards(p)):
             check = registry.STATE_CHECKS.get(inst.card)
             if check and check(state, p, inst):

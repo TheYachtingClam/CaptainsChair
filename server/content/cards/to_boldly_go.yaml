@@ -2394,6 +2394,7 @@ cards:
     - JUNK
     - DRAW
     - DISCARD
+    - FORCE
     undoable: false
 - id: 2DIR02
   name: Reinforce

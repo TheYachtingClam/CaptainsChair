@@ -26,7 +26,14 @@ def con(ctx, actions):
     if (yield from actions.attack()) and ctx.opponent is not None:
         opp = ctx.opponent
         people = [i for i in opp.hand + opp.discard if is_suit(i, "Person")]
-        if people:
+        if opp.bot is not None:
+            # Against the Bot this does nothing; you decide whether it succeeded (REQ-SOLO-190 to -193). On a success
+            # the Bot "draws", which discards the top of its deck; on a failure it takes an Incident.
+            if (yield from actions.bot_hand_attack(opp)):
+                yield from actions.draw(1, player=opp)
+            else:
+                yield from actions.take_incident(opponent=True)
+        elif people:
             person = yield from actions.pick_card("Harry Mudd: log a Person from your hand or Discard pile.", people,
                                                   seat=opp.seat)
             yield from actions.log(person)

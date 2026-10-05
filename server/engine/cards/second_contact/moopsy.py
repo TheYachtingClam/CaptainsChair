@@ -31,7 +31,8 @@ def hungry(ctx, actions):
     yield from actions.deploy(ctx.this_card)
     opp = ctx.opponent
     if (yield from actions.attack()) and opp is not None:
-        people = [i for i in opp.hand + opp.discard + ctx.in_play(opp) if is_suit(i, "Person")]
+        people = [i for i in ([] if opp.bot is not None else opp.hand + opp.discard) + ctx.in_play(opp)
+                 if is_suit(i, "Person")]  # the Bot never chooses from its Discard pile (REQ-SOLO-190)
         person = yield from actions.pick_card("Moopsy: log one of your Persons (hand, Discard pile or play).", people,
                                               seat=opp.seat)
         if person:

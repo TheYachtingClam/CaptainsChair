@@ -31,3 +31,11 @@ def defy_fate(ctx, actions):
 def foresight(ctx, actions):
     """REACTION: After taking an Incident, draw 2 cards."""
     yield from actions.draw(2)
+
+
+@operation("3PIK17", 4, uses=[A.GAIN_RESOURCE, A.DISCARD, A.DESTROY])
+def surprise(ctx, actions):
+    """SURPRISE (Bot only): Gain 1 [Glory]. Discard the bottom card of the Supplement deck. Destroy this card."""
+    yield from actions.gain_resource("glory", 1)
+    yield from actions.discard_from_reserve(bottom=True)
+    yield from actions.destroy(ctx.this_card)
