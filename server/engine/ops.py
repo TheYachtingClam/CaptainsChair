@@ -46,7 +46,7 @@ class A:
     ENLIST_DEVELOPMENT = "ENLIST_DEVELOPMENT"; FREE_PLAY = "FREE_PLAY"; DUPLICATE = "DUPLICATE"
     REVEAL = "REVEAL"; PEEK = "PEEK"; GAIN_RESOURCE = "GAIN_RESOURCE"; SPEND = "SPEND"
     PLACE_RESOURCES = "PLACE_RESOURCES"; STEAL = "STEAL"; GAIN_ACTION = "GAIN_ACTION"
-    TAKE_FROM_REWARD_PILE = "TAKE_FROM_REWARD_PILE"
+    TAKE_FROM_REWARD_PILE = "TAKE_FROM_REWARD_PILE"; SWAP_JUNK_WITH_MARKET = "SWAP_JUNK_WITH_MARKET"
     GAIN_SPECIALTY = "GAIN_SPECIALTY"; WARP = "WARP"; SEND_AWAY_TEAM = "SEND_AWAY_TEAM"
     REMOVE_AWAY_TEAM = "REMOVE_AWAY_TEAM"; TAKE_CONTROL = "TAKE_CONTROL"; TRIGGER_CONTROL = "TRIGGER_CONTROL"
     EXHAUST = "EXHAUST"; REFRESH = "REFRESH"; FORCE = "FORCE"; ATTACK = "ATTACK"; MOVE_RESOURCES = "MOVE_RESOURCES"
@@ -270,6 +270,12 @@ class Ctx:
     def away_at(self, loc: Inst, player: Player | None = None) -> int:
         return loc.away.get((player or self.me).seat, 0)
 
+    def secured_by(self, loc: Inst, player: Player | None = None) -> bool:
+        """Whether a player (you by default) has secured a Location (REQ-CT-01)."""
+        from engine import game
+
+        return game.secured_by(self.state, loc, (player or self.me).seat)
+
     def location_of(self, ship: Inst) -> Inst | None:
         return next((loc for loc in self.all_locations() if loc.uid == ship.at), None) if ship.at else None
 
@@ -438,7 +444,8 @@ class DismissFromPlay(Cost):
 
     def candidates(self, ctx):
         table = [*ctx.me.fleet, *ctx.me.duty, *ctx.me.status]
-        return [i for i in table if i is not ctx.this_card and (self.pred is None or self.pred(ctx, i))]
+        beamed = [b for host in [*table, *ctx.me.locations] for b in _all_beamed(host)]  # beamed cards are in play
+        return [i for i in [*table, *beamed] if i is not ctx.this_card and (self.pred is None or self.pred(ctx, i))]
 
     def can_pay(self, ctx):
         return bool(self.candidates(ctx))
@@ -447,6 +454,18 @@ class DismissFromPlay(Cost):
         inst = yield from actions.pick_card(f"Dismiss {self.label} (cost).", self.candidates(actions.ctx))
         actions._dismiss(inst)
         actions.paid.append(inst)
+
+
+@dataclass
+class Condition(Cost):
+    """A precondition that is checked like a cost but pays nothing, e.g. Mount Seleya's development cost "and have 1+
+    Vulcan logged"."""
+
+    test: Callable[[Ctx], bool] = lambda ctx: True
+    label: str = ""
+
+    def can_pay(self, ctx):
+        return self.test(ctx)
 
 
 @dataclass
@@ -797,7 +816,9 @@ class Actions:
         self.emit(f"{self.ctx.me.name} returns {name(inst)} to the Incident deck.")
         raise_event(self.state, "return_incident", self.ctx.me.seat, inst.uid)
 
-    def take_encounter(self, look: int = 1) -> Gen:
+    def take_encounter(self, look: int = 1, *, to: str = "hand") -> Gen:
+        """Take the top Encounter (or choose 1 of the top `look`, the rest go to the bottom) into hand, or `to` "top" of
+        your Draw deck (Infinite Diversity in Infinite Combinations)."""
         self._use(A.TAKE_ENCOUNTER)
         if not self.state.encounter:
             return None
@@ -812,8 +833,12 @@ class Actions:
                 self.state.encounter.remove(c)
                 self.state.encounter.append(c)
         self.state.encounter.remove(chosen)
-        self.ctx.me.hand.append(chosen)
-        self.emit(f"{self.ctx.me.name} takes the Encounter {name(chosen)}.", irreversible=True)
+        if to == "top":
+            self.ctx.me.draw.insert(0, chosen)
+            self.emit(f"{self.ctx.me.name} puts the Encounter {name(chosen)} on top of their deck.", irreversible=True)
+        else:
+            self.ctx.me.hand.append(chosen)
+            self.emit(f"{self.ctx.me.name} takes the Encounter {name(chosen)}.", irreversible=True)
         return chosen
 
     def junk(self) -> Gen:
@@ -831,6 +856,24 @@ class Actions:
             raise_event(self.state, "junk", self.ctx.me.seat, inst.uid, source="market")
             _refill(self.state, suit)
         return inst
+
+    def swap_junk_with_market(self, inst: Inst) -> Gen:
+        """Exchange a card in the Junk with the faceup Market card of the same suit (Plomeek Tea). A Market card with
+        tokens cannot be swapped (KW-JUNK-02)."""
+        self._use(A.SWAP_JUNK_WITH_MARKET)
+        suit = card(inst).suit
+        current = self.state.market.get(suit)
+        if suit not in MARKET_SUITS or (current is not None and current.res):
+            self.emit(f"{name(inst)} cannot be swapped into the Market.")
+            return None
+        self.state.junk.remove(inst)
+        if current is not None:
+            self.state.junk.append(current)
+        self.state.market[suit] = inst
+        self.emit(f"{self.ctx.me.name} swaps {name(inst)} from the Junk into the Market"
+                  + (f", junking {name(current)}." if current is not None else "."))
+        return current
+        yield  # pragma: no cover
 
     def junk_card(self, inst: Inst) -> Gen:
         """Junk a card from your hand or Discard pile (Starbase 80). The Market does not refill (KW-JUNK)."""
