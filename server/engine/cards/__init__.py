@@ -70,6 +70,11 @@ TRAIT_MODIFIERS: dict[str, tuple[Callable, bool | str]] = {}
 # "All [icon] on your cards are treated as [icon]" (La'an Noonien Singh): fn(state, owner, inst, icons) -> icons for
 # each of the owner's cards. Table positions.
 SKILL_REWRITES: dict[str, Callable] = {}
+# SPECIAL "For the purposes of securing Location this ship counts as 2 tokens" (A Fleet of 30 California-Class
+# Ships, REQ-EXP-FRE-01): card id -> weight of its Ship token. Also used for the Away Team placement check (REQ-AT-02a).
+SHIP_WEIGHT: dict[str, int] = {}
+# PASSIVE "You may spend [Latinum] as if it was [Dilithium] and vice versa" (D'Vana Tendi). Table positions.
+RESOURCES_INTERCHANGEABLE: set[str] = set()
 # PASSIVE "Your Draw deck is face-up. When interacting with your deck you can choose any of its cards" (Gluonic
 # Distortion). Table positions.
 DECK_FACE_UP: set[str] = set()

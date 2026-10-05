@@ -335,7 +335,15 @@ class Cost:
         yield  # pragma: no cover
 
 
+def interchangeable(player: Player) -> bool:
+    """Whether the player may spend Latinum as Dilithium and vice versa (D'Vana Tendi)."""
+    return any(i.card in registry.RESOURCES_INTERCHANGEABLE for i in table_cards(player))
+
+
 def can_afford(player: Player, dilithium: int = 0, latinum: int = 0, glory: int = 0) -> bool:
+    if interchangeable(player):
+        short = max(0, dilithium + latinum - player.dilithium - player.latinum)
+        return player.glory >= glory + math.ceil(short / 2)  # 1 Glory = 2 Dilithium, which also pay for Latinum
     short_l = max(0, latinum - player.latinum)
     short_d = max(0, dilithium - player.dilithium)
     return player.glory >= glory + short_l + math.ceil(short_d / 2)
@@ -347,9 +355,16 @@ def pay_resources(player: Player, dilithium: int = 0, latinum: int = 0, glory: i
     With `state`, raises a spend event with what was actually paid (Barry Waddle reacts to spending Latinum)."""
     use_l = min(latinum, player.latinum)
     use_d = min(dilithium, player.dilithium)
+    short_l, short_d = latinum - use_l, dilithium - use_d
+    if interchangeable(player):  # D'Vana Tendi: the other resource pays first, then Glory
+        cross_l = min(short_d, player.latinum - use_l)  # Latinum spent as Dilithium
+        cross_d = min(short_l, player.dilithium - use_d)  # Dilithium spent as Latinum
+        use_l, use_d = use_l + cross_l, use_d + cross_d
+        used_g = glory + math.ceil((short_d - cross_l + short_l - cross_d) / 2)
+    else:
+        used_g = glory + short_l + math.ceil(short_d / 2)
     player.latinum -= use_l
     player.dilithium -= use_d
-    used_g = glory + (latinum - use_l) + math.ceil((dilithium - use_d) / 2)
     player.glory -= used_g
     if state is not None and (use_d or use_l or used_g):
         raise_event(state, "spend", player.seat, None, dilithium=use_d, latinum=use_l, glory=used_g)
@@ -607,6 +622,7 @@ class Actions:
         self.paid: list[Inst] = []  # cards used to pay costs, e.g. the discarded card
         self._attack: bool | None = None  # result of this operation's attack check, once made
         self.in_duplicate = False  # resolving a duplicated operation: it cannot duplicate again (KW-DUP-05)
+        self.skip_log_self = False  # "ignoring any effect that would log this card" (Apergosians)
 
     def _use(self, action: str) -> None:
         if action not in self.uses:
@@ -709,6 +725,16 @@ class Actions:
         self.state.emit(f"{me.name} looks at the top card of their deck.", seat=me.seat, irreversible=True)
         self.state.emit(f"It is {name(inst)}.", seat=me.seat, private_to=me.seat)
         return inst
+
+    def shuffle_into(self, inst: Inst) -> Gen:
+        """Shuffle a card into your Draw deck (Second Contact, Dooplers)."""
+        self._use(A.SHUFFLE_INTO)
+        take_out(self.state, inst)
+        self.ctx.me.draw.append(inst)
+        self.state.shuffle(self.ctx.me.draw)
+        self.state.emit(f"{self.ctx.me.name} shuffles {name(inst)} into their deck.", irreversible=True)
+        return
+        yield  # pragma: no cover
 
     def shuffle_deck(self) -> Gen:
         """Shuffle your Draw deck (Gluonic Distortion)."""
@@ -844,6 +870,9 @@ class Actions:
         yield  # pragma: no cover
 
     def _log(self, inst: Inst) -> None:
+        if self.skip_log_self and self.ctx.this_card is not None and inst.uid == self.ctx.this_card.uid:
+            self.emit(f"{name(inst)} is not logged: the duplicated effect that would log it is ignored.")
+            return
         where = take_out(self.state, inst)
         owner = where.owner or self.ctx.me
         if card(inst).suit == "Location":
@@ -909,12 +938,16 @@ class Actions:
         return
         yield  # pragma: no cover
 
-    def put_on_deck(self, inst: Inst) -> Gen:
+    def put_on_deck(self, inst: Inst, *, bottom: bool = False) -> Gen:
+        """Put a card on top of its owner's Draw deck, or on the bottom (T'Ana)."""
         self._use(A.PUT)
         where = take_out(self.state, inst)
         owner = where.owner or self.ctx.me
-        owner.draw.insert(0, inst)
-        self.emit(f"{owner.name} puts {name(inst)} on top of their deck.")
+        if bottom:
+            owner.draw.append(inst)
+        else:
+            owner.draw.insert(0, inst)
+        self.emit(f"{owner.name} puts {name(inst)} on the {'bottom' if bottom else 'top'} of their deck.")
         return
         yield  # pragma: no cover
 
@@ -1366,7 +1399,7 @@ class Actions:
         yield  # pragma: no cover
 
     def duplicate(self, cards: list[Inst], *, label: str = "a card", optional: bool = True,
-                  indexes: Iterable[int] | None = None, kind: str = "PLAY") -> Gen:
+                  indexes: Iterable[int] | None = None, kind: str = "PLAY", skip_log_self: bool = False) -> Gen:
         """Resolve a `kind` operation (PLAY unless stated; Una duplicates a RESUPPLY) of one of `cards` as this card
         (KW-DUP). No extra action is spent; requirements and costs still apply; "this card" in the copied text means the duplicating card. A Duplicate resolved by a
         Duplicate does nothing (KW-DUP-05). Returns (card, index) or None."""
@@ -1403,6 +1436,7 @@ class Actions:
         self.emit(f"{self.ctx.me.name} duplicates {name(source)}.")
         acts = Actions(sub, impl.uses)
         acts.in_duplicate = True
+        acts.skip_log_self = skip_log_self
         for cost in impl.costs:
             yield from cost.pay(acts)
         yield from impl.fn(sub, acts)
@@ -1565,9 +1599,12 @@ class Actions:
         """Locations an Away Team may be sent to (KW-SEND-03). `ignore_ships` skips the opponent-Ship rule."""
         opp = self.ctx.opponent
         out = list(self.ctx.me.locations)
+        def weight(ships):  # REQ-AT-02a: each Ship token counts its weight (A Fleet of 30 California-Class Ships)
+            return sum(registry.SHIP_WEIGHT.get(s.card, 1) for s in ships)
+
         for loc in self.state.neutral:
-            mine = len(self.ctx.ships_at(loc))
-            theirs = len(self.ctx.ships_at(loc, opp)) if opp else 0
+            mine = weight(self.ctx.ships_at(loc))
+            theirs = weight(self.ctx.ships_at(loc, opp)) if opp else 0
             if ignore_ships or theirs <= mine:
                 out.append(loc)
         return [loc for loc in out if where is None or where(loc)]
@@ -1729,7 +1766,10 @@ class Actions:
             acts = Actions(sub, impl.uses)
             for cost in impl.costs:
                 yield from cost.pay(acts)
-            if (yield from impl.fn(sub, acts)):
+            replaced = yield from impl.fn(sub, acts)
+            if card(inst).operations[index].kind == "SUPPORT":
+                raise_event(self.state, "support_resolved", seat, inst.uid)  # Anomaly Consolidation Day
+            if replaced:
                 return True
 
     def steal(self, kind: str, n: int = 1) -> Gen:
@@ -2234,6 +2274,11 @@ def _resume_inner(state: GameState) -> None:
             ask = gen.send(reply)
     except StopIteration:
         state.running = None
+        ref = run.ref
+        inst = find_inst(state, ref.uid) if ref.uid else None
+        if ref.mode == "trigger" and inst is not None and ref.index is not None \
+                and op_at(inst, ref.index).kind == "SUPPORT":
+            raise_event(state, "support_resolved", ref.seat, inst.uid)  # Anomaly Consolidation Day
         _state_checks(state)
 
 

@@ -20,7 +20,6 @@ from engine.setup import refill_market
 from engine.state import Decision, GameState, Inst, Option, Player
 
 BASE_HAND_SIZE = 5
-FLEET_SHIP_WEIGHT = {"3FRE03": 2}  # A Fleet of 30 California-Class Ships (REQ-EXP-FRE-01)
 KHAN_CAPTAINS = {"2KHA01A", "2KHA01B"}
 
 
@@ -127,6 +126,17 @@ def _collect_triggers(state: GameState, seat: int, trigger_event: dict) -> None:
             elif (not inst.exhausted and all(c.can_pay(ctx) for c in impl.costs)
                   and not ops.reactions_blocked(state, seat)):
                 optional.append(ref)
+    # SPECIAL operations with a trigger that work "while this card is in your Staging Area" (Anomaly Consolidation
+    # Day). Their code asks any "may" itself.
+    for inst in player.staging:
+        if inst.uid == trigger_event.get("uid"):
+            continue  # handled below, as an event about the card itself
+        for index, op in enumerate(card(inst).operations):
+            impl = card_code.OPS.get((inst.card, index))
+            if op.kind == "SPECIAL" and impl is not None and impl.trigger is not None:
+                ref = ops.OpRef(mode="trigger", seat=seat, uid=inst.uid, index=index, event=trigger_event)
+                if impl.trigger(ops.Ctx(state, ref), trigger_event):
+                    mandatory.append(ref)
     # SUPPORT (Second Contact): matching cards in the owner's hand, during their own Action Step (REQ-EXP-30 to -37).
     if ops.support_window(state, seat):
         for inst in player.hand:
@@ -343,7 +353,7 @@ def burn(state: GameState) -> None:
 def tokens_at(state: GameState, location: Inst, seat: int) -> int:
     """Away Teams plus Ship tokens, weighted, that a player has at a Location (REQ-CT-01)."""
     player = state.player(seat)
-    ships = sum(FLEET_SHIP_WEIGHT.get(s.card, 1) for s in player.fleet if s.at == location.uid)
+    ships = sum(card_code.SHIP_WEIGHT.get(s.card, 1) for s in player.fleet if s.at == location.uid)
     return location.away.get(seat, 0) + ships
 
 

@@ -60,6 +60,7 @@ def has_code(card_id: str, index: int, kind: str) -> bool:
                                               registry.DUTY_SLOTS, registry.RESTRICTIONS, registry.TRAIT_MODIFIERS,
                                               registry.ALSO_SUIT, registry.INCIDENTS_FROM_JUNK, registry.CANNOT_PROMOTE,
                                               registry.VP_SPECIAL, registry.WARP_DESTINATIONS, registry.SKILL_REWRITES, registry.INCIDENTS_FROM_LOG, registry.DECK_FACE_UP,
+                                              registry.SHIP_WEIGHT, registry.RESOURCES_INTERCHANGEABLE,
                                               {s for s, _, _ in registry.GRANTED_PLAYS.values()},
                                               registry.PROTECTED_BEAMED))
     return False

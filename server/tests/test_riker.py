@@ -5,7 +5,7 @@ import pytest
 from engine import cards as registry
 from engine.content import content
 from engine.game import advance, choose
-from engine.ops import A, Actions, Ctx, _payable_developments, start, traits_of
+from engine.ops import Ctx, _payable_developments, start, traits_of
 from engine.state import OpRef
 from engine.views import game_view
 from tests.scenario import activate, answer, can_play, card, given, options, play

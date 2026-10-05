@@ -5,8 +5,10 @@ from engine.ops import A, DiscardFromHand, TakeIncidentCost
 
 from ._util import is_suit
 
+BOIMLERS = ("3RIK14", "3FRE23")  # Freeman's Bradward Boimler prints the same PLAY and SUPPORT
 
-@operation("3RIK14", 0, uses=[A.SPEND, A.DRAW, A.FREE_PLAY])
+
+@operation(BOIMLERS, 0, uses=[A.SPEND, A.DRAW, A.FREE_PLAY])
 def overachiever(ctx, actions):
     """PLAY: Spend all your remaining [Action] (possibly none). For each [Action] spent this way, draw a card; then
     draw one additional card. Free play one of the drawn cards."""
@@ -22,7 +24,7 @@ def overachiever(ctx, actions):
         yield from actions.free_play(card)
 
 
-@operation("3RIK14", 1, uses=[A.DUPLICATE],
+@operation(BOIMLERS, 1, uses=[A.DUPLICATE],
            trigger=lambda ctx, ev: ev["kind"] == "promote" and ev["seat"] == ctx.me.seat
            and ctx.event_card is not None and is_suit(ctx.event_card, "Person"))
 def by_the_book(ctx, actions):

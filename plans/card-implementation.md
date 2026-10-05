@@ -169,7 +169,7 @@ Each step covers the deck's cards, development costs, Passives, ENDGAME, deck-sp
 13. Archer (done)
 14. Pike (done)
 15. Riker (done)
-16. Freeman (Second Contact), including the K'ranch, Boimler and Tendi SUPPORT chain test
+16. Freeman (done), including the K'ranch, Boimler and Tendi SUPPORT chain test
 17. Rebner: hand size 3, Helmets, the Junk, and tracks fixed at ×0
 18. Khan: marked traits, the double-sided Captain, his Incident rules, and his Cadet rules. Khan has two open questions to answer first.
 

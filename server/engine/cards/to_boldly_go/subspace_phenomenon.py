@@ -15,7 +15,7 @@ def _draw_two_keep_one(ctx, actions):
         yield from actions.discard(1, pred=lambda i: i in drawn, label="one of the drawn cards")
 
 
-@operation(("2INC05", "2KIRK16"), 0, uses=[A.DISCARD, A.RETURN_INCIDENT, A.DRAW], cost=[DiscardFromHand(1)])
+@operation(("2INC05", "2KIRK16", "3FRE15"), 0, uses=[A.DISCARD, A.RETURN_INCIDENT, A.DRAW], cost=[DiscardFromHand(1)])
 def study(ctx, actions):
     """PLAY: Discard a card to return this card. If the discarded card has [Research]/[Research Focus], draw 2 cards
     and discard one of them."""
@@ -24,7 +24,7 @@ def study(ctx, actions):
         yield from _draw_two_keep_one(ctx, actions)
 
 
-@operation(("2INC05", "2KIRK16"), 1, uses=[A.RETURN_INCIDENT, A.DRAW, A.DISCARD],
+@operation(("2INC05", "2KIRK16", "3FRE15"), 1, uses=[A.RETURN_INCIDENT, A.DRAW, A.DISCARD],
            requires=lambda ctx: count_traits(ctx, "Time Travel") > 0)
 def temporal_fix(ctx, actions):
     """PLAY: If you have a Time Travel in play, return this card and draw 2 cards and discard one of them."""
