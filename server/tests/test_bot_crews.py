@@ -196,3 +196,72 @@ def test_archer_attack_removes_all_your_teams_where_it_has_a_ship():
     resolve_card(s, attack_card)
     finish(s)
     assert not s.neutral[0].away.get(0) and me(s).away_pool == pool + 2
+
+
+# ------------------------------------------------------------------ Pike, Riker, Freeman, Rebner (Step 5)
+
+def test_pike_gains_on_a_skill_track_before_the_row():
+    """Special rule: a resolved card with a Research Skill icon gains the Bot 1 Research first."""
+    s = solo("pike")
+    resolve_card(s, "2SOV21")  # Sub-Commander T'Pol: Research Skill
+    text = log_text(s)
+    assert the_bot(s).tracks["research"] >= 1
+    assert text.index("gains 1 Research") < text.index(" matches ")
+
+
+def test_pike_any_skill_gains_on_the_highest_track():
+    s = solo("pike")
+    bot = the_bot(s)
+    bot.tracks.update(research=2, influence=5, military=3)
+    any_skill = next(k for k, c in CARDS.items() if c.is_common and c.skills == ("Any",))
+    resolve_card(s, any_skill)
+    assert the_bot(s).tracks["influence"] >= 6
+
+
+def test_riker_values_its_favourite_traits_higher():
+    s = solo("riker")
+    bot = the_bot(s)
+    hoshi = s.new_inst("2PER07")  # NX-01
+    plain = s.new_inst("2PER11")
+    assert bot_rules.value(s, hoshi, bot) == bot_rules.value(s, hoshi, me(s)) + 1
+    _ = plain
+
+
+def test_riker_nx01_card_gains_three_glory_and_is_logged():
+    s = solo("riker")
+    hoshi = resolve_card(s, "2PER07")
+    bot = the_bot(s)
+    assert bot.glory == 3 and any(i.uid == hoshi.uid for i in bot.log)
+
+
+def test_riker_discards_its_whole_deck():
+    s = solo("riker")
+    resolve_card(s, "2ENC08")  # Encounter row: discard the entire Bot deck
+    bot = the_bot(s)
+    assert not bot.draw and bot.glory >= 2
+
+
+def test_freeman_discards_lower_deckers_instead_of_logging_them():
+    s = solo("freeman")
+    the_bot(s).draw.insert(0, s.new_inst("3FRE24"))  # Beckett Mariner: Lower Decker
+    resolve_card(s, "2INC02")  # Incident row: log the top card of the Bot deck
+    bot = the_bot(s)
+    assert any(i.card == "3FRE24" for i in bot.discard) and not any(i.card == "3FRE24" for i in bot.log)
+    assert bot_rules.value(s, s.new_inst("3FRE24"), bot) == bot_rules.value(s, s.new_inst("3FRE24"), me(s)) + 1
+
+
+def test_rebner_weapon_at_six_military():
+    s = solo("rebner")
+    the_bot(s).tracks["military"] = 6
+    weapon = next(k for k, c in CARDS.items() if c.is_common and c.suit == "Cargo" and "Weapon" in c.traits
+                  and "Helmet" not in c.traits)
+    inst = resolve_card(s, weapon)
+    finish(s)
+    assert any(i.uid == inst.uid for i in the_bot(s).log)
+    assert any(CARDS[i.card].suit == "Incident" for i in me(s).hand)
+
+
+def test_rebner_research_and_influence_score_nothing():
+    s = solo("rebner")
+    board = content().boards[the_bot(s).board]
+    assert all(board.multiplier(t, 15) == 0 for t in ("research", "influence"))

@@ -39,6 +39,8 @@ SIDE_NAMES = {"traits": "TRAITS", "no_duty_officer": "SUITS WITH NO DUTY OFFICER
 # (Soval: Path of Surak; Freeman: Lower Decker), and value bonuses for the Bot (Riker, Freeman).
 LOG_TOP_DISCARDS: dict[str, tuple[str, ...]] = {}
 VALUE_BONUS: dict[str, Callable[[Inst], int]] = {}
+# Crew special rules run before the matching row, with the Bot actions they need (Pike: gain on a Specialty track).
+ON_RESOLVE: dict[str, tuple[Callable, tuple[str, ...]]] = {}
 
 
 def row(crew: str, side: str, number: int, *, uses=()):
@@ -217,6 +219,10 @@ def resolve(ctx, inst: Inst) -> Iterable:
     state, bot = ctx.state, ctx.me
     card = content().cards[inst.card]
     sub = Ctx(state, OpRef(mode="bot", seat=bot.seat, uid=inst.uid))
+    special = ON_RESOLVE.get(bot.bot.crew)
+    if special is not None:
+        fn, uses = special
+        yield from fn(sub, BotActions(sub, uses, inst, lambda other: resolve(ctx, other)))
     if "Surprise" in card.traits:
         yield from _surprise(sub, inst)
     else:

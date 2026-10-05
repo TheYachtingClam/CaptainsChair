@@ -165,7 +165,7 @@ Three Crews with no Bot special rule, except that Archer's row adds Away Teams f
 
 **You test:** one game against each of these Bots. Watch for the Kelpien row continuing to the SUITS card (Georgiou), and Archer's Bot gaining Away Teams.
 
-## Step 5: The Pike, Riker, Freeman and Rebner Bots
+## Step 5: The Pike, Riker, Freeman and Rebner Bots (done)
 
 The four Crews with special rules:
 

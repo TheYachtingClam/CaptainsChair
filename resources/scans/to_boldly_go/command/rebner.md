@@ -94,7 +94,7 @@ Image id: `rebner-five-year-mission-upgrades`. Used only in the solo campaign (R
 
 ## Rulings and open questions
 
-- The "[Military Focus]" icons on these rows are read as Focus icons (folded corner). Verify against the printed card.
+- The "[Military Focus]" icons on these rows are Focus icons: checked against the printed card, they have the folded corner.
 - The Bot's hand-size rule does not apply; the Bot has no hand.
 
 ## Tests

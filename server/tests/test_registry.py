@@ -56,3 +56,19 @@ def test_only_waiting_cards_lack_code():
             if op.kind == "PLAY":
                 assert registry.OPS.get((card.id, index)) is not None, (card.id, index)
                 legal(s, player, inst, index)  # never the placeholder path
+
+
+def test_every_bot_row_has_code():
+    """Every Automated Command row of every Bot Crew has a function, except the Khan Bot's (on hold with Khan) and the
+    SURPRISE reminder rows, which resolve the card's own SURPRISE operation (requirements/22-solo-mode.md §6)."""
+    from engine import bot as bot_rules
+
+    missing = []
+    for crew, data in content().command.items():
+        if crew == "khan":
+            continue
+        for side in data.sides:
+            for r in side.rows:
+                if "Surprise" not in r.matches and (crew, side.side, r.number) not in bot_rules.ROWS:
+                    missing.append(f"{crew} {side.side} {r.number}")
+    assert not missing, missing
