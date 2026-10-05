@@ -89,6 +89,8 @@ INCIDENTS_FROM_LOG: set[str] = set()
 ALSO_SUIT: dict[str, str] = {}
 # PASSIVE "When taking an Incident, you may take it from the Junk" (Starbase 80). Table positions.
 INCIDENTS_FROM_JUNK: set[str] = set()
+# SPECIAL "This card cannot be logged" (Rebelution): effects that would log it do nothing to it.
+CANNOT_LOG: set[str] = set()
 # SPECIAL "This card cannot be promoted" (Ensign Boimler, Ensign Mariner).
 CANNOT_PROMOTE: set[str] = set()
 # Asterisk VP: fn(state, player, inst) -> the card's VP at final scoring, wherever it is (REQ-FS-02 component 4).

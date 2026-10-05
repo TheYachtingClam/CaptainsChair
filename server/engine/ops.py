@@ -15,6 +15,7 @@ UndeclaredActionError (CLAUDE.md, rule 3). `choose` and `may` are always availab
 
 from __future__ import annotations
 
+import dataclasses
 import math
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager
@@ -690,6 +691,9 @@ class Actions:
             drawn += 1
         if drawn:
             self.state.emit(f"{player.name} draws {drawn} card(s).", seat=player.seat, irreversible=True)
+            # `source`: the card whose operation drew, for "after drawing cards due to Rebner's operations" (Rumdar).
+            this = self.ctx.this_card
+            raise_event(self.state, "draw", player.seat, None, count=drawn, source=this.uid if this else None)
         return drawn
 
     def _deck_card(self, player: Player, prompt: str) -> Gen:
@@ -870,6 +874,9 @@ class Actions:
         yield  # pragma: no cover
 
     def _log(self, inst: Inst) -> None:
+        if inst.card in registry.CANNOT_LOG:
+            self.emit(f"{name(inst)} cannot be logged.")
+            return
         if self.skip_log_self and self.ctx.this_card is not None and inst.uid == self.ctx.this_card.uid:
             self.emit(f"{name(inst)} is not logged: the duplicated effect that would log it is ignored.")
             return
@@ -1304,18 +1311,26 @@ class Actions:
         return
         yield  # pragma: no cover
 
-    def enlist_development(self, *, free: bool = False, pred: Callable[[Inst], bool] | None = None) -> Gen:
+    def enlist_development(self, *, free: bool = False, pred: Callable[[Inst], bool] | None = None,
+                           discount: bool = False) -> Gen:
+        """Enlist a Development, paying its cost. `discount=True` pays 1 less Dilithium or 1 less Latinum of it
+        (Rebner's Things That Make Us Smart)."""
         self._use(A.ENLIST_DEVELOPMENT)
-        return (yield from self._enlist_development(free=free, pred=pred))
+        return (yield from self._enlist_development(free=free, pred=pred, discount=discount))
 
-    def _enlist_development(self, *, free: bool, pred: Callable[[Inst], bool] | None = None) -> Gen:
-        cards = [i for i in _payable_developments(self.ctx, free=free) if pred is None or pred(i)]
+    def _enlist_development(self, *, free: bool, pred: Callable[[Inst], bool] | None = None,
+                            discount: bool = False) -> Gen:
+        cards = [i for i in _payable_developments(self.ctx, free=free, discount=discount) if pred is None or pred(i)]
         if not cards:
             self.emit("No Development can be enlisted.")
             return None
         inst = yield from self.pick_card("Enlist which Development?", cards)
         if not free:
-            for cost in registry.DEV_COSTS[inst.card]:
+            variants = [(label, costs) for label, costs in _cost_variants(registry.DEV_COSTS[inst.card], discount)
+                        if all(c.can_pay(self.ctx) for c in costs)]
+            costs = variants[0][1] if len(variants) == 1 else dict(variants)[
+                (yield from self.choose("Pay 1 less of which resource?", [(k, k) for k, _ in variants]))]
+            for cost in costs:
                 yield from cost.pay(self)
         self.ctx.me.development.remove(inst)
         self.ctx.me.draw.insert(0, inst)
@@ -2017,13 +2032,30 @@ def put_into_play(state: GameState, player: Player, inst: Inst, *, played: bool 
     raise_event(state, "put_into_play", player.seat, inst.uid, played=played, index=index, beamed=beamed)
 
 
-def _payable_developments(ctx: Ctx, free: bool = False) -> list[Inst]:
+def _cost_variants(costs, discount: bool) -> list[tuple[str, tuple]]:
+    """The ways to pay a development cost: as printed, or with 1 less Dilithium or 1 less Latinum of a Spend."""
+    if not discount:
+        return [("", tuple(costs))]
+    out = []
+    for kind in ("dilithium", "latinum"):
+        for i, cost in enumerate(costs):
+            spend = cost.spend if isinstance(cost, SpendUnless) else cost
+            if isinstance(spend, Spend) and getattr(spend, kind) > 0:
+                cheaper = dataclasses.replace(spend, **{kind: getattr(spend, kind) - 1})
+                if isinstance(cost, SpendUnless):
+                    cheaper = dataclasses.replace(cost, spend=cheaper)
+                out.append((f"1 less {kind.capitalize()}", (*costs[:i], cheaper, *costs[i + 1:])))
+                break
+    return out or [("", tuple(costs))]
+
+
+def _payable_developments(ctx: Ctx, free: bool = False, discount: bool = False) -> list[Inst]:
     out = []
     for inst in ctx.me.development:
         costs = registry.DEV_COSTS.get(inst.card)
         if costs is None:
             continue  # development cost not implemented yet
-        if free or all(c.can_pay(ctx) for c in costs):
+        if free or any(all(c.can_pay(ctx) for c in cs) for _, cs in _cost_variants(costs, discount)):
             out.append(inst)
     return out
 

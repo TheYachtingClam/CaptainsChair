@@ -172,3 +172,32 @@ def stardate_sequence(state) -> int:
 def earth_of(player):
     """Archer's Earth (2ARC02), his Status card, if he has it."""
     return next((i for i in player.status if i.card == "2ARC02"), None)
+
+
+# ----------------------------------------------------------------------- Rebner's Helmets (KW-HELM)
+
+
+def is_helmet(inst) -> bool:
+    from engine.ops import card
+
+    return "Helmet" in card(inst).traits
+
+
+def wearing(inst, card_id: str | None = None) -> bool:
+    """Whether a Duty Officer is wearing a Helmet (one beamed to it, KW-HELM-01), or that particular Helmet."""
+    return any(is_helmet(b) and (card_id is None or b.card == card_id) for b in inst.beamed)
+
+
+def bareheaded_officers(ctx: Ctx):
+    """Duty Officers not wearing a Helmet: a Duty Officer can wear only one (KW-HELM-02)."""
+    return [i for i in ctx.me.duty if not wearing(i)]
+
+
+def helmets_in_hand(ctx: Ctx):
+    return [i for i in ctx.me.hand if i is not ctx.this_card and is_helmet(i)]
+
+
+def beam_helmet_here(ctx, actions):
+    """Cost "Beam a Helmet here": a Helmet from hand to this card."""
+    helmet = yield from actions.pick_card(f"Beam which Helmet to {ctx.name(ctx.this_card)}?", helmets_in_hand(ctx))
+    yield from actions.beam(helmet, ctx.this_card)
