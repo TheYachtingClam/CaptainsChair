@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BotView, CardView, OptionView, PlayerView, RowRef } from "../api";
-import { Card, CardBack, PileViewer, Slot, imageUrl, usePreviewHandlers } from "./Cards";
+import { awayTokenImage, Card, CardBack, imageUrl, PileViewer, Slot, usePreviewHandlers } from "./Cards";
 
 // Crew board track geometry, as fractions of the board image (measured from the scans).
 const TRACK_X0 = 0.073; // centre of space 0
@@ -183,7 +183,9 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
             card={p.captain}
             badges={
               <>
-                <span className="badge away" title="Away Teams on the Captain">{p.away_pool} Away</span>
+                <span className="badge away" title="Away Teams on the Captain">
+                  <img src={imageUrl(awayTokenImage(p.seat))} alt="" className="badge-token" />{p.away_pool}
+                </span>
                 <button type="button" className="badge log-badge" onClick={(e) => { e.stopPropagation(); setViewing("log"); }} title="View the Captain's Log">
                   Log {p.log.length}
                 </button>

@@ -58,6 +58,9 @@ def test_call_in_the_reinforcements_as_15():
     assert "call-in-the-reinforcements" in me(s).missions_completed
     hc = next(i for i in me(s).discard if i.card == "2GEO23")
     assert hc and card(s, "2GEO13").uid in uids(me(s).duty)
+    # The log says why the beamed card left the Ship.
+    assert any(e.text == "Hostile Contact is dismissed: it was beamed to U.S.S. Shenzhou and used for the mission "
+               "Call in the Reinforcements." for e in s.log)
     assert [b.card for b in card(s, "2GEO02", zone="fleet").beamed] == ["2PER03"]
     refresh(s)
     assert not mission_options(s)  # completed once only (REQ-MS-07), and Basic has 1 token

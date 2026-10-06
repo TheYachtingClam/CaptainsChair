@@ -3910,6 +3910,26 @@
       "source_sha256": "701adb195ac66d2f60411c18c7dbfe20442755f127382e2713ceb106cde0a4da",
       "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
     },
+    "away-team-p1": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/away-team-p1.webp",
+      "width": 400,
+      "height": 351,
+      "version": "1b27d3386f34",
+      "source": "resources/scans/to_boldly_go/tokens/away_team_player_1.png",
+      "source_sha256": "55c27c0ca23eef5123a16e01cfcf30a0af89a47e859476b125003a2c218b109f",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "away-team-p2": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/away-team-p2.webp",
+      "width": 400,
+      "height": 358,
+      "version": "de1379e023f2",
+      "source": "resources/scans/to_boldly_go/tokens/away_team_player_2.png",
+      "source_sha256": "75bcfe396d235bc2afda0885fea75bff902cac3715d7dc6f0e7b58999fa6f01e",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
     "card-back": {
       "kind": "cards",
       "file": "to_boldly_go/cards/card-back.webp",
@@ -4170,6 +4190,166 @@
       "source_sha256": "e37a3b69701eb4a6a59dec8b3d1baf8eec1cb15e8b6270d3749ea43f0e07aeff",
       "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
     },
+    "khan-ambassador": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-ambassador.webp",
+      "width": 400,
+      "height": 116,
+      "version": "87fbcebf73ab",
+      "source": "resources/scans/to_boldly_go/tokens/khan/ambassador.png",
+      "source_sha256": "6216e6a230373205242954ee8cf30aeaa92516fe1924d25d203f5e7a38396a96",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-ambassador-marked": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-ambassador-marked.webp",
+      "width": 400,
+      "height": 113,
+      "version": "95e3a9d78f7d",
+      "source": "resources/scans/to_boldly_go/tokens/khan/ambassador_not.png",
+      "source_sha256": "6eb766edd3ddba8c900f9c94008e5cff64a01907f522095d49d01324abebe26a",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-business": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-business.webp",
+      "width": 400,
+      "height": 116,
+      "version": "3d31ea03667a",
+      "source": "resources/scans/to_boldly_go/tokens/khan/business.png",
+      "source_sha256": "290991136a881c217852cc023a9fd62bf799d78339358012451305d52cf73834",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-business-marked": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-business-marked.webp",
+      "width": 400,
+      "height": 114,
+      "version": "9ae5e3301930",
+      "source": "resources/scans/to_boldly_go/tokens/khan/business_not.png",
+      "source_sha256": "0b38d67353d0491357d243a035790dc024b2832f8cee3465200e506ef68c4928",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-captain-trait": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-captain-trait.webp",
+      "width": 400,
+      "height": 115,
+      "version": "6e9fa44a9205",
+      "source": "resources/scans/to_boldly_go/tokens/khan/captain_trait.png",
+      "source_sha256": "02486748e583d8a39dc6a6873f18d4e26ec0add774a4db97415ec755fce904e9",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-captain-trait-marked": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-captain-trait-marked.webp",
+      "width": 400,
+      "height": 112,
+      "version": "e4d16c17e0e6",
+      "source": "resources/scans/to_boldly_go/tokens/khan/captain_trait_not.png",
+      "source_sha256": "7eff5712c611c6a1b44f0508fe40962caa54d1ee7f7e5e0d8484ab5c6d748787",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-cloak": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-cloak.webp",
+      "width": 400,
+      "height": 114,
+      "version": "7bd95f87ca14",
+      "source": "resources/scans/to_boldly_go/tokens/khan/cloak.png",
+      "source_sha256": "288046864f32d6760cbd4fc28eee18979a4dcb7de0e986d53523bc9c6ac2c849",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-cloak-marked": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-cloak-marked.webp",
+      "width": 400,
+      "height": 112,
+      "version": "6a5238240f3b",
+      "source": "resources/scans/to_boldly_go/tokens/khan/cloak_not.png",
+      "source_sha256": "3c85e3462f2b1b5398f8c3a2cbe6839c228fb18b282f5f29c3b8ef8a0a53b0e4",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-creature": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-creature.webp",
+      "width": 400,
+      "height": 116,
+      "version": "4354236efb2b",
+      "source": "resources/scans/to_boldly_go/tokens/khan/creature.png",
+      "source_sha256": "ace4d668d021b30df8e04debd7e28b5089486c3c8d3a8e4ef56504941b3f45b4",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-creature-marked": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-creature-marked.webp",
+      "width": 400,
+      "height": 112,
+      "version": "e87279106f87",
+      "source": "resources/scans/to_boldly_go/tokens/khan/creature_not.png",
+      "source_sha256": "1767f6f40c646a77568a0d34d687f5bffa43790ce1e5e334cd506245bb19df77",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-different-trait-than-opponent": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-different-trait-than-opponent.webp",
+      "width": 400,
+      "height": 115,
+      "version": "e82c2b8bb4e4",
+      "source": "resources/scans/to_boldly_go/tokens/khan/different_trait_than_opponent.png",
+      "source_sha256": "6df65d6dad7f4033b608edcb92fca2688f843459bd39ddbb5694aa3876f3a434",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-different-trait-than-opponent-marked": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-different-trait-than-opponent-marked.webp",
+      "width": 400,
+      "height": 112,
+      "version": "60aa02eaa5f5",
+      "source": "resources/scans/to_boldly_go/tokens/khan/different_trait_than_opponent_not.png",
+      "source_sha256": "65b6587b1329422be321ea51857f584f71e1a9317373d9fd267415b7db254dec",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-doctor": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-doctor.webp",
+      "width": 400,
+      "height": 117,
+      "version": "465e1fc79b7f",
+      "source": "resources/scans/to_boldly_go/tokens/khan/doctor.png",
+      "source_sha256": "f6a02cd14c33c454c91f39f7c4811f43d39a5312ba3dbc4d97119ebbc06facda",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-doctor-marked": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-doctor-marked.webp",
+      "width": 400,
+      "height": 112,
+      "version": "de44cd45508f",
+      "source": "resources/scans/to_boldly_go/tokens/khan/doctor_not.png",
+      "source_sha256": "af3eb951bf6e3fc69dd6d1494687bd9ab56137b81078d49cfdc7499c2d72d17c",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-engineer": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-engineer.webp",
+      "width": 400,
+      "height": 114,
+      "version": "0c0ad0f0676d",
+      "source": "resources/scans/to_boldly_go/tokens/khan/engineer.png",
+      "source_sha256": "f1c26fe9aa72cedc9e8d4511ebea56e71aaaa5b298f78b63d33286dbe3c04ba2",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-engineer-marked": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-engineer-marked.webp",
+      "width": 400,
+      "height": 112,
+      "version": "f0081de77a60",
+      "source": "resources/scans/to_boldly_go/tokens/khan/engineer_not.png",
+      "source_sha256": "1cdbfdfa33f0e4f2cfb9315acbddfe961a165caeedc9ca7c38a7a597ab99ce6d",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
     "khan-five-year-mission-upgrades": {
       "kind": "command",
       "file": "to_boldly_go/command/khan-five-year-mission-upgrades.webp",
@@ -4199,6 +4379,86 @@
       "source": "resources/scans/to_boldly_go/command/khan-no-duty-officer.jpg",
       "source_sha256": "726b431b87eb524e5c307987c929e9c67f7fd3d86bca21e07b7a36ea2584e065",
       "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "khan-scientist": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-scientist.webp",
+      "width": 400,
+      "height": 120,
+      "version": "c5be5868d797",
+      "source": "resources/scans/to_boldly_go/tokens/khan/scientist.png",
+      "source_sha256": "885bd2b9e859dfbfc36cc387df22373b7297335c03d241d921db4bd89a7b4449",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-scientist-marked": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-scientist-marked.webp",
+      "width": 400,
+      "height": 115,
+      "version": "f9c64cea1bc5",
+      "source": "resources/scans/to_boldly_go/tokens/khan/scientist_not.png",
+      "source_sha256": "cd02f42502cd58edd8642ee6efc97661925917d98863a2de36aecc6d0956cc75",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-spy": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-spy.webp",
+      "width": 400,
+      "height": 115,
+      "version": "b60929c4d91b",
+      "source": "resources/scans/to_boldly_go/tokens/khan/spy.png",
+      "source_sha256": "5b5bb21fc2089b041d73ee3dff8c5bc77db4d68719b4a26600d3165a60c8278d",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-spy-marked": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-spy-marked.webp",
+      "width": 400,
+      "height": 112,
+      "version": "0710da0451de",
+      "source": "resources/scans/to_boldly_go/tokens/khan/spy_not.png",
+      "source_sha256": "21ec1df6816a6d538567075199802aa00b47ec897f938c73a0d6b3ce8d1dec90",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-synthetic": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-synthetic.webp",
+      "width": 400,
+      "height": 114,
+      "version": "407cd574fb06",
+      "source": "resources/scans/to_boldly_go/tokens/khan/synthetic.png",
+      "source_sha256": "2451d9c0dcf9a1cd78d0ad73472e9ced9e1a83a3bd84edbde8b5235edd7f37b7",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-synthetic-marked": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-synthetic-marked.webp",
+      "width": 400,
+      "height": 110,
+      "version": "636b96b723e9",
+      "source": "resources/scans/to_boldly_go/tokens/khan/synthetic_not.png",
+      "source_sha256": "8bbb36a69aad52ac29abb0bd913551caafc66732778e91aa04d4a5ed1e655caa",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-telepath": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-telepath.webp",
+      "width": 400,
+      "height": 116,
+      "version": "e68f77c89af5",
+      "source": "resources/scans/to_boldly_go/tokens/khan/telepath.png",
+      "source_sha256": "bd6d6b571c6e6027f80cab3f1eab8ad04ca239e9a495f7ed37003e94b2814b59",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "khan-telepath-marked": {
+      "kind": "tokens",
+      "file": "to_boldly_go/tokens/khan/khan-telepath-marked.webp",
+      "width": 400,
+      "height": 112,
+      "version": "845ab45d404a",
+      "source": "resources/scans/to_boldly_go/tokens/khan/telepath_not.png",
+      "source_sha256": "f8b8afb30171d3dc4a7ec54ea54e8e5e076f3584235dc4536531062b68f1b8e1",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
     },
     "khan-traits": {
       "kind": "command",
@@ -4379,6 +4639,806 @@
       "source": "resources/scans/second_contact/command/riker-with-duty-officer.jpg",
       "source_sha256": "21cceb3fd3ef3a1be0551a926478a1654c66946c8f6468a16142acdab3606773",
       "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "ship-0shi02": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-0shi02.webp",
+      "width": 366,
+      "height": 400,
+      "version": "f3ab5564fa60",
+      "source": "resources/scans/to_boldly_go/ships/uss_cabot_front.png",
+      "source_sha256": "02f836d7b5e4e2454cdbc9af6c9509fb60068dae443e81d643e376fcaaa9d225",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-0shi02-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-0shi02-back.webp",
+      "width": 373,
+      "height": 400,
+      "version": "29f1fc56f15e",
+      "source": "resources/scans/to_boldly_go/ships/uss_cabot_back.png",
+      "source_sha256": "fd5a767230d2b9d6bac58dbcc35b465010e47902780464d1fc7811f50a847290",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2arc03": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2arc03.webp",
+      "width": 364,
+      "height": 400,
+      "version": "3fe9645351cd",
+      "source": "resources/scans/to_boldly_go/ships/nx_01_enterprise_front.png",
+      "source_sha256": "eb72ecd31e9ccf8c4347e49bb196a11a558c83d7ccb259f08fb6390ed1c6b47e",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2arc03-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2arc03-back.webp",
+      "width": 363,
+      "height": 400,
+      "version": "af36473a46b2",
+      "source": "resources/scans/to_boldly_go/ships/nx_01_enterprise_back.png",
+      "source_sha256": "617ad85363aa8d02bb7a1c689bdfa19a3e8bb0b1cc9f7be9db0f3f9abfeb8300",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2arc18": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2arc18.webp",
+      "width": 370,
+      "height": 400,
+      "version": "a993bc86e752",
+      "source": "resources/scans/to_boldly_go/ships/shuttlepot_1_front.png",
+      "source_sha256": "48fc81c6e59e8be9bafa3abf574391263d523b77115a40520357c3c7c27d21b1",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2arc18-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2arc18-back.webp",
+      "width": 373,
+      "height": 400,
+      "version": "a97f830f23da",
+      "source": "resources/scans/to_boldly_go/ships/shuttlepot_1_back.png",
+      "source_sha256": "21e01e43d52871048eeac4ce84700c47e1375d1315a64a0ed9deeea6a96283ec",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2enc02": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2enc02.webp",
+      "width": 399,
+      "height": 400,
+      "version": "e7823c271c38",
+      "source": "resources/scans/to_boldly_go/ships/gomtuu_front.png",
+      "source_sha256": "d439c33942de6848e2baf637a2da438a64b1dbce5a7826c0396fda5b3b43d3f9",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2enc02-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2enc02-back.webp",
+      "width": 399,
+      "height": 400,
+      "version": "bc60d381100b",
+      "source": "resources/scans/to_boldly_go/ships/gomtuu_back.png",
+      "source_sha256": "1158ea090ea33edf77ef7c90cec25b53b97574c8ba86f1a61111e86f541c7a34",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2geo02": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2geo02.webp",
+      "width": 355,
+      "height": 400,
+      "version": "de09b313cce0",
+      "source": "resources/scans/to_boldly_go/ships/uss_shenzhou_front.png",
+      "source_sha256": "7f1897d27c3c64dc5c79b0993eb9714ae86396cd0462b8740eeb6a8af6595981",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2geo02-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2geo02-back.webp",
+      "width": 367,
+      "height": 400,
+      "version": "231467a9a87d",
+      "source": "resources/scans/to_boldly_go/ships/uss_shenzhou_back.png",
+      "source_sha256": "cfc070ad7d8ef991625f891c39ec1f277a92b266667ac00481073eb8e2950e21",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2geo14": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2geo14.webp",
+      "width": 400,
+      "height": 310,
+      "version": "392015b137e9",
+      "source": "resources/scans/to_boldly_go/ships/class_c_shuttlecraft_front.png",
+      "source_sha256": "d7a782cae497f559350cb62f0f7799c160ff673ea07bf33184afbfb20545c97c",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2geo14-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2geo14-back.webp",
+      "width": 400,
+      "height": 315,
+      "version": "169de6053224",
+      "source": "resources/scans/to_boldly_go/ships/class_c_shuttlecraft_back.png",
+      "source_sha256": "9fc0fe8c419e6a31390ed320ebe83d543bac1c0a16b710b9c448c34154b50e5c",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2kha04": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2kha04.webp",
+      "width": 400,
+      "height": 398,
+      "version": "592bd688afc7",
+      "source": "resources/scans/to_boldly_go/ships/hijacked_uss_reliant_front.png",
+      "source_sha256": "9a75a6c77e5b720007168feafca9778cb2e0c3c454c361372c3c6b3fb5208b88",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2kha04-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2kha04-back.webp",
+      "width": 400,
+      "height": 400,
+      "version": "0ca2fe1cc7a2",
+      "source": "resources/scans/to_boldly_go/ships/hijacked_uss_reliant_back.png",
+      "source_sha256": "c014193f488b7b33b2c52e70b3a2a5f905de0dc4b1adbf951d4700d0204a7858",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2kha16": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2kha16.webp",
+      "width": 361,
+      "height": 400,
+      "version": "85a5d9c63550",
+      "source": "resources/scans/to_boldly_go/ships/ss_botony_bay_front.png",
+      "source_sha256": "001ecb8647d8fd22ed292a144648d4d8c5429f8592849912ec491ec3cdcd24fc",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2kha16-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2kha16-back.webp",
+      "width": 361,
+      "height": 400,
+      "version": "21ddc22301cb",
+      "source": "resources/scans/to_boldly_go/ships/ss_botony_bay_back.png",
+      "source_sha256": "3f260fe16e4b5e4ff1eff0df439e9be9fe03e6b001a2b37a691a42aeef29b780",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2kirk02": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2kirk02.webp",
+      "width": 370,
+      "height": 400,
+      "version": "7cc96550bde5",
+      "source": "resources/scans/to_boldly_go/ships/uss_enterprise_refit_front.png",
+      "source_sha256": "799db0b3079b611463baa371ac4809d47f018f0eb2c7d3fee65f37900eb7e8b3",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2kirk02-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2kirk02-back.webp",
+      "width": 370,
+      "height": 400,
+      "version": "d07435e00173",
+      "source": "resources/scans/to_boldly_go/ships/uss_enterprise_refit_back.png",
+      "source_sha256": "83a0d07faab7eebe27018efbfa8d6494fb79fed7a9ff80807414f28ae850f65c",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2kirk05": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2kirk05.webp",
+      "width": 359,
+      "height": 400,
+      "version": "9af6ea8f738c",
+      "source": "resources/scans/to_boldly_go/ships/uss_enterprise_a_front.png",
+      "source_sha256": "29b73a98568547364554c4762af8579d354baa9d9a6256316015515127f67b93",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2kirk05-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2kirk05-back.webp",
+      "width": 359,
+      "height": 400,
+      "version": "89cdbd960e27",
+      "source": "resources/scans/to_boldly_go/ships/uss_enterprise_a_back.png",
+      "source_sha256": "7367a2cd3edfce17728880653066a8ca9b264e04dc6c10ddf3aba3022d5fdb97",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2kirk06": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2kirk06.webp",
+      "width": 362,
+      "height": 400,
+      "version": "3482b8b3eaf1",
+      "source": "resources/scans/to_boldly_go/ships/uss_excelsior_front.png",
+      "source_sha256": "c6a81b16fe9af703190db49613628018936e2195c3752d9a8ed81e174a55f21e",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2kirk06-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2kirk06-back.webp",
+      "width": 357,
+      "height": 400,
+      "version": "909f2012497e",
+      "source": "resources/scans/to_boldly_go/ships/uss_excelsior_back.png",
+      "source_sha256": "ab22b16e651a965e5655f8907f23a5aa53348eae4fd67138d3c8c5e195dfb765",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2kirk11": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2kirk11.webp",
+      "width": 400,
+      "height": 377,
+      "version": "539f7d52df8a",
+      "source": "resources/scans/to_boldly_go/ships/hms_bounty_front.png",
+      "source_sha256": "ad768ca2092cbdb6268cb0698e56b0cfd89a3d0bf9da9c01b536ce5a2ec4fd53",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2kirk11-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2kirk11-back.webp",
+      "width": 400,
+      "height": 369,
+      "version": "3de2d10d11cc",
+      "source": "resources/scans/to_boldly_go/ships/hms_bounty_back.png",
+      "source_sha256": "f3b2f3e4d59bcac7d5f24bb94daaced07778560a3e44ebd82adeca8e9b692ace",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2reb02": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2reb02.webp",
+      "width": 367,
+      "height": 400,
+      "version": "6f65f57d44aa",
+      "source": "resources/scans/to_boldly_go/ships/mondor_front.png",
+      "source_sha256": "1aee647166073760a38be3c594053c5f7aea2e89c6ea35dd376323eff2b25402",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2reb02-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2reb02-back.webp",
+      "width": 365,
+      "height": 400,
+      "version": "c34d7ffecadf",
+      "source": "resources/scans/to_boldly_go/ships/mondor_back.png",
+      "source_sha256": "e397353cdca5536bd13f56e55feddeb308b981737a89944828aab08a86d03263",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2reb06": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2reb06.webp",
+      "width": 400,
+      "height": 395,
+      "version": "ed6ed3284fc7",
+      "source": "resources/scans/to_boldly_go/ships/jackabogs_clumpship_front.png",
+      "source_sha256": "1a65adda86f9e4b68136affb9c455d4c4243305b373e7bbeeb90f62608d3b5e3",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2reb06-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2reb06-back.webp",
+      "width": 400,
+      "height": 397,
+      "version": "60883e839fc9",
+      "source": "resources/scans/to_boldly_go/ships/jackabogs_clumpship_back.png",
+      "source_sha256": "2d0f9ebb6ddef92fa61410ace37a6bb8b84c6451624db28b9736361ab277e1e3",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2reb07": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2reb07.webp",
+      "width": 400,
+      "height": 398,
+      "version": "75d7b3d54f1d",
+      "source": "resources/scans/to_boldly_go/ships/harpy_front.png",
+      "source_sha256": "d438833e1ffe8dd4578cc94ed4c33491e14989d690897a3b489691c148495a9d",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2reb07-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2reb07-back.webp",
+      "width": 389,
+      "height": 400,
+      "version": "3432cef24d0b",
+      "source": "resources/scans/to_boldly_go/ships/harpy_back.png",
+      "source_sha256": "cc7cf86773b61fdb7fdae0723ba3dba796823e82fe2718065cae90f25af1757f",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2reb11": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2reb11.webp",
+      "width": 357,
+      "height": 400,
+      "version": "9ef3667dc750",
+      "source": "resources/scans/to_boldly_go/ships/the_clumpship_pakled_front.png",
+      "source_sha256": "d2cb79b21469384e438d1f73993c45b515c8fb214f9f663910b2279258208787",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2reb11-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2reb11-back.webp",
+      "width": 360,
+      "height": 400,
+      "version": "5758f83977d4",
+      "source": "resources/scans/to_boldly_go/ships/the_clumpship_pakled_back.png",
+      "source_sha256": "c70dca2a99a77fa5c7ade03eb1c00fa23e1c050f926c38c505448d71a61ab6c7",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi01": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi01.webp",
+      "width": 400,
+      "height": 352,
+      "version": "9790b0196025",
+      "source": "resources/scans/to_boldly_go/ships/borg_probe_front.png",
+      "source_sha256": "1d7ee2342a796cf8d4f987477b688765969378a0d71a314d705817e273b888d7",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi01-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi01-back.webp",
+      "width": 400,
+      "height": 345,
+      "version": "c18ff4a7b70b",
+      "source": "resources/scans/to_boldly_go/ships/borg_probe_back.png",
+      "source_sha256": "f1ce5be5689d3b00edd4b113ed7a5710830af512fe93009ed6ea291c672e90dd",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi02": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi02.webp",
+      "width": 400,
+      "height": 389,
+      "version": "06452759921c",
+      "source": "resources/scans/to_boldly_go/ships/dkora_maurauder_front.png",
+      "source_sha256": "798a22457597f6c6c12eaf62b0cfe72d775c3ce68da406e7cba19ed6427f9f26",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi02-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi02-back.webp",
+      "width": 400,
+      "height": 388,
+      "version": "b837469de7ef",
+      "source": "resources/scans/to_boldly_go/ships/dkora_maurauder_back.png",
+      "source_sha256": "8ae69067f96c90833254c2c1afc0d5e53cf9ed12c24712bbb9e6c11361c2af0e",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi03": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi03.webp",
+      "width": 394,
+      "height": 400,
+      "version": "60ced673fd23",
+      "source": "resources/scans/to_boldly_go/ships/dkyr_cruiser_front.png",
+      "source_sha256": "741a1c2fca4f61a73fd14dafa30414dd2adb98dca82d8d8de550b18aedfc8573",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi03-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi03-back.webp",
+      "width": 400,
+      "height": 395,
+      "version": "665d25bb90c3",
+      "source": "resources/scans/to_boldly_go/ships/dkyr_cruiser_back.png",
+      "source_sha256": "4763422d8e0c485c263c55695c4ae53b8d2417bd9393f2e247d862bc6ae2cd23",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi04": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi04.webp",
+      "width": 361,
+      "height": 400,
+      "version": "e5dd361a9351",
+      "source": "resources/scans/to_boldly_go/ships/dvar_front.png",
+      "source_sha256": "cc1e5054bf45551a6ca13c1a30e086d72671f7ba4aa738264d532cc81a08ad52",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi04-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi04-back.webp",
+      "width": 362,
+      "height": 400,
+      "version": "cecae4434fc4",
+      "source": "resources/scans/to_boldly_go/ships/dvar_back.png",
+      "source_sha256": "37651f03f7bf9c14737ff9fad2d9dab7fa53300311d5665ace85a53e811ef2fa",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi05": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi05.webp",
+      "width": 400,
+      "height": 311,
+      "version": "524eb1f66531",
+      "source": "resources/scans/to_boldly_go/ships/holographic_drone_ship_front.png",
+      "source_sha256": "db4648ec5ffa7a02478ff7c742cfa96e36085455206d00e7727bb5ce7cc766ce",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi05-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi05-back.webp",
+      "width": 400,
+      "height": 317,
+      "version": "5291dc14ea87",
+      "source": "resources/scans/to_boldly_go/ships/holographic_drone_ship_back.png",
+      "source_sha256": "6765d7f8e7cd6aead96df0852892c8ef1b00474fefe5335d7767e1d157ae6a40",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi06": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi06.webp",
+      "width": 358,
+      "height": 400,
+      "version": "7edc534df8e4",
+      "source": "resources/scans/to_boldly_go/ships/kazon_raider_front.png",
+      "source_sha256": "f61cbb1f83b51e1c5ccdde3a28e5f7242d3fac235e10c0981b9809c1f77d1438",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi06-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi06-back.webp",
+      "width": 358,
+      "height": 400,
+      "version": "466c3a714d04",
+      "source": "resources/scans/to_boldly_go/ships/kazon_raider_back.png",
+      "source_sha256": "ef65b21f8da985e1d4753a016757c4d00cefd3c8dd33a32f19daf8d434276b93",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi07": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi07.webp",
+      "width": 359,
+      "height": 400,
+      "version": "790249c0e72d",
+      "source": "resources/scans/to_boldly_go/ships/medusan_vessal_front.png",
+      "source_sha256": "b2be00d4387bae051f12ead331dc064a4dc002372c3cf7ae4f6dd4ac72854fd1",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi07-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi07-back.webp",
+      "width": 355,
+      "height": 400,
+      "version": "648e7315854a",
+      "source": "resources/scans/to_boldly_go/ships/medusan_vessal_back.png",
+      "source_sha256": "f601cf18352a256487c64739bc113d26ae3dc48bd95e68d96aaed6f48bfcbaae",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi08": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi08.webp",
+      "width": 357,
+      "height": 400,
+      "version": "1ca96755aeeb",
+      "source": "resources/scans/to_boldly_go/ships/paklet_freighter_front.png",
+      "source_sha256": "5a02e521032db91f5dab8a43443a78847f53eb67a6eeea9d385edd50cd17b80c",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi08-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi08-back.webp",
+      "width": 358,
+      "height": 400,
+      "version": "b09c8aa10e1c",
+      "source": "resources/scans/to_boldly_go/ships/paklet_freighter_back.png",
+      "source_sha256": "0144db2c38fa2c93343891e93cd113db5c66dcb7327932b7003a6e4e4b214442",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi09": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi09.webp",
+      "width": 364,
+      "height": 400,
+      "version": "b8422d1ee4ab",
+      "source": "resources/scans/to_boldly_go/ships/uss_enterprise_c_front.png",
+      "source_sha256": "0237cec6883fbe54076908c35f9c732fbee72bb579136f58354cb5ab47366c85",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi09-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi09-back.webp",
+      "width": 366,
+      "height": 400,
+      "version": "9df015b9b47a",
+      "source": "resources/scans/to_boldly_go/ships/uss_enterprise_c_back.png",
+      "source_sha256": "bfc370d979b1a69902ee19fe7defd379953a88b08685cbe5d4c949b277dec0d2",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi10": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi10.webp",
+      "width": 382,
+      "height": 400,
+      "version": "83ae85e22079",
+      "source": "resources/scans/to_boldly_go/ships/uss_pasteur_front.png",
+      "source_sha256": "129bd82bb623f67c6bd55211e080c065daa7a02924ef3d71e6bdc7bbd74f28cf",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi10-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi10-back.webp",
+      "width": 386,
+      "height": 400,
+      "version": "7bc67b591962",
+      "source": "resources/scans/to_boldly_go/ships/uss_pasteur_back.png",
+      "source_sha256": "5d7a3ae59eaead9213180fea77754916362cceb0fe354d8a37d1ad3151bf59f2",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi11": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi11.webp",
+      "width": 365,
+      "height": 400,
+      "version": "d222ce74910f",
+      "source": "resources/scans/to_boldly_go/ships/vorcha_attack_cruiser_front.png",
+      "source_sha256": "a019055205ea53d0727a10a769e72feea79ed2c2aed14f8b9efe9fce8cf2746b",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi11-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi11-back.webp",
+      "width": 362,
+      "height": 400,
+      "version": "a0108100c511",
+      "source": "resources/scans/to_boldly_go/ships/vorcha_attack_cruiser_back.png",
+      "source_sha256": "951abd2df9aa019595f8abecafe53ed468ae1c87492a888ff763412ac7e94ec9",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi12": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi12.webp",
+      "width": 368,
+      "height": 400,
+      "version": "571c6ce61dc7",
+      "source": "resources/scans/to_boldly_go/ships/xindi_aquatic_cruiser_front.png",
+      "source_sha256": "332ba839fa15669f8ca98c156385d86fc57a7a87ad9d89b0ce8a676739f54e2c",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi12-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi12-back.webp",
+      "width": 369,
+      "height": 400,
+      "version": "118eac639915",
+      "source": "resources/scans/to_boldly_go/ships/xindi_aquatic_cruiser_back.png",
+      "source_sha256": "1b3fc19fa93413c7894b2c9d8c608d0ce607fdc185c372c79d26a493734b3970",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi13": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi13.webp",
+      "width": 359,
+      "height": 400,
+      "version": "e5b4d799e5fe",
+      "source": "resources/scans/to_boldly_go/ships/xindi_reptillian_battleship_front.png",
+      "source_sha256": "8fc32e6012eac9bf597eb5d244bdb2aa2c38a421d3af8b6d1c1c61144d4542d0",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2shi13-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2shi13-back.webp",
+      "width": 355,
+      "height": 400,
+      "version": "a9ebc73ac8ad",
+      "source": "resources/scans/to_boldly_go/ships/xindi_reptillian_battleship_back.png",
+      "source_sha256": "ce09f0fca23e80f728ca4d8eeb36664e65c60488da5f0d4092e961a3672ad49f",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2sov10": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2sov10.webp",
+      "width": 359,
+      "height": 400,
+      "version": "2bfb319438e7",
+      "source": "resources/scans/to_boldly_go/ships/seleya_dkyr_front.png",
+      "source_sha256": "ab228de7b6192ca20beb9475d89ee157de4d2becfaed840215be1742c683ac35",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2sov10-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2sov10-back.webp",
+      "width": 376,
+      "height": 400,
+      "version": "edb704ec1be4",
+      "source": "resources/scans/to_boldly_go/ships/seleya_dkyr_back.png",
+      "source_sha256": "a8805d3a7a44f2e4af9ed440c4c0a08a2024f037d907131cbbeacc063737977c",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2sov24": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2sov24.webp",
+      "width": 359,
+      "height": 400,
+      "version": "dd0bffd2a975",
+      "source": "resources/scans/to_boldly_go/ships/timur_front.png",
+      "source_sha256": "5c87435ede181c294e8dbaaeaed3bff3ad29112b5452793228fbf50922775d1a",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-2sov24-back": {
+      "kind": "ships",
+      "file": "to_boldly_go/ships/ship-2sov24-back.webp",
+      "width": 363,
+      "height": 400,
+      "version": "69bcc635e9b4",
+      "source": "resources/scans/to_boldly_go/ships/timur_back.png",
+      "source_sha256": "630bfdc79affc8de04b3e78cff690123b5c84f5993e39e35ade221a967c603b4",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3fre02": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3fre02.webp",
+      "width": 362,
+      "height": 400,
+      "version": "113c072314bd",
+      "source": "resources/scans/second_contact/ships/uss_cerritos_front.png",
+      "source_sha256": "516d04182abac16725824bf636fa14c3dc188d9395a365fbbdf7342448e320a3",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3fre02-back": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3fre02-back.webp",
+      "width": 359,
+      "height": 400,
+      "version": "77c776244e92",
+      "source": "resources/scans/second_contact/ships/uss_cerritos_back.png",
+      "source_sha256": "efcd1d396e6ca610b6ece0a6d2c88191d257b3aedc5203e1c88045b3c743d286",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3fre03": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3fre03.webp",
+      "width": 400,
+      "height": 294,
+      "version": "5ab1155f89c1",
+      "source": "resources/scans/second_contact/ships/a_fleet_of_30_california_class_ships_front.png",
+      "source_sha256": "a242c8836e1a878ef2b4b1003e8dca53dc892e492c862aa5b6306bb93f60f759",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3fre03-back": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3fre03-back.webp",
+      "width": 400,
+      "height": 293,
+      "version": "2bbde196e6e8",
+      "source": "resources/scans/second_contact/ships/a_fleet_of_30_california_class_ships_back.png",
+      "source_sha256": "f95f41e150632f35223ad65c9c94c005ea0ae7858f4cdc4fa0864dfa570a0b23",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3fre11": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3fre11.webp",
+      "width": 357,
+      "height": 400,
+      "version": "c90ef5330eb8",
+      "source": "resources/scans/second_contact/ships/uss_calsbad_front.png",
+      "source_sha256": "dae3744598d8930def3ae122d19a6313f9718217e8ceb3ff7581384ea5181b70",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3fre11-back": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3fre11-back.webp",
+      "width": 362,
+      "height": 400,
+      "version": "a667e6bd43fe",
+      "source": "resources/scans/second_contact/ships/uss_calsbad_back.png",
+      "source_sha256": "69c336e7d5215b89bc2b66b9b876c4a6b9d0471b1f42f0fa1e5c2ea04d628d58",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3fre18": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3fre18.webp",
+      "width": 370,
+      "height": 400,
+      "version": "f29ebe25110b",
+      "source": "resources/scans/second_contact/ships/type_6a_shuttlecraft_front.png",
+      "source_sha256": "f2b6f0555bd3850c149edfca8563c845b9bfeb505dbac3947fae6820ddd84d53",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3fre18-back": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3fre18-back.webp",
+      "width": 372,
+      "height": 400,
+      "version": "b794f508989e",
+      "source": "resources/scans/second_contact/ships/type_6a_shuttlecraft_back.png",
+      "source_sha256": "ac88ad469ef4b1ec25a70428975a34cad097e18c2b8d0b8b9caaa628463d1522",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3pik19": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3pik19.webp",
+      "width": 358,
+      "height": 400,
+      "version": "53ed4fdb042a",
+      "source": "resources/scans/second_contact/ships/uss_enterprise_front.png",
+      "source_sha256": "cde4785ce2d4dfc3cc9cb288c45826154988a91c3fdc2f2e7a6c10d132646261",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3pik19-back": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3pik19-back.webp",
+      "width": 358,
+      "height": 400,
+      "version": "549eab4d64dd",
+      "source": "resources/scans/second_contact/ships/uss_enterprise_back.png",
+      "source_sha256": "d38986154e4d85a4316988fccbce5e72a266d72d31bdbbbe57c674ab5eab4724",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3rik02": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3rik02.webp",
+      "width": 358,
+      "height": 400,
+      "version": "bdde88effbe8",
+      "source": "resources/scans/second_contact/ships/uss_titan_front.png",
+      "source_sha256": "12928507c634cb7fcf49f276bbb54fd2b2dff8474d673e7a262809c2934ebc25",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3rik02-back": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3rik02-back.webp",
+      "width": 366,
+      "height": 400,
+      "version": "2eb7ceef8389",
+      "source": "resources/scans/second_contact/ships/uss_titan_back.png",
+      "source_sha256": "d9d911b7759d38078c7f476df1976ee2d622e79e1c59a2d3e1ac2fd8ba2f7d28",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3rik06": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3rik06.webp",
+      "width": 359,
+      "height": 400,
+      "version": "655de1410b8c",
+      "source": "resources/scans/second_contact/ships/uss_zheng_he_front.png",
+      "source_sha256": "c8b3bfe2727e8b063230fed48375f9f2d6f77a5953ddb2e9bd3df3e69116bbfe",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3rik06-back": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3rik06-back.webp",
+      "width": 366,
+      "height": 400,
+      "version": "d569f612a88a",
+      "source": "resources/scans/second_contact/ships/uss_zheng_he_back.png",
+      "source_sha256": "b50ae335effccee81911a1d504847c1b3bd3dccd8617296b03098c7e956262c4",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3shi01": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3shi01.webp",
+      "width": 378,
+      "height": 400,
+      "version": "d9976487c375",
+      "source": "resources/scans/second_contact/ships/fesarius_front.png",
+      "source_sha256": "ecd2a9e11541472539f54fc85bc7f409f4473c59988f19863a3804cf86f055d1",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3shi01-back": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3shi01-back.webp",
+      "width": 380,
+      "height": 400,
+      "version": "232bef528edc",
+      "source": "resources/scans/second_contact/ships/fesarius_back.png",
+      "source_sha256": "de5ff63d3acc1e23092aba1cb1cfe25cf519ba3e95127a6dd94886082fb01411",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3shi02": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3shi02.webp",
+      "width": 377,
+      "height": 400,
+      "version": "d863b9e9b8bd",
+      "source": "resources/scans/second_contact/ships/ris_talvajh_front.png",
+      "source_sha256": "ff2ffa59fa55777029c9a789254efc616917522f8d31937a1c08b11e8b76282e",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-3shi02-back": {
+      "kind": "ships",
+      "file": "second_contact/ships/ship-3shi02-back.webp",
+      "width": 384,
+      "height": 400,
+      "version": "5cc508aba279",
+      "source": "resources/scans/second_contact/ships/ris_talvajh_back.png",
+      "source_sha256": "ca69668ea9291e3a90f54d3eb73de12cdfa7d21aefba5dd89b91544c2d21c28f",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
     },
     "soval-five-year-mission-upgrades": {
       "kind": "command",

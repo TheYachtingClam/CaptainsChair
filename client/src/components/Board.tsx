@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { CardView, GameStateView, OptionView, RowRef } from "../api";
 import { BotPlayback } from "./BotPlayback";
 import { SoloAid } from "./SoloAid";
-import { Card, CardPreview, PlayableContext, Preview, PreviewContext, SelectContext, Selection, TargetContext } from "./Cards";
+import { Card, CardPreview, PlayableContext, Preview, PreviewContext, SelectContext, Selection, TargetContext, PlayersContext } from "./Cards";
 import { CardPanel } from "./CardPanel";
 import { PlayerMat } from "./PlayerMat";
 import { CenterMat } from "./CenterMat";
@@ -41,11 +41,19 @@ export interface OptionGroup {
   options: OptionView[];
 }
 
+/** A card shown in the decision box, with where it comes from. */
+interface DockCard {
+  card: CardView;
+  option?: string; // the answer this card gives
+  source?: "faceup" | "deck" | "junk";
+}
+const SOURCE_LABEL = { faceup: "Faceup", deck: "From the deck", junk: "From the Junk" } as const;
+
 function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint, cards, groupOf }: {
   hint?: string;
   /** Puts an answer in a titled box; answers with no group are listed as usual. */
   groupOf?: (o: OptionView) => string | undefined;
-  cards?: CardView[];
+  cards?: DockCard[];
   prompt: string;
   options: OptionView[];
   busy: boolean;
@@ -76,7 +84,14 @@ function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint,
     <div className="stack">
       <p><strong>{prompt}</strong></p>
       {cards && cards.length > 0 && (
-        <div className="dock-cards">{cards.map((c) => <Card key={c.uid} card={c} />)}</div>
+        <div className="dock-cards">
+          {cards.map(({ card, source }) => (
+            <figure key={card.uid} className={`dock-card ${source ? `from-${source}` : ""}`}>
+              <Card card={card} />
+              {source && <figcaption>{SOURCE_LABEL[source]}</figcaption>}
+            </figure>
+          ))}
+        </div>
       )}
       {hint && <p className="muted">{hint}</p>}
       {groups.map((g) => (
@@ -156,11 +171,10 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
   // Questions asked while a card resolves (where to warp, what to discard...) go in the floating box,
   // and the cards that answer them are highlighted and clickable.
   const midOperation = !!d?.options && (d.kind === "op" || d.kind === "trigger") && !view.result;
-  const visibleUids = new Set(
-    [...view.neutral_zone, ...Object.values(view.market).filter((c): c is NonNullable<typeof c> => !!c),
-     ...view.players.flatMap((p) => [p.captain, ...p.status, ...p.fleet, ...p.locations, ...p.duty, ...p.staging,
-       ...(p.hand ?? []), ...p.fleet.flatMap((s) => s.beamed ?? [])])].map((c) => c.uid),
-  );
+  const visibleCards = [...view.neutral_zone, ...Object.values(view.market).filter((c): c is NonNullable<typeof c> => !!c),
+    ...view.players.flatMap((p) => [p.captain, ...p.status, ...p.fleet, ...p.locations, ...p.duty, ...p.staging,
+      ...(p.hand ?? []), ...p.fleet.flatMap((s) => s.beamed ?? [])])];
+  const visibleUids = new Set(visibleCards.map((c) => c.uid));
   // Cards the question is about that are not on the board, e.g. a card just gained or looked at from a deck.
   const shownCards = midOperation ? (d!.cards ?? []).filter((c) => !visibleUids.has(c.uid)) : [];
   const optionFor = (uid: string) => d?.options?.find((o) => o.id === uid || o.id.endsWith(`:${uid}`));
@@ -170,7 +184,29 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
       const o = optionFor(uid);
       if (o) targets.set(uid, o);
     }
+    // "market:<suit>" answers name the faceup Market card by its slot.
+    for (const o of d!.options!) {
+      const faceup = o.id.startsWith("market:") ? view.market[o.id.slice("market:".length)] : null;
+      if (faceup) targets.set(faceup.uid, o);
+    }
   }
+  // When the question shows cards from off the board (scanning, gaining from a deck or the Junk), the box shows every
+  // card that answers it, each marked by where it comes from, so all the choices are side by side.
+  const dockCards: DockCard[] = (() => {
+    if (!shownCards.length) return [];
+    const out: DockCard[] = [];
+    for (const o of d!.options!) {
+      const [prefix, key] = [o.id.split(":")[0], o.id.split(":").slice(1).join(":")];
+      const card = prefix === "market" ? view.market[key] ?? undefined
+        : (d!.cards ?? []).find((c) => c.uid === key) ?? visibleCards.find((c) => c.uid === key);
+      if (!card || out.some((x) => x.card.uid === card.uid)) continue;
+      const source = prefix === "market" ? "faceup" : prefix === "junk" ? "junk"
+        : prefix === "look" || prefix === "deck" ? "deck" : undefined;
+      out.push({ card, source, option: o.id });
+    }
+    for (const c of shownCards) if (!out.some((x) => x.card.uid === c.uid)) out.push({ card: c });
+    return out;
+  })();
   const targetKey = [...targets.keys()].join(",");
   useEffect(() => {
     if (!targetKey) return;
@@ -221,12 +257,15 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
     if (!owner) return undefined;
     return owner.seat === view.you ? "Your controlled Locations" : `${owner.name}'s controlled Locations`;
   };
+  // The cards in the box follow the order of the answer buttons.
+  const rank = (c: DockCard) => (c.option ? dockOptions.findIndex((o) => o.id === c.option) : dockOptions.length);
   const showDock = !!d?.options && d.kind !== "action" && !view.result && !selection && !pending;
   // Someone else's decision (the other player in a two-player game): a quiet note in the same place.
   const waiting = !view.result && d && !d.options ? `Waiting for ${view.players[d.seat]?.name ?? "…"}: ${d.prompt}` : null;
 
   return (
     <PreviewContext.Provider value={setPreview}>
+    <PlayersContext.Provider value={view.players}>
     <PlayableContext.Provider value={playable}>
     <SelectContext.Provider value={{ selected: selectedUid, toggle }}>
     <TargetContext.Provider value={{ targets, answer: pick }}>
@@ -295,7 +334,8 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
       {showDock && (
         <div className="decision-dock card" role="dialog" aria-label="Your decision">
           <DecisionOptions prompt={d!.prompt} options={dockOptions} busy={busy} canUndo={view.can_undo}
-            onPick={pick} onUndo={onUndo} cards={shownCards} groupOf={locationGroup}
+            onPick={pick} onUndo={onUndo} groupOf={locationGroup}
+            cards={dockCards.slice().sort((a, b) => rank(a) - rank(b))}
             hint={targets.size ? "Or click a highlighted card." : undefined} />
         </div>
       )}
@@ -310,6 +350,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
     </TargetContext.Provider>
     </SelectContext.Provider>
     </PlayableContext.Provider>
+    </PlayersContext.Provider>
     </PreviewContext.Provider>
   );
 }

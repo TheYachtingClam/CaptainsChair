@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CardView, GameStateView } from "../api";
-import { Card, CardBack, PileViewer, imageUrl } from "./Cards";
+import { Card, CardBack, LocationTokens, PileViewer, imageUrl } from "./Cards";
 
 const SUITS = ["Person", "Cargo", "Ship", "Ally"] as const;
 
@@ -77,15 +77,16 @@ export function CenterMat({ view }: { view: GameStateView }) {
         {view.neutral_zone.map((loc, i) => (
           <div key={loc.uid} className="nz-slot">
             <span className="nz-label">Neutral Zone {i + 1}</span>
-            <Card card={{ ...loc, away_teams: undefined }} />
+            <Card card={loc} tokens={false} />
             <ul className="nz-tokens">
               {view.players.map((p) => {
                 const teams = loc.away_teams?.[String(p.seat)] ?? 0;
                 const ships = shipsAt(loc.uid, p.seat);
                 return (
                   <li key={p.seat} className={loc.secured_by?.includes(p.seat) ? "secured" : ""}>
-                    <strong>{p.name}</strong> {teams} Away · {ships} Ship{ships === 1 ? "" : "s"}
-                    {loc.secured_by?.includes(p.seat) && " · secured"}
+                    <strong>{p.name}</strong>{" "}
+                    {teams || ships ? <LocationTokens loc={loc} seat={p.seat} /> : <span className="muted">no tokens</span>}
+                    {loc.secured_by?.includes(p.seat) && <span className="secured-tag">secured</span>}
                   </li>
                 );
               })}

@@ -420,3 +420,39 @@ label.challenge { align-items: flex-start; }
 .option-group legend { padding: 0 0.35rem; font-size: 0.8rem; font-weight: 700; color: #3f9a4d; }
 .options.centered { display: flex; flex-wrap: wrap; justify-content: center; }
 .options.centered button.option { flex: 0 1 160px; text-align: center; }
+
+/* Tokens at Locations: Away Teams (blue first player, pink second player or Bot) and Ship tokens. */
+.tokens { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center; vertical-align: middle; }
+.token-group { display: inline-flex; gap: 2px; align-items: center; }
+.away-token { position: relative; display: inline-flex; align-items: center; }
+.away-token img, .ship-token { height: 40px; width: auto; filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.6)); }
+.nz-tokens li { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+.token-count { font-size: 0.72rem; font-weight: 800; margin-left: 1px; }
+.gcard .tokens.compact {
+  position: absolute; left: 2px; right: 2px; bottom: 2px; justify-content: center; pointer-events: none;
+  background: rgb(0 0 0 / 0.55); border-radius: 4px; padding: 1px 2px; color: #fff;
+}
+.gcard .tokens.compact img { height: 24px; }
+.secured-tag { margin-left: 4px; font-size: 0.7rem; font-weight: 700; color: #5ee08a; }
+.badge-token { height: 13px; width: auto; vertical-align: -2px; margin-right: 2px; }
+
+/* Ship token preview: both sides, side by side. Large on its own, smaller under a Ship card. */
+.preview-token { display: flex; gap: 10px; justify-content: center; margin-top: 6px; }
+.preview-token figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.preview-token img { height: 110px; width: auto; filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.6)); }
+.preview-token figcaption { font-size: 0.8rem; font-weight: 700; text-align: center; }
+.card-preview.token-only .preview-token figcaption { font-size: 1rem; }
+.card-preview.token-only .preview-token { margin-top: 0; }
+.card-preview.token-only .preview-token img { height: min(260px, 32vh); }
+.ship-token { cursor: zoom-in; }
+
+/* Cards in the decision box, marked by where they come from with a slight border. */
+.dock-card { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.dock-card .gcard img { border: 2px solid transparent; }
+.dock-card.from-faceup .gcard img { border-color: #e0c060; }
+.dock-card.from-deck .gcard img { border-color: #7fa8d8; }
+.dock-card.from-junk .gcard img { border-color: #b08a6a; }
+.dock-card figcaption { font-size: 0.72rem; color: var(--muted, #888); }
+.dock-card.from-faceup figcaption { color: #b8962e; }
+.dock-card.from-deck figcaption { color: #4f7fb8; }
+.dock-card.from-junk figcaption { color: #8a6a4a; }

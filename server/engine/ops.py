@@ -910,7 +910,8 @@ class Actions:
         return
         yield  # pragma: no cover
 
-    def _dismiss(self, inst: Inst) -> None:
+    def _dismiss(self, inst: Inst, why: str = "") -> None:
+        """Dismiss a card. `why` is added to the log line, e.g. " (used for the mission X)"."""
         if is_protected(self.state, inst):
             self.emit(f"{name(inst)} cannot be dismissed from where it is beamed.")
             return
@@ -924,7 +925,7 @@ class Actions:
         inst.res.clear()
         owner.discard.extend(flatten_beamed(inst))
         owner.discard.append(inst)
-        self.state.emit(f"{name(inst)} is dismissed.", seat=owner.seat)
+        self.state.emit(f"{name(inst)} is dismissed{why}.", seat=owner.seat)
         raise_event(self.state, "dismiss", owner.seat, inst.uid)
         from engine.game import check_only_ship
 
@@ -2329,7 +2330,9 @@ def _complete_mission(ctx: Ctx, mission_id: str) -> Gen:
     for inst in contributors:
         where = locate(ctx.state, inst.uid)
         if where is not None and where.zone == "beamed" and not is_protected(ctx.state, inst):
-            actions._dismiss(find_inst(ctx.state, inst.uid))
+            on = f" to {name(where.parent)}" if where.parent is not None else ""
+            actions._dismiss(find_inst(ctx.state, inst.uid),
+                             why=f": it was beamed{on} and used for the mission {mission.name}")
     ctx.me.missions_completed.append(mission_id)
     raise_event(ctx.state, "mission_completed", ctx.me.seat, None, mission=mission_id)
 

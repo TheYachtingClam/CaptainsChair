@@ -24,6 +24,8 @@ resources/scans/<set>/<kind>/...
 | `cards/` | Every card: Market, Crew, Locations, Incidents, Encounters, Stardates, card backs | Exact card proportions, 630 × 880 |
 | `boards/` | Crew boards, one scan per side | Scan's own proportions, 1800 px on the long side |
 | `command/` | The Bot's Automated Command cards, one image or PDF page per side | Scan's own proportions, 1400 px on the long side |
+| `ships/` | Ship tokens, front (ship art) and back (name), as cut-out PNGs | Own proportions, 400 px on the long side, transparency kept |
+| `tokens/` | Other tokens: Away Teams (`away-team-p1`, `-p2`) and Khan's trait tokens (`tokens/khan/`) | Own proportions, 400 px on the long side, transparency kept |
 | `manual/`, `solo/` | Rulebook pages | Not processed; for people to read |
 
 Any other kind folder keeps its proportions at 1200 px on the long side.
@@ -56,6 +58,9 @@ Current naming conventions:
 | Card back | `card-back`, in `to_boldly_go/cards/`. The client draws every facedown deck and hidden hand with it |
 | Crew board side | `cb-<captain>-basic`, `cb-<captain>-advanced` |
 | Command card side | `cc-<captain>-traits`, `cc-<captain>-upgrades`, `cc-<captain>-suits-no-duty-officer`, `cc-<captain>-suits-duty-officer` |
+| Ship token | `ship-<card id in lower case>` (front, shown on the board), `ship-<card id>-back` (the name side). Set in `ships/mapping.csv` |
+| Away Team token | `away-team-p1` (first player, blue), `away-team-p2` (second player or the Bot, pink) |
+| Khan's trait token | `khan-<trait>`, and `khan-<trait>-marked` for the crossed-out side with the tick |
 
 ## Cropping
 

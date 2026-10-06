@@ -1,8 +1,59 @@
 import { createContext, useContext, useLayoutEffect, useRef, useState } from "react";
-import { CardView, OptionView } from "../api";
+import { CardView, OptionView, PlayerView } from "../api";
 
-export type Preview = { image: string; beamed?: CardView[]; wide?: boolean; x: number; y: number } | null;
+export type Preview = {
+  image: string;
+  beamed?: CardView[];
+  wide?: boolean;
+  /** A Ship's token, shown with the Ship's name underneath. */
+  token?: string;
+  tokenName?: string;
+  /** Show only the token, large (hovering the token itself). */
+  tokenOnly?: boolean;
+  x: number;
+  y: number;
+} | null;
 export const PreviewContext = createContext<(p: Preview) => void>(() => {});
+/** Every player, so a Location can show the Ship tokens warped to it. */
+export const PlayersContext = createContext<PlayerView[]>([]);
+
+/** The Away Team token of a seat: blue for the first player, pink for the second player or the Bot. */
+export const awayTokenImage = (seat: number) => (seat === 0 ? "away-team-p1" : "away-team-p2");
+
+/** The tokens at a Location, by player: Away Teams (token and count) and each Ship warped there. */
+export function LocationTokens({ loc, seat, compact = false }: { loc: CardView; seat?: number; compact?: boolean }) {
+  const players = useContext(PlayersContext);
+  const setPreview = useContext(PreviewContext);
+  const groups = players
+    .filter((p) => seat === undefined || p.seat === seat)
+    .map((p) => ({
+      p,
+      teams: loc.away_teams?.[String(p.seat)] ?? 0,
+      ships: p.fleet.filter((s) => s.at === loc.uid),
+    }))
+    .filter((g) => seat !== undefined || g.teams > 0 || g.ships.length > 0);
+  if (!groups.length) return null;
+  return (
+    <span className={`tokens ${compact ? "compact" : ""}`}>
+      {groups.map(({ p, teams, ships }) => (
+        <span key={p.seat} className="token-group" title={`${p.name}: ${teams} Away Team(s), ${ships.length} Ship(s)`}>
+          {teams > 0 && (
+            <span className="away-token">
+              <img src={imageUrl(awayTokenImage(p.seat))} alt={`${p.name}'s Away Team`} />
+              {teams > 1 && <span className="token-count">×{teams}</span>}
+            </span>
+          )}
+          {ships.map((s) => (
+            <img key={s.uid} className="ship-token" src={imageUrl(s.token ?? s.image)} alt={s.name}
+              onMouseEnter={(e) => s.token && setPreview({ image: s.token, token: s.token, tokenName: s.name, tokenOnly: true, x: e.clientX, y: e.clientY })}
+              onMouseMove={(e) => s.token && setPreview({ image: s.token, token: s.token, tokenName: s.name, tokenOnly: true, x: e.clientX, y: e.clientY })}
+              onMouseLeave={() => setPreview(null)} />
+          ))}
+        </span>
+      ))}
+    </span>
+  );
+}
 /** The selected card, and a toggle to select or deselect a card at a position on screen. */
 export type Selection = { card: CardView; rect: { left: number; right: number; top: number; bottom: number } } | null;
 export const SelectContext = createContext<{ selected: string | null; toggle: (s: Selection) => void }>({
@@ -44,9 +95,14 @@ export function CardPreview({ preview }: { preview: Preview }) {
 
   if (!preview) return null;
   return (
-    <div ref={ref} className={`card-preview ${preview.wide ? "wide" : ""}`} aria-hidden
+    <div ref={ref} className={`card-preview ${preview.wide ? "wide" : ""} ${preview.tokenOnly ? "token-only" : ""}`} aria-hidden
       style={pos ? { left: pos.left, top: pos.top } : { left: -9999, top: 0 }}>
-      <img src={imageUrl(preview.image)} alt="" />
+      {!preview.tokenOnly && <img src={imageUrl(preview.image)} alt="" />}
+      {preview.token && (
+        <div className="preview-token">
+          <figure><img src={imageUrl(preview.token)} alt="" /><figcaption>{preview.tokenName}</figcaption></figure>
+        </div>
+      )}
       {preview.beamed && preview.beamed.length > 0 && (
         <div className="preview-beamed">
           <span className="muted">Beamed here:</span>
@@ -58,7 +114,13 @@ export function CardPreview({ preview }: { preview: Preview }) {
 }
 
 /** A faceup card on the table. Hover or focus shows the large preview. */
-export function Card({ card, badges, style }: { card: CardView; badges?: React.ReactNode; style?: React.CSSProperties }) {
+export function Card({ card, badges, style, tokens = true }: {
+  card: CardView;
+  badges?: React.ReactNode;
+  style?: React.CSSProperties;
+  /** A Location shows the tokens at it, unless they are listed elsewhere (the Neutral Zone). */
+  tokens?: boolean;
+}) {
   const setPreview = useContext(PreviewContext);
   const playable = useContext(PlayableContext).has(card.uid);
   const { selected, toggle } = useContext(SelectContext);
@@ -81,7 +143,7 @@ export function Card({ card, badges, style }: { card: CardView; badges?: React.R
     .map(([kind, n]) => `${n} ${kind[0].toUpperCase()}${kind.slice(1)}`)
     .join(" · ");
   const show = (x: number, y: number) => {
-    if (!isSelected) setPreview({ image: card.image, beamed: card.beamed, x, y });
+    if (!isSelected) setPreview({ image: card.image, beamed: card.beamed, token: card.token, tokenName: card.name, x, y });
   };
   return (
     <div
@@ -110,11 +172,7 @@ export function Card({ card, badges, style }: { card: CardView; badges?: React.R
     >
       <img src={imageUrl(card.image)} alt={card.name} loading="lazy" />
       {resourceText ? <span className="badge">{resourceText}</span> : null}
-      {card.away_teams && Object.keys(card.away_teams).length > 0 && (
-        <span className="badge left">
-          {Object.entries(card.away_teams).map(([seat, n]) => `P${Number(seat) + 1}:${n}`).join(" ")}
-        </span>
-      )}
+      {card.suit === "Location" && tokens && <LocationTokens loc={card} compact />}
       {card.beamed && card.beamed.length > 0 && <span className="badge bottom-left">+{card.beamed.length} beamed</span>}
       {badges}
     </div>

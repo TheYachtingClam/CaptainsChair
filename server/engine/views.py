@@ -15,6 +15,8 @@ from engine.state import GameState, Inst, Player
 def card_view(inst: Inst) -> dict:
     c = content().cards[inst.card]
     out = {"uid": inst.uid, "id": inst.card, "name": c.name, "suit": c.suit, "image": c.image, "exhausted": inst.exhausted}
+    if c.ship_token:
+        out["token"] = f"ship-{c.id.lower()}"  # its Ship token image (resources/scans/<set>/ships/mapping.csv)
     if inst.res:
         out["resources"] = dict(inst.res)
     if inst.beamed:

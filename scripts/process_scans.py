@@ -14,6 +14,8 @@ and sets how images are sized:
   cards/     forced to exact card proportions, 630 x 880 (or 880 x 630 for landscape cards)
   boards/    crew boards; the scan's own proportions are kept, 1800 px on the long side
   command/   the Bot's Automated Command cards; own proportions kept, 1400 px on the long side
+  ships/, tokens/   Ship tokens, Away Team tokens, Khan's trait tokens; own proportions kept, 400 px on the
+             long side, and the scan's transparency (a cut-out PNG) is kept
   manual/, solo/   rulebook scans; never processed
 Any other kind folder keeps its proportions at 1200 px on the long side.
 Below the kind folder, organise scans however you like, at any depth.
@@ -79,7 +81,10 @@ PROFILES = {
     "cards": Profile(long_side=880, card_shape=True),
     "boards": Profile(long_side=1800, card_shape=False),
     "command": Profile(long_side=1400, card_shape=False),
+    "ships": Profile(long_side=400, card_shape=False),
+    "tokens": Profile(long_side=400, card_shape=False),
 }
+ALPHA_KINDS = {"ships", "tokens"}  # cut-out tokens: keep the transparent background
 DEFAULT_PROFILE = Profile(long_side=1200, card_shape=False)
 SKIP_KINDS = {"manual", "solo"}  # rulebook scans, read by people only
 CARD_RATIO = 63 / 88
@@ -164,6 +169,11 @@ def id_for(source: Source, mapping: dict[str, tuple[str, int]]) -> tuple[str, in
 
 def load(source: Source, profile: Profile) -> np.ndarray | None:
     if source.page is None:
+        if source.kind in ALPHA_KINDS:
+            image = cv2.imread(str(source.path), cv2.IMREAD_UNCHANGED)
+            if image is not None and image.ndim == 2:
+                image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+            return image  # BGR, or BGRA when the scan has transparency
         return cv2.imread(str(source.path), cv2.IMREAD_COLOR)
     pdf = pdfium.PdfDocument(source.path)
     page = pdf[source.page - 1]
@@ -297,7 +307,7 @@ def main() -> int:
         file = (source.folder / f"{image_id}.webp").as_posix()
         out = OUT_DIR / file
         source_hash = hashes.setdefault(source.path, file_hash(source.path))
-        settings = f"v2:{profile}:{degrees}:{args.detect}:{source.page}"
+        settings = f"v2:{profile}:{degrees}:{args.detect}:{source.page}" + (":alpha" if source.kind in ALPHA_KINDS else "")
         entry = images.get(image_id)
 
         if entry and entry.get("file") != file:
@@ -331,7 +341,11 @@ def main() -> int:
         image = resize(rotate(image, degrees), profile)
 
         out.parent.mkdir(parents=True, exist_ok=True)
-        Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).save(out, "WEBP", quality=WEBP_QUALITY, method=6)
+        if image.ndim == 3 and image.shape[2] == 4:
+            rgba = cv2.cvtColor(image, cv2.COLOR_BGRA2RGBA)
+            Image.fromarray(rgba, "RGBA").save(out, "WEBP", quality=WEBP_QUALITY, method=6, exact=False)
+        else:
+            Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).save(out, "WEBP", quality=WEBP_QUALITY, method=6)
         images[image_id] = {
             "kind": source.kind,
             "file": file,

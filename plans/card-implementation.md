@@ -171,7 +171,7 @@ Each step covers the deck's cards, development costs, Passives, ENDGAME, deck-sp
 15. Riker (done)
 16. Freeman (done), including the K'ranch, Boimler and Tendi SUPPORT chain test
 17. Rebner (done)
-18. Khan: on hold. Marked traits, the double-sided Captain, his Incident rules, and his Cadet rules. Khan has two open questions to answer first, so his deck and missions are left out for now; his cards keep the "not implemented yet" placeholder.
+18. Khan: on hold. Marked traits, the double-sided Captain, his Incident rules, and his Cadet rules. Khan has two open questions to answer first, so his deck and missions are left out for now; his cards keep the "not implemented yet" placeholder. His 12 trait tokens are already processed for the marked-trait display: `khan-<trait>` and `khan-<trait>-marked`, in `server/content/images/to_boldly_go/tokens/khan/`.
 
 **You test:** play a Cadet game with the new deck, then a two-player game against Georgiou.
 

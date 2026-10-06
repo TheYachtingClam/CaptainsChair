@@ -211,6 +211,7 @@ export interface CardView {
   beamed?: CardView[];
   away_teams?: Record<string, number>;
   secured_by?: number[];
+  token?: string; // a Ship's token image, shown where the Ship is warped
   facedown?: boolean; // a Bot card drawn this turn and not yet flipped; only uid is set
 }
 
