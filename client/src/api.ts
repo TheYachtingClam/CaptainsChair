@@ -162,7 +162,10 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     ...init,
     headers: { "Content-Type": "application/json", ...(init.headers ?? {}) },
   });
-  if (res.status === 401 && !path.startsWith("/api/auth/login")) throw new AuthError("Not signed in");
+  // A wrong password (site or admin) is an ordinary error; any other 401 means the site session has ended.
+  if (res.status === 401 && !path.startsWith("/api/auth/login") && !path.startsWith("/api/admin/login")) {
+    throw new AuthError("Not signed in");
+  }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     const detail = typeof body.detail === "string" ? body.detail : `Request failed (${res.status})`;
@@ -351,6 +354,39 @@ export const campaignApi = {
   upgrade: (id: string, choice: { card_id?: string; bonus?: string; cards?: string[] }) =>
     request<CampaignView>(`/api/campaigns/${id}/upgrade`,
       { method: "POST", body: JSON.stringify(choice), headers: campaignHeaders(id) }),
+};
+
+// ------------------------------------------------------------------ admin (REQ-ADMIN-01 to -05)
+
+export interface AdminGame {
+  id: string;
+  mode: GameMode;
+  status: string;
+  created_at: string | null;
+  players: string[];
+  bot: string | null;
+  campaign_id: string | null;
+  moves: number;
+}
+
+export interface AdminCampaign {
+  id: string;
+  display_name: string;
+  deck_id: string;
+  rank: string;
+  assignments: number;
+  status: string;
+  created_at: string | null;
+}
+
+export const adminApi = {
+  status: () => request<{ enabled: boolean; admin: boolean }>("/api/admin/status"),
+  login: (password: string) => request<null>("/api/admin/login", { method: "POST", body: JSON.stringify({ password }) }),
+  logout: () => request<null>("/api/admin/logout", { method: "POST" }),
+  games: () => request<AdminGame[]>("/api/admin/games"),
+  deleteGame: (id: string) => request<null>(`/api/admin/games/${id}`, { method: "DELETE" }),
+  campaigns: () => request<AdminCampaign[]>("/api/admin/campaigns"),
+  deleteCampaign: (id: string) => request<null>(`/api/admin/campaigns/${id}`, { method: "DELETE" }),
 };
 
 export const api = {

@@ -5,6 +5,7 @@ import { Login } from "./pages/Login";
 import { Lobby } from "./pages/Lobby";
 import { NewGame } from "./pages/NewGame";
 import { GameTable } from "./pages/GameTable";
+import { Admin } from "./pages/Admin";
 import { Campaign } from "./pages/Campaign";
 import { NewCampaign } from "./pages/NewCampaign";
 
@@ -50,6 +51,7 @@ export function App() {
         <Route path="/games/:gameId" element={<GameTable />} />
         <Route path="/campaigns/new" element={<NewCampaign />} />
         <Route path="/campaigns/:campaignId" element={<Campaign />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<main className="page">Page not found. <Link to="/">Back to lobby</Link></main>} />
       </Routes>
     </>

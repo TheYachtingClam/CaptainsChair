@@ -65,6 +65,60 @@ def require_session(request: Request) -> None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not signed in")
 
 
+# ------------------------------------------------------------------ admin (REQ-ADMIN-01 to -05)
+
+ADMIN_COOKIE = "cc_admin"
+ADMIN_DAYS = 1
+
+
+def _admin_serializer(settings: Settings) -> URLSafeTimedSerializer:
+    return URLSafeTimedSerializer(settings.session_secret, salt="cc-admin")
+
+
+def _admin_fingerprint(settings: Settings) -> str:
+    # Changing ADMIN_PASSWORD ends every admin session (REQ-ADMIN-02).
+    return hmac.new(
+        settings.session_secret.encode(), b"admin:" + settings.admin_password.encode(), hashlib.sha256
+    ).hexdigest()[:32]
+
+
+def admin_enabled(settings: Settings) -> bool:
+    return bool(settings.admin_password)
+
+
+def check_admin_password(candidate: str, settings: Settings) -> bool:
+    return admin_enabled(settings) and hmac.compare_digest(candidate.encode(), settings.admin_password.encode())
+
+
+def issue_admin(response: Response, settings: Settings) -> None:
+    token = _admin_serializer(settings).dumps({"admin": _admin_fingerprint(settings)})
+    response.set_cookie(ADMIN_COOKIE, token, max_age=ADMIN_DAYS * 86400, httponly=True,
+                        secure=settings.secure_cookies, samesite="lax", path="/")
+
+
+def clear_admin(response: Response) -> None:
+    response.delete_cookie(ADMIN_COOKIE, path="/")
+
+
+def is_admin(request: Request) -> bool:
+    settings = get_settings()
+    cookie = request.cookies.get(ADMIN_COOKIE)
+    if not admin_enabled(settings) or not cookie:
+        return False
+    try:
+        data = _admin_serializer(settings).loads(cookie, max_age=ADMIN_DAYS * 86400)
+    except (BadSignature, SignatureExpired):
+        return False
+    return isinstance(data, dict) and hmac.compare_digest(str(data.get("admin", "")), _admin_fingerprint(settings))
+
+
+def require_admin(request: Request) -> None:
+    """FastAPI dependency for admin endpoints; needs a normal session too."""
+    require_session(request)
+    if not is_admin(request):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Admin only")
+
+
 def websocket_has_session(websocket: WebSocket) -> bool:
     return session_is_valid(websocket.cookies.get(COOKIE_NAME), get_settings())
 

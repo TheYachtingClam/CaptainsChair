@@ -94,6 +94,10 @@ All endpoints except login and health require a valid session (see §5).
 | `GET /api/games` | List open and in-progress games |
 | `POST /api/games/{id}/join` | Join as the second player |
 | `DELETE /api/games/{id}` | Delete the game for everyone. Needs the seat token of a player in that game. Connected players get a `game_deleted` message and return to the lobby |
+| `POST /api/admin/login` | Check the admin password and start an admin session (§5.4) |
+| `GET /api/admin/games` | Admin: every game, in any state, with its players |
+| `DELETE /api/admin/games/{id}` | Admin: delete any game; connected players get `game_deleted` |
+| `GET /api/admin/campaigns`, `DELETE /api/admin/campaigns/{id}` | Admin: list or delete Five-Year Mission campaigns |
 | `GET /api/games/{id}` | Current view of the game for this player |
 | `POST /api/games/{id}/commands` | Submit a command |
 | `GET /api/games/{id}/log` | Public action log |
@@ -183,7 +187,17 @@ The whole site is behind one password that you share with the people you want to
 - **REQ-AUTH-15** Login attempts are rate-limited per IP address, for example 5 attempts per minute, to slow down password guessing.
 - **REQ-AUTH-16** The server refuses to start if `SITE_PASSWORD` or `SESSION_SECRET` is missing.
 
-### 5.3 Limits of this approach
+### 5.3 Admin
+
+The site has one optional admin, who can clean up games and campaigns that their players cannot, for example a game waiting for an opponent who never came, or a game whose seat link was lost.
+
+- **REQ-ADMIN-01** The admin password is set through the `ADMIN_PASSWORD` environment variable. Without it, the admin features are off and the server still starts.
+- **REQ-ADMIN-02** The admin signs in on the Admin page, which needs a normal session first. A correct admin password sets a second signed cookie (`HttpOnly`, `SameSite=Lax`, `Secure` as for sessions) that lasts 1 day and includes a fingerprint of the admin password, so changing it ends admin sessions. The comparison is constant-time and attempts are rate-limited like REQ-AUTH-15.
+- **REQ-ADMIN-03** The Admin page lists every game, in any state, with its mode, status, players and creation date, and can delete any game after a confirmation. Players connected to a deleted game get the `game_deleted` message.
+- **REQ-ADMIN-04** The Admin page lists every Five-Year Mission campaign and can delete one after a confirmation. Its games are not deleted.
+- **REQ-ADMIN-05** Apart from the admin, only a player seated in a game can delete it. A game still waiting for an opponent therefore can be deleted only by the player who created it.
+
+### 5.4 Limits of this approach
 
 A shared password keeps strangers out, but it does not identify people. Anyone with the password can open any game's lobby entry. Seats are protected by seat tokens (REQ-SRV-30), so one player cannot act as another. If you later need per-person accounts, replace §5 without changing the rest of the system.
 
@@ -198,6 +212,7 @@ A shared password keeps strangers out, but it does not identify people. Anyone w
 |---|---|
 | `SITE_PASSWORD` | The shared access password |
 | `SESSION_SECRET` | Key for signing session cookies |
+| `ADMIN_PASSWORD` | Optional: the admin password (§5.3). Without it there is no admin |
 | `DATABASE_URL` | Database location. Defaults to a local SQLite file |
 | `LOG_LEVEL` | Server log detail |
 

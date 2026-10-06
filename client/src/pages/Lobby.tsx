@@ -39,6 +39,8 @@ export function Lobby() {
           </ul>
         )}
       </section>
+
+      <p className="muted lobby-footer"><Link to="/admin">Admin</Link></p>
     </main>
   );
 }

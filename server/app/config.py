@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     login_attempts_per_minute: int = 5
     # Developer panel for testing cards by hand (plans/card-implementation.md). Never turn on for real games.
     dev_tools: bool = False
+    # Optional admin password (requirements/19-technical-architecture.md §5.3). Empty: no admin.
+    admin_password: str = ""
 
 
 @lru_cache

@@ -456,3 +456,12 @@ label.challenge { align-items: flex-start; }
 .dock-card.from-faceup figcaption { color: #b8962e; }
 .dock-card.from-deck figcaption { color: #4f7fb8; }
 .dock-card.from-junk figcaption { color: #8a6a4a; }
+.game-title { align-items: center; }
+.game-title h1 { margin: 0; }
+
+/* Admin page */
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.admin-table th, .admin-table td { text-align: left; padding: 0.3rem 0.5rem; border-bottom: 1px solid #ccc4; vertical-align: middle; }
+.admin-actions { text-align: right; white-space: nowrap; }
+.admin-actions .confirm-delete { justify-content: flex-end; gap: 0.4rem; flex-wrap: wrap; }
+.lobby-footer { margin-top: 2rem; font-size: 0.85rem; }

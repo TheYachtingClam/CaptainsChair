@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { MODE_LABELS, api, forgetSeatToken, loadSeatToken } from "../api";
@@ -23,6 +23,21 @@ export function GameTable() {
     onSuccess: (view) => queryClient.setQueryData(["state", gameId], view),
   });
   const [socket, setSocket] = useState<SocketState>("connecting");
+  const [exiting, setExiting] = useState(false);
+  const quitting = useRef(false); // we deleted the game ourselves: the page moves on, not the socket handler
+  const quit = useMutation({
+    mutationFn: () => {
+      quitting.current = true;
+      return api.deleteGame(gameId);
+    },
+    onSuccess: () => {
+      forgetSeatToken(gameId);
+      queryClient.invalidateQueries({ queryKey: ["games"] });
+      const campaignId = game.data?.campaign_id;
+      navigate(campaignId ? `/campaigns/${campaignId}` : "/", { replace: true });
+    },
+    onError: () => { quitting.current = false; },
+  });
   const [online, setOnline] = useState<number[]>([]);
   const [log, setLog] = useState<string[]>([]);
 
@@ -46,6 +61,7 @@ export function GameTable() {
         if (msg.type === "presence") setOnline(msg.connected);
         if (msg.type === "game_deleted") {
           stopped = true;
+          if (quitting.current) return;
           forgetSeatToken(gameId);
           queryClient.invalidateQueries({ queryKey: ["games"] });
           navigate("/", { replace: true });
@@ -74,7 +90,16 @@ export function GameTable() {
   const g = game.data;
   return (
     <main className="page">
-      <h1>{MODE_LABELS[g.mode]}</h1>
+      <div className="row between game-title">
+        <h1>{MODE_LABELS[g.mode]}</h1>
+        <button className="secondary" onClick={() => setExiting(true)}>Exit game</button>
+      </div>
+      {exiting && (
+        <ExitDialog mode={g.mode} campaign={!!g.campaign_id} seated={g.your_seat != null} over={g.status === "finished"}
+          busy={quit.isPending} error={quit.error?.message}
+          onLeave={() => navigate(g.campaign_id ? `/campaigns/${g.campaign_id}` : "/")}
+          onQuit={() => quit.mutate()} onCancel={() => setExiting(false)} />
+      )}
       {g.campaign_id && (
         <p><Link to={`/campaigns/${g.campaign_id}`}>Back to the Five-Year Mission</Link> (the result is recorded there when
           the game ends)</p>
@@ -129,4 +154,53 @@ function describe(msg: { type: string; [k: string]: unknown }): string {
     case "game_updated": return "A player joined";
     default: return JSON.stringify(msg);
   }
+}
+
+/** Leave the game for now (it stays in "Your games"), or quit it for good, which deletes it. */
+function ExitDialog({ mode, campaign, seated, over, busy, error, onLeave, onQuit, onCancel }: {
+  mode: string;
+  campaign: boolean;
+  seated: boolean;
+  over: boolean;
+  busy: boolean;
+  error?: string;
+  onLeave: () => void;
+  onQuit: () => void;
+  onCancel: () => void;
+}) {
+  const [sure, setSure] = useState(false);
+  const first = useRef<HTMLButtonElement>(null);
+  useEffect(() => first.current?.focus(), []);
+  const consequence = campaign && !over
+    ? "This assignment counts as a failure in your Five-Year Mission."
+    : mode === "two_player" ? "The game ends for both players." : "The game and its history are gone.";
+  return (
+    <div className="modal-backdrop" onKeyDown={(e) => e.key === "Escape" && onCancel()}>
+      <div className="card modal stack" role="dialog" aria-labelledby="exit-title">
+        <h2 id="exit-title">Exit game</h2>
+        {!sure ? (
+          <>
+            <button ref={first} onClick={onLeave}>{campaign ? "Back to the Five-Year Mission" : "Back to the lobby"}</button>
+            <p className="muted">The game is kept. Continue it any time from {campaign ? "the campaign page" : "\u201cYour games\u201d in the lobby"}.</p>
+            {seated && (
+              <>
+                <button className="danger" onClick={() => setSure(true)}>Quit and delete the game…</button>
+                <p className="muted">Ends the game for good. You are asked to confirm.</p>
+              </>
+            )}
+            <button className="secondary" onClick={onCancel}>Cancel</button>
+          </>
+        ) : (
+          <>
+            <p><strong>Quit and delete this game?</strong> {consequence} This can’t be undone.</p>
+            <div className="row">
+              <button className="secondary" onClick={() => setSure(false)} disabled={busy}>Go back</button>
+              <button className="danger" onClick={onQuit} disabled={busy}>Quit and delete</button>
+            </div>
+          </>
+        )}
+        {error && <p className="error" role="alert">{error}</p>}
+      </div>
+    </div>
+  );
 }
