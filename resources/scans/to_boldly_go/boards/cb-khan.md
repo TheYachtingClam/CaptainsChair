@@ -18,7 +18,7 @@ missions:
   - id: marooned-for-all-eternity
     name: Marooned for All Eternity! Buried Alive!
     vp: 3
-trait_slots: 12                       # trait names are printed under the tokens; not visible on this scan
+trait_slots: 12                       # the slots are blank; the order is a ruling, see Trait slots below
 ---
 
 # Khan: Advanced side
@@ -32,6 +32,23 @@ The same as the Basic side: Control max 1, Actions 3. The Advanced side has no r
 ## Specialty tracks
 
 None. Khan's board has 12 trait slots instead (REQ-CD-KHN-06).
+
+## Trait slots
+
+The slots on the board are blank; each holds a Trait Mark token (images in `tokens/khan/`). Order, read top to bottom and left to right (ruling: alphabetical, then the two opponent-dependent entries):
+
+1. Ambassador
+2. Business
+3. Cloak
+4. Creature
+5. Doctor
+6. Engineer
+7. Scientist
+8. Spy
+9. Synthetic
+10. Telepath
+11. A trait matching your opponent's Captain (excluding Human, if possible)
+12. A different trait matching your opponent's Captain (excluding Human, if possible)
 
 ## Missions
 
@@ -71,8 +88,11 @@ None. Khan's board has 12 trait slots instead (REQ-CD-KHN-06).
 ## Rulings and open questions
 
 - Board rule printed on the scan: "After gaining a card or taking control of a Location that has one or more of the following traits, you *may* mark **one** of them as collected. (Wildcard counts as any one trait for this purpose.)" See REQ-CD-KHN-06.
-- The 12 trait names are not visible in this scan; they are printed under the trait tokens. They must be transcribed before Khan can be played. Two of them depend on the opponent's Captain (REQ-CD-KHN-09).
-- The second mission's reward flips the Captain. This is a second flip trigger besides Ceti Alpha VI; confirm whether both apply.
+- Ruling: the board's slots are blank, so the game fixes no token order. This game uses the order in Trait slots above: the ten fixed traits alphabetically, then the two opponent-dependent entries (REQ-CD-KHN-09). The order matters only to the Khan Bot's tie-breaker (REQ-CD-KHN-11); a human Khan marks in any order.
+- Ruling: the second mission's reward is the only thing that flips the Captain. Ceti Alpha VI flips only Ceti Alpha V.
+- Ruling: a Wildcard card can mark either of the two opponent-dependent entries, as it can any other entry. It still marks only one entry per gain or take control.
+- Ruling: Khan against Khan marks the two opponent-dependent entries with Augment and Human, as in the rulebook's Kirk example (the opponent has only one non-Human trait).
+- Ruling: "you cannot mark the two entries with the same card" is about the physical card. A card that marked one of the two entries cannot mark the other if Khan gains that same card again later. Another copy, or any other card, can.
 
 ## Tests
 

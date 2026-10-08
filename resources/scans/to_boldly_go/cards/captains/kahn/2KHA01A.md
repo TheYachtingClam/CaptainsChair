@@ -19,7 +19,7 @@ scan: 2KHA01A.jpg
 
 # Khan Noonien Singh
 
-Khan's Captain card, normal side. Flips to Wrathful Khan (2KHA01B) when Ceti Alpha VI is logged.
+Khan's Captain card, normal side. Flips to Wrathful Khan (2KHA01B) only by the reward of the mission *I Shall Leave You as You Left Me* (9 traits marked).
 
 ## Printed text
 
@@ -76,7 +76,7 @@ The Bot ignores the printed text and resolves this card through its Automated Co
 ## Rulings and open questions
 
 - One side of a double-sided card. The card starts with its A side up; the B side is hidden until the card flips (REQ-CD-KHN-01).
-- The second Passive is mandatory but has a cost; if Khan has no card in hand, it does nothing.
+- Ruling: the second Passive is mandatory, as printed. Each time the opponent returns an Incident, Khan must discard a card (his choice of card) and gain 1 Dilithium or 1 Latinum (his choice). It does not exhaust the Captain and can trigger any number of times in a turn. With no card in hand it does nothing. The Wrathful side (2KHA01B) prints the same effect as an optional REACTION.
 - Before the flip Khan has no Specialty tracks and cannot meet Specialty requirements (REQ-CD-KHN-04).
 
 ## Tests

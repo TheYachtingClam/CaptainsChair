@@ -38,6 +38,7 @@ The *Second Contact* expansion adds Pike, Riker and Freeman. Their rules are in 
 - **REQ-CD-KHN-01 Double-sided cards.**
   - The Captain card starts showing its normal side. The *Wrathful* side must be hidden at game start.
   - *Ceti Alpha V* starts non-devastated. The *Devastated* side is hidden.
+  - The Captain flips only by the reward of the mission *I Shall Leave You as You Left Me* (9 traits marked). *Ceti Alpha VI* flips only *Ceti Alpha V*.
   - When the Captain flips, move any Away Teams on it to the other side.
 - **REQ-CD-KHN-02 Hand size.** *Ceti Alpha V* raises hand size. Draw 6 in player setup and refill to 6 each Clean-up until it flips to *Devastated Ceti Alpha V*.
 - **REQ-CD-KHN-03 No Reserve deck.** "Enlist a Reserve" does nothing for Khan. Per his Captain card, he does not enlist when the deck cycles. His main way to enlist Developments is on *Devastated Ceti Alpha V*, built around Augment cards.
@@ -53,6 +54,9 @@ The *Second Contact* expansion adds Pike, Riker and Freeman. Their rules are in 
 - **REQ-CD-KHN-09 Opponent-dependent entries.** Two entries depend on the opponent's Captain.
   - They must be marked with two **different** traits from the opponent's Captain, excluding Human if possible.
   - Either may repeat a trait already on the board, but the same card cannot mark both.
+  - A Wildcard card can mark either of these entries (ruling).
+  - Against another Khan the two entries are Augment and Human (ruling).
+  - "The same card" means the physical card: one that marked one entry cannot mark the other when gained again later (ruling).
   - Examples:
     - Against Archer: any two of NX-01, Pilot and Starfleet.
     - Against Kirk: Starfleet and Human, because Kirk has no other traits.
@@ -65,6 +69,7 @@ The *Second Contact* expansion adds Pike, Riker and Freeman. Their rules are in 
   - Remove *Ceti Alpha V* and *Ceti Alpha VI*. The Bot never flips its Captain.
   - The Bot marks one trait when a card is gained, taken under control or **taken**. With several unmarked traits it marks the first applicable one on the board, top to bottom and left to right.
   - Told to "mark a trait", it uses the same tie-breaker.
+  - Board order (ruling, the printed slots are blank): Ambassador, Business, Cloak, Creature, Doctor, Engineer, Scientist, Spy, Synthetic, Telepath, then the two opponent-dependent entries.
   - "Unmarked" on Automated Command cards means "any unmarked trait". Among cards with unmarked traits it prefers the highest-value card.
   - Supplement deck: shuffle all Developments except *Genesis Device*, then put *Genesis Device* on the bottom. Solo Challenge cards for the Bot's Reserve go on top of the Supplement deck.
   - Set aside the two regular Automated Command cards. Use the "KHAN IN EXILE" card, which says when to swap to the regular cards on the "TRAITS" and "SUITS WITH NO DUTY OFFICER" side.
