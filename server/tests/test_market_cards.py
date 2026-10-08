@@ -1342,3 +1342,35 @@ def test_drones_support_after_a_borg_enters_play():
     assert s.decision.kind == "trigger" and "Drones" in options(s)[0]
     answer(s, "Drones")
     assert me(s).tracks["research"] == 2
+
+
+def test_an_incident_given_in_an_ignored_attack_is_returned():
+    """KW-GIVE-04: Tellarites give an Incident; Riva ignores the attack, so the Incident goes back to the deck."""
+    s = given(hand=["2ALL13", "2INC01"], opp={"duty": ["2PER16"], "hand": ["2PER15"]})
+    incident = card(s, "2INC01", zone="hand")
+    play(s, card(s, "2ALL13", zone="hand"), 0)
+    answer(s, "Use Riva")
+    answer(s, "Rillak")
+    assert s.incident[-1].uid == incident.uid
+    assert not any(i.uid == incident.uid for i in me(s).hand + opp(s).hand)
+
+
+def _translator_with_beamed_wildcard(staging):
+    s = given(hand=["2CAR18"], fleet=["2SHI07", "2SHI01"], staging=staging)  # Medusan Vessel is an Alien Ship
+    wildcard = s.new_inst("2ARC04")  # Founding the Federation: Wildcard, not an Encounter
+    card(s, "2SHI01", zone="fleet").beamed.append(wildcard)
+    play(s, card(s, "2CAR18", zone="hand"), 1)
+    return s, wildcard
+
+
+def test_universal_translator_dismisses_a_wildcard_used_as_the_third_alien():
+    s, wildcard = _translator_with_beamed_wildcard(["2ALL03"])  # Bynars: the second Alien
+    discard = [i.uid for i in me(s).discard]
+    assert wildcard.uid in discard and card(s, "2SHI07").uid in discard
+    assert me(s).log[-1].card == "2CAR18" and any(CARDS[i.card].suit == "Encounter" for i in me(s).discard)
+
+
+def test_universal_translator_keeps_a_wildcard_it_did_not_need():
+    s, wildcard = _translator_with_beamed_wildcard(["2ALL03", "2ALL12"])  # Bynars and Suliban: three Aliens
+    assert [i.uid for i in card(s, "2SHI01", zone="fleet").beamed] == [wildcard.uid]
+    assert card(s, "2SHI07").uid in [i.uid for i in me(s).discard]

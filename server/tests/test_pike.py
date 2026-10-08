@@ -375,3 +375,21 @@ def test_to_explore():
     choose(s, 0, "mission:to-explore", flag_irreversible=False)
     resolve_all(s)
     assert loc.uid in uids(me(s).locations) and s.stardate_glory == glory - 1
+
+
+def test_spock_resupply_must_exhaust_and_asks_only_glory_or_draw():
+    s = pike(duty=["3PIK21"], tracks={"research": 2, "influence": 1})
+    glory = me(s).glory
+    run_op(s, "3PIK21", 1, "duty")
+    assert sorted(options(s)) == ["Draw a card", "Gain 1 Glory"]
+    answer(s, "Gain 1 Glory")
+    assert card(s, "3PIK21", zone="duty").exhausted and me(s).glory == glory + 1
+    s = pike(duty=["3PIK21"], tracks={"research": 1, "influence": 1})
+    run_op(s, "3PIK21", 1, "duty")
+    assert not card(s, "3PIK21", zone="duty").exhausted
+
+
+def test_starbase_one_draw_activation_needs_two_ships():
+    starbase = lambda s: any("For every 2 Ship" in o for o in options(s))  # noqa: E731
+    assert not starbase(pike(fleet=["2SHI01"]))
+    assert starbase(pike(fleet=["2SHI01", "2SHI02"]))

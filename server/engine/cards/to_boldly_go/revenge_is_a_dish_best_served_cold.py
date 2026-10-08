@@ -38,7 +38,7 @@ def old_scores(ctx, actions):
         yield from actions.mark_trait(chosen)
 
 
-@operation("2KHA10", 1, uses=[A.ATTACK, A.GIVE, A.FORCE, A.LOG, A.DESTROY, A.GAIN_RESOURCE],
+@operation("2KHA10", 1, uses=[A.ATTACK, A.GIVE, A.FORCE, A.LOG, A.DESTROY, A.GAIN_RESOURCE, A.RETURN_INCIDENT],
            cost=[DiscardFromHand(1, lambda ctx, i: has_trait(i, "Augment"), "an Augment")])
 def served_cold(ctx, actions):
     """ATTACK PLAY: Discard an Augment to give this card and optionally an Incident to your opponent, and force them to
@@ -46,6 +46,8 @@ def served_cold(ctx, actions):
     incident = yield from actions.pick_card("Give an Incident with this card?", ctx.hand_incidents(), optional=True,
                                             none_label="No Incident")
     if not (yield from actions.attack()):
+        if incident is not None:
+            yield from actions.return_incident(incident)  # an Incident given in an ignored attack (KW-GIVE-04)
         return
     this = ctx.this_card
     if virtual(ctx):

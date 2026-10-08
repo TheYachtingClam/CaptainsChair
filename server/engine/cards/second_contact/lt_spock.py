@@ -20,14 +20,12 @@ def logic(ctx, actions):
 @operation("3PIK21", 1, uses=[A.EXHAUST, A.GAIN_RESOURCE, A.DRAW])
 def science_officer(ctx, actions):
     """RESUPPLY: If you have more [Research] than [Influence], exhaust this card to either: gain 1 [Glory] OR draw a
-    card."""
+    card. Ruling: the exhaust is not optional; you choose only between the Glory and the card."""
     if ctx.track("research") <= ctx.track("influence") or ctx.this_card.exhausted:
         return
-    choice = yield from actions.choose("Exhaust Lt. Spock to:", [("glory", "Gain 1 Glory"), ("draw", "Draw a card"),
-                                                                 ("none", "Don't exhaust him")])
-    if choice == "none":
-        return
     yield from actions.exhaust(ctx.this_card)
+    choice = yield from actions.choose("Lt. Spock is exhausted. Choose:", [("glory", "Gain 1 Glory"),
+                                                                            ("draw", "Draw a card")])
     if choice == "glory":
         yield from actions.gain_resource("glory", 1)
     else:

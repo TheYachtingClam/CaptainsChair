@@ -37,7 +37,7 @@ def provoke(ctx, actions):
            trigger=lambda ctx, ev: ev["kind"] == "would_return_incident" and ev["seat"] == ctx.me.seat)
 def protest(ctx, actions):
     """ATTACK REACTION: When you would return an Incident, give it to your opponent instead.
-    Ruling: if the opponent ignores the attack, the Incident is returned as normal."""
+    Ruling: if the opponent ignores the attack, the Incident is returned as normal (KW-GIVE-04)."""
     incident = ctx.event_card
     if incident is None or not (yield from actions.attack()):
         return False

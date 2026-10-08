@@ -229,13 +229,15 @@ def location(ctx, actions):
 
 # ------------------------------------------------------------------ SUITS WITH DUTY OFFICER
 
-@row(CREW, "with_duty_officer", 1, uses=[A.DISCARD, A.GAIN_RESOURCE, A.ATTACK, A.GIVE])
+@row(CREW, "with_duty_officer", 1, uses=[A.DISCARD, A.GAIN_RESOURCE, A.ATTACK, A.GIVE, A.RETURN_INCIDENT])
 def incident_officer(ctx, actions):
     """Incident: Discard the top card of the Bot deck. If the discarded card shares a non-Human trait with your
-    Captain, gain 1 [Glory]. You take this card."""
+    Captain, gain 1 [Glory]. You take this card. If you cancel the attack, the card is returned (KW-GIVE-04)."""
     yield from _discard_top_for_glory(ctx, actions)
     if (yield from actions.attack()):
         yield from actions.human_takes()
+    else:
+        yield from actions.return_incident()
 
 
 @row(CREW, "with_duty_officer", 2, uses=[A.DEPLOY, A.ENGAGE, A.SEND_AWAY_TEAM])

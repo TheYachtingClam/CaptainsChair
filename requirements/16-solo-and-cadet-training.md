@@ -19,6 +19,7 @@ A single-player practice mode for learning a deck without the Bot's rules.
   - An effect "remove up to 2 opponent Away Teams to gain 1 Glory each" yields 1 Glory.
   - "Steal 3 Dilithium" steals only 1.
   - Securing a neutral Location still needs only 3 tokens, because the virtual opponent has 1 Away Team there.
+  - Each attack works once against its "one of everything" (ruling). Stealing takes 1 from the supply, removing Away Teams removes 1 (1 Glory for the *Disruptor Pistols*), and dismissing its Duty Officer still pays (2 Glory for *Ash Tyler*). Effects that only hurt it do nothing.
 - **REQ-CTM-13** When the virtual opponent would take an Incident, skip it and the player gains 1 Glory. When the player gives an Incident to the opponent, the player gains 1 Glory and returns the Incident.
 - **REQ-CTM-14** If the Burn is triggered, the player **loses**.
 - **REQ-CTM-15** Undo and the can't-be-undone warnings work exactly as in normal play. See [20-undo.md](20-undo.md).

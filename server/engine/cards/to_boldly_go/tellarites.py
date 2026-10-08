@@ -6,13 +6,18 @@ from engine.ops import A
 from ._util import count_traits, is_suit, others_in_hand
 
 
-@operation("2ALL13", 0, uses=[A.ATTACK, A.GIVE, A.GAIN_ACTION])
+@operation("2ALL13", 0, uses=[A.ATTACK, A.GIVE, A.RETURN_INCIDENT, A.GAIN_ACTION])
 def argue(ctx, actions):
     """ATTACK PLAY: Give your opponent an Incident from your hand. If you have another Tellarite in play, gain an
-    [Action]. Ruling: with no Incident in hand nothing is given (KW-GIVE-02); the action is still gained."""
+    [Action]. Ruling: with no Incident in hand nothing is given (KW-GIVE-02); the action is still gained. If the
+    attack is ignored, the Incident is returned instead (KW-GIVE-04)."""
     incidents = others_in_hand(ctx, lambda i: is_suit(i, "Incident"))
-    if (yield from actions.attack()) and incidents:
+    attacked = yield from actions.attack()
+    if incidents:
         incident = yield from actions.pick_card("Give which Incident to your opponent?", incidents)
-        yield from actions.give_incident(incident)
+        if attacked:
+            yield from actions.give_incident(incident)
+        else:
+            yield from actions.return_incident(incident)
     if count_traits(ctx, "Tellarite", exclude=ctx.this_card):
         yield from actions.gain_action(1)

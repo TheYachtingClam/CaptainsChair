@@ -8,13 +8,17 @@ from ._util import has_trait
 development_cost("2KHA05", Spend(dilithium=2), TakeIncidentCost())
 
 
-@operation("2KHA05", 0, uses=[A.ATTACK, A.GIVE], cost=[Spend(dilithium=1)],
+@operation("2KHA05", 0, uses=[A.ATTACK, A.GIVE, A.RETURN_INCIDENT], cost=[Spend(dilithium=1)],
            requires=lambda ctx: bool(ctx.hand_incidents()))
 def ambush(ctx, actions):
-    """ATTACK PLAY: Spend 1 [Dilithium] to give your opponent an Incident (from your hand)."""
-    if (yield from actions.attack()):
-        incident = yield from actions.pick_card("Give which Incident?", ctx.hand_incidents())
+    """ATTACK PLAY: Spend 1 [Dilithium] to give your opponent an Incident (from your hand). If the attack is ignored,
+    the Incident is returned instead (KW-GIVE-04)."""
+    attacked = yield from actions.attack()
+    incident = yield from actions.pick_card("Give which Incident?", ctx.hand_incidents())
+    if attacked:
         yield from actions.give_incident(incident)
+    elif incident is not None:
+        yield from actions.return_incident(incident)
 
 
 @operation("2KHA05", 1, uses=[A.SCAN_FOR, A.DRAW, A.DESTROY], cost=[Spend(dilithium=1)])

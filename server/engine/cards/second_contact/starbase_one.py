@@ -13,14 +13,15 @@ def headquarters(ctx, actions):
     yield from actions.gain_action(1)
 
 
-@operation("3PIK03", 1, uses=[A.DRAW])
+def _ships(ctx) -> int:
+    return ctx.count_in_play(lambda i: is_suit(i, "Ship"))
+
+
+@operation("3PIK03", 1, uses=[A.DRAW], requires=lambda ctx: _ships(ctx) >= 2)
 def fleet_briefing(ctx, actions):
-    """ACTIVATION: For every 2 Ship you have in play, draw a card (max 3 cards)."""
-    n = min(3, ctx.count_in_play(lambda i: is_suit(i, "Ship")) // 2)
-    if n:
-        yield from actions.draw(n)
-    else:
-        actions.emit("Fewer than 2 Ships in play: no cards drawn.")
+    """ACTIVATION: For every 2 Ship you have in play, draw a card (max 3 cards). Offered only with 2 or more Ships in
+    play, so it is never activated for nothing."""
+    yield from actions.draw(min(3, _ships(ctx) // 2))
 
 
 operation("3PIK03", 2, uses=[A.PROMOTE], requires=lambda ctx: any(is_suit(i, "Person") for i in ctx.me.hand))(promote)

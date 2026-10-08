@@ -427,3 +427,14 @@ def test_the_bot_scores_three_for_each_marked_trait_and_each_focus_icon():
     parts = score_player(s, bot)["parts"]
     assert parts["traits"] == 6 and parts["focus_research"] == 3
     assert "traits" not in score_player(s, me(s))["parts"]
+
+
+def test_incident_row_with_a_duty_officer_returns_the_incident_when_you_cancel_the_attack():
+    """KW-GIVE-04: Riva ignores the attack, so "you take this card" returns the Incident to the deck instead."""
+    s = solo(exile=False)
+    bot, human = the_bot(s), me(s)
+    bot.duty.append(s.new_inst("2KHA13"))
+    human.duty.append(s.new_inst("2PER16"))
+    incident = resolve_card(s, common("Incident"), side="with_duty_officer")
+    finish(s, prefer=("Use Riva",))
+    assert s.incident[-1].uid == incident.uid and not any(i.uid == incident.uid for i in me(s).hand)

@@ -1,12 +1,10 @@
 # Open questions from card specs
 
-Collected from the "Rulings and open questions" sections of every card, board and command-card spec under `resources/scans/`. Each needs a decision before the code that depends on it is written.
+Collected from the "Rulings and open questions" sections of every card, board and command-card spec under `resources/scans/`. Each needs a decision before the code that depends on it is written. Answered and confirmed items are removed from this file; their rulings live in the card specs and in `requirements/`.
 
 ## Rules questions
 
-- **Ambassador Gral against an ignored attack** ([to_boldly_go/cards/person/2PER02.md](to_boldly_go/cards/person/2PER02.md)): His Reaction gives an Incident instead of returning it, and is an attack. If the opponent ignores it (Riva), the rules don't say what happens to the Incident. Implemented as: it is returned as normal. Confirm.
-- **Attacks against the Cadet virtual opponent** (REQ-CTM-12): Implemented as: each attack works once against its "one of everything". Stealing takes 1 from the supply, removing Away Teams removes 1 (1 Glory for the Disruptor Pistols), and dismissing its Duty Officer still pays (2 Glory for Ash Tyler). Effects that only hurt it do nothing. Confirm.
-- **Wildcard choice** (REQ-TR-07): The rules let the owner decide each time whether a Wildcard counts as the trait. Implemented as: your own Wildcard always counts for your own effects, without a prompt. This only matters when counting hurts you, for example the Universal Translator dismissing your Alien Ships. Confirm, or ask for a prompt in those cases.
+None open.
 
 ## Deferred until the Core Box is scanned
 
@@ -19,9 +17,6 @@ Not open for now. Leave these as they are and don't raise them again until the C
 
 Each is implemented as described. Confirm, or say which to change.
 
-- **Hemmer** (3PIK20): his Activation is offered only when you have a secured neutral Location to take, so he is never logged for nothing.
-- **Lt. Spock** (3PIK21): his RESUPPLY asks before exhausting him. The printed text has no "may", but the exhaust is the price of the effect.
-- **Starbase One** (3PIK03): the draw Activation is offered even with fewer than 2 Ships, as the spec has no requirement; it then draws nothing.
 - **William T. Riker** (3RIK01): his first Activation is offered only when a card in hand shares a suit with one in your Discard pile.
 - **Chateau Picard** (3RIK10): the second PLAY is offered only when there is an Incident to return. In Cadet Training its CLEAN-UP gives Glory only to you.
 - **Deanna Troi-Riker** (3RIK15): "Refresh your Captain" is offered only when the Captain is exhausted.
@@ -34,16 +29,6 @@ Each is implemented as described. Confirm, or say which to change.
 
 ## Rulings made while implementing Khan
 
-Answered by you on 2026-10-07, and implemented:
-
-- **The Captain flips** only by the reward of the mission *I Shall Leave You as You Left Me*. Ceti Alpha VI flips only Ceti Alpha V.
-- **Khan Noonien Singh's second PASSIVE** is mandatory and can trigger any number of times; the Wrathful side's is an optional REACTION.
-- **A Wildcard card** can mark either opponent-dependent entry. **Khan against Khan** uses Augment and Human. **"The same card"** means the physical card.
-- **The trait tokens' board order** is alphabetical, then the two opponent-dependent entries.
-- **Devastated Ceti Alpha V** (2KHA02B): "Send all of your Away Team here" moves every one of Khan's Away Teams there, from his Captain and from every other Location.
-- **Marla McGivers** (2KHA13): her CLEAN-UP logs her whenever Devastated Ceti Alpha V is exhausted, even when Ceti Eel is not in the Development pile.
-- **Wrathful Khan** (2KHA01B): "ignore all requirements" treats every Specialty track as being at its top, so a check such as "if [Military] is at 5+" on any card succeeds.
-
 Made while writing the code. Each is implemented as described. Confirm, or say which to change.
 
 - **The two opponent entries** (cb-khan): at most one of them may use a trait that is also printed on the board. This is what the rulebook's Soval example needs: Vulcan plus Ambassador or Telepath, never Ambassador and Telepath together.
@@ -51,7 +36,7 @@ Made while writing the code. Each is implemented as described. Confirm, or say w
 - **Marla McGivers** (2KHA13): she counts herself as a Starfleet card in play for her PLAY.
 - **Ceti Eel** (2KHA08): offered only while the opponent has a Duty Officer. If the attack is ignored, no Duty Officer is dismissed and no Away Teams are sent; the card still returns to the Development pile and the opponent may still draw.
 - **Cpt. Terrell** (2KHA06): "at no Dilithium/Latinum/Incident cost" keeps conditions such as "have Marla McGivers logged". Terrell in the Staging Area is himself a Mind Control Person in play.
-- **Revenge Is a Dish Best Served Cold** (2KHA10): "mark one trait of it" reads the card's own traits; a Wildcard does not count there. If the second PLAY's attack is ignored, nothing is given.
+- **Revenge Is a Dish Best Served Cold** (2KHA10): "mark one trait of it" reads the card's own traits; a Wildcard does not count there. If the second PLAY's attack is ignored, the card is not given and a chosen Incident is returned (KW-GIVE-04).
 - **Khan's three Incidents** (2KHA19 to 2KHA21): the Glory and the opponent's draw depend only on the revealed card, not on whether the attack was ignored. In Cadet Training the card is returned and you gain 1 Glory, as when an Incident is given to the virtual opponent.
 - **Genesis Device** (2KHA11): "mark any one trait" may fill an opponent entry with any trait allowed for it. A destroyed neutral Location is replaced from the Location deck.
 - **S.S. Botany Bay** (2KHA16): an effect that offers Ships to warp may still list it; choosing it does nothing.

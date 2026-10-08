@@ -50,7 +50,7 @@ Extra suit-related labels: **Captain** and **Status** cards have no position ind
   - It cannot count as a trait already on the same card.
   - The owner decides, so an opponent's attack cannot force a Wildcard card to count as the demanded trait.
 - **REQ-TR-06** Other traits (Weapon, Starfleet, Scientist, Time Travel, etc.) are regular traits.
-- **REQ-TR-07** The engine should derive trait counts dynamically, prompting the owner when a Wildcard choice matters.
+- **REQ-TR-07** The engine derives trait counts dynamically. The owner's Wildcard always counts for the owner's own effects, without a prompt (ruling). The exception is *Universal Translator*: a Wildcard counts as an Alien only when it is needed as one of the three, and is then dismissed with the other Aliens.
 
 ## 5. Gaining cards from the Market
 

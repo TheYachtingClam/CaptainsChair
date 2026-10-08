@@ -171,6 +171,7 @@ Each keyword below must be a reusable engine primitive that card scripts call. E
 - **KW-GIVE-01** Move the card, usually an Incident, from the player's hand, unless stated otherwise, into the **opponent's hand**.
 - **KW-GIVE-02** If the player has no such card, nothing happens. The opponent does not draw from the Incident deck instead.
 - **KW-GIVE-03** Giving an Incident is **not** returning one. It **does** count as the opponent taking one. Some Passive and Reaction triggers depend on this.
+- **KW-GIVE-04** When an Incident is given as an attack and the attack is ignored, the Incident is returned to the Incident deck instead (ruling). In solo mode this also covers a Bot row's "you take this card".
 
 ## Helmet / Wearing a helmet
 

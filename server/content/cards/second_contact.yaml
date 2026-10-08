@@ -2303,6 +2303,7 @@ cards:
     text: For every 2 Ship you have in play, draw a card (max 3 cards).
     action_cost: false
     attack: false
+    requires: 2 or more Ships in play (not printed; see Rulings)
     uses:
     - DRAW
     undoable: false

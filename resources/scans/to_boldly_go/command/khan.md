@@ -86,7 +86,7 @@ Used while the Bot has a Duty Officer. Flip back when it is dismissed or logged 
 
 | # | Matches | Printed | Steps | Actions | Undoable |
 |---|---|---|---|---|---|
-| 1 | Incident | Discard the top card of the Bot deck. If the discarded card shares a non-Human trait with your Captain, gain 1 [Glory]. **You take this card.** | 1. Discard the top card of the Bot deck..<br>2. If the discarded card shares a non-Human trait with your Captain, gain 1 [Glory]..<br>3. You take this card. | `DISCARD`, `GAIN_RESOURCE`, `ATTACK`, `GIVE` | no |
+| 1 | Incident | Discard the top card of the Bot deck. If the discarded card shares a non-Human trait with your Captain, gain 1 [Glory]. **You take this card.** | 1. Discard the top card of the Bot deck..<br>2. If the discarded card shares a non-Human trait with your Captain, gain 1 [Glory]..<br>3. You take this card. | `DISCARD`, `GAIN_RESOURCE`, `ATTACK`, `GIVE`, `RETURN_INCIDENT` | no |
 | 2 | Ship | Deploy this ship; it engages. Send an [Away Team] to a neutral Location. | 1. Deploy this ship; it engages..<br>2. Send an [Away Team] to a neutral Location. | `DEPLOY`, `ENGAGE`, `SEND_AWAY_TEAM` | no |
 | 3 | Ally | Gain a Cargo > Ally > Person. Log Duty Officer. Log this card. | 1. Gain a Cargo > Ally > Person..<br>2. Log Duty Officer..<br>3. Log this card. | `GAIN_CARD`, `LOG` | no |
 | 4 | Cargo | Gain a Ally > Person / Ship. Log Duty Officer. | 1. Gain a Ally > Person / Ship..<br>2. Log Duty Officer. | `GAIN_CARD`, `LOG` | no |
@@ -116,7 +116,7 @@ Image id: `khan-five-year-mission-upgrades`. Used only in the solo campaign (REQ
 ## Rulings and open questions
 
 - "Your Captain" in the Incident rows means the human's Captain.
-- The Incident row with a Duty Officer gives the Incident to the human ("you take this card"), an attack.
+- The Incident row with a Duty Officer gives the Incident to the human ("you take this card"), an attack. If you cancel it, the Incident is returned to the Incident deck (KW-GIVE-04).
 - The Khan Bot never flips its Captain (REQ-CD-KHN-11).
 - The Bot marks a trait whenever it gains, takes or takes control of a card, Incidents and Encounters included, and for the Encounter gained when it leaves exile. For an Opponent's Captain entry it uses the first fitting trait in the printed order of your Captain's traits.
 - The 3 extra value for an unmarked card applies to every Bot choice by value, not only to gains.

@@ -474,6 +474,7 @@ cards:
     uses:
     - ATTACK
     - GIVE
+    - RETURN_INCIDENT
     - GAIN_ACTION
     undoable: false
 - id: 2ALL14
@@ -4326,6 +4327,7 @@ cards:
     uses:
     - ATTACK
     - GIVE
+    - RETURN_INCIDENT
     undoable: false
   - kind: PLAY
     text: Spend 1 [Dilithium] to scan for either a Cloak or a Spy, then draw a card. Destroy this card.
@@ -4596,6 +4598,7 @@ cards:
     - LOG
     - DESTROY
     - GAIN_RESOURCE
+    - RETURN_INCIDENT
     undoable: false
   - kind: SPECIAL
     text: During scoring, each of your Incident scores an additional [-1 VP].
