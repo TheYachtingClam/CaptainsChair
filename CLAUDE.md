@@ -6,9 +6,10 @@ Guidance for Claude Code when working in this repository.
 
 An online version of the board game *Star Trek: Captain's Chair*.
 
+- The Core Box is being added step by step: see `plans/base-game.md`. Its scans and images are in place; its cards have no specs or code yet.
 - `requirements/` holds the requirements. Start at `requirements/00-README.md`. They are the source of truth. If code and requirements disagree, stop and flag it rather than guessing.
 - `resources/` holds source material that is **never** copied into the Docker image:
-  - `resources/scans/<set>/`: everything for one product, by kind: `cards/`, `boards/`, `command/`, and the rulebook scans in `manual/` and `solo/`. See `resources/scans/README.md`.
+  - `resources/scans/<set>/`: everything for one product (`base_game` is the Core Box, `to_boldly_go`, `second_contact`, `promo1`, `promo2`), by kind: `cards/`, `boards/`, `command/`, and the rulebook scans in `manual/` and `solo/`. See `resources/scans/README.md`.
 - `server/content/images/` holds the processed images the server ships and serves, at `/api/content/images/{id}`. Regenerate them with `scripts/process_scans.py`; never edit them by hand.
 - `server/` is the Python API server and rules engine (FastAPI, pytest). `client/` is the React and TypeScript web client. See `requirements/19-technical-architecture.md`.
 - Rule precedence: card text beats Keywords in Detail (`requirements/14-keywords.md`), which beats the general rules.

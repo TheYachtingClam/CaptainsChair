@@ -17,7 +17,7 @@ Scans are grouped by product, then by kind:
 resources/scans/<set>/<kind>/...
 ```
 
-`<set>` is the product: `to_boldly_go`, `second_contact` or `promo2`. The `<kind>` folder decides how an image is sized. Below it, organise scans however you like, at any depth, for example `to_boldly_go/cards/captains/soval/`.
+`<set>` is the product: `base_game` (the Core Box), `to_boldly_go`, `second_contact`, `promo1` or `promo2`. The `<kind>` folder decides how an image is sized. Below it, organise scans however you like, at any depth, for example `to_boldly_go/cards/captains/soval/`.
 
 | Kind folder | What goes in it | Output |
 |---|---|---|

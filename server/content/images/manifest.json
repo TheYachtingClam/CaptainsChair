@@ -10,6 +10,16 @@
       "source_sha256": "86ae015c919cc0a0080be6cef538d2c2287417d3d9b39a3526d2374d06ceb7c6",
       "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
     },
+    "0CAR01": {
+      "kind": "cards",
+      "file": "promo1/cards/cargo/0CAR01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ec45e9b56fdd",
+      "source": "resources/scans/promo1/cards/cargo/0CAR01.jpg",
+      "source_sha256": "67685df44123639f456eba0e8c6f503c6335dffdadb53164777f4a35e9683cae",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
     "0CAR02": {
       "kind": "cards",
       "file": "promo2/cards/cargo/0CAR02.webp",
@@ -28,6 +38,36 @@
       "version": "fd227d6ac713",
       "source": "resources/scans/promo2/cards/cargo/0CAR03.jpg",
       "source_sha256": "3ded0a5f278c74cbe048c643ccb826c48ac0815df0f0e536d97753f012272c0c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "0ENC01": {
+      "kind": "cards",
+      "file": "promo1/cards/encounter/0ENC01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c6b603cb882c",
+      "source": "resources/scans/promo1/cards/encounter/0ENC01.jpg",
+      "source_sha256": "022bda3cb24457cd0acaf216a90b5cfd647a251cc4a333a21ed54ed3d2a6e5e8",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "0INC01": {
+      "kind": "cards",
+      "file": "promo1/cards/incident/0INC01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "edead785f797",
+      "source": "resources/scans/promo1/cards/incident/0INC01.jpg",
+      "source_sha256": "580bb055851b861190d5d9eb444a17586f2d62aec0941a9671b151b99e6330e1",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "0INC02": {
+      "kind": "cards",
+      "file": "promo1/cards/incident/0INC02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "4fef5c05e052",
+      "source": "resources/scans/promo1/cards/incident/0INC02.jpg",
+      "source_sha256": "f4ab94add8e74835045801d41c12693b7650e358d7ddfacb64b5c6646f257c33",
       "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
     },
     "0INC03": {
@@ -50,6 +90,16 @@
       "source_sha256": "72e026aaeee509eba61a209b088962041dd7290f5b093584455acbf3b5b0d480",
       "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
     },
+    "0SHI01": {
+      "kind": "cards",
+      "file": "promo1/cards/ships/0SHI01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c999face2241",
+      "source": "resources/scans/promo1/cards/ships/0SHI01.jpg",
+      "source_sha256": "a2b2b94c5329733765556107f8a08be8f42ee28370d04a0719168c787c4d784b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
     "0SHI02": {
       "kind": "cards",
       "file": "promo2/cards/ships/0SHI02.webp",
@@ -58,6 +108,2506 @@
       "version": "9af55ddaed99",
       "source": "resources/scans/promo2/cards/ships/0SHI02.jpg",
       "source_sha256": "4beca6ea1f41a23af904ab04198c599379b892163082ba366f145d26df791653",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL01": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2d13831b1ed0",
+      "source": "resources/scans/base_game/cards/ally/1ALL01.jpg",
+      "source_sha256": "f3eb1869ac2ff4e61f5d2d21862738824be60547d50c4c00cb7d5019a6786b0e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL02": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c509c45b43dd",
+      "source": "resources/scans/base_game/cards/ally/1ALL02.jpg",
+      "source_sha256": "c0256f1398224a7f55fc728e0832b2c74a4d823472b19f1ba6c1728be03d60eb",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL03": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "68657613ad94",
+      "source": "resources/scans/base_game/cards/ally/1ALL03.jpg",
+      "source_sha256": "1fc7875a7ebafc990f28c851a5e46daef78dd30d8f3791e2ce5d221abc5fda11",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL04": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a773df47563e",
+      "source": "resources/scans/base_game/cards/ally/1ALL04.jpg",
+      "source_sha256": "d1a25ec6d47b5a3b7a04574c6a9d8d65561a5a306dee7fd8a2fd218d2b6dab03",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL05": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8e7473293a21",
+      "source": "resources/scans/base_game/cards/ally/1ALL05.jpg",
+      "source_sha256": "bf78a25bf5cd5bdb57497cbca729efcb57b2626ab5ce4864dfacb85f95aa7028",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL06": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b020a443c3f3",
+      "source": "resources/scans/base_game/cards/ally/1ALL06.jpg",
+      "source_sha256": "8d76173a284ba5cc5b36b9371aa71dc3f22cf7ce137b27ab3637c0d4699c5935",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL07": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "404e2fad80e9",
+      "source": "resources/scans/base_game/cards/ally/1ALL07.jpg",
+      "source_sha256": "2dc99838c5c74966bbbee5b70ef8ff80235aeb52bd91352ddce726495244e364",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL08": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "921b7814a85d",
+      "source": "resources/scans/base_game/cards/ally/1ALL08.jpg",
+      "source_sha256": "40dcc50ce74cc290ea5dc86ef4b879561110347fb20722478e7664a7397f35aa",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL09": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5263502ab54b",
+      "source": "resources/scans/base_game/cards/ally/1ALL09.jpg",
+      "source_sha256": "e740fb724426b2e716f43a852cb2c506c47a1577f342bf89d26252f25353e465",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL10": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b5d526792252",
+      "source": "resources/scans/base_game/cards/ally/1ALL10.jpg",
+      "source_sha256": "4da763ee1c185bc1f18315740945e71e5dc41a847bfd7387a312142a68708e72",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL11": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "be23958f6820",
+      "source": "resources/scans/base_game/cards/ally/1ALL11.jpg",
+      "source_sha256": "135bbae457b60cb9c3d4ccbf779ec4c2a224da94256e352ae1fc0fcb063de234",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL12": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b7c938dc4a10",
+      "source": "resources/scans/base_game/cards/ally/1ALL12.jpg",
+      "source_sha256": "242e9e9468d4ace0c61e2d6e1df3640fbb0b889ddc7544cfb8efc8d3e1538989",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ALL13": {
+      "kind": "cards",
+      "file": "base_game/cards/ally/1ALL13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5e8be7e27f46",
+      "source": "resources/scans/base_game/cards/ally/1ALL13.jpg",
+      "source_sha256": "255b712fb6a99c203f1a46a7f9461f471ebb71ff8cceee026066dad8f58091a5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR01": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "262ab9123126",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR01.jpg",
+      "source_sha256": "5e0711ba959caae9d6db2d85b105b6df2835b9421c8400a6b1393a989043cc39",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR02": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "94697270ee9d",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR02.jpg",
+      "source_sha256": "ea130da6d3d29c631115e282cf9beda03d26a19368a86dc5420ce2b2a62bf662",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR03": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "393128d1e814",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR03.jpg",
+      "source_sha256": "f128a79a9175513e597473406c2410ca39198190402ce3bfc4efd75d48a4bfcf",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR04": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "16ee59658e60",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR04.jpg",
+      "source_sha256": "a7a1a0bc1732d90de7da02a769b6a2892b148ae6ebd12ef110973a5a7bdb1ca2",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR05": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "df6d5bb49cf5",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR05.jpg",
+      "source_sha256": "e261751e9e2c69ca2e5da6bbd8c992dcff0849b874603752875c77e14a5e980a",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR06": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "7620e8457e08",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR06.jpg",
+      "source_sha256": "f0eed67a103cb23eaf01aac3f56b1ae42149204d833417edcccb85d731ec0564",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR07": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "1f66b68e226d",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR07.jpg",
+      "source_sha256": "1b448332e5997d84d4a0d084bef967babee80e3abec5f8eb9eb34c5bc0b492d5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR08": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "03828966d9f2",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR08.jpg",
+      "source_sha256": "475672a8a9fe98cfffd97a1fe64586cda817b532685e00046e33697479abcb7b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR09": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5f5b55bda9cd",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR09.jpg",
+      "source_sha256": "a9ad733d6211ce3f286257c62fcbd5da2f255f182ce8de19fe9898d99d948a23",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR10": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0dd7d0dbd2ff",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR10.jpg",
+      "source_sha256": "05d553a77240f7b4f6e1991a0f1fba4b8ce9cbdbb7f04ebce0057339cbbb8cb3",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR11": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "69ff7bffb418",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR11.jpg",
+      "source_sha256": "df8777464840a11780de0864d8ede72385210e999fa455568c392982d25d18d6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR12": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "493ea666adea",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR12.jpg",
+      "source_sha256": "4228ed39f7b17487939877bf0720feb84d2fd55139c05cc705bfc95797673d48",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR13": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "24ef5bfc9e2f",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR13.jpg",
+      "source_sha256": "244731d7bfa8637fac3204e36eacd57468ef4e1577b73c488a4b17b4179529f8",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR14": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d3ec510709c5",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR14.jpg",
+      "source_sha256": "c8eb6ffefcbbdf49c1d2bea8126185f8f13e7010d5f84439fbf0f4081293c5fc",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR15": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9a42b9b7b402",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR15.jpg",
+      "source_sha256": "cd402e3deda10b587d34079d961c6a7802b925d200a31813fa7f6387ce8bd21a",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR16": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6393a7b0d928",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR16.jpg",
+      "source_sha256": "dc25d9a897d877347792984daa60724383a7c3bfcc27ffea631f8d04a6b2865b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR17": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "eff8783a39d4",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR17.jpg",
+      "source_sha256": "35cb1db630f6183d6a0985b98f766b0b2d9dffa188429ad74ea2c240c2753e76",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR18": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "37e080462578",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR18.jpg",
+      "source_sha256": "674108fffb403c6401f79e0ef871791aa35156a34c7ea83f6e9e18f6c8ebfd66",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR19": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "7e81e372985f",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR19.jpg",
+      "source_sha256": "447959c7ae3f7b151c6c51130e0ebf9942d6474c21c61ac7964664008b76d800",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR20": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "35aa179bd4b2",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR20.jpg",
+      "source_sha256": "6cb209a16be6ed73247d197577ac6a4aec17e7cb37d6f4fa5274835bc1a1ce47",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR21": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "34804a491356",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR21.jpg",
+      "source_sha256": "f63e0bc57e7436e77754dbb6a6ad73ee2107ea7388435547cc7d7cb2f8a25b64",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR22": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "e492622c5bfd",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR22.jpg",
+      "source_sha256": "85f1099a145e002eab8185deeac2c34d73c6003055777860e76a0a8675080ed9",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR23": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR23.webp",
+      "width": 630,
+      "height": 880,
+      "version": "553833c0db0f",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR23.jpg",
+      "source_sha256": "8c93e465cb09af8a94dce38878f846f7e7a4a780cef417e9be87dd0daf883563",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR24": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR24.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c800a48a5bdd",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR24.jpg",
+      "source_sha256": "03022a86c06e42def01eac002ba76c58012588f8408eb27ba88becddd1b6005d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR25": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR25.webp",
+      "width": 630,
+      "height": 880,
+      "version": "7403ad507769",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR25.jpg",
+      "source_sha256": "5857396cc925c3f386e176f16fdf0dced4c0da35782b82fd41658fe54cb88fe7",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1BUR26": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/burnham/1BUR26.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d012d470ce2b",
+      "source": "resources/scans/base_game/cards/captains/burnham/1BUR26.jpg",
+      "source_sha256": "5c6843f2504c1b186241ed9bec9d3bc2eb2bc087d89d49fe577f43db684fc0ae",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR01": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "e5cb6b8ed8ba",
+      "source": "resources/scans/base_game/cards/cargo/1CAR01.jpg",
+      "source_sha256": "2a1b8f29ad8ecc3cde11e5064e641b5a6311abc471657d421f4b68a70159837b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR02": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "65f2190e7d13",
+      "source": "resources/scans/base_game/cards/cargo/1CAR02.jpg",
+      "source_sha256": "66860857810183176ed6fba1d9dcd2c024f66ab8675fe6692509ed573df018b3",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR03": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c83c72d0749c",
+      "source": "resources/scans/base_game/cards/cargo/1CAR03.jpg",
+      "source_sha256": "3380090f9a5c94c9ff3575ff6cf81fb4d7abbf43973bb9f27dc1f517ffb5c8df",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR04": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "71ef0577a76c",
+      "source": "resources/scans/base_game/cards/cargo/1CAR04.jpg",
+      "source_sha256": "600e30e228638d9021e7a25631658ea0dd9a5c06d0e7ece309e6fa57bb6d530e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR05": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "eed2d4be2a0e",
+      "source": "resources/scans/base_game/cards/cargo/1CAR05.jpg",
+      "source_sha256": "85bd36f0ebf585740924b412f0c2076a220c883e3239ac2e704db12e6231eaff",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR06": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c79ce58df1b2",
+      "source": "resources/scans/base_game/cards/cargo/1CAR06.jpg",
+      "source_sha256": "978806125f4591b1d625028f0b1cd1d2099eceb3361abfebcddbd2052e7b6c8f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR07": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "555aa0bc9f9f",
+      "source": "resources/scans/base_game/cards/cargo/1CAR07.jpg",
+      "source_sha256": "55e1c721daf85fc796adb1a8d714eef983d2d60ef98babdd81e47a6dd04036d5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR08": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "40c0e8c06956",
+      "source": "resources/scans/base_game/cards/cargo/1CAR08.jpg",
+      "source_sha256": "ea0311a11b252252492704f52790a9edc07cbb6644a90964b784190db064597b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR09": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b34cbccee6ba",
+      "source": "resources/scans/base_game/cards/cargo/1CAR09.jpg",
+      "source_sha256": "8c7db02486a8212781d5dc51a5370f68a7b324c10b37584007351cf579f7a851",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR10": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "fcf1c8c558da",
+      "source": "resources/scans/base_game/cards/cargo/1CAR10.jpg",
+      "source_sha256": "763ec4f219dd7b10b45a18794253a393b088583cc11af6f80b91667f8f13edfa",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR11": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5b64faa9a86f",
+      "source": "resources/scans/base_game/cards/cargo/1CAR11.jpg",
+      "source_sha256": "62c79e046412bc71ed335bbe48cc047caf7d8d058359c32491fe615e69c542e8",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR12": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "498bb1d73d4f",
+      "source": "resources/scans/base_game/cards/cargo/1CAR12.jpg",
+      "source_sha256": "eba11ad5dca6403e52e597c7d27d6bfd733ba662466d0db240818d5a6701f70a",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR13": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "3a225dba7ad6",
+      "source": "resources/scans/base_game/cards/cargo/1CAR13.jpg",
+      "source_sha256": "da54a1fcf8209872091f946a72f5e23c331bf8e141743536dd1609f6d5d51927",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR14": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d6a5058d3c41",
+      "source": "resources/scans/base_game/cards/cargo/1CAR14.jpg",
+      "source_sha256": "6b9cf7e6bf0460b4be29260c07c906ac574f25d89517edd6650b7a1441496c7f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR15": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8413883667c1",
+      "source": "resources/scans/base_game/cards/cargo/1CAR15.jpg",
+      "source_sha256": "633701dadebbeb3ff5e55172f2d56ca67689e130df0926fd258f9d570e235b06",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1CAR16": {
+      "kind": "cards",
+      "file": "base_game/cards/cargo/1CAR16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0007fe1470e8",
+      "source": "resources/scans/base_game/cards/cargo/1CAR16.jpg",
+      "source_sha256": "02192ca231ddbb2cba8248443193b5c10cc99ad0f3304fe5d8c8992824d9f54b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1DIR01": {
+      "kind": "cards",
+      "file": "base_game/cards/1DIR01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "64c5f3b11676",
+      "source": "resources/scans/base_game/cards/1DIR01.jpg",
+      "source_sha256": "46af5e7fa68cd7b0e030335e9d40fdd3ac3d1a24666a35087f17a37b4c39f699",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1DIR02": {
+      "kind": "cards",
+      "file": "base_game/cards/1DIR02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "74d413333b82",
+      "source": "resources/scans/base_game/cards/1DIR02.jpg",
+      "source_sha256": "6bab1272627bfa6ba8e2201817e5a9a773bd5e337a359412c69a67ba7e655c91",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ENC01": {
+      "kind": "cards",
+      "file": "base_game/cards/encounter/1ENC01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "bd6bb667e70c",
+      "source": "resources/scans/base_game/cards/encounter/1ENC01.jpg",
+      "source_sha256": "4e5685e5e7f120555565cf8795a314e76cead2ac21538be317e61fa1b1ef2135",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ENC02": {
+      "kind": "cards",
+      "file": "base_game/cards/encounter/1ENC02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8b2cdc69e10a",
+      "source": "resources/scans/base_game/cards/encounter/1ENC02.jpg",
+      "source_sha256": "56d26ba4997375c8dd1dda2caaa3cbea74e2372954ead497ef52ddfcc9c28534",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ENC03": {
+      "kind": "cards",
+      "file": "base_game/cards/encounter/1ENC03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "442f244b3265",
+      "source": "resources/scans/base_game/cards/encounter/1ENC03.jpg",
+      "source_sha256": "5ccf9e1e1eaac493727652d4a931b73665d654546fb368b7799532f5908c458c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ENC04": {
+      "kind": "cards",
+      "file": "base_game/cards/encounter/1ENC04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "160161f5bb23",
+      "source": "resources/scans/base_game/cards/encounter/1ENC04.jpg",
+      "source_sha256": "bd0b019b7ff6020d668c04ee907ae4d3bb5cb9fc9e73732db12665f485b380a2",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ENC05": {
+      "kind": "cards",
+      "file": "base_game/cards/encounter/1ENC05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0e394abcf55a",
+      "source": "resources/scans/base_game/cards/encounter/1ENC05.jpg",
+      "source_sha256": "f3a086e0fb0dd7564a83e341aad237025e39482d8e17cd3527c91d848e3286f8",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ENC06": {
+      "kind": "cards",
+      "file": "base_game/cards/encounter/1ENC06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ece07222149f",
+      "source": "resources/scans/base_game/cards/encounter/1ENC06.jpg",
+      "source_sha256": "deb5b44823a6c30f3ca9d3acffc79d6806661d59a8f3640a1f8dddc980e09be6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ENC07": {
+      "kind": "cards",
+      "file": "base_game/cards/encounter/1ENC07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2e9e00dba206",
+      "source": "resources/scans/base_game/cards/encounter/1ENC07.jpg",
+      "source_sha256": "d47dbc449106bcb36cfae6fd243de8d99cd57443d041be51e2b699dad8ff9dc1",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1ENC08": {
+      "kind": "cards",
+      "file": "base_game/cards/encounter/1ENC08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ed99d682dd4a",
+      "source": "resources/scans/base_game/cards/encounter/1ENC08.jpg",
+      "source_sha256": "8cc178bde2c0b5c3cc27627538ebaf06cff872ebf34c67a68042c19ad0befd42",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1INC01": {
+      "kind": "cards",
+      "file": "base_game/cards/incident/1INC01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5ccae2c27f78",
+      "source": "resources/scans/base_game/cards/incident/1INC01.jpg",
+      "source_sha256": "90bf923501c7de12b2515a5fc51a1ee7515034a4a6741815c67bbbcdcf6dc947",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1INC02": {
+      "kind": "cards",
+      "file": "base_game/cards/incident/1INC02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "32ee3ca5a251",
+      "source": "resources/scans/base_game/cards/incident/1INC02.jpg",
+      "source_sha256": "d46807e37471bc9c906f6187c09daad08c1ccf1df1e34fcaa75da178f58790c4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1INC03": {
+      "kind": "cards",
+      "file": "base_game/cards/incident/1INC03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "de26cb25a4be",
+      "source": "resources/scans/base_game/cards/incident/1INC03.jpg",
+      "source_sha256": "b7e92f415932da93976fcde9fc145cb549ed2bce3f50a7eced0d0a249fb333d1",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1INC04": {
+      "kind": "cards",
+      "file": "base_game/cards/incident/1INC04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6368c6fc74a5",
+      "source": "resources/scans/base_game/cards/incident/1INC04.jpg",
+      "source_sha256": "8af7623c0534e84272d5b3bae062686e72dbd7e81a7b74fa00e762121089e86d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1INC05": {
+      "kind": "cards",
+      "file": "base_game/cards/incident/1INC05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b779086c1e74",
+      "source": "resources/scans/base_game/cards/incident/1INC05.jpg",
+      "source_sha256": "233a115c1a488ef7dac843aded5d93b02a10589d6ae7b0c50aca0ff80ebdf0b0",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1INC06": {
+      "kind": "cards",
+      "file": "base_game/cards/incident/1INC06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a443231903f4",
+      "source": "resources/scans/base_game/cards/incident/1INC06.jpg",
+      "source_sha256": "b7a87e89d5810e3bc79be0bbd384d96d8113bd0a42ec870e461d883076a925f0",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL01": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d4198f5b27ef",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL01.jpg",
+      "source_sha256": "b03b22e5192dbe135035975893d31c5b82f4aa0f2eb10b0ab700e6d96050becf",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL02": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "38f6f5cb4526",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL02.jpg",
+      "source_sha256": "2a66b5aa8e05ab1577751f14edca17622e5ee095400b829dcd69b5e964fcc572",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL03": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9e72c9bce158",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL03.jpg",
+      "source_sha256": "f8e0288670808c88d7727582734f7c909cfcc0f4a473d6eb2bdd229a35381d25",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL04": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d900125c38ad",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL04.jpg",
+      "source_sha256": "739433238f7c4ffd781197cb1f5d011cd62b701fb1afd4de7ee54ea5586b5616",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL05": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ea6eaecd954f",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL05.jpg",
+      "source_sha256": "b88b0b278c26d5b05df051bf9bd3375ca4002a4e32c433ed761668f5bb61a8c3",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL06": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0b020fe4a447",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL06.jpg",
+      "source_sha256": "9c163cb11f4b497b26db97dfac9daae3b3efa56498d47a75e94a19c29cb3a817",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL07": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "22498ff0e638",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL07.jpg",
+      "source_sha256": "3acc59e9327b63dc4b726283bf1dec3def1cedf468d1f482ff478f971320628f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL08": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8a7554487805",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL08.jpg",
+      "source_sha256": "f1100ac76e6cd50f6c67a9b81472e89c79c68de882fa3e78cd0b8fe9a2b5e911",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL09": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9de7a97f7246",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL09.jpg",
+      "source_sha256": "88065088d72f9994ebad8c659d796ab10e0ac2b3e1b8dbd1ab3a922e217f5d1f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL10": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "02eb0e25345b",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL10.jpg",
+      "source_sha256": "237b5741b009cb8d5792ae99df0cee0c2b2fead03eb866731b859f21e9feb4f7",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL11": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "85101f1eb32f",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL11.jpg",
+      "source_sha256": "f417d5ef70af3e5afb26301e75ba82d75f66de9e67aa57b5ba15e45877e748b9",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL12": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "205c53855ffc",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL12.jpg",
+      "source_sha256": "95234ee6dbebe683bf1beda1ccc762345c957368ff8fcca2caafcb1498ed5ee5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL13": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "17b2829db038",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL13.jpg",
+      "source_sha256": "6fca530d60994438724647266c101b70c8e150093b25a45b018bcd63751ad1aa",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL14": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5427cb302318",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL14.jpg",
+      "source_sha256": "07df56d6b9df47ffe0d70603897bdde134646157740d02a2a67263fe6058aec1",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL15": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "1ba5f677a5de",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL15.jpg",
+      "source_sha256": "5f33d338f100bb83fa72a7c1cfb5a2b440d79680b6c249af4fde92a192661ec8",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL16": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "bcacd0e28be4",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL16.jpg",
+      "source_sha256": "bce0ce4fbd36d9a1d225c5a5e81c02c0b131a722421e11fc2998e56bec2ac122",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL17": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b81de6d245c7",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL17.jpg",
+      "source_sha256": "ec5105745fb0c211f3a9598a54f7d506a294d3ac5acdbf92d78b42d8730af978",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL18": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ec3db226bf91",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL18.jpg",
+      "source_sha256": "6cfdec93587eb54d1242ba2c4ca0d7d140c945a7cd6fc5660d1482bf3b49d8b6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL19": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "15e7e43bc08e",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL19.jpg",
+      "source_sha256": "fff26b9520cd62db071261558c33b38f4aad57ead39dd9f84331140428205a88",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL20": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ad8eb6e3f345",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL20.jpg",
+      "source_sha256": "d6e0f5a32169c8230c148ad70fb633d1e509ad895a64217ededc60900f801600",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL21": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "849d99a8fd2f",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL21.jpg",
+      "source_sha256": "1a909cf923916768c4a0dce546b20d53f305ec75fdd9614aa701d0f6a0ea2ea0",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL22": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c7d1eeb73641",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL22.jpg",
+      "source_sha256": "65e2e92d963b5e0f622d9f229106d63bf40084097ce0f9dc3dfe5098edd48f64",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL23": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL23.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a6413cca230a",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL23.jpg",
+      "source_sha256": "48c8b749b122f2a3372ed7a17f0bd4fccdf885ff672aefab46c44ece60b96f96",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1KOL24": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/koloth/1KOL24.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d6b937a54577",
+      "source": "resources/scans/base_game/cards/captains/koloth/1KOL24.jpg",
+      "source_sha256": "3de9d7b151a1f19bb21f78c4ce39236660d23f10b4e8d354d35666ce5391492a",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC01": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "bd9f5e3687ea",
+      "source": "resources/scans/base_game/cards/location/1LOC01.jpg",
+      "source_sha256": "24dd9b110ac524bd3b4adbd13e7dfdfd9ef3bf909106381edfdc834642450694",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC02": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b815037927ce",
+      "source": "resources/scans/base_game/cards/location/1LOC02.jpg",
+      "source_sha256": "e586d6246ad752222a78e2fe9238c32fd807d7e50856b94234b714b61dc3ed79",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC03": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "cc6fb8ddc4f2",
+      "source": "resources/scans/base_game/cards/location/1LOC03.jpg",
+      "source_sha256": "cb8da828b2f8ed3b081860fb5ae2bc88850edeea4f68dd4c9591798b6cd80cf6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC04": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "7e3ef2121a0e",
+      "source": "resources/scans/base_game/cards/location/1LOC04.jpg",
+      "source_sha256": "da1141afe8c6d14ffb015ddbdf197f6932d853a22f43db0cae6740e287898834",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC05": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "472be5d030a5",
+      "source": "resources/scans/base_game/cards/location/1LOC05.jpg",
+      "source_sha256": "f354d83cea9cf2fae8d1d9e5c5109d67e460cb751ce6c51f61f681c9f0b29bf6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC06": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c6dc67b187e6",
+      "source": "resources/scans/base_game/cards/location/1LOC06.jpg",
+      "source_sha256": "a15d8558b2a3ce72e32f37afbc34249498a32d310d54001d8151ff14e377f3fa",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC07": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "855a4a434eb0",
+      "source": "resources/scans/base_game/cards/location/1LOC07.jpg",
+      "source_sha256": "9810682c76cd77a0762141ed6f7acaebe6c2885c859135a9d5c05c14d7578998",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC08": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ae52485de657",
+      "source": "resources/scans/base_game/cards/location/1LOC08.jpg",
+      "source_sha256": "2d9bd91447b6b21f9ea0a92373a8f6c5fdaed537848c7db0e075c6ec1f2f4b40",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC09": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "558791050039",
+      "source": "resources/scans/base_game/cards/location/1LOC09.jpg",
+      "source_sha256": "5a8a2c0e0ddb0283355ad02c4e81d86554f290c532edac2a8e6a0f7b6fdb04d9",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC10": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "79c3a75b4336",
+      "source": "resources/scans/base_game/cards/location/1LOC10.jpg",
+      "source_sha256": "9148501fe81d2b0d24525222066094b24a92583103b80660a73f397d1a98b729",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC11": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ccbac5118345",
+      "source": "resources/scans/base_game/cards/location/1LOC11.jpg",
+      "source_sha256": "aa88e548fb5ff131a5e8d2aaf9fcc5599020c9a26e995bd853a5dd5c72142939",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC12": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d76d91e4d5a4",
+      "source": "resources/scans/base_game/cards/location/1LOC12.jpg",
+      "source_sha256": "55566d80f3098fd5185e36826691e0e79e7f5aa5a639a62792e2f6df3519ced7",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC13": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "42597e4d2140",
+      "source": "resources/scans/base_game/cards/location/1LOC13.jpg",
+      "source_sha256": "61de3a56b21f768f4bfc7eee4972e85303e977129fe2df2b5411f8c248a207c8",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC14": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "f9c9fdb83a48",
+      "source": "resources/scans/base_game/cards/location/1LOC14.jpg",
+      "source_sha256": "4ede9bf1253807d26b27c48a87e20ca6d9af09abee9eaa96df61101c5a932095",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC15": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "1a039444cfc8",
+      "source": "resources/scans/base_game/cards/location/1LOC15.jpg",
+      "source_sha256": "ffc06942b953d45188029115a6ce038bcd42691b296bb8579e0927e63f134dad",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC16": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "db21c9c07fa7",
+      "source": "resources/scans/base_game/cards/location/1LOC16.jpg",
+      "source_sha256": "6be968054f862e067713854a3640b25b95484f24ac07aeb6db454b6d71bee17e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC17": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b80356745f23",
+      "source": "resources/scans/base_game/cards/location/1LOC17.jpg",
+      "source_sha256": "8695c7c79e89b2b72ec24001034d893695febb0ff7c9db5125264dd5e1439f0d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC18": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c26cf26a269e",
+      "source": "resources/scans/base_game/cards/location/1LOC18.jpg",
+      "source_sha256": "dbcf5c7844cb1b2f15c61b93f388ac91e15f6d227218252dc1663a8bb6db87f0",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC19": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "72ec949c923d",
+      "source": "resources/scans/base_game/cards/location/1LOC19.jpg",
+      "source_sha256": "9d09282c19ced345048dc189df99e460e7e3fbd7b4cbf85b01f8b73a5e4b9a4a",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1LOC20": {
+      "kind": "cards",
+      "file": "base_game/cards/location/1LOC20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "da2eb9d07d4b",
+      "source": "resources/scans/base_game/cards/location/1LOC20.jpg",
+      "source_sha256": "d8f9484314d48611e16acdca391a2f5735fa995fb95e2baf70dd177bc017a2f3",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER01": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "775f4adb74f7",
+      "source": "resources/scans/base_game/cards/person/1PER01.jpg",
+      "source_sha256": "5b8c9544592aaf184c3e556a3de74f86a057e6b121a43caf3772064265e9ee94",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER02": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "7ee177b39619",
+      "source": "resources/scans/base_game/cards/person/1PER02.jpg",
+      "source_sha256": "9c1ac5962e0f26a24df29df61e519df98a3de4f6e58868af5ee0b2a976bf1cbc",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER03": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5415de222294",
+      "source": "resources/scans/base_game/cards/person/1PER03.jpg",
+      "source_sha256": "624b92e1fbc0d401444da5eaa29b5d4999f539d2fa7faba25f721ab49b0e9d38",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER04": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2cd46b1b94db",
+      "source": "resources/scans/base_game/cards/person/1PER04.jpg",
+      "source_sha256": "b2e93cab9c6ed17b5ecdfe7d3bbf26a213c6b25cf94d8fc2d9b896d81ad5a0b4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER05": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "3f83c29b23bb",
+      "source": "resources/scans/base_game/cards/person/1PER05.jpg",
+      "source_sha256": "1651decd1f8f6d4ab82f7f70e2f1e114c7c88760f4d53a71cc1c1eb70c56d7cd",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER06": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "66b87e062f45",
+      "source": "resources/scans/base_game/cards/person/1PER06.jpg",
+      "source_sha256": "f0e66aee9b502e6433104348a6613c74e0b8b557ba68eff9e57f8a22b637eed5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER07": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b1105ddcc586",
+      "source": "resources/scans/base_game/cards/person/1PER07.jpg",
+      "source_sha256": "d580108cfee501cf1766a05c27f53afab86736b39054d203d5d8fb47ce593c94",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER08": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "cf65e2ac853b",
+      "source": "resources/scans/base_game/cards/person/1PER08.jpg",
+      "source_sha256": "794c7231d843fc8f3467b090e781b83574dd036c7d084964c37a7c833982142b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER09": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b323683eefa3",
+      "source": "resources/scans/base_game/cards/person/1PER09.jpg",
+      "source_sha256": "2d3130e297326a4cd2750a345afa70399eec53a3ba251aab4c77a370bd606c95",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER10": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ac1b6175e7c0",
+      "source": "resources/scans/base_game/cards/person/1PER10.jpg",
+      "source_sha256": "4304d760b96f70721f10bd7cd1f645a157d4701376fe810db94c86f67d27cd33",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER11": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8d8c1333d062",
+      "source": "resources/scans/base_game/cards/person/1PER11.jpg",
+      "source_sha256": "cf1ac5a2e8ca64618ec9747146f1300625d8c6f615fb93164c486792fecc43b5",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER12": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "88ad74fb2f3a",
+      "source": "resources/scans/base_game/cards/person/1PER12.jpg",
+      "source_sha256": "4f41674f14c2c4d277d276793e92d4823748bca60035ea4635ea7423a573e2dc",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER13": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "93ae07135480",
+      "source": "resources/scans/base_game/cards/person/1PER13.jpg",
+      "source_sha256": "14cfb663b75cd558293952fd579c4434df9b8c016e7ae8dc03b84795e81a54a1",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER14": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "cab2343f7a13",
+      "source": "resources/scans/base_game/cards/person/1PER14.jpg",
+      "source_sha256": "1d3c28f73e6b69068d842f613e36a583d47074cde31ea9607cab311dc4399f4f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER15": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "420061b149b7",
+      "source": "resources/scans/base_game/cards/person/1PER15.jpg",
+      "source_sha256": "b4967ba4a20d2d20f2e8aeb7fede5eff98e1ae3faa1a97af811c3af18ac1671e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER16": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ec1243792d59",
+      "source": "resources/scans/base_game/cards/person/1PER16.jpg",
+      "source_sha256": "408bbb126855d2bc5a38223863eb8fe91068b644ff36fca881a79f1249e286bd",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER17": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "e2838a477b98",
+      "source": "resources/scans/base_game/cards/person/1PER17.jpg",
+      "source_sha256": "8c71c71f0771c583b1cdbc38daa2a6a3430769556b0a11ff13090f08453090cd",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER18": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "da103ef12737",
+      "source": "resources/scans/base_game/cards/person/1PER18.jpg",
+      "source_sha256": "e1535a9c0cc2d450a60c6b98bd46aab3f4440a12399858256329adfbb65a64af",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER19": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8075d5fc72d3",
+      "source": "resources/scans/base_game/cards/person/1PER19.jpg",
+      "source_sha256": "cb79a9273ceee3d2b1d162060fa4003acf333c2b3555a5007a4ea25b7e762d64",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER20": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0d3f3d20da00",
+      "source": "resources/scans/base_game/cards/person/1PER20.jpg",
+      "source_sha256": "071bc7b96ce5677f44c83b1e2a8e94f5f12d853758eea36e6cbd068453377b32",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER21": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "3e8d3fe6b40e",
+      "source": "resources/scans/base_game/cards/person/1PER21.jpg",
+      "source_sha256": "1577abe1211d3ef19d5994b97c3579bfd7fef65735159816819dc7d0d9a129bd",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER22": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "374b91636a4e",
+      "source": "resources/scans/base_game/cards/person/1PER22.jpg",
+      "source_sha256": "96e56a6fa9a10d2bfe8ac9105b92521e257e4fa18c2ab7413cd6a82bd7429dae",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER23": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER23.webp",
+      "width": 630,
+      "height": 880,
+      "version": "df50cbf63f88",
+      "source": "resources/scans/base_game/cards/person/1PER23.jpg",
+      "source_sha256": "d01e8501fd811f4ab57b5bbe1e2321a318b2257774e0dedea1a33a8fa106fc7a",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER24": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER24.webp",
+      "width": 630,
+      "height": 880,
+      "version": "cd23ea650e4b",
+      "source": "resources/scans/base_game/cards/person/1PER24.jpg",
+      "source_sha256": "de58b14f905c38378a5046c64f44dba9f535454383b093020e632b325c79a067",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PER25": {
+      "kind": "cards",
+      "file": "base_game/cards/person/1PER25.webp",
+      "width": 630,
+      "height": 880,
+      "version": "320cc4939091",
+      "source": "resources/scans/base_game/cards/person/1PER25.jpg",
+      "source_sha256": "2ac14a39115b9e1339daa93b66c0980332e4bced4ffec491de5f053fa0209563",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC01": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "7d3d8f58298f",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC01.jpg",
+      "source_sha256": "7ec0a81a36c05dfc82fa71d5450fc4f9d10adbced021972fdc2ab816f7b47d54",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC02": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "dd9af04e7d0e",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC02.jpg",
+      "source_sha256": "d69aa07c77a3d2a07a9b467d50fb5f6a0247cbb0f40a8125a83bea8a7a681b8e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC03": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c894f82a52cd",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC03.jpg",
+      "source_sha256": "0c3de7295e247613da4750158518e3e92691516f91a1554ef55046bdc6c7f577",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC04": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a7b4ce1daed7",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC04.jpg",
+      "source_sha256": "ad1fced0834a73da10b7d60e634b0533247c94abb3c66d581ccb204c6b669582",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC05": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "eb49b4355dae",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC05.jpg",
+      "source_sha256": "2a68cdd381b77d7c1ae619fb2f891818916f298b626319919a00f52c57b8f694",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC06": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "bba0b6b94f8f",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC06.jpg",
+      "source_sha256": "0e928233258143956f60c53a0cb6ae9c9e5f13f6f5c551614c27bee2f81fc24d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC07": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a840abcb3858",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC07.jpg",
+      "source_sha256": "97f7ed172a0d990899fec9466c3ef4bf824a67b185a3559216382b1fcbcfda77",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC08": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "69c7d98990d2",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC08.jpg",
+      "source_sha256": "af265a917f5f7455d298c98a20fa0b8e7c2bb70315b3bdf9051301dbe4c3fa22",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC09": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "66556b4fe95e",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC09.jpg",
+      "source_sha256": "684f9fdfffe139dbe28818db769abc3c300983b1120f975f3db70002389f67da",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC10": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "171ce7911678",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC10.jpg",
+      "source_sha256": "b3c04af19bd2fe5c057e43f86376832bdd6b499f1168c30ad700a8da73b420cb",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC11": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "46962e7b9014",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC11.jpg",
+      "source_sha256": "28951e758f5bab952da08ee2f46b1966c7f45330acab01592b68788485f1b17e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC12": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a170e83a7656",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC12.jpg",
+      "source_sha256": "560b354aaad48955c67e48b4f8ecca957c7069d3fddc10e3da3a1a02e812d1c0",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC13": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5b77b160da24",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC13.jpg",
+      "source_sha256": "9e1c97d32adf321f4817cb776cff440a5e5f47a1d3e16fc79258b91bab23a391",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC14": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "f32d337d6293",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC14.jpg",
+      "source_sha256": "c01bfe1b912aa63cb8df59d00451e91d55c14e6d3496d689ccda928930d07f51",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC15": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "afdc95bc41ce",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC15.jpg",
+      "source_sha256": "313581b5351a8f96244c2fefe8a53280ec924a98b81bdf554af7c554e0c31a44",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC16": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d588eee3242e",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC16.jpg",
+      "source_sha256": "0a9b133b10444ef54d035d886aa71ccb7d6778e1fb51266b5aac6b26196fa77a",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC17": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8be83fe42a2b",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC17.jpg",
+      "source_sha256": "be855e62b8c917ad3e4dbc9d295b3527a8f679a5ad5f1f5ebbd8e6e09e2a6646",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC18": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ec6aa61543e1",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC18.jpg",
+      "source_sha256": "73ff83911adb563cd31ec6459d5b9e4de9f27b2d6cf3298637c630bce0ccd1de",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC19": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "27bff72d9a22",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC19.jpg",
+      "source_sha256": "c8a6eb1106aa6538a75d30c58be80ce9915d7f5dd0c91cc426b518adbafec204",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC20": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0b0b6cee223b",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC20.jpg",
+      "source_sha256": "d64ca97cb4c9bbfa1fd6dd6f20e0407d762429c8b302afd64b9c69643ca74138",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC21": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "770f657ecf86",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC21.jpg",
+      "source_sha256": "20f0d037737732061693220e5b378b19bfa9a48e56f7325e43368c5b4ac745de",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC22": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c8226cd3e0d5",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC22.jpg",
+      "source_sha256": "d442376c93904e164b46c2496e2aa82d247291aafce808ea859f4f8a545e7b68",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC23": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC23.webp",
+      "width": 630,
+      "height": 880,
+      "version": "84cad236a217",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC23.jpg",
+      "source_sha256": "6920d93a5cfbda572a6ce89974575080990d15324c7fae87f45e8c26b8c193ea",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1PIC24": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/picard/1PIC24.webp",
+      "width": 630,
+      "height": 880,
+      "version": "aac961d53267",
+      "source": "resources/scans/base_game/cards/captains/picard/1PIC24.jpg",
+      "source_sha256": "90847679e28b1fcf3ed75081e0bfe7efb9d63eed9a6c3f637e668b233937b23e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL01": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c115befa1317",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL01.jpg",
+      "source_sha256": "1079a2262b1d76f104e9566bab9351c96fef916ce86d1c134c73de4817e6cb6f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL02": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "457906222b78",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL02.jpg",
+      "source_sha256": "682b4316cb9a913b3dd140822221d1b04e92447176e4b516bacce7b1d9f8c5d1",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL03": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "22e7c8e08cab",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL03.jpg",
+      "source_sha256": "b9593b1be3b13e0b3dd80c7a9e8225977d04787c1c6772f53dc0962b8d2343e4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL04": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6d81841f5c26",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL04.jpg",
+      "source_sha256": "010d36a735e38a923ccf2a614d91d9ffb86d857ad9139ca4e16c04e3ac21b1f6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL05": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "941bb055b028",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL05.jpg",
+      "source_sha256": "416f6fe833e4aff539088764cac8e0c1ea5d604bb2eb4011e1602093d25eff9f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL06": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9f98884ce2be",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL06.jpg",
+      "source_sha256": "b9844c8d252015b6ca2a78474feae6d698290a39077947bc1a1c9ce02d0eb6b2",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL07": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "50ee288846cf",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL07.jpg",
+      "source_sha256": "60fa87d541df4e49e2df9d728932811030e02019f46e9203c2f1f69db6291814",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL08": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c2c1d5abcff5",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL08.jpg",
+      "source_sha256": "d6adccbda2502aac479724fc6c54b7e4fc0d4fefb4ecb08755e7024c1bfcd36c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL09": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "520e30b6ef0b",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL09.jpg",
+      "source_sha256": "b0e476d183cc3c75ac52590b3d6116775a13d5e9f98f40e7b0c1c4e04555fd21",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL10": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d2a63ffb13d6",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL10.jpg",
+      "source_sha256": "325f8c5627bd27c640e64f0d61763661188fc60d5cd25e69986018afcb39166f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL11": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b2b3939b0344",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL11.jpg",
+      "source_sha256": "2ce62b844f8a054604148cd21009736ef538d53016fcb512597c1d920750d978",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL12": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8f93d5d9f9bb",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL12.jpg",
+      "source_sha256": "4a152d43614ea29e7d7caf9475b0e6c736ae918ac116c4bf1d3a7aba064fc0a4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL13": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ebc12ecc1738",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL13.jpg",
+      "source_sha256": "af6bc3d7eab8b02aa61d2a181ee7d803b85ac8f73fabff56061727b41d6b7336",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL14": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0b0b8fc00ca5",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL14.jpg",
+      "source_sha256": "4c68060eaf7337898f64b23089e7ad3d8e90061f852d27170fb304dbf19dae8f",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL15": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "267ff9116d63",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL15.jpg",
+      "source_sha256": "fc2ab269773d2db6bedf75ad59353a6012aa8608bbfa3d3d6419a66af9cb0c7d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL16": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2aeaf68ceb26",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL16.jpg",
+      "source_sha256": "e1b1363abd471c705806dbd8cd76a15fdc7180632760bb6422c5df7fe0ceaa04",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL17": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "3ef88382eba9",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL17.jpg",
+      "source_sha256": "6aface85f5fb9c23af30d36b8ba388314d77586ed0e3ed2df524d2335ddbe79e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL18": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "3fcfe889ee23",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL18.jpg",
+      "source_sha256": "74045186be089a60face2892ba97e552172aa59fa1578473f046c165d96abf89",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL19": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "dc2af920e4bc",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL19.jpg",
+      "source_sha256": "129223bfcb20e3160878d281aed737d25b7fafbb30e292d30bf348b637837924",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL20": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "85398e244333",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL20.jpg",
+      "source_sha256": "f85cbf5c1c3996c59cb7a0391d71610286890d70e58814406f4fc16f70e6aa05",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL21": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "737a8a81c687",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL21.jpg",
+      "source_sha256": "3a12bed3f4f2e5450070a25311a3d4d713eff55f9669ef8fbd2d9ca940e12b50",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL22": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "49f9df1300e3",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL22.jpg",
+      "source_sha256": "5aa69e5b2ff09b206f6261b65db9f24d31c11505e1675464c2ac03f07a71afc4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL23": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL23.webp",
+      "width": 630,
+      "height": 880,
+      "version": "7b4487ba9d3c",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL23.jpg",
+      "source_sha256": "fbefcf5d52e2724b8832ae75a0ea4651a93fc8f3d0719270906c25baccb214dc",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SEL24": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sela/1SEL24.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2e170060990c",
+      "source": "resources/scans/base_game/cards/captains/sela/1SEL24.jpg",
+      "source_sha256": "b5f88f5bfc4827b641f05b17521c5c706edb48d907cb8753bc561834bc6aa188",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI01": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "95feb4db4104",
+      "source": "resources/scans/base_game/cards/ships/1SHI01.jpg",
+      "source_sha256": "d5ea85393eed17f59e89cad1e5f9fba2e70d78771706e254789827abf3456f34",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI02": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "7f1d2de38c17",
+      "source": "resources/scans/base_game/cards/ships/1SHI02.jpg",
+      "source_sha256": "37ca9080a1705bb8efc73a5e86829967f2b4eef7d67094aac7ddb5df07c38678",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI03": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "e71d7a696d69",
+      "source": "resources/scans/base_game/cards/ships/1SHI03.jpg",
+      "source_sha256": "fd39b441671a73f6cee79c32463f3fb9c14929e111fb4596d041865a628b6c50",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI04": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "f926f58041ae",
+      "source": "resources/scans/base_game/cards/ships/1SHI04.jpg",
+      "source_sha256": "f3935cb5d20f47f3aeb41078e5f409662b6deb13276a652e14947d0f90f83017",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI05": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "c853e631f413",
+      "source": "resources/scans/base_game/cards/ships/1SHI05.jpg",
+      "source_sha256": "f2384c60e40d38222568f295aae83c628cbfa2b55309bdaea255849cc7e2e23e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI06": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "59df0dce1063",
+      "source": "resources/scans/base_game/cards/ships/1SHI06.jpg",
+      "source_sha256": "d684f83fed1d08e20f651943b3d354e974f9a1661edfc16d516579b02647bc13",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI07": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "f362c2e99521",
+      "source": "resources/scans/base_game/cards/ships/1SHI07.jpg",
+      "source_sha256": "e76afebdc19fe2eb5eb88534d7d66fc73666be7e95bed5809c38611b1f62e56e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI08": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "362be0d3f008",
+      "source": "resources/scans/base_game/cards/ships/1SHI08.jpg",
+      "source_sha256": "929a50e1da492ca4a57e59e39fb5904de05fc351bb266272edf7cad7ab1b1f53",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI09": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "054ec3332261",
+      "source": "resources/scans/base_game/cards/ships/1SHI09.jpg",
+      "source_sha256": "a93358d920fe63fa1fc5dc86774382a18a3dad1d846f9fbf09f7f71006d5f024",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI10": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6fd1099e834f",
+      "source": "resources/scans/base_game/cards/ships/1SHI10.jpg",
+      "source_sha256": "35f867f065cbff271561ae45fabf61d0f304969e73cd4c355f3190d7ce5afaba",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI11": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "2c8785748ecf",
+      "source": "resources/scans/base_game/cards/ships/1SHI11.jpg",
+      "source_sha256": "d82763e5f4e9035196f011883cb06e7c7ee33ecf83a422cf4b736c5c69029a4c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI12": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "bf7f90789fc8",
+      "source": "resources/scans/base_game/cards/ships/1SHI12.jpg",
+      "source_sha256": "c257214c98d0ad437b38c9df2159ad84a520a97234f64a4aef4f07b29b1faea9",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHI13": {
+      "kind": "cards",
+      "file": "base_game/cards/ships/1SHI13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a790cb5257ae",
+      "source": "resources/scans/base_game/cards/ships/1SHI13.jpg",
+      "source_sha256": "5b40c2275a37ef77afc2e5607867f774d62df2411f843788f18b1c291af41e74",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR01": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "8b6c6fa0b327",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR01.jpg",
+      "source_sha256": "b5fdc6c614c539875fb01a8b68bff0c22578fcdfc1178394ba8006a87e347f57",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR02": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0156e6f71cb7",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR02.jpg",
+      "source_sha256": "56514fd2f44ffa2b0074a922d1c87b5d42135b0b0dde3c6ed2465c151d067aaa",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR03": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a9c2e47892c9",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR03.jpg",
+      "source_sha256": "7824a9d74ee848ff28e196f0a1cbbfcf08df45e5b7d13ae3249c5d329d33418b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR04": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "cde5be642d7a",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR04.jpg",
+      "source_sha256": "bdc82d9d47836bfd7dd7afe38a70ab1cd8cc66ec2cb4a8e855f68fbc4ea751f6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR05": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "fdded574ecc6",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR05.jpg",
+      "source_sha256": "cbac66b71f3ac9349376c8ec843112f5bc4896a72ded2a9220634301a1de9f34",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR06": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "f9c8765b5b10",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR06.jpg",
+      "source_sha256": "82dc618951ad0d8eccdb16c354031ba11154dee5b65c41d55c31b73542540071",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR07": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "11c0940d0d1f",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR07.jpg",
+      "source_sha256": "f0a7e456feacecb3199f4d1b3028661b68e1a29b1023c197f86132bcd8f9fabe",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR08": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "a200c3f01021",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR08.jpg",
+      "source_sha256": "4c867af87820e841ed6cf052175f5f36b7384725e6a7e07f926ccd28b711d93e",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR09": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ae61be04e827",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR09.jpg",
+      "source_sha256": "1b2a043d00dcb0f1f8969c96865933c2ac1e5e2e6af8519af8a57ebdb3a04205",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR10": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "4b35c4b9fe5f",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR10.jpg",
+      "source_sha256": "81e461f6b735f44a3cd2167ba861231aecc2878d0f8123f0805c0094a3622267",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR11": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "aa74db300b56",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR11.jpg",
+      "source_sha256": "32ebb0dd63f1fd1da409796a4687ee4059164e89815bdc066b840ce3e5378ba9",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR12": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6940d7b960fb",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR12.jpg",
+      "source_sha256": "d25a2e39886f7939c24988d07ecaba186d1a133efea408ace3445c514fedf87c",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR13": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ffd14c8cf0d3",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR13.jpg",
+      "source_sha256": "735e22e0b7342445a1e2e59f72dcce37a1cbe4a4eaebb206d7eddbf3af60313b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR14": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "4b7413d045a9",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR14.jpg",
+      "source_sha256": "bc93e81e3077d9f8eca9d4748da8e71ae483066959230fc65213f2a3f5dbd722",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR15": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0140cf1630e7",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR15.jpg",
+      "source_sha256": "7e485c135548a0f74066a44de08c4394353942272321f7cd8fe23715faa53357",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR16": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "e15b28f0861d",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR16.jpg",
+      "source_sha256": "5a0d097ff56d59393b77377c7f2928fcde6130be929e42a7c5aae8b0a39ca081",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR17": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0c28d7c39ca0",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR17.jpg",
+      "source_sha256": "5bca1280d6c427265228524ef3de74825fee50e06cce2a6ef4ef6597a9538317",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR18": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5ff1220bd884",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR18.jpg",
+      "source_sha256": "b88c111bd235e944e51b0c53e8f2c7875f335d4a66d9b04bfc94099e4945a6c3",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR19": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9ef96997c339",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR19.jpg",
+      "source_sha256": "5fd7f54bf014cde1a93fd3bca18e5e77e87fa6873d4bc230a44f22b08af91326",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR20": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "f7398cf2b13e",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR20.jpg",
+      "source_sha256": "7df7e73050541b9df5bc66ea4070cf086f799727d21e3a83cbe86ea2bcf66d4b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR21": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ec2859cf6140",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR21.jpg",
+      "source_sha256": "a2409e85e30801768af39e35ea91875194b736cebfd7445761651bec1b93282b",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR22": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "4c3078ad6d16",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR22.jpg",
+      "source_sha256": "641f218910cf1b9d89f758f8d472e24e571708c146c6a264dfc1c33cd258bcf4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR23": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR23.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9c25172123fb",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR23.jpg",
+      "source_sha256": "b496c160eb921226a3544e7cf75e99a7fcdeaca500e8856f7142b4ac20f4b1e9",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SHR24": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/shran/1SHR24.webp",
+      "width": 630,
+      "height": 880,
+      "version": "22a91ed35dfc",
+      "source": "resources/scans/base_game/cards/captains/shran/1SHR24.jpg",
+      "source_sha256": "a2b754ccc454f28d609e239f5a4977c95ca2e4d55c5c35b76837563a754e5320",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS01": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS01.webp",
+      "width": 630,
+      "height": 880,
+      "version": "fb761a09aee7",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS01.jpg",
+      "source_sha256": "37138967936196f04bee86426c493b3be6363cb19dd9fb924e18dd24544fc121",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS02": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS02.webp",
+      "width": 630,
+      "height": 880,
+      "version": "e7b916cdb84c",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS02.jpg",
+      "source_sha256": "2212f48d1c50dc10109f696544ad19610ce696686d4b13f3160fc4b3e619c56d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS03": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS03.webp",
+      "width": 630,
+      "height": 880,
+      "version": "746d276d80bb",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS03.jpg",
+      "source_sha256": "54d8fd05359803440d5a342d30f5562cf698f26c44e9d60d45170f18eea005b6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS04": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS04.webp",
+      "width": 630,
+      "height": 880,
+      "version": "410564fc2187",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS04.jpg",
+      "source_sha256": "0b15765fa3650d5e762f7d43ffdb94e325fb9b2d7d2727c7c2a60678d4d69673",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS05": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS05.webp",
+      "width": 630,
+      "height": 880,
+      "version": "0e774a37ecdf",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS05.jpg",
+      "source_sha256": "64bdae79b4abd8ed72b7fd3165960797074e11e4db3f05c24ecd191d222a6f96",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS06": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS06.webp",
+      "width": 630,
+      "height": 880,
+      "version": "53c7468a09f9",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS06.jpg",
+      "source_sha256": "2400c5ad70e684b3a600a0ecd3aae9124686289f64894c2c240dcb11d230b43d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS07": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS07.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6bb3f44b1acc",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS07.jpg",
+      "source_sha256": "82ebb60e2f757bd123860a7038d30d9b76f6b7e9df78a54c224aad4013549383",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS08": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS08.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5c485c1a5544",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS08.jpg",
+      "source_sha256": "2e2e75d7f526406b0dfbc89fdb65819dfced6a5ed4b46bc718aec1a5bb62e5fb",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS09": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS09.webp",
+      "width": 630,
+      "height": 880,
+      "version": "99aa5c399911",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS09.jpg",
+      "source_sha256": "b80e3fac3ccf3661a4798d3d35f708c9e79d4b7c272004f2d2b76bf43553ecf4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS10": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS10.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d8d2de3a8c8b",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS10.jpg",
+      "source_sha256": "d397f04f1376de775c68c3e045d6742dde66fdd985abc0b307082f75b7658db4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS11": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS11.webp",
+      "width": 630,
+      "height": 880,
+      "version": "4b2c49966fc4",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS11.jpg",
+      "source_sha256": "4a2342b8a0a4a855563c39f4d78768575276f4f245e0b7d46df6f95845c19617",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS12": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS12.webp",
+      "width": 630,
+      "height": 880,
+      "version": "ce7294e33a3c",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS12.jpg",
+      "source_sha256": "01f296378a480c0fbc868deb347205ee2290575a8698e31065a0cc2be3367c04",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS13": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS13.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9b8de78e8db9",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS13.jpg",
+      "source_sha256": "b6b6c7eb233282f1bdc2981ce154dbaa26a879b9d5a441c751feb7bfaa0ac7cb",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS14": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS14.webp",
+      "width": 630,
+      "height": 880,
+      "version": "be7cce3c865e",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS14.jpg",
+      "source_sha256": "fe141333e99d69298f399b41e55dcf1205cd7ec4116a1f08e49fef3b03ce138d",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS15": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS15.webp",
+      "width": 630,
+      "height": 880,
+      "version": "5ea66de1e5cf",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS15.jpg",
+      "source_sha256": "05146264b92060d22dcfc91e0c5fb30cf5e7d25c8127a7282d6009af0827b032",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS16": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS16.webp",
+      "width": 630,
+      "height": 880,
+      "version": "268db7839818",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS16.jpg",
+      "source_sha256": "9d245d3ea04d99cbc6455fcb6a7cb80869d03122d6badc726085238edf2be3f2",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS17": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS17.webp",
+      "width": 630,
+      "height": 880,
+      "version": "6668c749f82d",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS17.jpg",
+      "source_sha256": "ada06ea72fcb8153201d96f1bf6da5267bfc5f479dcfe932cc62eb4fc8e18988",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS18": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS18.webp",
+      "width": 630,
+      "height": 880,
+      "version": "e2517c68fee8",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS18.jpg",
+      "source_sha256": "9556658ae420fdd22021ed42c0e30a0bd9de7ea71b884b14236aa25b5c9748e6",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS19": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS19.webp",
+      "width": 630,
+      "height": 880,
+      "version": "9eb49bc54f9f",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS19.jpg",
+      "source_sha256": "352dafa8b494300a3a5a376c9d63fd7424c106340a9f4ec34323f02355a929fd",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS20": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS20.webp",
+      "width": 630,
+      "height": 880,
+      "version": "251f7581858d",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS20.jpg",
+      "source_sha256": "0b66b480de19d8c31f899df4383aaaf4731567c38625b84d1d6f200e39308b73",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS21": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS21.webp",
+      "width": 630,
+      "height": 880,
+      "version": "d0ef4f4d0697",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS21.jpg",
+      "source_sha256": "200065e0ef875af2660dc2d8a0abd91c76be63831a3023551c645d39c8b5e4c3",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS22": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS22.webp",
+      "width": 630,
+      "height": 880,
+      "version": "15adaace0a20",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS22.jpg",
+      "source_sha256": "519dc79f762f87f12138b66040a80ec5e5ade4d0cd2c2b426991d6b9fd7b9e73",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS23": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS23.webp",
+      "width": 630,
+      "height": 880,
+      "version": "f5079f8d65aa",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS23.jpg",
+      "source_sha256": "c80e22d4ea8e762460b29da24f5cd944c68dd86c5ebabe2dbdb411a28d9cf312",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS24": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS24.webp",
+      "width": 630,
+      "height": 880,
+      "version": "b397c99b2c89",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS24.jpg",
+      "source_sha256": "17ff89a9bdcb8f50ab52ae6385536763e196bd396c340fe62c72c205fc67ffa4",
+      "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
+    },
+    "1SIS25": {
+      "kind": "cards",
+      "file": "base_game/cards/captains/sisko/1SIS25.webp",
+      "width": 630,
+      "height": 880,
+      "version": "82cbfcd9118b",
+      "source": "resources/scans/base_game/cards/captains/sisko/1SIS25.jpg",
+      "source_sha256": "764e80565d95fdd224aa3dbcc9bd43a31b2b164105e2b3de70dcdc40a7d00219",
       "settings": "v2:Profile(long_side=880, card_shape=True):0:False:None"
     },
     "2ALL01": {
@@ -3930,6 +6480,46 @@
       "source_sha256": "75bcfe396d235bc2afda0885fea75bff902cac3715d7dc6f0e7b58999fa6f01e",
       "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
     },
+    "burnham-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "base_game/command/burnham-five-year-mission-upgrades.webp",
+      "width": 823,
+      "height": 1400,
+      "version": "eeb19de958b2",
+      "source": "resources/scans/base_game/command/burnham-five-year-mission-upgrades.jpg",
+      "source_sha256": "4afb2e49e1f224bb0f689159ee455a27b490df6a9f62092bb770b7312fece538",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "burnham-no-duty-officer": {
+      "kind": "command",
+      "file": "base_game/command/burnham-no-duty-officer.webp",
+      "width": 822,
+      "height": 1400,
+      "version": "846508428cce",
+      "source": "resources/scans/base_game/command/burnham-no-duty-officer.jpg",
+      "source_sha256": "dca42e9b2e47ed05460fb09c715dbdd27f539a7ddfd383f5f3fe2fbe106327f3",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "burnham-traits": {
+      "kind": "command",
+      "file": "base_game/command/burnham-traits.webp",
+      "width": 823,
+      "height": 1400,
+      "version": "af34faf8aec0",
+      "source": "resources/scans/base_game/command/burnham-traits.jpg",
+      "source_sha256": "d8aeaedf8ac70d433acadb007ce77c29507f0d50545c7859dc2cb246cd2dbbd6",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "burnham-with-duty-officer": {
+      "kind": "command",
+      "file": "base_game/command/burnham-with-duty-officer.webp",
+      "width": 824,
+      "height": 1400,
+      "version": "ebd4f4c88e89",
+      "source": "resources/scans/base_game/command/burnham-with-duty-officer.jpg",
+      "source_sha256": "d1286fa54a40a1e1b3bd16a5c132179386981d46d8c928672ce7ad930bfc07c0",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
     "card-back": {
       "kind": "cards",
       "file": "to_boldly_go/cards/card-back.webp",
@@ -3958,6 +6548,26 @@
       "version": "f76344965c77",
       "source": "resources/scans/to_boldly_go/boards/cb-archer-basic.jpg",
       "source_sha256": "ac65958b0b1fbc29c702f6dc726821b9ad473a20bf45d4720c68303b598cdf18",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-burnham-advanced": {
+      "kind": "boards",
+      "file": "base_game/boards/cb-burnham-advanced.webp",
+      "width": 1800,
+      "height": 1404,
+      "version": "babcfb70388d",
+      "source": "resources/scans/base_game/boards/cb-burnham-advanced.jpg",
+      "source_sha256": "dc1a49854836502a1fca6400d5c38b8af80930436e9286975850aac13a1aeb42",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-burnham-basic": {
+      "kind": "boards",
+      "file": "base_game/boards/cb-burnham-basic.webp",
+      "width": 1800,
+      "height": 1391,
+      "version": "dff63643e99f",
+      "source": "resources/scans/base_game/boards/cb-burnham-basic.jpg",
+      "source_sha256": "c7f967e2d80baaf9bb3a173ae717b77a6ea924ebf574c33903564f3e5408bd37",
       "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
     },
     "cb-freeman-advanced": {
@@ -4030,6 +6640,46 @@
       "source_sha256": "13abf3fc879b2f1f913955c7d417d84e74edaa2ce06cffe657e5565215db9f7c",
       "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
     },
+    "cb-koloth-advanced": {
+      "kind": "boards",
+      "file": "base_game/boards/cb-koloth-advanced.webp",
+      "width": 1800,
+      "height": 1387,
+      "version": "54276fd8e67b",
+      "source": "resources/scans/base_game/boards/cb-koloth-advanced.jpg",
+      "source_sha256": "68dcb322efec8cf9bb121af3920ff5f9af815807322b789c2037f85db6c4c05e",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-koloth-basic": {
+      "kind": "boards",
+      "file": "base_game/boards/cb-koloth-basic.webp",
+      "width": 1800,
+      "height": 1386,
+      "version": "b7a0e2e4b0da",
+      "source": "resources/scans/base_game/boards/cb-koloth-basic.jpg",
+      "source_sha256": "43fc7fb8a83f0be88b6a3c694741cac8992b145a8d6f566aa00d811c4939fadb",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-picard-advanced": {
+      "kind": "boards",
+      "file": "base_game/boards/cb-picard-advanced.webp",
+      "width": 1800,
+      "height": 1403,
+      "version": "6128f52090e6",
+      "source": "resources/scans/base_game/boards/cb-picard-advanced.jpg",
+      "source_sha256": "1faa9493a340eb413714f461d5e20dbdd20e7d4c87aa5f54af2efe91cfc8248d",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-picard-basic": {
+      "kind": "boards",
+      "file": "base_game/boards/cb-picard-basic.webp",
+      "width": 1800,
+      "height": 1386,
+      "version": "43040c760ea3",
+      "source": "resources/scans/base_game/boards/cb-picard-basic.jpg",
+      "source_sha256": "683ba76c6b71abafa07363cf5185bf7906f034ee90f9671d92e8519672331444",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
     "cb-pike-advanced": {
       "kind": "boards",
       "file": "second_contact/boards/cb-pike-advanced.webp",
@@ -4088,6 +6738,66 @@
       "version": "7f5ebb284eac",
       "source": "resources/scans/second_contact/boards/cb-riker-basic.jpg",
       "source_sha256": "0b9546fce369390a89f72d8177f4239b44b4b8616afb22564e18e856e99e33e9",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-sela-advanced": {
+      "kind": "boards",
+      "file": "base_game/boards/cb-sela-advanced.webp",
+      "width": 1800,
+      "height": 1391,
+      "version": "0acf25726bb8",
+      "source": "resources/scans/base_game/boards/cb-sela-advanced.jpg",
+      "source_sha256": "2edaa08cae5ad17dbe6f2f2edb0bfd24ec021f1941ae7b4e4e1605102df50f74",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-sela-basic": {
+      "kind": "boards",
+      "file": "base_game/boards/cb-sela-basic.webp",
+      "width": 1800,
+      "height": 1406,
+      "version": "fb6433fe8884",
+      "source": "resources/scans/base_game/boards/cb-sela-basic.jpg",
+      "source_sha256": "10d1ffdec089519b7df33e9fd183c3a9f8310ce3b4e1934a5a8ec7b098c26144",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-shran-advanced": {
+      "kind": "boards",
+      "file": "base_game/boards/cb-shran-advanced.webp",
+      "width": 1800,
+      "height": 1402,
+      "version": "f14e63ff2ee2",
+      "source": "resources/scans/base_game/boards/cb-shran-advanced.jpg",
+      "source_sha256": "74b6595f4c762179d787f957711869da7e6da439b724caeeacbc15ef65c587b4",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-shran-basic": {
+      "kind": "boards",
+      "file": "base_game/boards/cb-shran-basic.webp",
+      "width": 1800,
+      "height": 1381,
+      "version": "fdec993edf7b",
+      "source": "resources/scans/base_game/boards/cb-shran-basic.jpg",
+      "source_sha256": "34282e4887cc021024d086149f8873aa323d68e1853ba72cf81f5eec03cfb954",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-sisko-advanced": {
+      "kind": "boards",
+      "file": "base_game/boards/cb-sisko-advanced.webp",
+      "width": 1800,
+      "height": 1392,
+      "version": "0f4a39ab5208",
+      "source": "resources/scans/base_game/boards/cb-sisko-advanced.jpg",
+      "source_sha256": "7122595d8372c31fc71fb284fdb9fbc0abc2927d40a231e92e817574edc2fc2a",
+      "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
+    },
+    "cb-sisko-basic": {
+      "kind": "boards",
+      "file": "base_game/boards/cb-sisko-basic.webp",
+      "width": 1800,
+      "height": 1386,
+      "version": "7b06946da610",
+      "source": "resources/scans/base_game/boards/cb-sisko-basic.jpg",
+      "source_sha256": "0c57d9595c28c6da8d3036ad3f93598f4abe1b629f6f34307da20733e13563c1",
       "settings": "v2:Profile(long_side=1800, card_shape=False):0:False:None"
     },
     "cb-soval-advanced": {
@@ -4520,6 +7230,86 @@
       "source_sha256": "ce07366545a10922e495025a5530794f0e79e0b54f63527530debb5cc0bd4556",
       "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
     },
+    "koloth-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "base_game/command/koloth-five-year-mission-upgrades.webp",
+      "width": 837,
+      "height": 1400,
+      "version": "fdf76831e4ea",
+      "source": "resources/scans/base_game/command/koloth-five-year-mission-upgrades.jpg",
+      "source_sha256": "041a4a7ee5832fc4b1722a2ebfc286e05f81090e675712012c26b516a75381f3",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "koloth-no-duty-officer": {
+      "kind": "command",
+      "file": "base_game/command/koloth-no-duty-officer.webp",
+      "width": 832,
+      "height": 1400,
+      "version": "6b3a6751071c",
+      "source": "resources/scans/base_game/command/koloth-no-duty-officer.jpg",
+      "source_sha256": "e5fce3c9caac5a2680233121581326f0424d95af6f96568dd2a9f62c27cc5e37",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "koloth-traits": {
+      "kind": "command",
+      "file": "base_game/command/koloth-traits.webp",
+      "width": 828,
+      "height": 1400,
+      "version": "03593a3bc197",
+      "source": "resources/scans/base_game/command/koloth-traits.jpg",
+      "source_sha256": "7804945d96713fcab54393fec20efd424f75f097f21ed96492df0f15b7e04b63",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "koloth-with-duty-officer": {
+      "kind": "command",
+      "file": "base_game/command/koloth-with-duty-officer.webp",
+      "width": 828,
+      "height": 1400,
+      "version": "f5dae14f1867",
+      "source": "resources/scans/base_game/command/koloth-with-duty-officer.jpg",
+      "source_sha256": "14b9b0665f1bda7c6427ee9a0b1afd1ab1135d7e81ec5b175f2ae6ab29e9d765",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "picard-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "base_game/command/picard-five-year-mission-upgrades.webp",
+      "width": 840,
+      "height": 1400,
+      "version": "c0197c6b393c",
+      "source": "resources/scans/base_game/command/picard-five-year-mission-upgrades.jpg",
+      "source_sha256": "1d97b4063aaf11ecba9f8abd660a92474e298fef28dd3594d1579e3f0c225861",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "picard-no-duty-officer": {
+      "kind": "command",
+      "file": "base_game/command/picard-no-duty-officer.webp",
+      "width": 831,
+      "height": 1400,
+      "version": "93decc062725",
+      "source": "resources/scans/base_game/command/picard-no-duty-officer.jpg",
+      "source_sha256": "4b94e3f2b567f6cb691cd7b950b0037eb0598dc43aeec80e5a0bb0b88fa8b1db",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "picard-traits": {
+      "kind": "command",
+      "file": "base_game/command/picard-traits.webp",
+      "width": 852,
+      "height": 1400,
+      "version": "54f82ee34ced",
+      "source": "resources/scans/base_game/command/picard-traits.jpg",
+      "source_sha256": "858e8e537ee5bd2d421393ec2bc1cfe23dc4368b392978508505c3326c6d3ebe",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "picard-with-duty-officer": {
+      "kind": "command",
+      "file": "base_game/command/picard-with-duty-officer.webp",
+      "width": 832,
+      "height": 1400,
+      "version": "b1fe4f105b82",
+      "source": "resources/scans/base_game/command/picard-with-duty-officer.jpg",
+      "source_sha256": "13dccf4c55efe617910b6cedfb2ff031353f9cd2cfc930f0fe1548a850afc74a",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
     "pike-five-year-mission-upgrades": {
       "kind": "command",
       "file": "second_contact/command/pike-five-year-mission-upgrades.webp",
@@ -4640,24 +7430,724 @@
       "source_sha256": "21cceb3fd3ef3a1be0551a926478a1654c66946c8f6468a16142acdab3606773",
       "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
     },
+    "sela-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "base_game/command/sela-five-year-mission-upgrades.webp",
+      "width": 830,
+      "height": 1400,
+      "version": "85eae3a179e8",
+      "source": "resources/scans/base_game/command/sela-five-year-mission-upgrades.jpg",
+      "source_sha256": "0522a02f6367131ee616c91b7f4302602f21c4fa26df2d5fa70fc3983e2023bf",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "sela-no-duty-officer": {
+      "kind": "command",
+      "file": "base_game/command/sela-no-duty-officer.webp",
+      "width": 830,
+      "height": 1400,
+      "version": "fdf2af660db8",
+      "source": "resources/scans/base_game/command/sela-no-duty-officer.jpg",
+      "source_sha256": "debc30242c8d7ba909c2c1c442ff58af01627e6635ac844870a40596e2b9f458",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "sela-traits": {
+      "kind": "command",
+      "file": "base_game/command/sela-traits.webp",
+      "width": 860,
+      "height": 1400,
+      "version": "c49e50ec61f0",
+      "source": "resources/scans/base_game/command/sela-traits.jpg",
+      "source_sha256": "db8f9b72cadb8215386a46c1660e4bc3c5743e95074ff4d0b5e4a138efcdf7a1",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "sela-with-duty-officer": {
+      "kind": "command",
+      "file": "base_game/command/sela-with-duty-officer.webp",
+      "width": 870,
+      "height": 1400,
+      "version": "744fde3c9982",
+      "source": "resources/scans/base_game/command/sela-with-duty-officer.jpg",
+      "source_sha256": "95c01455b53f10a18585b61b8e4c809d0a0bbbe7073fb409ef18764f17ca56fc",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "ship-0shi01": {
+      "kind": "ships",
+      "file": "promo1/ships/ship-0shi01.webp",
+      "width": 400,
+      "height": 276,
+      "version": "55c1c99b5306",
+      "source": "resources/scans/promo1/ships/uss_enterprise_b_front.png",
+      "source_sha256": "c4e4611c023a79708cbb3cf15b88b65770e4d0f3a39ed86f8203ac727ef8ad67",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-0shi01-back": {
+      "kind": "ships",
+      "file": "promo1/ships/ship-0shi01-back.webp",
+      "width": 400,
+      "height": 276,
+      "version": "4a085c71cf6a",
+      "source": "resources/scans/promo1/ships/uss_enterprise_b_back.png",
+      "source_sha256": "b357ee9acf6e579d83f0b48ca4f68a99d3f7c642636fc3b532850299715a162c",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
     "ship-0shi02": {
       "kind": "ships",
-      "file": "to_boldly_go/ships/ship-0shi02.webp",
+      "file": "promo2/ships/ship-0shi02.webp",
       "width": 366,
       "height": 400,
       "version": "f3ab5564fa60",
-      "source": "resources/scans/to_boldly_go/ships/uss_cabot_front.png",
+      "source": "resources/scans/promo2/ships/uss_cabot_front.png",
       "source_sha256": "02f836d7b5e4e2454cdbc9af6c9509fb60068dae443e81d643e376fcaaa9d225",
       "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
     },
     "ship-0shi02-back": {
       "kind": "ships",
-      "file": "to_boldly_go/ships/ship-0shi02-back.webp",
+      "file": "promo2/ships/ship-0shi02-back.webp",
       "width": 373,
       "height": 400,
       "version": "29f1fc56f15e",
-      "source": "resources/scans/to_boldly_go/ships/uss_cabot_back.png",
+      "source": "resources/scans/promo2/ships/uss_cabot_back.png",
       "source_sha256": "fd5a767230d2b9d6bac58dbcc35b465010e47902780464d1fc7811f50a847290",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1bur03": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1bur03.webp",
+      "width": 320,
+      "height": 400,
+      "version": "31b7346730ea",
+      "source": "resources/scans/base_game/ships/uss_discovery_a_front.png",
+      "source_sha256": "ee096d1f60be91988fab21650a57aa0b8547f78eed0bcdfc1f7778fac643fef6",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1bur03-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1bur03-back.webp",
+      "width": 323,
+      "height": 400,
+      "version": "fc5bd2aa55b9",
+      "source": "resources/scans/base_game/ships/uss_discovery_a_back.png",
+      "source_sha256": "4ead8064d32713728ef2e558ee10932277a26a3914f32d354240a91c8f19dfe3",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1bur04": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1bur04.webp",
+      "width": 400,
+      "height": 331,
+      "version": "68fcfaae3403",
+      "source": "resources/scans/base_game/ships/uss_federation_front.png",
+      "source_sha256": "cdcb533b57a16d4a7d300bc35c67a0e0b3245b9e3c82ffcabc1385ce04813d7d",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1bur04-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1bur04-back.webp",
+      "width": 400,
+      "height": 328,
+      "version": "6cf5a8affcfc",
+      "source": "resources/scans/base_game/ships/uss_federation_back.png",
+      "source_sha256": "1f80c720b7273df0c674f366cbb03df393786646b6e163b15c6bb5467737c556",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1bur15": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1bur15.webp",
+      "width": 319,
+      "height": 400,
+      "version": "bd63964647ec",
+      "source": "resources/scans/base_game/ships/books_ship_front.png",
+      "source_sha256": "c39e493ca44b4f6cbf8421e7210f77703af681537741ee5b32feefa140698886",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1bur15-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1bur15-back.webp",
+      "width": 327,
+      "height": 400,
+      "version": "a263595a3323",
+      "source": "resources/scans/base_game/ships/books_ship_back.png",
+      "source_sha256": "423f20f23bbed7724e1fff734cf5b9bec2e32cf2d4ca1d7a552ef29336999038",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1kol02": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1kol02.webp",
+      "width": 400,
+      "height": 398,
+      "version": "a03acfe2f8ea",
+      "source": "resources/scans/base_game/ships/iks_groth_front.png",
+      "source_sha256": "6b82f696cae7cd99e36075631c94cc82d7831356f84c96f6e5d167a9529c23be",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1kol02-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1kol02-back.webp",
+      "width": 400,
+      "height": 398,
+      "version": "a9a2f2037542",
+      "source": "resources/scans/base_game/ships/iks_groth_back.png",
+      "source_sha256": "385dce5c33960815a77af11d9fab8e6a706984e0b46cf5b16c61abbbf04ca6e0",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1kol09": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1kol09.webp",
+      "width": 400,
+      "height": 398,
+      "version": "b17e0d50f04f",
+      "source": "resources/scans/base_game/ships/iks_devisor_front.png",
+      "source_sha256": "95f9928468a9258f2a5ecd5fc1dc833ee34a7e6cc52e3f1951a9420980a3d2c5",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1kol09-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1kol09-back.webp",
+      "width": 400,
+      "height": 399,
+      "version": "acca0faec49f",
+      "source": "resources/scans/base_game/ships/iks_devisor_back.png",
+      "source_sha256": "3152b43aa5e0e282cc699c61cfb9bbd7dd78ff19652ab0a9060dccb10a2b3899",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1kol24": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1kol24.webp",
+      "width": 346,
+      "height": 400,
+      "version": "785a02e18550",
+      "source": "resources/scans/base_game/ships/iks_klothos_front.png",
+      "source_sha256": "302c67f6c019887070bbfe58336a9a6ddf066c7b3b66032662e52678dbc6e7b3",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1kol24-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1kol24-back.webp",
+      "width": 355,
+      "height": 400,
+      "version": "add6048fa3c5",
+      "source": "resources/scans/base_game/ships/iks_klothos_back.png",
+      "source_sha256": "1030fe844c17e52b69e24900329566380b7bd58d68be56fe7a4e71449aba23d3",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1pic02": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1pic02.webp",
+      "width": 400,
+      "height": 374,
+      "version": "b137eb530e30",
+      "source": "resources/scans/base_game/ships/uss_enterprise_d_front.png",
+      "source_sha256": "9f454a51c6fc29db9d5f7f94f877585cec3407ab1cdf88916f1a493c49c3f75d",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1pic02-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1pic02-back.webp",
+      "width": 400,
+      "height": 369,
+      "version": "7412bdfa5877",
+      "source": "resources/scans/base_game/ships/uss_enterprise_d_back.png",
+      "source_sha256": "12c898ebd12775f958872c0aa22f022f4d97db0ae9b382bcea82e205eb014dbc",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1pic10": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1pic10.webp",
+      "width": 400,
+      "height": 395,
+      "version": "df25c5a92996",
+      "source": "resources/scans/base_game/ships/uss_bozeman_front.png",
+      "source_sha256": "cdab671cf77ce8d32dea890d46841709a96359a44b2b6c4d340e5c7b23d7248f",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1pic10-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1pic10-back.webp",
+      "width": 400,
+      "height": 395,
+      "version": "15821bbfd262",
+      "source": "resources/scans/base_game/ships/uss_bozeman_back.png",
+      "source_sha256": "55a23878bf365047e3a52b1d3a28bd585be8d2f86d4267b8c6397c285f22da31",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1pic14": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1pic14.webp",
+      "width": 313,
+      "height": 400,
+      "version": "4b2ecae10e32",
+      "source": "resources/scans/base_game/ships/type_7_shuttlecraft_front.png",
+      "source_sha256": "264e117042a8bec523053ac2093e8bb3c8db0755de9f317d1a7db1b4403d7f42",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1pic14-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1pic14-back.webp",
+      "width": 307,
+      "height": 400,
+      "version": "d3fe43ec524d",
+      "source": "resources/scans/base_game/ships/type_7_shuttlecraft_back.png",
+      "source_sha256": "026e03a778320059f9c8996af975d54821bbb958403a90dfd1094f6551a52156",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sel02": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sel02.webp",
+      "width": 398,
+      "height": 400,
+      "version": "59768abf7538",
+      "source": "resources/scans/base_game/ships/irw_goraxus_front.png",
+      "source_sha256": "f960481da1a24fb4be1dc1f50767a76fdb361c22779a1a1ff06b8a435d2ececa",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sel02-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sel02-back.webp",
+      "width": 400,
+      "height": 392,
+      "version": "bbd26cc7d305",
+      "source": "resources/scans/base_game/ships/irw_goraxus_back.png",
+      "source_sha256": "4dd942e0a2373aec9ffd26d0adb7e3d6f05e450d510943da4b4c2ed3154f62d6",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sel03": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sel03.webp",
+      "width": 400,
+      "height": 398,
+      "version": "a723666f935e",
+      "source": "resources/scans/base_game/ships/irw_valdore_front.png",
+      "source_sha256": "02e79317779f69d416fd51989386680313a949a51a12c728b0628813d966abe1",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sel03-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sel03-back.webp",
+      "width": 400,
+      "height": 395,
+      "version": "b574d2ec9fdf",
+      "source": "resources/scans/base_game/ships/irw_valdore_back.png",
+      "source_sha256": "28500f2b5f1dc5f1468c528e9d647dde9891bbf567d6b7ccf45b18179111f152",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sel07": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sel07.webp",
+      "width": 327,
+      "height": 400,
+      "version": "a7145b21249a",
+      "source": "resources/scans/base_game/ships/scimitar_front.png",
+      "source_sha256": "5049d738831b758db97d3c3006f3e7f5f99e11bf8731d19f9fad85f99f937a7c",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sel07-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sel07-back.webp",
+      "width": 330,
+      "height": 400,
+      "version": "f9af3aa949ad",
+      "source": "resources/scans/base_game/ships/scimitar_back.png",
+      "source_sha256": "54b3832959fbb8ef20bbf69e19d1723adf8140366441d4abb0e8c030b2cad2a5",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sel17": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sel17.webp",
+      "width": 396,
+      "height": 400,
+      "version": "c096b260f2a4",
+      "source": "resources/scans/base_game/ships/irw_khazara_front.png",
+      "source_sha256": "29d16b1f964ff36af65879213b55d8174bf7d075b0ba3a4346d647864daebb79",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sel17-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sel17-back.webp",
+      "width": 400,
+      "height": 394,
+      "version": "7abb69fad933",
+      "source": "resources/scans/base_game/ships/irw_khazara_back.png",
+      "source_sha256": "f395af48c559bdd1b01e415ac916adb131ef4db24b72c5d346fad830b6697e1b",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sel23": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sel23.webp",
+      "width": 400,
+      "height": 399,
+      "version": "9b1815d515f8",
+      "source": "resources/scans/base_game/ships/irw_terix_front.png",
+      "source_sha256": "5a77893f631336237470cf5ec4a8d713e7621319b5a6e2b6cf48cf5b3ef6abe8",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sel23-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sel23-back.webp",
+      "width": 400,
+      "height": 392,
+      "version": "87dc64fafb52",
+      "source": "resources/scans/base_game/ships/irw_terix_back.png",
+      "source_sha256": "b5b3b3d3a1eeaa8442faf58a17066961f4bc4a3147ac3ba6a3884f9f5d200966",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi01": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi01.webp",
+      "width": 400,
+      "height": 395,
+      "version": "1b8565bcb44d",
+      "source": "resources/scans/base_game/ships/bird_of_prey_front.png",
+      "source_sha256": "fc91475b981f458bda5116e7c0f6284fdf2b6259b05aae4e38d62a33b91ad957",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi01-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi01-back.webp",
+      "width": 400,
+      "height": 400,
+      "version": "a9a664310a77",
+      "source": "resources/scans/base_game/ships/bird_of_prey_back.png",
+      "source_sha256": "e5cee14bf4387624c5265ede912404c4ddf4881e9d1c4f902cfcb4a91cca1128",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi02": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi02.webp",
+      "width": 316,
+      "height": 400,
+      "version": "0c7aaa178b42",
+      "source": "resources/scans/base_game/ships/borg_probe_front.png",
+      "source_sha256": "7989d95e9086b8a97fbc602f3fa6c95cecbb574378f8ed53711cffd2fe5ac7d5",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi02-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi02-back.webp",
+      "width": 322,
+      "height": 400,
+      "version": "923c2c10185e",
+      "source": "resources/scans/base_game/ships/borg_probe_back.png",
+      "source_sha256": "0cbd0f885126eac245feef5ed2d48a4a67add42e1b3d6aeb18325498895febd4",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi03": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi03.webp",
+      "width": 319,
+      "height": 400,
+      "version": "73e17c1e2f51",
+      "source": "resources/scans/base_game/ships/dkyr_cruiser_front.png",
+      "source_sha256": "1862cc21bd192709a2a62fcd9f5c1870d653c58dad217fd96b2ebff439b39a90",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi03-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi03-back.webp",
+      "width": 319,
+      "height": 400,
+      "version": "9ed7721f1b17",
+      "source": "resources/scans/base_game/ships/dkyr_cruiser_back.png",
+      "source_sha256": "4ee8455bf348ef6daebcbbd99ec67a356626745df35a969cf82966bf620f7c6d",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi04": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi04.webp",
+      "width": 323,
+      "height": 400,
+      "version": "ced4d2594aaf",
+      "source": "resources/scans/base_game/ships/holographic_drone_ship_front.png",
+      "source_sha256": "76bd1bfb84a0f8bcfc7e2f47557cb9b02191be2d21d8835602ac4cc57a33e083",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi04-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi04-back.webp",
+      "width": 327,
+      "height": 400,
+      "version": "16b042ea7da8",
+      "source": "resources/scans/base_game/ships/holographic_drone_ship_back.png",
+      "source_sha256": "9e0c5f29b33751012c42ae4c125289f00d60f8bf6aad21fa30cd3b45ea138926",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi05": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi05.webp",
+      "width": 398,
+      "height": 400,
+      "version": "f6a798f665e1",
+      "source": "resources/scans/base_game/ships/ktinga_battlecruiser_front.png",
+      "source_sha256": "be8a7db251399d3f93cf087de232ea5d6f97c25ce9a378fa3fb9640f7b6873f2",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi05-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi05-back.webp",
+      "width": 400,
+      "height": 399,
+      "version": "e7b769a1cd90",
+      "source": "resources/scans/base_game/ships/ktinga_battlecruiser_back.png",
+      "source_sha256": "2bf1583a8d622ce0622ff10261f979d3ae9c086003bcfb1bb6751d3c1e3286d8",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi06": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi06.webp",
+      "width": 275,
+      "height": 400,
+      "version": "a9e3224ad327",
+      "source": "resources/scans/base_game/ships/kazon_raider_front.png",
+      "source_sha256": "a15c7570b83d01a52786760760a6501a6c91a16647efc7ab4b9033778a244c1c",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi06-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi06-back.webp",
+      "width": 277,
+      "height": 400,
+      "version": "3b8868601289",
+      "source": "resources/scans/base_game/ships/kazon_raider_back.png",
+      "source_sha256": "5a4f748717883cbc068738e0d7af62060214ebc4a038e593275e3dcfefb61947",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi07": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi07.webp",
+      "width": 283,
+      "height": 400,
+      "version": "e5bee5126370",
+      "source": "resources/scans/base_game/ships/pakled_freighter_front.png",
+      "source_sha256": "bf8a9a0c8b242931d4054193788db7ea248e2904abdccbea6705f302e246d724",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi07-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi07-back.webp",
+      "width": 281,
+      "height": 400,
+      "version": "5b81ea5f329c",
+      "source": "resources/scans/base_game/ships/pakled_freighter_back.png",
+      "source_sha256": "86e13b2eff4143eb10ab92c6949c5fb0ddea96cce27b6a6b6cd2e4d4f082f0ad",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi08": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi08.webp",
+      "width": 329,
+      "height": 400,
+      "version": "08f1c9c4bd8b",
+      "source": "resources/scans/base_game/ships/sona_battlecruiser_front.png",
+      "source_sha256": "f1ffc34b1b07e44d094a0ab4d0a0b6e87fd8ec2b8180a44723044aebf2d5a27b",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi08-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi08-back.webp",
+      "width": 335,
+      "height": 400,
+      "version": "dfe376cb9363",
+      "source": "resources/scans/base_game/ships/sona_battlecruiser_back.png",
+      "source_sha256": "62f8e9fb2b509929d31171a130d0f12ff8f1c903907a4fbb2a4630654104881b",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi09": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi09.webp",
+      "width": 317,
+      "height": 400,
+      "version": "417804fcbd2b",
+      "source": "resources/scans/base_game/ships/uss_enterprise_c_front.png",
+      "source_sha256": "ca146e7c6f229725b41bbf7d221184580aee4e06ebaad6647d0f17d47fa1a36e",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi09-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi09-back.webp",
+      "width": 316,
+      "height": 400,
+      "version": "db5e293d6c7d",
+      "source": "resources/scans/base_game/ships/uss_enterprise_c_back.png",
+      "source_sha256": "12fc936d2eeb81465afab20b85f1aa89291a12c3d8c6d438509467d9ff85e6e0",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi10": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi10.webp",
+      "width": 328,
+      "height": 400,
+      "version": "43ff09cc09b5",
+      "source": "resources/scans/base_game/ships/uss_pasteur_front.png",
+      "source_sha256": "f96793d7d2a4bdb3e9215de842159e37505db5c0529f57ce8bd1992d550a2251",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi10-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi10-back.webp",
+      "width": 332,
+      "height": 400,
+      "version": "1dc172db2dee",
+      "source": "resources/scans/base_game/ships/uss_pasteur_back.png",
+      "source_sha256": "f6170e61383ea23aeabb07f691c59cd79e16013298c7640208dc972a9842f306",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi11": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi11.webp",
+      "width": 275,
+      "height": 400,
+      "version": "6e4953a3841b",
+      "source": "resources/scans/base_game/ships/uss_reliant_front.png",
+      "source_sha256": "4aa5b88dbb886a622b328f8dfeba2e100c0609068fe9b4dacec27ee888631823",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi11-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi11-back.webp",
+      "width": 273,
+      "height": 400,
+      "version": "5d3857c37ac2",
+      "source": "resources/scans/base_game/ships/uss_reliant_back.png",
+      "source_sha256": "f45783d51c289499523aeff640df0595e01e58d5c6b0a020e7ee28ad7e9cc54e",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi12": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi12.webp",
+      "width": 285,
+      "height": 400,
+      "version": "edf8d0586ead",
+      "source": "resources/scans/base_game/ships/voth_research_vessel_front.png",
+      "source_sha256": "ad1f721ebf673da187f78267da9512e8d475d704d815abd8b3f356b50d2a1ae0",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi12-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi12-back.webp",
+      "width": 287,
+      "height": 400,
+      "version": "74a7a324c9f9",
+      "source": "resources/scans/base_game/ships/voth_research_vessel_back.png",
+      "source_sha256": "6c10b208786fd86d39f006c46bd493bc11916eb48d99532efb4b812f8f0ebb00",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi13": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi13.webp",
+      "width": 315,
+      "height": 400,
+      "version": "2f91daa1cbaf",
+      "source": "resources/scans/base_game/ships/xindi_reptilian_battleship_front.png",
+      "source_sha256": "6671eceda899bd9d71cbdb12d85dde6b622a0164053b808420f7f69b46260fe3",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shi13-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shi13-back.webp",
+      "width": 319,
+      "height": 400,
+      "version": "8a7339cbdbd2",
+      "source": "resources/scans/base_game/ships/xindi_reptilian_battleship_back.png",
+      "source_sha256": "f65f2be8921376691b13172bf1f003962055dbb6c45645625a24ed2d2b429b3d",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shr02": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shr02.webp",
+      "width": 314,
+      "height": 400,
+      "version": "ac1203b135ae",
+      "source": "resources/scans/base_game/ships/kumari_front.png",
+      "source_sha256": "96a91f550a129447ce553b5dc1b2d3bc6ed04be60c5e87edacafea99f861482b",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shr02-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shr02-back.webp",
+      "width": 318,
+      "height": 400,
+      "version": "3120c446f6fd",
+      "source": "resources/scans/base_game/ships/kumari_back.png",
+      "source_sha256": "9ab8587724ac0ecec39c792122a80913c72122cd0640fd171b3a0e5e34734996",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shr07": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shr07.webp",
+      "width": 400,
+      "height": 398,
+      "version": "6c748054dfd6",
+      "source": "resources/scans/base_game/ships/andorian_cruiser_front.png",
+      "source_sha256": "c611a4f5837339f6fdbd12baa61784973eea0f5c8b7d7572c279c5f446c01522",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1shr07-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1shr07-back.webp",
+      "width": 400,
+      "height": 396,
+      "version": "2e8d154181f0",
+      "source": "resources/scans/base_game/ships/andorian_cruiser_back.png",
+      "source_sha256": "f52b014b2b2d0ff468f2cc3a144ba9a8e9bba532c99b49feb5668e9d308c4b7f",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sis03": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sis03.webp",
+      "width": 400,
+      "height": 325,
+      "version": "9b82724456ef",
+      "source": "resources/scans/base_game/ships/deep_space_9_front.png",
+      "source_sha256": "4944b66ca9fdebbde46f6b2451ee6d85c0c90ca0b52fa1981bea094a8d5f3f1a",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sis03-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sis03-back.webp",
+      "width": 400,
+      "height": 326,
+      "version": "30d821844656",
+      "source": "resources/scans/base_game/ships/deep_space_9_back.png",
+      "source_sha256": "6bdb1289cc3f2bac332bdebf64cddbcf98db6a53ab3b7eb5b6028acd64384401",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sis15": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sis15.webp",
+      "width": 315,
+      "height": 400,
+      "version": "0d5245dd2669",
+      "source": "resources/scans/base_game/ships/uss_defiant_front.png",
+      "source_sha256": "db0b756beb0f44c2aff0159412e3966940bc015bfad29b24a1aef2283c67d6b1",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sis15-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sis15-back.webp",
+      "width": 323,
+      "height": 400,
+      "version": "aa84d3b2431e",
+      "source": "resources/scans/base_game/ships/uss_defiant_back.png",
+      "source_sha256": "685c32c45e8e8ecc86bea66a2a8cf3b8947fda7497cb7f27578d47bb75a6159e",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sis25": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sis25.webp",
+      "width": 276,
+      "height": 400,
+      "version": "47d1ea11fe88",
+      "source": "resources/scans/base_game/ships/uss_rio_grande_front.png",
+      "source_sha256": "67a42ec03e06579378bc889f1d8e846fd3ae2102da5fd908ded6cd1f72ce859b",
+      "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "ship-1sis25-back": {
+      "kind": "ships",
+      "file": "base_game/ships/ship-1sis25-back.webp",
+      "width": 282,
+      "height": 400,
+      "version": "9545e8b72e1b",
+      "source": "resources/scans/base_game/ships/uss_rio_grande_back.png",
+      "source_sha256": "a3d2248470a9ddf454d3a34387a9a3eeeb584dbbef2fb9cde6829e28bd60cfd6",
       "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
     },
     "ship-2arc03": {
@@ -5439,6 +8929,86 @@
       "source": "resources/scans/second_contact/ships/ris_talvajh_back.png",
       "source_sha256": "ca69668ea9291e3a90f54d3eb73de12cdfa7d21aefba5dd89b91544c2d21c28f",
       "settings": "v2:Profile(long_side=400, card_shape=False):0:False:None:alpha"
+    },
+    "shran-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "base_game/command/shran-five-year-mission-upgrades.webp",
+      "width": 833,
+      "height": 1400,
+      "version": "e7052feb5728",
+      "source": "resources/scans/base_game/command/shran-five-year-mission-upgrades.jpg",
+      "source_sha256": "b08a669314394d60bb35773d2376e4d6ffd6159484f7367dcecc7adde54a352c",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "shran-no-duty-officer": {
+      "kind": "command",
+      "file": "base_game/command/shran-no-duty-officer.webp",
+      "width": 843,
+      "height": 1400,
+      "version": "3de068afdd43",
+      "source": "resources/scans/base_game/command/shran-no-duty-officer.jpg",
+      "source_sha256": "321b9877694ab35e654f916ec2cf1f605c55d182f7a5223d201e2ea73c79412f",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "shran-traits": {
+      "kind": "command",
+      "file": "base_game/command/shran-traits.webp",
+      "width": 833,
+      "height": 1400,
+      "version": "84b240b8b6c6",
+      "source": "resources/scans/base_game/command/shran-traits.jpg",
+      "source_sha256": "baeae5402a71241cd679ca2e61047677109801bde11d6b26c7cc7bdae6c3de15",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "shran-with-duty-officer": {
+      "kind": "command",
+      "file": "base_game/command/shran-with-duty-officer.webp",
+      "width": 824,
+      "height": 1400,
+      "version": "a1598c20cf56",
+      "source": "resources/scans/base_game/command/shran-with-duty-officer.jpg",
+      "source_sha256": "6406a0ba7dd01f2027c2df4231f39bdf9452eb150d1644caae92e04348aec75f",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "sisko-five-year-mission-upgrades": {
+      "kind": "command",
+      "file": "base_game/command/sisko-five-year-mission-upgrades.webp",
+      "width": 822,
+      "height": 1400,
+      "version": "c8abd8c6a83e",
+      "source": "resources/scans/base_game/command/sisko-five-year-mission-upgrades.jpg",
+      "source_sha256": "002967dd872cf759d332a94455370b3c83df756e7debfce76c314172caad2541",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "sisko-no-duty-officer": {
+      "kind": "command",
+      "file": "base_game/command/sisko-no-duty-officer.webp",
+      "width": 829,
+      "height": 1400,
+      "version": "d9180e2ef0a5",
+      "source": "resources/scans/base_game/command/sisko-no-duty-officer.jpg",
+      "source_sha256": "1576212be53df943af9279f4c0780d6024a74d64435f0713effa93520ea6c1e4",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "sisko-traits": {
+      "kind": "command",
+      "file": "base_game/command/sisko-traits.webp",
+      "width": 823,
+      "height": 1400,
+      "version": "33f281b8e3f5",
+      "source": "resources/scans/base_game/command/sisko-traits.jpg",
+      "source_sha256": "10bb2c320c7e136b41fb3371078ac21c7f5e882449e51626a51dfd8972320724",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
+    },
+    "sisko-with-duty-officer": {
+      "kind": "command",
+      "file": "base_game/command/sisko-with-duty-officer.webp",
+      "width": 823,
+      "height": 1400,
+      "version": "7cf78e631d6b",
+      "source": "resources/scans/base_game/command/sisko-with-duty-officer.jpg",
+      "source_sha256": "c7595e5cb83a8d12f661f8fd36ee6070bca72c825b8befdac3f35dfdff291fea",
+      "settings": "v2:Profile(long_side=1400, card_shape=False):0:False:None"
     },
     "soval-five-year-mission-upgrades": {
       "kind": "command",

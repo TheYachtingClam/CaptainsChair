@@ -8,9 +8,8 @@ None open.
 
 ## Deferred until the Core Box is scanned
 
-Not open for now. Leave these as they are and don't raise them again until the Core Box content is in `resources/scans/`.
+Not open for now. Leave this as it is and don't raise it again until the Core Box content is in `resources/scans/`.
 
-- **Cmdr. Burnham in Cadet Training** ([to_boldly_go/cards/captains/georgiou/2GEO13.md](to_boldly_go/cards/captains/georgiou/2GEO13.md)): Her attack forces the opponent to log a Duty Officer, or dismiss one so you gain 3 Glory. The virtual opponent has one Duty Officer (REQ-CTM-12) but the rules don't say which option it picks. Implemented as: it logs, so you gain nothing. Confirm.
 - **Core Box Burnham variant** (REQ-CTM-21): The rule refers to a Burnham Status card, but no Crew deck with that card is in the content yet. Not implemented.
 
 ## Rulings made while implementing the Crew decks
