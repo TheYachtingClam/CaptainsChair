@@ -47,6 +47,8 @@ class Card(BaseModel):
     deck: str  # Crew deck id, or "common"
     set_code: str
     box_marker: Literal["duplicate", "replacement"] | None = None
+    same_as: str | None = None  # an identical card in another set or deck; they share one card module
+    replaced_by: str | None = None  # the newer version of this card in another box (REQ-CS-31)
     position: str | None = None
     traits: tuple[str, ...] = ()
     skills: tuple[str, ...] = ()

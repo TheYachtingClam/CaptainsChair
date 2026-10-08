@@ -18,7 +18,7 @@ def data():
 
 def test_card_counts(data):
     by_set = Counter(c.set for c in data.cards.values())
-    assert by_set == {"to_boldly_go": 282, "second_contact": 99, "promo2": 6}
+    assert by_set == {"to_boldly_go": 282, "second_contact": 99, "promo2": 6, "base_game": 250, "promo1": 5}
 
 
 def test_crew_deck_sizes_match_rulebook(data):
@@ -50,6 +50,8 @@ def test_common_counts_in_to_boldly_go(data):
 
 def test_box_markers_match_set_codes(data):
     for card in data.cards.values():
+        if card.set == "base_game":
+            continue  # the marks are on the To Boldly Go cards; Mirok's printed dagger (1PER15) replaces nothing here
         marker = {"•": "duplicate", "†": "replacement"}.get(card.set_code[-1])
         assert card.box_marker == marker, card.id
     assert Counter(c.box_marker for c in data.cards.values())["replacement"] == 9
@@ -91,7 +93,7 @@ def test_every_card_has_an_image(data):
 
 
 def test_boards(data):
-    assert len(data.boards) == 17
+    assert len(data.boards) == 29  # 17, and two sides for each of the six Core Box Crews
     assert data.board("khan", "advanced").trait_slots == 12
     assert data.board("khan", "advanced").tracks == {}
     basic = data.board("georgiou", "basic")
@@ -120,3 +122,36 @@ def test_rebner_has_no_research_or_influence_multipliers(data):
 
 def test_market_suits_known(data):
     assert set(MARKET_SUITS) <= {c.suit for c in data.cards.values()} | {"Ally"}
+
+
+def test_core_box_reprints_and_old_versions_point_at_their_to_boldly_go_cards(data):
+    """REQ-CS-31: To Boldly Go reprints 45 Core Box cards and replaces 9."""
+    core = [c for c in data.cards.values() if c.set == "base_game" and c.is_common]
+    reprints = {c.same_as for c in core if c.same_as and data.cards[c.same_as].box_marker == "duplicate"}
+    replaced = {c.replaced_by for c in core if c.replaced_by}
+    assert reprints == {c.id for c in data.cards.values() if c.box_marker == "duplicate"} and len(reprints) == 45
+    assert replaced == {c.id for c in data.cards.values() if c.box_marker == "replacement"} and len(replaced) == 9
+    assert Counter(c.suit for c in core) == {"Ally": 13, "Cargo": 16, "Person": 25, "Ship": 13, "Location": 20,
+                                             "Encounter": 8, "Incident": 6, "Directive": 2}
+
+
+def test_core_box_crew_deck_sizes(data):
+    sizes = {"burnham": 26, "sisko": 25, "picard": 24, "shran": 24, "koloth": 24, "sela": 24}
+    for deck, size in sizes.items():
+        cards = data.crew_deck(deck)
+        assert len(cards) == size, deck
+        assert [c.suit for c in cards].count("Captain") == 1, deck
+        assert sorted(int(c.id[-2:]) for c in cards) == list(range(1, size + 1)), deck
+
+
+def test_core_box_boards_and_command_cards(data):
+    for crew in ("burnham", "koloth", "picard", "sela", "shran", "sisko"):
+        basic, advanced = data.board(crew, "basic"), data.board(crew, "advanced")
+        assert len(basic.missions) == 1 and len(advanced.missions) == 3, crew
+        assert advanced.missions[0].id == basic.missions[0].id and advanced.missions[0].reward == basic.missions[0].reward, crew
+        for track in ("research", "influence", "military"):  # the Advanced side is one multiplier lower, from its first step
+            assert {k: v + 1 for k, v in advanced.tracks[track].items()} == {k: v for k, v in basic.tracks[track].items() if k}, (crew, track)
+        command = data.command[crew]
+        assert [len(command.side(s).rows) for s in ("no_duty_officer", "with_duty_officer")] == [8, 8], crew
+        assert len(command.upgrades.win.bonuses) == 2 and len(command.upgrades.loss.bonuses) == 2, crew
+    assert [m.vp for m in data.board("burnham", "advanced").missions] == [4, 3, 6]

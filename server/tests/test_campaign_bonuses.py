@@ -9,7 +9,7 @@ from engine import upgrades
 from engine.content import content
 from engine.game import advance, choose, dismiss
 from engine.ops import A, Actions, Ctx, OpRef, _state_checks
-from engine.setup import BotSetup, CampaignSetup, SeatSetup, new_game
+from engine.setup import BOT_UNAVAILABLE, BotSetup, CampaignSetup, SeatSetup, new_game
 
 upgrades.load()
 CARDS = content().cards
@@ -39,6 +39,8 @@ def test_every_bonus_has_code():
         for side, section in (("win", data.upgrades.win), ("loss", data.upgrades.loss)):
             for i, printed in enumerate(section.bonuses):
                 key = upgrades.key(crew, side, i)
+                if crew in BOT_UNAVAILABLE:
+                    continue  # the Core Box Bots' bonuses come in plans/base-game.md Step 14
                 if printed.startswith("REINFORCE"):
                     assert key in upgrades.REINFORCES, key
                 else:

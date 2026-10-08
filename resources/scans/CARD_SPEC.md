@@ -11,7 +11,7 @@ A card spec holds everything needed to use the card in the game and to write its
 id: 2SOV01                  # printed card id, without the "/24" count
 name: Soval
 suit: Captain               # Person, Cargo, Ship, Ally, Encounter, Incident, Location, Directive, Captain, Status, Stardate
-set: to_boldly_go           # to_boldly_go, second_contact, promo2
+set: to_boldly_go           # base_game (the Core Box), to_boldly_go, second_contact, promo1, promo2
 deck: soval                 # Crew deck id, or common
 set_code: 2SOV01/24         # exactly as printed at the bottom
 position: null              # position indicator as printed: Available, Reserve, Development, Deployed,
@@ -26,6 +26,10 @@ development_cost: null      # Development cards only, as printed
 ship_token: false           # true when the card has a Ship token
 box_marker: null            # "duplicate" (• after the set code), "replacement" (†), or null.
                             # Used when combining boxes (REQ-CS-31)
+same_as: null               # optional: the id of an identical card in another set or deck, e.g. the To Boldly
+                            # Go reprint of a Core Box card. The two share one card module, and
+                            # scripts/build_content.py checks that their printed data match
+replaced_by: null           # optional: on an old Core Box version, the id of the To Boldly Go card that replaces it
 scan: 2SOV01.jpg
 ---
 

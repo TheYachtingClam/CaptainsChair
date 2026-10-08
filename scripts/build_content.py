@@ -123,10 +123,26 @@ def build_cards() -> dict[str, list[dict]]:
             "text": printed_lines(body),
             "operations": operations(body),
         }
-        for extra in ("mode", "sequence", "starting_glory", "bot_actions"):
+        for extra in ("mode", "sequence", "starting_glory", "bot_actions", "same_as", "replaced_by"):
             if extra in fm:
                 card[extra] = fm[extra]
         by_set.setdefault(fm["set"], []).append(card)
+    # `same_as` names an identical card in another set or deck (a Core Box card reprinted in To Boldly Go): the two
+    # must print the same data, because they share one card module. `replaced_by` names the newer version of a card.
+    cards = {c["id"]: c for group in by_set.values() for c in group}
+    for card in cards.values():
+        for field in ("same_as", "replaced_by"):
+            if field in card and card[field] not in cards:
+                errors.append(f"{card['id']}: {field} names {card[field]}, which has no spec")
+        twin = cards.get(card.get("same_as"))
+        if twin is not None:
+            for key in ("name", "suit", "traits", "skills", "focus", "vp", "position", "ship_token"):
+                if key == "position" and "common" not in (card["deck"], twin["deck"]) or key == "position" and card["deck"] != twin["deck"]:
+                    continue  # a copy in a Crew deck has its own position indicator
+                if card[key] != twin[key]:
+                    errors.append(f"{card['id']}: {key} {card[key]!r} differs from {twin['id']} ({twin[key]!r}), but same_as says they are the same card")
+            if [(o["kind"], o.get("uses")) for o in card["operations"]] != [(o["kind"], o.get("uses")) for o in twin["operations"]]:
+                errors.append(f"{card['id']}: operations differ from {twin['id']}, but same_as says they are the same card")
     if errors:
         raise SystemExit("Spec errors:\n" + "\n".join(f"  {e}" for e in errors))
     return by_set

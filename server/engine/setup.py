@@ -10,7 +10,8 @@ from engine.state import GameState, Inst, Player
 BASE_SET = "to_boldly_go"
 STARDATE_MODE = {"two_player": "2-Player", "cadet": "Solo Cadet Practice", "solo": "Solo vs {difficulty} Bot"}
 DIFFICULTIES = ("ensign", "lieutenant", "commander", "captain", "admiral")  # REQ-SOLO-10, easiest first
-BOT_UNAVAILABLE: set[str] = set()  # Crews whose Bot is not written yet; none at the moment
+# Crews whose Bot is not written yet: the Core Box Crews, until plans/base-game.md Step 13.
+BOT_UNAVAILABLE: set[str] = {"burnham", "koloth", "picard", "sela", "shran", "sisko"}
 TIME_IS_RUNNING_OUT = "2DIR01"
 REINFORCE = "2DIR02"
 SOLO_ONLY = {"Solo Challenge", "Solo Campaign"}  # Reinforce, Time Is Running Out

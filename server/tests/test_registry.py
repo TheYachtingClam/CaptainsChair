@@ -4,7 +4,8 @@ mission has code, except what waits on purpose.
 Waiting on purpose:
 - solo-only cards and SURPRISE operations, which need the Bot (requirements/22-solo-mode.md) and are covered by the
   Bot tests;
-- Stardate WHEN EMPTIED and STARDATE RESOLUTION, which the engine runs itself."""
+- Stardate WHEN EMPTIED and STARDATE RESOLUTION, which the engine runs itself;
+- the Core Box and promo set 1 (`WAITING_SETS`), until plans/base-game.md writes their code."""
 
 from engine import cards as registry
 from engine.content import content
@@ -12,8 +13,12 @@ from engine.content import content
 ENGINE_KINDS = {"WHEN EMPTIED", "STARDATE RESOLUTION"}
 
 
+WAITING_SETS = {"base_game", "promo1"}  # the Core Box: specs are written, code comes in plans/base-game.md Steps 5 to 13
+WAITING_CREWS = {"burnham", "koloth", "picard", "sela", "shran", "sisko"}  # their missions, Bot rows and bonuses too
+
+
 def _waits(card) -> bool:
-    return (card.position or "").startswith("Solo")
+    return (card.position or "").startswith("Solo") or card.set in WAITING_SETS
 
 
 def test_every_printed_operation_has_code():
@@ -32,6 +37,8 @@ def test_every_printed_operation_has_code():
 def test_every_mission_has_a_goal_and_a_reward():
     missing = []
     for board in content().boards.values():
+        if board.captain in WAITING_CREWS:
+            continue
         for mission in board.missions:
             impl = registry.MISSIONS.get(mission.id)
             if impl is None or impl.goal is None or impl.reward is None:
@@ -63,6 +70,8 @@ def test_every_bot_row_has_code():
 
     missing = []
     for crew, data in content().command.items():
+        if crew in WAITING_CREWS:
+            continue
         for side in data.sides:
             for r in side.rows:
                 if "Surprise" not in r.matches and (crew, side.side, r.number) not in bot_rules.ROWS:

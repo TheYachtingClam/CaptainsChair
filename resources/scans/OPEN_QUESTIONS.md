@@ -69,6 +69,55 @@ Made while writing the code. Each is implemented as described. Confirm, or say w
 - **Two Weeks to the Closest Outpost, They Will Arrive on Tuesday:** "after a success" means the previous assignment was a success. After a failure, Tuesday sets one Away Team aside again.
 - **Only Ship in the Quadrant:** the assignment fails only when the starting Ship is dismissed or recalled, as printed; logging or destroying it does not.
 
+## Core Box and promo set 1
+
+From writing the specs (plans/base-game.md Step 2). None of these cards has code yet. Each has a default, which is what the spec says; confirm or change before the step that writes the card.
+
+Questions about a card:
+
+- **Sakonna** (1PER21): her second PLAY needs "a Ship at the Badlands". No Location named Badlands is in any scanned set. Default: the PLAY can never be used. Is a card missing from the scans?
+- **Mirok** (1PER15): the set code is printed with a dagger (†) and a 2025 copyright, unlike every other Core Box card, and no *To Boldly Go* card replaces him. Default: the mark has no effect.
+- **Xindi-Reptilian Battleship** (1SHI13, 2SHI13): the Core Box card spells it "Reptilian"; the *To Boldly Go* spec says "Reptillian". Default: keep the *To Boldly Go* spelling on both until you check the card.
+- **Sha Ka Ree** (1ENC07): "considered a Location for all purposes" and "deploying it counts as taking control". Default: Ships can warp to it and Away Teams can be sent to it, as to a controlled Location; it stays in the Fleet Area.
+- **Conspiracy** (1DIR01): it cannot be discarded, so it stays in a human's hand at Clean-up. Default: it counts as a card in hand for the refill.
+- **Inert Dilithium** (1BUR02):
+  - Default: the 1 Dilithium at setup starts in Burnham's supply, not on the card.
+  - Default: Dilithium on the card does not count for "for every N Dilithium you have" (Theta Zeta, Coridan) and cannot be stolen.
+- **Weytahn** (1SHR12): "If there are no Away Team here, dismiss this card." Default: only the owner's Away Teams count.
+- **Orb of Prophecy and Change** (1SIS04): "Refresh a Bajoran to draw a card." Default: offered only when an exhausted Bajoran is in play.
+- **Halkan Council** (1ALL07): its CLEAN-UP logs it "if you have an Attack in play". Default: mandatory, checked while the card is still in the Staging Area.
+- **Wesley Crusher** (0ENC01): the two Skill icons are read as [Any Skill]; they are small in the scan. Check the card.
+- **Quark** (1SIS24): "after resolving an operation with a [Latinum] cost". Default: only Latinum paid as a cost counts, not Latinum spent by a "you may spend" effect.
+- **"Discovery"** on the Picard and Burnham boards. Default: it means Encounter.
+- **Founding the Federation** (Shran's mission): Default: the Human and the three other traits come from four different cards.
+
+Questions about a Bot row:
+
+- **Picard, Klingon row:** "If able, you remove an Away Team." Default: from the Location the Bot just sent to; if you have none there, from a Location of your choice.
+- **Sela, Shady row:** "take control of the neutral Location with most Bot tokens (minimum 1)". Default: the Bot takes it without having secured it, and your tokens there earn you Glory as usual.
+- **Sela, Klingon row:** "either you dismiss a Ship OR resolve the top card of the Bot deck". Default: your choice; with no Ship to dismiss, the Bot resolves the top card.
+
+Reprints: the 45 Core Box cards that *To Boldly Go* reprints were matched by name, and their specs are copies of the *To Boldly Go* specs. I compared the text of each pair on screen but not word for word, so small wording differences on the older printing may be unrecorded. The reprint shares the newer card's code either way.
+
 ## Gaps in the CLAUDE.md action list
 
-None. Every action named in the specs is in the CLAUDE.md action list.
+The Core Box needs these additions. Each is a general option on an existing action or a new registry, not a new action, except where noted. They are written in the step that first needs them.
+
+| Need | Cards | Proposed |
+|---|---|---|
+| Recrystallize: move Dilithium from Inert Dilithium to the supply | Jett Reno, Sylvia Tilly, Paul Stamets, Theta Zeta, Burnham's mission | `MOVE_RESOURCES` with the card as source (`recrystallize(n)`), and a registry that redirects the owner's Dilithium gains onto a Status card |
+| Draw the bottom card of your deck | Boreth | `draw(bottom=True)` |
+| Discard the top card of the opponent's Draw deck | Tarah, Korax, Shran Bot | `discard_from_deck(player=opponent)`, an attack part |
+| Resolve the top card of the Bot deck from a SURPRISE | Flight Training Accident | `RESOLVE_CARD` available to SURPRISE operations, as `CONTINUE_RESOLUTION` now is |
+| Log a Status card | Theta Zeta | `LOG` reaches Status cards |
+| "Considered a Location" | Sha Ka Ree | an `ALSO_SUIT`-style entry, and a `take_control` event on deploy |
+| Enlist with a discount of several resources | Orb of Prophecy and Change, Sisko's mission | `enlist_development(discount=n)` or a per-resource discount |
+| An attack that dismisses a Duty Officer can be ignored by a specific Reaction | Book's Ship | `attack(dismisses_duty_officer=True)`, as `removes_away_teams` |
+| Use another card's Activations and Reactions | Wesley Crusher | a registry like `@granted_play` for ACTIVATION and REACTION |
+| Ignore opponent Ships for every Away Team sent | Phasing Cloak | a registry read by `away_targets` |
+| "You cannot send Away Teams here" | Theta Zeta | a registry read by `away_targets` |
+| Which RESUPPLY operations resolved this turn | Laris | engine bookkeeping; `DUPLICATE` with `kind="RESUPPLY"` already exists |
+| "After resolving an operation with a Latinum cost" | Quark | a new event, `operation_resolved`, carrying what the cost paid |
+| "After attacking your opponent" | Sela | the existing `attacked` event, seen from the attacker's side |
+| The weekday | U.S.S. Enterprise-B | the server stores the weekday with each command; `ctx.weekday()` reads it |
+| The Bot gains "the Market card with the most Dilithium, then most Glory" | Burnham Bot | `gain_most(resource)` generalising `gain_most_glory` |

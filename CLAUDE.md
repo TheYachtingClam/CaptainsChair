@@ -6,7 +6,7 @@ Guidance for Claude Code when working in this repository.
 
 An online version of the board game *Star Trek: Captain's Chair*.
 
-- The Core Box is being added step by step: see `plans/base-game.md`. Its scans and images are in place; its cards have no specs or code yet.
+- The Core Box is being added step by step: see `plans/base-game.md`. Its scans, images and specs are in place (sets `base_game` and `promo1`); its cards, missions, Bot rows and bonuses have no code yet, and nothing offers them in a game (`setup.BOT_UNAVAILABLE`, and `WAITING_SETS` and `WAITING_CREWS` in `tests/test_registry.py`). A spec's `same_as` names an identical card whose code it shares.
 - `requirements/` holds the requirements. Start at `requirements/00-README.md`. They are the source of truth. If code and requirements disagree, stop and flag it rather than guessing.
 - `resources/` holds source material that is **never** copied into the Docker image:
   - `resources/scans/<set>/`: everything for one product (`base_game` is the Core Box, `to_boldly_go`, `second_contact`, `promo1`, `promo2`), by kind: `cards/`, `boards/`, `command/`, and the rulebook scans in `manual/` and `solo/`. See `resources/scans/README.md`.

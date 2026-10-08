@@ -32,9 +32,9 @@ Not scanned, and how the plan handles it:
 
 - The 45 reprints need no new code. The Core Box id is added to the existing card module's id list, as identical copies in Crew decks already are.
 - The 9 replaced cards are old versions. They are played only in a Core-only game, and each needs its own spec and code.
-- That leaves about 48 new common cards and all 147 Crew cards.
+- That leaves 48 new common cards. Of the 147 Crew cards, 33 are copies of cards that already have code, so 114 are new.
 
-Step 2 confirms these numbers by matching names once the Core Box cards are transcribed.
+Step 2 confirmed these numbers by matching names.
 
 ## New rules seen on the cards
 
@@ -87,17 +87,22 @@ A card enters `server/content/` in the step that writes its code, so the strict 
 
 **You test:** open a few of the new images at `/api/content/images/{id}`: `1BUR01`, `cb-sisko-advanced`, `koloth-traits`, `ship-1pic02`.
 
-## Step 2: Specs
+## Step 2: Specs (done)
 
-Transcribe every scan into a spec beside it, in the format of `resources/scans/CARD_SPEC.md`:
+Transcribe every scan into a spec beside it, in the format of `resources/scans/CARD_SPEC.md`.
 
-- 255 card specs, 12 board specs, 6 command-card specs;
-- a new `same_as` field on each Core Box reprint, naming its *To Boldly Go* twin, checked by `scripts/build_content.py` (same name, traits, icons and text);
-- deck sizes and suit counts checked against the scans in `tests/test_content_data.py`.
+**What was done:**
 
-This is the largest step. I do it one folder at a time and list unclear text, icons I cannot read and rulings needed in `OPEN_QUESTIONS.md`.
+- **255 card specs**: 250 Core Box and 5 promo. `server/content/cards/base_game.yaml` and `promo1.yaml` are built from them.
+- **12 board specs** with tracks and 18 missions, and **6 command-card specs** with 126 rows and 24 upgrade bonuses.
+- **Reprints.** A new `same_as` field names an identical card; `scripts/build_content.py` checks that the two print the same data. 45 common Core Box cards point at their *To Boldly Go* reprint, and 33 Crew cards point at a card that already has code (*Utilize*, *Recruit*, *Analyze*, *Set a Course* and so on). A new `replaced_by` field marks the 9 old versions.
+- **What is new to write:** 58 common cards (the 48 new ones, the 9 old versions and *Conspiracy*), 114 Crew cards, 5 promo cards, 18 missions, 126 Bot rows and 24 bonuses.
+- **Waiting, on purpose.** The Core Box Crews, cards and Bots are in the content but not offered anywhere: `setup.BOT_UNAVAILABLE` lists the six Bots, games still use only *To Boldly Go* and its expansions, and the registry tests skip `WAITING_SETS` and `WAITING_CREWS` until each step writes the code.
+- **Questions and engine needs** are in `resources/scans/OPEN_QUESTIONS.md`, under "Core Box and promo set 1" and "Gaps in the CLAUDE.md action list".
 
-**You test:** spot-check specs against the cards. Answer the open questions.
+How the specs were made: I read every card, board and command card from the scans and wrote the specs from that reading. The reprints' specs are copies of the *To Boldly Go* specs, compared on screen but not word for word.
+
+**You test:** spot-check specs against the cards, above all Burnham's deck and the two Skill-icon readings noted in the open questions. Answer the open questions.
 
 ## Step 3: Requirements
 
