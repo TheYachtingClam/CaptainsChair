@@ -67,7 +67,7 @@ These shape every step. Each has a recommended default, which I'll use unless yo
 5. **Watching the Bot is client-side.**
    - The engine runs the whole Bot turn at once and logs each step in plain words (REQ-SOLO-05): which card was flipped, which row matched and why, and what each step did.
    - The client replays those log entries one at a time, with Next, Auto-play and Skip (REQ-SOLO-56).
-6. **The Khan Bot stays out for now.** Khan's human-player deck is done (card plan, Step 18) and his open questions are answered, including the board order of his trait tokens for the Bot's tie-breaker. The Khan Bot, his SURPRISE cards and his campaign bonuses are the next piece of work.
+6. **The Khan Bot came last** (Step 10), after Khan's human-player deck (card plan, Step 18) and his open questions, including the board order of his trait tokens for the Bot's tie-breaker.
 7. **Campaigns belong to a campaign link.** The server has no accounts, only a shared password. So a campaign gets its own secret link, stored as a token hash like seat tokens, which you can bookmark (REQ-CAMP-54).
 
 ---
@@ -177,7 +177,7 @@ The four Crews with special rules:
   - his California-class fleet counts as 2 tokens for the Bot too (REQ-EXP-FRE-02).
 - **Rebner:** Research and Influence are always ×0 for the Bot.
 
-Then the strict check: the registry test requires a function for every row of every Bot except Khan's. Random games run against every Bot at every difficulty.
+Then the strict check: the registry test requires a function for every row of every Bot (Khan's since Step 10). Random games run against every Bot at every difficulty.
 
 **You test:** one game against each of these Bots. With Pike, watch his tracks rise as he resolves cards with Skill icons.
 
@@ -249,9 +249,17 @@ The campaign without bonuses and challenges:
 
 **What was done:** `tests/test_solo_sweep.py` covers random games against all 8 available Bots at all 5 difficulties (Ticking Clock on every third), 6 random campaign games with all seven challenges, random Boosts and a Reinforcement pile, and an API check that your own moves can be undone but nothing across the Bot's turn can. REQ-SRV-17 and REQ-SRV-19 already described the in-engine Bot and solo games. `scripts/card_coverage.py` now has a group per Bot Crew and one for the bonuses: everything has code except Khan's rows, bonuses and SURPRISE cards, which wait with his deck.
 
+## Step 10: The Khan Bot (done)
+
+- The Khan Bot's rows, its KHAN IN EXILE card, its trait marking and scoring (REQ-CD-KHN-11).
+- Khan's four SURPRISE operations and his four Five-Year Mission bonuses.
+
+**You test:** a solo game against the Khan Bot. Watch it gather 5 Dilithium in exile, swap to its regular cards, and mark traits as it gains cards.
+
+**What was done:** `engine/bot/khan.py` has the 24 rows and the Khan Bot's special rules, which reach the Bot core through registries (`SETUP_REMOVES`, `SUPPLEMENT_BOTTOM`, `FOCUS_VP`, `MARK_VP`, `VALUE_BONUS`, `ON_SUPPLEMENT`, `END_OF_TURN`). `player.bot.exile` selects the KHAN IN EXILE rows; the client shows that card alone until it is replaced. The Bot marks traits through `bot.mark_trait`. A reshuffled Bot deck now always gets the top Supplement card. The SURPRISE operations are in the cards' own modules, and one may now "continue resolution". The bonuses are in `engine/upgrades/khan.py`. `setup.BOT_UNAVAILABLE` is empty, so the Khan Bot is in the random solo sweep and can be picked for solo games and campaigns. Tests: `tests/test_bot_khan.py`. Rulings are in `resources/scans/OPEN_QUESTIONS.md`.
+
 ## Not in this plan
 
-- **The Khan Bot**, Khan's SURPRISE cards and his campaign bonuses. Nothing blocks them now: his deck is implemented and his questions are answered.
 - **The Core Box Burnham Bot** (REQ-SOLO-59, -72). Its content isn't in the app.
 - **Using *Conspiracy* as a second Ticking Clock** (REQ-SOLO-132). It is a Core Box card, also not in the app.
 

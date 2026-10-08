@@ -10,7 +10,7 @@ from engine.state import GameState, Inst, Player
 BASE_SET = "to_boldly_go"
 STARDATE_MODE = {"two_player": "2-Player", "cadet": "Solo Cadet Practice", "solo": "Solo vs {difficulty} Bot"}
 DIFFICULTIES = ("ensign", "lieutenant", "commander", "captain", "admiral")  # REQ-SOLO-10, easiest first
-BOT_UNAVAILABLE = {"khan"}  # the Khan Bot waits with Khan's deck (plans/solo-mode.md)
+BOT_UNAVAILABLE: set[str] = set()  # Crews whose Bot is not written yet; none at the moment
 TIME_IS_RUNNING_OUT = "2DIR01"
 REINFORCE = "2DIR02"
 SOLO_ONLY = {"Solo Challenge", "Solo Campaign"}  # Reinforce, Time Is Running Out
@@ -261,14 +261,17 @@ def _campaign_setup(state: GameState, player: Player, camp: CampaignSetup) -> No
 def _bot_setup(state: GameState, seat: int, choice: BotSetup, data) -> Player:
     """REQ-SOLO-24 to -33: Basic board, no resources, actions or mission tokens; the Supplement deck (Reserves on top
     of Developments) and the Bot deck (Deployed and Controlled Location cards on top of the Available cards)."""
+    from engine import bot as rules
     from engine.state import BotState
 
-    cards = [c for c in data.crew_deck(choice.deck) if not c.id.endswith("B")]
+    removed = rules.SETUP_REMOVES.get(choice.deck, ())  # Khan: Ceti Alpha V and VI (REQ-CD-KHN-11)
+    cards = [c for c in data.crew_deck(choice.deck) if not c.id.endswith("B") and c.id not in removed]
     board = data.board(choice.deck, "basic")
     captain_card = next(c for c in cards if c.suit == "Captain")
     player = Player(seat=seat, name=f"{captain_card.name} Bot", deck=choice.deck, board=board.id,
                     captain=state.new_inst(captain_card.id),
-                    bot=BotState(crew=choice.deck, difficulty=choice.difficulty, ticking_clock=choice.ticking_clock))
+                    bot=BotState(crew=choice.deck, difficulty=choice.difficulty, ticking_clock=choice.ticking_clock,
+                                 exile=data.command[choice.deck].side("exile_traits") is not None))
     player.actions = 0
     player.mission_tokens = 0
 
@@ -282,9 +285,12 @@ def _bot_setup(state: GameState, seat: int, choice: BotSetup, data) -> Player:
     reserves = _insts(state, by_position.pop("Reserve", []))
     if choice.ticking_clock:  # REQ-SOLO-130
         reserves.append(state.new_inst(TIME_IS_RUNNING_OUT))
+    last = rules.SUPPLEMENT_BOTTOM.get(choice.deck, ())  # Khan: Genesis Device goes on the bottom (REQ-CD-KHN-11)
+    bottom = [i for i in developments if i.card in last]
+    developments = [i for i in developments if i.card not in last]
     state.shuffle(developments)
     state.shuffle(reserves)
-    player.reserve = reserves + developments  # REQ-SOLO-27: the Supplement deck
+    player.reserve = reserves + developments + bottom  # REQ-SOLO-27: the Supplement deck
 
     available = _insts(state, by_position.pop("Available", []))
     state.shuffle(available)

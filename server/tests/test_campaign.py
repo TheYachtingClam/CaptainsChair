@@ -125,7 +125,7 @@ def test_a_campaign_needs_its_link(authed):
     assert authed.get(f"/api/campaigns/{cid}", headers={"X-Campaign-Token": "nope"}).status_code == 403
     view = authed.get(f"/api/campaigns/{cid}", headers={"X-Campaign-Token": r.json()["token"]}).json()
     assert view["rank"] == "ensign" and view["phase"] == "start" and view["assignments_left"] == 10
-    assert "khan" not in {o["deck_id"] for o in view["opponents"]}
+    assert "khan" in {o["deck_id"] for o in view["opponents"]}
 
 
 def test_unknown_mode_is_rejected(authed):

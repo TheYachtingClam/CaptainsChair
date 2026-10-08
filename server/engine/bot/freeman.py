@@ -9,7 +9,7 @@ CREW = "freeman"
 # Special rule: a Lower Decker logged from the top of the Bot deck is discarded instead, and Lower Deckers are worth
 # 1 more to the Bot. (A Fleet of 30 California-Class Ships counts as 2 tokens for the Bot too: engine SHIP_WEIGHT.)
 LOG_TOP_DISCARDS[CREW] = ("Lower Decker",)
-VALUE_BONUS[CREW] = lambda inst: 1 if "Lower Decker" in card(inst).traits else 0
+VALUE_BONUS[CREW] = lambda state, bot, inst: 1 if "Lower Decker" in card(inst).traits else 0
 
 
 def _lower_decker(inst) -> bool:

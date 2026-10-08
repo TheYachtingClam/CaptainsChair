@@ -54,6 +54,11 @@ def score_player(state: GameState, player: Player) -> dict:
     focus = {s: 0 for s in SPECIALTIES}
     best = 0
     bot = player.bot is not None
+    if bot:
+        from engine import bot as rules
+
+        if player.bot.crew in rules.FOCUS_VP:  # Khan: no tracks; each Focus icon scores a flat 3 (REQ-CD-KHN-11)
+            multipliers = dict.fromkeys(SPECIALTIES, rules.FOCUS_VP[player.bot.crew])
     if player.missions_completed or bot:  # REQ-MS-08; the Bot scores Focus icons without missions (REQ-SOLO-72)
         for c in cards:
             if c.focus == "Best":
@@ -77,6 +82,8 @@ def score_player(state: GameState, player: Player) -> dict:
     }
     if bot:  # 1 VP for every 2 Dilithium and Latinum combined (REQ-SOLO-72)
         parts["resources"] = (player.dilithium + player.latinum) // 2
+        if player.bot.crew in rules.MARK_VP:
+            parts["traits"] = rules.MARK_VP[player.bot.crew] * len(player.marks)
     return {"seat": player.seat, "name": player.name, "parts": parts, "total": sum(parts.values())}
 
 

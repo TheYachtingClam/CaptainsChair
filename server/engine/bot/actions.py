@@ -85,6 +85,48 @@ class BotActions:
     def track(self, name: str) -> int:
         return self.bot.tracks[name]
 
+    def _matches(self, inst: Inst, term: str) -> bool:
+        """One term of a gain or Location description; "unmarked" is Khan's: a card with a trait not yet marked on
+        the Bot's Crew board (REQ-CD-KHN-11)."""
+        from engine.bot import unmarked
+
+        return unmarked(self.state, self.bot, inst) if term == "unmarked" else card_matches(inst, term)
+
+    def _marks(self, inst: Inst | None) -> None:
+        """The Khan Bot marks a trait of a card it gained, took or took control of (REQ-CD-KHN-11)."""
+        from engine.bot import mark_trait
+
+        if inst is not None:
+            mark_trait(self.state, self.bot, inst)
+
+    def mark_trait(self) -> Gen:
+        """"Mark a trait": the first unmarked one in board order (REQ-CD-KHN-11). Returns True if one was marked."""
+        self._use(A.MARK_TRAIT)
+        from engine.bot import mark_trait
+
+        return mark_trait(self.state, self.bot)
+        yield  # pragma: no cover
+
+    @property
+    def traits_marked(self) -> int:
+        return len(self.bot.marks)
+
+    @property
+    def controlled(self) -> bool:
+        """Whether this card is a Location in the Bot's Control Area: one taken in the Control Step, not played from
+        the Bot deck."""
+        return any(loc.uid == self.this.uid for loc in self.bot.locations)
+
+    def spend(self, dilithium: int = 1) -> Gen:
+        """Spend Dilithium, if able. Returns True if it did."""
+        self._use(A.SPEND)
+        if self.bot.dilithium < dilithium:
+            return False
+        self.bot.dilithium -= dilithium
+        self.emit(f"{self.bot.name} spends {dilithium} Dilithium.")
+        return True
+        yield  # pragma: no cover
+
     # ------------------------------------------------------------------ the Bot deck (REQ-SOLO-60 to -62)
     def _top(self) -> Inst | None:
         from engine.bot import draw_card
@@ -158,8 +200,11 @@ class BotActions:
     def resolve_supplement_top(self) -> Gen:
         """Resolve the top card of the Supplement deck at once (REQ-SOLO-100)."""
         self._use(A.RESOLVE_CARD)
+        from engine.bot import supplement_card_left
+
         if self.bot.reserve:
             inst = self.bot.reserve.pop(0)
+            supplement_card_left(self.state, self.bot)
             yield from self._resolve_now(inst)
             return inst
         return None
@@ -265,11 +310,14 @@ class BotActions:
 
     def discard_supplement_top(self) -> Gen:
         self._use(A.DISCARD)
+        from engine.bot import supplement_card_left
+
         if self.bot.reserve:
             inst = self.bot.reserve.pop(0)
             self.bot.discard.append(inst)
             self.emit(f"{self.bot.name} discards {_name(inst)} from the top of its Supplement deck.",
                       irreversible=True)
+            supplement_card_left(self.state, self.bot)
         return
         yield  # pragma: no cover
 
@@ -390,7 +438,7 @@ class BotActions:
         pool = market + junk  # on a tie the Market card, then the most recent Junk card (REQ-SOLO-145, -146)
         chosen = None
         for group in parse_wanted(wanted):
-            matching = [i for i in pool if any(card_matches(i, term) for term in group)]
+            matching = [i for i in pool if any(self._matches(i, term) for term in group)]
             chosen = most_valuable(self.state, matching, self.bot)
             if chosen is not None:
                 break
@@ -434,6 +482,7 @@ class BotActions:
         where = "onto its deck" if take else "to its Discard pile"
         self.emit(f"{self.bot.name} {'takes' if take else 'gains'} {_name(chosen)} {where}.", irreversible=True)
         raise_event(self.state, "gain", self.bot.seat, chosen.uid, to="top" if take else "discard")
+        self._marks(chosen)
         if suit is not None:
             refill_market(self.state, suit)
         return chosen
@@ -466,6 +515,7 @@ class BotActions:
         self.bot.discard.append(inst)
         self.emit(f"{self.bot.name} gains {_name(inst)} from the top of the {suit} deck.", irreversible=True)
         raise_event(self.state, "gain", self.bot.seat, inst.uid, to="discard")
+        self._marks(inst)
         return inst
         yield  # pragma: no cover
 
@@ -492,6 +542,7 @@ class BotActions:
             self.bot.discard.append(inst)
         self.emit(f"{self.bot.name} {'takes' if to_deck else 'gains'} an Incident, {_name(inst)}.", irreversible=True)
         raise_event(self.state, "take_incident", self.bot.seat, inst.uid)
+        self._marks(inst)
         if not self.state.incident:
             burn(self.state)
         return inst
@@ -508,7 +559,30 @@ class BotActions:
             else:
                 self.bot.draw.insert(0, inst)
                 self.emit(f"{self.bot.name} takes the Encounter {_name(inst)} onto its deck.", irreversible=True)
+            self._marks(inst)
         return
+        yield  # pragma: no cover
+
+    def gain_best_encounter(self, n: int = 3) -> Gen:
+        """Gain the most valuable of the top n Encounters to the Bot Discard pile and destroy the others (Khan).
+        Returns the gained card."""
+        self._use(A.TAKE_ENCOUNTER)
+        self._use(A.DESTROY)
+        from engine.bot import most_valuable
+
+        looked = self.state.encounter[:n]
+        del self.state.encounter[:n]
+        best = most_valuable(self.state, looked, self.bot)
+        if best is None:
+            self.emit("The Encounter deck is empty.")
+            return None
+        self.bot.discard.append(best)
+        self.emit(f"{self.bot.name} gains the Encounter {_name(best)} to its Discard pile.", irreversible=True)
+        for other in looked:
+            if other is not best:
+                self.emit(f"{self.bot.name} destroys the Encounter {_name(other)}.", irreversible=True)
+        self._marks(best)
+        return best
         yield  # pragma: no cover
 
     def junk(self) -> Gen:
@@ -647,7 +721,7 @@ class BotActions:
                 picked: list[Inst] = []
                 for group in parse_wanted(prefer):
                     picked = choices if group == ["Location"] else [
-                        loc for loc in choices if any(card_matches(loc, term) for term in group)]
+                        loc for loc in choices if any(self._matches(loc, term) for term in group)]
                     if picked:
                         break
                 choices = picked
@@ -714,6 +788,7 @@ class BotActions:
         from engine.game import take_control
 
         take_control(self.state, self.bot, loc, run_control=False)
+        self._marks(loc)
         yield from self._resolve(loc)
 
     # ------------------------------------------------------------------ the human's part (REQ-SOLO-180 to -185)
@@ -773,6 +848,62 @@ class BotActions:
 
         if self.human is not None:
             take_incident(self.state, self.human)
+        return
+        yield  # pragma: no cover
+
+    def human_takes_incident_from_discard(self) -> Gen:
+        """Bold "you take an Incident from Bot Discard pile, if able": the topmost one, into the human's hand. Returns
+        True if there was one."""
+        self._use(A.TAKE_INCIDENT)
+        incident = self._from_discard("Incident")
+        if self.human is None or incident is None:
+            return False
+        self._hand_over(incident)
+        return True
+        yield  # pragma: no cover
+
+    def human_takes(self, inst: Inst | None = None) -> Gen:
+        """Bold "you take this card": it goes into the human's hand."""
+        self._use(A.GIVE)
+        inst = inst or self.this
+        if self.human is not None and ops.locate(self.state, inst.uid) is not None:
+            self._hand_over(inst)
+        return
+        yield  # pragma: no cover
+
+    def _hand_over(self, inst: Inst) -> None:
+        take_out(self.state, inst)
+        inst.res.clear()
+        self.human.hand.append(inst)
+        self.state.emit(f"{self.human.name} takes {_name(inst)} from {self.bot.name}.", seat=self.human.seat,
+                        irreversible=True)
+        if _card(inst).suit == "Incident":
+            raise_event(self.state, "take_incident", self.human.seat, inst.uid)
+
+    def human_finds_and_logs(self) -> Gen:
+        """Bold "you find any card, and log the found card": the human searches their own cards and logs the one they
+        choose. Returns it."""
+        self._use(A.FIND)
+        self._use(A.LOG)
+        if self.human is None:
+            return None
+        theirs = self._human_actions(A.FIND, A.LOG)
+        found, _ = yield from theirs.find(lambda i: True, "any card, to log it (Bot attack)")
+        if found is not None:
+            theirs._log(found)
+        return found
+
+    def human_logs(self, inst: Inst | None = None) -> Gen:
+        """Bold "you log this card": the Bot's card goes into the human's Captain's Log and is theirs from then on."""
+        self._use(A.LOG)
+        inst = inst or self.this
+        if self.human is None or ops.locate(self.state, inst.uid) is None:
+            return
+        take_out(self.state, inst)
+        inst.res.clear()
+        self.human.log.append(inst)
+        self.state.emit(f"{self.human.name} logs {_name(inst)}.", seat=self.human.seat)
+        raise_event(self.state, "log", self.human.seat, inst.uid, by=self.human.seat)
         return
         yield  # pragma: no cover
 

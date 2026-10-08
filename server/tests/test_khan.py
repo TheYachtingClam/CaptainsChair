@@ -83,8 +83,7 @@ def test_board_order_is_alphabetical_then_the_opponent_entries():
 def test_every_khan_card_and_mission_has_code():
     for cid in KHAN:
         for index, op in enumerate(CARDS[cid].operations):
-            if op.kind != "SURPRISE":  # the four SURPRISE operations wait for the Khan Bot
-                assert registry.has_code(cid, index, op.kind), (cid, index, op.kind)
+            assert registry.has_code(cid, index, op.kind), (cid, index, op.kind)
     for (cid, index), impl in registry.OPS.items():
         if cid.startswith("2KHA"):  # the code declares exactly the actions its spec lists
             assert set(impl.uses) == set(CARDS[cid].operations[index].uses), (cid, index)

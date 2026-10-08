@@ -19,8 +19,7 @@ def deck_ids_for(expansions: list[str]) -> set[str]:
 
 
 def bot_ids_for(expansions: list[str]) -> set[str]:
-    """Crews that can be the Bot in solo mode: they have Automated Command cards, and Khan's Bot waits with his deck
-    (plans/solo-mode.md)."""
+    """Crews that can be the Bot in solo mode: they have Automated Command cards and their Bot is written."""
     from engine.content import content
     from engine.setup import BOT_UNAVAILABLE
 

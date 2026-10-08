@@ -62,9 +62,7 @@ def test_bot_deck_has_deployed_and_location_cards_on_top():
     assert top == ["Controlled Location"]
 
 
-def test_khan_bot_waits():
-    with pytest.raises(SetupError):
-        new_game(1, "solo", [SeatSetup("Me", "kirk", "basic")], [], False, bot=BotSetup("khan"))
+def test_solo_needs_a_bot():
     with pytest.raises(SetupError):
         new_game(1, "solo", [SeatSetup("Me", "kirk", "basic")], [], False)
 

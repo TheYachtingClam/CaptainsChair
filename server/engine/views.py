@@ -119,17 +119,19 @@ def _bot_view(player: Player) -> dict | None:
     if player.bot is None:
         return None
     crew = content().command[player.bot.crew]
-    up = {"traits", player.bot.suits_side}
+    # In exile the Khan Bot's one card replaces both regular cards (REQ-CD-KHN-11).
+    up = {"exile_traits"} if player.bot.exile else {"traits", player.bot.suits_side}
     return {
         "crew": player.bot.crew,
         "difficulty": player.bot.difficulty,
         "ticking_clock": player.bot.ticking_clock,
         "suits_side": player.bot.suits_side,
+        "exile": player.bot.exile,
         "special_rule": crew.special_rule,
         # Every side, with `up` set on TRAITS and the SUITS side face up; the others are for showing the row a card
         # matched while watching a Bot turn that flipped the SUITS card.
         "command": [{"side": s.side, "image": s.image, "up": s.side in up, "rows": [r.model_dump() for r in s.rows]}
-                    for s in crew.sides if s.side != "exile_traits"],
+                    for s in crew.sides],
     }
 
 

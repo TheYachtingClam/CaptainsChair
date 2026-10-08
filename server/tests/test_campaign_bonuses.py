@@ -34,13 +34,11 @@ def run_to_action(s, pick=lambda d: d.options[0].id):
 
 # ------------------------------------------------------------------ the registry
 
-def test_every_bonus_has_code_except_khans():
+def test_every_bonus_has_code():
     for crew, data in content().command.items():
         for side, section in (("win", data.upgrades.win), ("loss", data.upgrades.loss)):
             for i, printed in enumerate(section.bonuses):
                 key = upgrades.key(crew, side, i)
-                if crew == "khan":
-                    continue  # on hold with Khan's deck
                 if printed.startswith("REINFORCE"):
                     assert key in upgrades.REINFORCES, key
                 else:
@@ -183,7 +181,7 @@ def test_challenge_setup_follows_the_streak():
 def test_rules_of_acquisition_removes_option_b_after_a_success():
     assert rules.option_b("soval", True, ["rules_of_acquisition"]) == []
     assert rules.option_b("soval", False, ["rules_of_acquisition"]) == ["soval:loss:0", "soval:loss:1"]
-    assert rules.option_b("khan", True) == []  # Khan waits
+    assert rules.option_b("khan", True) == ["khan:win:0", "khan:win:1"]
 
 
 def test_live_long_and_prosper():
@@ -323,3 +321,26 @@ def test_live_long_asks_which_resource(authed, monkeypatch):
                     headers=h).json()
     me = authed.get(f"/api/games/{r['game_id']}/state", headers={"X-Seat-Token": r["seat_token"]}).json()["players"][0]
     assert me["resources"]["latinum"] == 0 and me["resources"]["dilithium"] == 1
+
+
+# ------------------------------------------------------------------ Khan's bonuses
+
+def test_khan_loss_attack_boost_draws_a_card_and_the_bot_takes_an_incident():
+    s = run_to_action(game(boosts=("khan:loss:1",)))
+    human, bot = s.players
+    assert len(human.hand) == 6 and CARDS[bot.draw[0].card].suit == "Incident"  # onto the Bot deck (REQ-SOLO-148)
+
+
+def test_khan_win_attack_boost_gives_a_found_incident_to_the_bot():
+    start = game()
+    mine = start.players[0].draw + start.players[0].hand
+    own = [i.uid for i in mine if CARDS[i.card].suit == "Incident"]  # Kirk starts with one
+    s = run_to_action(game(boosts=("khan:win:1",)))
+    human, bot = s.players
+    assert len(own) == 1 and bot.draw[0].uid == own[0] and len(human.hand) == 5
+
+
+def test_khan_scan_boost_costs_a_latinum():
+    s = run_to_action(game(boosts=("khan:win:0",)))
+    human = s.players[0]
+    assert human.latinum == 0 and len(human.discard) + (len(human.draw) + len(human.hand) - 10) >= 1

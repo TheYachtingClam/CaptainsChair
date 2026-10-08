@@ -258,6 +258,9 @@ def cycle_deck(state: GameState, player: Player) -> bool:
     state.shuffle(player.draw)
     state.emit(f"{player.name} shuffles their Discard pile into a new deck.", seat=player.seat, irreversible=True)
     ops.raise_event(state, "cycle", player.seat, None)
+    if player.bot is not None:
+        ops.bot_enlists(state, player)
+        return True
     if not ops.enlists_on_cycle(player):
         return True  # Khan does not enlist when cycling (REQ-CD-KHN-03)
     if player.reserve:

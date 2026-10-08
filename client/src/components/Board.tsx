@@ -117,6 +117,7 @@ const SCORE_PART: Record<string, string> = {
   focus_best: "Best Focus",
   missions: "Missions",
   resources: "Dilithium and Latinum (1 per 2)",
+  traits: "Marked traits (3 each)",
 };
 
 export function Board({ gameId, view, onChoose, onUndo, busy }: {

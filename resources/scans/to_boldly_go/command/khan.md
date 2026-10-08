@@ -118,7 +118,22 @@ Image id: `khan-five-year-mission-upgrades`. Used only in the solo campaign (REQ
 - "Your Captain" in the Incident rows means the human's Captain.
 - The Incident row with a Duty Officer gives the Incident to the human ("you take this card"), an attack.
 - The Khan Bot never flips its Captain (REQ-CD-KHN-11).
+- The Bot marks a trait whenever it gains, takes or takes control of a card, Incidents and Encounters included, and for the Encounter gained when it leaves exile. For an Opponent's Captain entry it uses the first fitting trait in the printed order of your Captain's traits.
+- The 3 extra value for an unmarked card applies to every Bot choice by value, not only to gains.
+- KHAN IN EXILE: a card matches a row by trait or by suit; a Wildcard matches only the Augment row; an Encounter matches no row. "Drawn from the Supplement deck" includes the card put on a new Bot deck at a reshuffle and a card resolved from the top of the Supplement deck. A Location played from the Bot deck stays in the Staging Area and is discarded at Clean-up.
+- A reshuffle puts the top Supplement card on the new Bot deck although Khan's Captain says he does not enlist: the Bot ignores card text (REQ-SOLO-80).
+- "Take an Incident to gain a Person" does both.
+- "Gain an unmarked > Person / Cargo / Ship / Ally from the Junk": any unmarked card in the Junk comes first.
+- Mind Control row: the Bot gains 2 Glory whenever you dismiss no Duty Officer, also when you cancel the attack (as the Georgiou Bot's Attack row does).
+- Attack row: "you log this card" puts Revenge Is a Dish Best Served Cold into your Captain's Log and is part of the attack; if you cancel it, the card stays in the Staging Area. Any other card is logged by the Bot either way.
+- ATTACK BOOST bonuses are attacks on the Bot, which cannot cancel them.
 
 ## Tests
 
 - Given the Bot starts on the KHAN IN EXILE card, when it has 5 Dilithium at the end of its turn, it spends them, gains the top Encounter and switches to the regular cards.
+- Given solo setup, then Ceti Alpha V and VI are out of the game and Genesis Device is the bottom card of the Supplement deck.
+- Given the Bot in exile, when a Location is played from the Bot deck, then it is not placed in the Control Area.
+- Given the Bot in exile, when a card leaves the Supplement deck, then the Bot gains 1 Dilithium.
+- When the Bot gains a card with an unmarked trait, then it marks the first one in board order.
+- Given 8 marked traits and a Duty Officer, when an Encounter resolves, then the Bot gains the best of the top 3 Encounters, destroys the other two and logs the gained card and the Encounter.
+- At the end of the game the Bot scores 3 VP for each marked trait and 3 for each Focus icon.

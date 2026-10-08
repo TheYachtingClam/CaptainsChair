@@ -90,12 +90,14 @@ function CommandSide({ side, highlight }: { side: BotView["command"][number]; hi
   );
 }
 
-/** The Bot's two Automated Command cards: TRAITS, and whichever SUITS side is up (REQ-SOLO-32, -91). While watching a
- * Bot turn, the side holding the matched row is shown with that row highlighted, even if the card has flipped since. */
+/** The Bot's two Automated Command cards: TRAITS, and whichever SUITS side is up (REQ-SOLO-32, -91). The Khan Bot in
+ * exile has only its KHAN IN EXILE card (REQ-CD-KHN-11). While watching a Bot turn, the side holding the matched row is
+ * shown with that row highlighted, even if the card has flipped or been replaced since. */
 function CommandCards({ bot, highlight, onSoloRules }: { bot: BotView; highlight?: RowRef | null; onSoloRules?: () => void }) {
-  const suits = bot.command.find((s) => s.side !== "traits" && (highlight ? s.side === highlight.side : s.up))
-    ?? bot.command.find((s) => s.side !== "traits" && s.up);
-  const shown = [bot.command.find((s) => s.side === "traits"), suits].filter((s): s is NonNullable<typeof s> => !!s);
+  const isSuits = (s: BotView["command"][number]) => s.side === "no_duty_officer" || s.side === "with_duty_officer";
+  const pick = (sides: BotView["command"]) => sides.find((s) => s.side === highlight?.side) ?? sides.find((s) => s.up);
+  const shown = [pick(bot.command.filter((s) => !isSuits(s))), pick(bot.command.filter(isSuits))]
+    .filter((s): s is NonNullable<typeof s> => !!s);
   return (
     <div className="command-cards" aria-label="Automated Command cards">
       {shown.map((side) => (

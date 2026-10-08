@@ -284,6 +284,8 @@ export interface BotView {
   difficulty: Difficulty;
   ticking_clock: boolean;
   suits_side: "no_duty_officer" | "with_duty_officer";
+  /** The Khan Bot only: it is still on its KHAN IN EXILE card (REQ-CD-KHN-11). */
+  exile: boolean;
   special_rule: string | null;
   command: { side: string; image: string | null; up: boolean; rows: CommandRowView[] }[];
 }

@@ -93,6 +93,7 @@ class BotState(BaseModel):
     suits_side: str = "no_duty_officer"  # or "with_duty_officer" (REQ-SOLO-91 to -93)
     ticking_clock: bool = False  # Time Is Running Out is in the Supplement deck (REQ-SOLO-130)
     facedown: list[str] = Field(default_factory=list)  # uids drawn this turn, not yet flipped (REQ-SOLO-53, -54)
+    exile: bool = False  # the Khan Bot starts on its KHAN IN EXILE card instead of TRAITS and SUITS (REQ-CD-KHN-11)
 
 
 class Mark(BaseModel):

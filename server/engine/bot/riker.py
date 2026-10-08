@@ -8,7 +8,7 @@ CREW = "riker"
 FAVOURITES = {"NX-01", "Android", "Pakled", "Lower Decker", "Beverage", "Betazoid"}
 
 # Special rule: cards with any of NX-01, Android, Pakled, Lower Decker, Beverage or Betazoid are +1 value for the Bot.
-VALUE_BONUS[CREW] = lambda inst: 1 if FAVOURITES & set(card(inst).traits) else 0
+VALUE_BONUS[CREW] = lambda state, bot, inst: 1 if FAVOURITES & set(card(inst).traits) else 0
 
 
 # ------------------------------------------------------------------ TRAITS

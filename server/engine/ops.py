@@ -193,6 +193,16 @@ def enlists_on_cycle(p: Player) -> bool:
     return not any(i.card in registry.NO_ENLIST_ON_CYCLE for i in table_cards(p))
 
 
+def bot_enlists(state: GameState, bot: Player) -> None:
+    """The Bot's new deck gets the top card of the Supplement deck, whatever its cards say (REQ-SOLO-61, -62, -80)."""
+    from engine.bot import supplement_card_left
+
+    if bot.reserve:
+        bot.draw.insert(0, bot.reserve.pop(0))
+        state.emit(f"{bot.name} puts the top card of its Supplement deck on its new deck.", seat=bot.seat)
+        supplement_card_left(state, bot)
+
+
 def has_tracks(p: Player) -> bool:
     """Whether the player's Crew board has Specialty tracks. Khan's has none (REQ-CD-KHN-04)."""
     return bool(content().boards[p.board].tracks)
@@ -733,6 +743,7 @@ class Actions:
         self._attack: bool | None = None  # result of this operation's attack check, once made
         self.in_duplicate = False  # resolving a duplicated operation: it cannot duplicate again (KW-DUP-05)
         self.skip_log_self = False  # "ignoring any effect that would log this card" (Apergosians)
+        self.continued = False  # a SURPRISE operation said "continue resolution" (REQ-SOLO-120)
 
     def _use(self, action: str) -> None:
         if action not in self.uses:
@@ -929,6 +940,9 @@ class Actions:
         self.state.shuffle(player.draw)
         self.state.emit(f"{player.name} shuffles their Discard pile into a new deck.", seat=player.seat, irreversible=True)
         raise_event(self.state, "cycle", player.seat, None)
+        if player.bot is not None:
+            bot_enlists(self.state, player)
+            return True
         if not enlists_on_cycle(player):
             return True
         if player.reserve:
@@ -2169,6 +2183,14 @@ class Actions:
             setattr(self.ctx.me, kind, getattr(self.ctx.me, kind) + taken)
         self.emit(f"{self.ctx.me.name} steals {taken} {kind.capitalize()}.")
         return taken
+        yield  # pragma: no cover
+
+    def continue_resolution(self) -> Gen:
+        """SURPRISE operations only: after this operation the Bot goes on to the Automated Command row the card
+        matches (Two Dimensional Thinking, REQ-SOLO-120)."""
+        self._use(A.CONTINUE_RESOLUTION)
+        self.continued = True
+        return
         yield  # pragma: no cover
 
     def give_incident(self, inst: Inst | None) -> Gen:

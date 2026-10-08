@@ -58,6 +58,21 @@ Made while writing the code. Each is implemented as described. Confirm, or say w
 - **Marooned for All Eternity** (cb-khan): the opponent chooses one of their Duty Officers or beamed Persons; a Person in their Staging Area cannot be chosen.
 - **Wrathful Khan** (2KHA01B): a Best Focus icon counts as one Focus icon for his ENDGAME.
 
+## Rulings made while implementing the Khan Bot
+
+Made while writing the code. Each is implemented as described. Confirm, or say which to change.
+
+- **Marking** (REQ-CD-KHN-11): the Bot marks when it gains, takes or takes control of any card, Incidents and Encounters included. For an Opponent's Captain entry it uses the first fitting trait in the printed order of your Captain's traits.
+- **Value**: the 3 extra for a card with an unmarked trait applies to every Bot choice by value, not only to gains.
+- **KHAN IN EXILE**: a card matches a row by trait or by suit; a Wildcard matches only the Augment row; an Encounter matches no row. A Location played from the Bot deck stays in the Staging Area and is discarded at Clean-up. "Drawn from the Supplement deck" includes the card put on a new Bot deck at a reshuffle.
+- **Reshuffle**: the top Supplement card goes on the new Bot deck although Khan's Captain says he does not enlist, because the Bot ignores card text (REQ-SOLO-80).
+- **Mind Control row**: the Bot gains 2 Glory whenever you dismiss no Duty Officer, also when you cancel the attack.
+- **Attack row**: "you log this card" puts *Revenge Is a Dish Best Served Cold* into your Log and is part of the attack. If you cancel the attack, it stays in the Bot's Staging Area.
+- **"Take an Incident to gain a Person"** does both. **"Gain an unmarked > Person / Cargo / Ship / Ally from the Junk"** takes any unmarked Junk card first.
+- **Khan's three Incidents, SURPRISE** (2KHA19 to 2KHA21): only putting the card in your Discard pile is the attack; you draw either way.
+- **Two Dimensional Thinking, SURPRISE** (2KHA22): the Bot's Captain counts as in play, so the Khan Bot always returns it.
+- **Khan's ATTACK BOOST bonuses** are attacks on the Bot, which cannot cancel them.
+
 ## Rulings made for the Five-Year Mission bonuses and challenges
 
 - **Boosts with a cost** ("take an Incident to …", "spend 1 [Dilithium] to …") are optional: the human is asked each game, and the Boost is skipped when the cost cannot be paid. Boosts without a cost always resolve.

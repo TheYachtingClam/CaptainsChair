@@ -95,7 +95,7 @@ def run(ctx, bonus_key: str):
     load()
     impl = BOOSTS[bonus_key]
     actions = Actions(ctx, impl.uses)
-    label = text(bonus_key).removeprefix("BOOST: ")
+    label = text(bonus_key).removeprefix("ATTACK ").removeprefix("BOOST: ")
     if impl.costs:
         if not all(c.can_pay(ctx) for c in impl.costs):
             ctx.state.emit(f"Boost skipped, its cost cannot be paid: {label}", seat=ctx.me.seat)

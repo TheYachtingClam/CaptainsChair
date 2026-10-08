@@ -109,7 +109,7 @@ def option_a_cards(state: GameState, player: Player, bot_crew: str, won: bool) -
 
 def option_b(bot_crew: str, won: bool, challenges=()) -> list[str]:
     """Option B (REQ-CAMP-25): the alternative bonuses of the Bot just faced, as bonus keys. Rules of Acquisition
-    takes them away after a success. Only bonuses with code are offered (Khan's wait with his deck)."""
+    takes them away after a success. Only bonuses with code are offered."""
     from engine import upgrades
 
     if won and "rules_of_acquisition" in challenges:

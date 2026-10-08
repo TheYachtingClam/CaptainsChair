@@ -1,6 +1,5 @@
 """Khan's three Incidents with the same text: 2KHA19 To the Last, I Will Grapple with Thee!, 2KHA20 From Hell's Heart,
-I Stab at Thee! and 2KHA21 I Spit My Last Breath at Thee! Specs: resources/scans/to_boldly_go/cards/captains/kahn/2KHA19.md to 2KHA21.md
-Their SURPRISE operation (index 1) is for the Bot and waits for the Khan Bot."""
+I Stab at Thee! and 2KHA21 I Spit My Last Breath at Thee! Specs: resources/scans/to_boldly_go/cards/captains/kahn/2KHA19.md to 2KHA21.md"""
 
 from engine.cards import operation
 from engine.ops import A, PutOnDeck
@@ -31,3 +30,17 @@ def curse(ctx, actions):
         yield from actions.gain_resource("glory", 1)
         if opp is not None and (yield from actions.may("Draw a card?", seat=opp.seat)):
             yield from actions.draw(1, player=opp)
+
+
+@operation(IDS, 1, uses=[A.DISCARD, A.ATTACK, A.PUT, A.DRAW])
+def surprise(ctx, actions):
+    """SURPRISE (Bot only): Discard the top card of the Bot deck. Put this card in your Discard pile. Draw a card.
+    Runs with the Bot as "me" (REQ-SOLO-87); "you" is the human. Only putting the card in your Discard pile is the
+    attack; you draw either way."""
+    yield from actions.discard_from_deck()
+    human = ctx.opponent
+    if human is None:
+        return
+    if (yield from actions.attack()):
+        yield from actions.put_in_discard(ctx.this_card, human)
+    yield from actions.draw(1, player=human)

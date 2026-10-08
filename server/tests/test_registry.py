@@ -2,8 +2,8 @@
 mission has code, except what waits on purpose.
 
 Waiting on purpose:
-- solo-only cards and SURPRISE operations, which need the Bot (requirements/22-solo-mode.md); Khan's four SURPRISE
-  operations and his Bot rows wait for the Khan Bot;
+- solo-only cards and SURPRISE operations, which need the Bot (requirements/22-solo-mode.md) and are covered by the
+  Bot tests;
 - Stardate WHEN EMPTIED and STARDATE RESOLUTION, which the engine runs itself."""
 
 from engine import cards as registry
@@ -57,14 +57,12 @@ def test_only_waiting_cards_lack_code():
 
 
 def test_every_bot_row_has_code():
-    """Every Automated Command row of every Bot Crew has a function, except the Khan Bot's (on hold with Khan) and the
-    SURPRISE reminder rows, which resolve the card's own SURPRISE operation (requirements/22-solo-mode.md §6)."""
+    """Every Automated Command row of every Bot Crew has a function, except the SURPRISE reminder rows, which resolve
+    the card's own SURPRISE operation (requirements/22-solo-mode.md §6)."""
     from engine import bot as bot_rules
 
     missing = []
     for crew, data in content().command.items():
-        if crew == "khan":
-            continue
         for side in data.sides:
             for r in side.rows:
                 if "Surprise" not in r.matches and (crew, side.side, r.number) not in bot_rules.ROWS:

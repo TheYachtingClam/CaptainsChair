@@ -194,7 +194,7 @@ function upgradeLabel(c: CampaignView, u: CampaignView["assignments"][number]["u
   if (!u) return "";
   if (u.option === "A" && u.card) return cardName(c, u.card);
   if (u.option === "B" && u.cards?.length) return `Reinforce: ${u.cards.map((id) => cardName(c, id)).join(", ")}`;
-  if (u.option === "B") return (u.text ?? "").replace(/^BOOST: /, "Boost: ");
+  if (u.option === "B") return (u.text ?? "").replace(/^ATTACK BOOST: /, "Attack Boost: ").replace(/^BOOST: /, "Boost: ");
   return "—";
 }
 
