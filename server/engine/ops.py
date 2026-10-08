@@ -25,7 +25,7 @@ from typing import Any
 
 from engine import cards as registry
 from engine.content import MARKET_SUITS, Card, content
-from engine.state import Decision, GameState, Inst, OpRef, Option, Player, Running
+from engine.state import Decision, GameState, Inst, Mark, OpRef, Option, Player, Running
 
 SPECIES = {
     "Alien", "Aenar", "Andorian", "Android", "Bajoran", "Betazoid", "Borg", "Breen", "Cardassian", "Changeling",
@@ -54,6 +54,7 @@ class A:
     REMOVE_AWAY_TEAM = "REMOVE_AWAY_TEAM"; TAKE_CONTROL = "TAKE_CONTROL"; TRIGGER_CONTROL = "TRIGGER_CONTROL"
     EXHAUST = "EXHAUST"; REFRESH = "REFRESH"; FORCE = "FORCE"; ATTACK = "ATTACK"; MOVE_RESOURCES = "MOVE_RESOURCES"
     ADJUST_HAND_SIZE = "ADJUST_HAND_SIZE"; TAKE_FROM_REINFORCEMENT = "TAKE_FROM_REINFORCEMENT"
+    MARK_TRAIT = "MARK_TRAIT"; FLIP_CARD = "FLIP_CARD"  # Khan's Crew board and double-sided cards
     # Bot rows only (solo mode): engine/bot
     EXPLORE = "EXPLORE"; ENGAGE = "ENGAGE"; RESOLVE_CARD = "RESOLVE_CARD"; CONTINUE_RESOLUTION = "CONTINUE_RESOLUTION"
 
@@ -187,8 +188,70 @@ def deck_face_up(p: Player) -> bool:
     return any(i.card in registry.DECK_FACE_UP for i in table_cards(p))
 
 
-def is_khan(p: Player) -> bool:
-    return p.captain.card in {"2KHA01A", "2KHA01B"}
+def enlists_on_cycle(p: Player) -> bool:
+    """False while a card such as Khan's Captain says "you do not enlist when you cycle your deck" (REQ-CD-KHN-03)."""
+    return not any(i.card in registry.NO_ENLIST_ON_CYCLE for i in table_cards(p))
+
+
+def has_tracks(p: Player) -> bool:
+    """Whether the player's Crew board has Specialty tracks. Khan's has none (REQ-CD-KHN-04)."""
+    return bool(content().boards[p.board].tracks)
+
+
+def flip_side(card_id: str) -> str | None:
+    """The other side of a double-sided card: ids ending in A and B are the two sides (REQ-CD-KHN-01)."""
+    other = card_id[:-1] + {"A": "B", "B": "A"}.get(card_id[-1], "")
+    return other if other != card_id[:-1] and other in content().cards else None
+
+
+# --------------------------------------------------------------------------- Khan's trait board (REQ-CD-KHN-06 to -09)
+
+OPPONENT_SLOTS = ("captain-trait", "different-trait-than-opponent")  # the two entries set by the opponent's Captain
+
+
+def trait_board(p: Player) -> tuple[str, ...]:
+    """The trait slots on the player's Crew board, in board order. Empty for everyone but Khan."""
+    return content().boards[p.board].trait_order
+
+
+def rival_traits(state: GameState, p: Player) -> tuple[str, ...]:
+    """The printed traits of the opponent's Captain; in Cadet Training, of the Captain picked at setup, if any."""
+    opp = state.opponent(p.seat)
+    captain = opp.captain.card if opp is not None else p.rival_captain
+    return tuple(content().cards[captain].traits) if captain else ()
+
+
+def rival_pairs(state: GameState, p: Player) -> list[frozenset[str]]:
+    """The pairs of traits that may fill the two opponent entries (REQ-CD-KHN-09): two different traits of the
+    opponent's Captain, not Human if possible, and at most one of them a trait already printed on the board. That is
+    why Soval gives Vulcan plus Ambassador or Telepath, and Kirk gives Starfleet and Human."""
+    traits = list(rival_traits(state, p))
+    non_human = [t for t in traits if t != "Human"]
+    pool = non_human if len(non_human) >= 2 else traits
+    printed = {s.capitalize() for s in trait_board(p) if s not in OPPONENT_SLOTS}
+    pairs = [frozenset((a, b)) for i, a in enumerate(pool) for b in pool[i + 1:]]
+    return [pr for pr in pairs if len(pr & printed) <= 1] or pairs
+
+
+def mark_options(state: GameState, p: Player, inst: Inst | None, *, wildcard: bool = False) -> list[tuple[str, str]]:
+    """(slot, trait) for every unmarked slot the card can mark. `inst=None` is "mark any one trait". `wildcard` lets
+    a Wildcard card count as any one trait, as the board's own rule says (REQ-CD-KHN-06). The same physical card
+    cannot mark both opponent entries (REQ-CD-KHN-09)."""
+    board = trait_board(p)
+    marked = {m.slot: m for m in p.marks}
+    have = traits_of(state, inst) if inst is not None else set()
+    every = inst is None or (wildcard and "Wildcard" in have)
+    out = [(slot, slot.capitalize()) for slot in board
+           if slot not in marked and slot not in OPPONENT_SLOTS and (every or slot.capitalize() in have)]
+    free = [s for s in OPPONENT_SLOTS if s in board and s not in marked]
+    other = next((marked[s] for s in OPPONENT_SLOTS if s in marked), None)
+    if free and not (other is not None and inst is not None and other.card == inst.uid):
+        pairs = rival_pairs(state, p)
+        for trait in rival_traits(state, p):
+            fits = frozenset((trait, other.trait)) in pairs if other is not None else any(trait in pr for pr in pairs)
+            if fits and (every or trait in have):
+                out.append((free[0], trait))
+    return out
 
 
 # =========================================================================== context
@@ -310,7 +373,24 @@ class Ctx:
         return next((loc for loc in self.all_locations() if loc.uid == ship.at), None) if ship.at else None
 
     def track(self, specialty: str, player: Player | None = None) -> int:
-        return (player or self.me).tracks[specialty]
+        """The player's space on a Specialty track. A player who ignores Specialty requirements (Wrathful Khan,
+        REQ-CD-KHN-04) counts as being at the top of every track."""
+        player = player or self.me
+        if any(i.card in registry.IGNORE_SPECIALTY_REQUIREMENTS for i in table_cards(player)):
+            return 15
+        return player.tracks[specialty]
+
+    def traits_marked(self, player: Player | None = None) -> int:
+        """How many trait slots are marked on the player's Crew board (Khan, REQ-CD-KHN-06)."""
+        return len((player or self.me).marks)
+
+    def can_mark(self, inst: Inst | None = None) -> bool:
+        """Whether you could mark a trait of this card on your Crew board now (or any trait, with no card)."""
+        return bool(mark_options(self.state, self.me, inst))
+
+    def opponent_captain_traits(self) -> tuple[str, ...]:
+        """The printed traits of your opponent's Captain. In Cadet Training, those of Khan's random Captain."""
+        return rival_traits(self.state, self.me)
 
     def actions_left(self) -> int:
         return self.me.actions
@@ -562,6 +642,33 @@ class EffectCost(Cost):
 
     def pay(self, actions):
         yield from self.effect(actions.ctx, Actions(actions.ctx, self.uses))
+
+
+@dataclass
+class SpendFromHere(Cost):
+    """Spend resources from this card's own tokens (KW-SPEND-04): "Spend 1 [Dilithium] from this card"."""
+
+    dilithium: int = 0
+    latinum: int = 0
+    glory: int = 0
+
+    def _amounts(self):
+        return [(k, n) for k, n in (("dilithium", self.dilithium), ("latinum", self.latinum), ("glory", self.glory)) if n]
+
+    def can_pay(self, ctx):
+        this = ctx.this_card
+        return this is not None and all(this.res.get(k, 0) >= n for k, n in self._amounts())
+
+    def pay(self, actions):
+        this = actions.ctx.this_card
+        for kind, n in self._amounts():
+            this.res[kind] -= n
+            if not this.res[kind]:
+                del this.res[kind]
+        spent = _res_text(self.dilithium, self.latinum, self.glory)
+        actions.emit(f"{actions.ctx.me.name} spends {spent} from {name(this)}.")
+        return
+        yield  # pragma: no cover
 
 
 @dataclass
@@ -821,7 +928,8 @@ class Actions:
         player.draw, player.discard = player.discard, []
         self.state.shuffle(player.draw)
         self.state.emit(f"{player.name} shuffles their Discard pile into a new deck.", seat=player.seat, irreversible=True)
-        if is_khan(player):
+        raise_event(self.state, "cycle", player.seat, None)
+        if not enlists_on_cycle(player):
             return True
         if player.reserve:
             player.draw.insert(0, player.reserve.pop(0))
@@ -1197,11 +1305,18 @@ class Actions:
     def destroy(self, inst: Inst) -> Gen:
         """Return a card to the box: it leaves the game (KW-DES)."""
         self._use(A.DESTROY)
+        neutral = inst in self.state.neutral
+        if card(inst).suit == "Location" and (neutral or locate(self.state, inst.uid) is not None):
+            self._clear_location(inst)  # Ships there are dismissed and Away Teams return; no Glory is given (KW-DES-03)
         if inst in self.state.rewards:
             self.state.rewards.remove(inst)
         elif locate(self.state, inst.uid) is not None:
             take_out(self.state, inst)
         self.emit(f"{name(inst)} is destroyed.")
+        if neutral and self.state.location_deck:
+            revealed = self.state.location_deck.pop(0)  # the Neutral Zone is refilled, as after taking control
+            self.state.neutral.append(revealed)
+            self.state.emit(f"{name(revealed)} is revealed in the Neutral Zone.", irreversible=True)
         return
         yield  # pragma: no cover
 
@@ -1288,6 +1403,7 @@ class Actions:
         self.emit(f"{self.ctx.me.name} gains {name(inst)} {where}.")
         to = "hand" if to_hand else ("top" if answer == "top" else "discard")
         raise_event(self.state, "gain", self.ctx.me.seat, inst.uid, to=to)
+        yield from self._offer_mark(inst)  # Khan's board: "after gaining a card ... you may mark one" (REQ-CD-KHN-06)
 
     def _scans_junk(self) -> bool:
         return any(i.card in registry.SCANS_INCLUDE_JUNK for i in table_cards(self.ctx.me))
@@ -1358,15 +1474,22 @@ class Actions:
         return None
 
     def find(self, pred: Callable[[Inst], bool], label: str, *, exclude_reserve: bool = False,
-             zones_: Iterable[str] = ("hand", "draw", "discard", "reserve"), optional: bool = False) -> Gen:
-        """Find [card] (KW-FIND). Returns (card, zone it came from) or (None, None)."""
+             zones_: Iterable[str] = ("hand", "draw", "discard", "reserve"), optional: bool = False,
+             player: Player | None = None) -> Gen:
+        """Find [card] (KW-FIND). Returns (card, zone it came from) or (None, None). With `player` set to the
+        opponent, they find among their own cards ("force your opponent to find")."""
         self._use(A.FIND)
-        me = self.ctx.me
+        me = player or self.ctx.me
+        if me is not self.ctx.me:
+            self._use(A.FORCE)  # the opponent searches their own cards and chooses (KW-FORCE)
+            if me.bot is not None:
+                yield from self.bot_hand_attack(me)
+                return None, None
         searched = [z for z in zones_ if not (exclude_reserve and z == "reserve")]
         pools = {"hand": me.hand, "draw": me.draw, "discard": me.discard, "reserve": me.reserve, "log": me.log}
         this = self.ctx.this_card
         candidates = [(z, i) for z in searched for i in pools[z] if i is not this and pred(i)]
-        if "hand" in searched and self.ctx.incidents_from_log():  # Pike's PASSIVE: Incidents from the Log too
+        if "hand" in searched and self.ctx.incidents_from_log(me):  # Pike's PASSIVE: Incidents from the Log too
             candidates += [("log", i) for i in me.log if card(i).suit == "Incident" and pred(i)]
         options = [(f"{z}:{i.uid}", f"{name(i)} ({'your ' + {'draw': 'Draw deck', 'reserve': 'Reserve deck', 'discard': 'Discard pile', 'hand': 'hand', 'log': 'Log'}[z]})")
                    for z, i in candidates]
@@ -1375,7 +1498,7 @@ class Actions:
         found, zone = None, None
         if options:
             self.state.emit(f"{me.name} searches for {label}.", irreversible=True)
-            answer = yield from self.choose(f"Find {label}.", options, show=[i for _, i in candidates])
+            answer = yield from self.choose(f"Find {label}.", options, me.seat, show=[i for _, i in candidates])
             if answer != "none":
                 zone, uid = answer.split(":", 1)
                 found = next(i for z, i in candidates if i.uid == uid)
@@ -1406,21 +1529,24 @@ class Actions:
         yield  # pragma: no cover
 
     def enlist_development(self, *, free: bool = False, pred: Callable[[Inst], bool] | None = None,
-                           discount: bool = False) -> Gen:
+                           discount: bool = False, no_resources: bool = False) -> Gen:
         """Enlist a Development, paying its cost. `discount=True` pays 1 less Dilithium or 1 less Latinum of it
-        (Rebner's Things That Make Us Smart)."""
+        (Rebner's Things That Make Us Smart). `no_resources=True` is "at no [Dilithium]/[Latinum]/Incident cost": the
+        rest of the cost, such as "have X in play", still applies (Cpt. Terrell)."""
         self._use(A.ENLIST_DEVELOPMENT)
-        return (yield from self._enlist_development(free=free, pred=pred, discount=discount))
+        return (yield from self._enlist_development(free=free, pred=pred, discount=discount, no_resources=no_resources))
 
     def _enlist_development(self, *, free: bool, pred: Callable[[Inst], bool] | None = None,
-                            discount: bool = False) -> Gen:
-        cards = [i for i in _payable_developments(self.ctx, free=free, discount=discount) if pred is None or pred(i)]
+                            discount: bool = False, no_resources: bool = False) -> Gen:
+        cards = [i for i in _payable_developments(self.ctx, free=free, discount=discount, no_resources=no_resources)
+                 if pred is None or pred(i)]
         if not cards:
             self.emit("No Development can be enlisted.")
             return None
         inst = yield from self.pick_card("Enlist which Development?", cards)
         if not free:
-            variants = [(label, costs) for label, costs in _cost_variants(registry.DEV_COSTS[inst.card], discount)
+            variants = [(label, costs) for label, costs in
+                        _cost_variants(_dev_costs(inst.card, no_resources), discount)
                         if all(c.can_pay(self.ctx) for c in costs)]
             costs = variants[0][1] if len(variants) == 1 else dict(variants)[
                 (yield from self.choose("Pay 1 less of which resource?", [(k, k) for k, _ in variants]))]
@@ -1676,8 +1802,8 @@ class Actions:
     def gain_specialty(self, track: str, n: int = 1, player: Player | None = None) -> Gen:
         self._use(A.GAIN_SPECIALTY)
         player = player or self.ctx.me
-        if is_khan(player) or n == 0:
-            return
+        if not has_tracks(player) or n == 0:
+            return  # no tracks: gaining does nothing (REQ-CD-KHN-04)
         player.tracks[track] = max(0, min(15, player.tracks[track] + n))
         player.highest[track] = max(player.highest[track], player.tracks[track])
         self.state.emit(f"{player.name} gains {n} {track.capitalize()} (now {player.tracks[track]}).", seat=player.seat)
@@ -1687,22 +1813,31 @@ class Actions:
         yield  # pragma: no cover
 
     # ------------------------------------------------------------ board
-    def warp(self, ship: Inst, *, destinations: list[Inst] | None = None) -> Gen:
+    def warp(self, ship: Inst, *, destinations: list[Inst] | None = None, by: Player | None = None) -> Gen:
         """Move a Ship token to a Location: one of your controlled or a neutral Location, or `destinations`
-        (Gomtuu moves an opponent's Ship to another neutral Location). The warp event belongs to the Ship's owner."""
+        (Gomtuu moves an opponent's Ship to another neutral Location). The warp event belongs to the Ship's owner.
+        `by` is the player who warps and chooses, when it is not you ("your opponent may warp a Ship")."""
         self._use(A.WARP)
+        mover = by or self.ctx.me
+        if ship.card in registry.CANNOT_WARP:
+            self.emit(f"{name(ship)} cannot be warped.")
+            return None
         if destinations is None:
-            extra = [i for i in table_cards(self.ctx.me) if i.card in registry.WARP_DESTINATIONS]  # Earth
-            destinations = [loc for loc in [*self.ctx.me.locations, *self.state.neutral, *extra] if loc.uid != ship.at]
-        dest = yield from self.pick_card(f"Warp {name(ship)} to which Location?", destinations)
+            extra = [i for i in table_cards(mover) if i.card in registry.WARP_DESTINATIONS]  # Earth
+            destinations = [loc for loc in [*mover.locations, *self.state.neutral, *extra] if loc.uid != ship.at]
+        dest = yield from self.pick_card(f"Warp {name(ship)} to which Location?", destinations, seat=mover.seat)
         if dest is None:
             return None
         ship.at = dest.uid
         where = locate(self.state, ship.uid)
         owner = where.owner if where and where.owner else self.ctx.me
-        self.emit(f"{self.ctx.me.name} warps {name(ship)} to {name(dest)}.")
+        self.emit(f"{mover.name} warps {name(ship)} to {name(dest)}.")
         raise_event(self.state, "warp", owner.seat, ship.uid, location=dest.uid)
         return dest
+
+    def can_warp(self, ship: Inst) -> bool:
+        """False for a Ship that cannot be warped (S.S. Botany Bay)."""
+        return ship.card not in registry.CANNOT_WARP
 
     def away_targets(self, where: Callable[[Inst], bool] | None = None, *, ignore_ships: bool = False) -> list[Inst]:
         """Locations an Away Team may be sent to (KW-SEND-03). `ignore_ships` skips the opponent-Ship rule."""
@@ -1748,6 +1883,26 @@ class Actions:
                         controlled=sent_to in me.locations, neutral=sent_to in self.state.neutral)
         return sent_to
 
+    def send_all_away_teams(self, target: Inst) -> Gen:
+        """Send every one of your Away Teams to a Location: those on your Captain and those at every other Location
+        (Devastated Ceti Alpha V). Returns how many moved."""
+        self._use(A.SEND_AWAY_TEAM)
+        me = self.ctx.me
+        moved = me.away_pool
+        me.away_pool = 0
+        for loc in self.ctx.all_locations():
+            if loc.uid != target.uid and loc.away.get(me.seat):
+                moved += loc.away.pop(me.seat)
+        if not moved:
+            return 0
+        target.away[me.seat] = target.away.get(me.seat, 0) + moved
+        self.emit(f"{me.name} sends all {moved} of their Away Team(s) to {name(target)}.")
+        for _ in range(moved):
+            raise_event(self.state, "send_away_team", me.seat, target.uid, location=target.uid,
+                        controlled=target in me.locations, neutral=target in self.state.neutral)
+        return moved
+        yield  # pragma: no cover
+
     def remove_away_team(self, loc: Inst, player: Player) -> Gen:
         self._use(A.REMOVE_AWAY_TEAM)
         if loc.away.get(player.seat):
@@ -1780,8 +1935,123 @@ class Actions:
             take_out(self.state, loc)
             self.ctx.me.locations.append(loc)
             self.emit(f"{self.ctx.me.name} takes control of {name(loc)}.")
+        yield from self._offer_mark(loc)  # Khan marks before the CONTROL operation resolves (REQ-CD-KHN-08)
         yield from run_inline(self.ctx, loc, "CONTROL")
         return loc
+
+    # ------------------------------------------------------------ Khan's trait board and double-sided cards
+    def mark_trait(self, inst: Inst | None = None, *, optional: bool = False) -> Gen:
+        """Mark one trait of a card on your Crew board, or any one trait when no card is given (Genesis Device).
+        Returns the Mark, or None when nothing could be or was marked (REQ-CD-KHN-06)."""
+        self._use(A.MARK_TRAIT)
+        mark = yield from self._mark(inst, wildcard=False, optional=optional,
+                                     prompt=f"Mark which trait of {name(inst)}?" if inst is not None else "Mark which trait?")
+        if mark is None and not optional:
+            self.emit("No trait can be marked.")
+        return mark
+
+    def _offer_mark(self, inst: Inst) -> Gen:
+        """The board's own rule: after gaining a card or taking control of a Location with an unmarked trait, you may
+        mark one of them; a Wildcard counts as any one trait (REQ-CD-KHN-06). Nothing for players without the board."""
+        if trait_board(self.ctx.me) and self.ctx.me.bot is None:
+            yield from self._mark(inst, wildcard=True, optional=True, prompt=f"Mark a trait for {name(inst)}?")
+
+    def _mark(self, inst: Inst | None, *, wildcard: bool, optional: bool, prompt: str) -> Gen:
+        me = self.ctx.me
+        found = mark_options(self.state, me, inst, wildcard=wildcard)
+        if not found:
+            return None
+        options = [(f"{slot}|{trait}", f"Opponent's Captain: {trait}" if slot in OPPONENT_SLOTS else trait)
+                   for slot, trait in found]
+        if optional:
+            options.append(("none", "Do not mark a trait"))
+        answer = options[0][0] if len(options) == 1 else (
+            yield from self.choose(prompt, options, show=[inst] if inst is not None else None))
+        if answer == "none":
+            return None
+        slot, trait = answer.split("|", 1)
+        mark = Mark(slot=slot, trait=trait, card=inst.uid if inst is not None else None)
+        me.marks.append(mark)
+        entry = " (an Opponent's Captain entry)" if slot in OPPONENT_SLOTS else ""
+        self.emit(f"{me.name} marks {trait}{entry}: {len(me.marks)} of {len(trait_board(me))} traits marked.")
+        return mark
+
+    def flip(self, inst: Inst) -> Gen:
+        """Flip a double-sided card to its other side. It stays where it is, with its tokens and beamed cards; Away
+        Teams on a Captain carry over (REQ-CD-KHN-01)."""
+        self._use(A.FLIP_CARD)
+        other = flip_side(inst.card)
+        if other is None:
+            self.emit(f"{name(inst)} has no other side.")
+            return
+        before = name(inst)
+        inst.card = other
+        where = locate(self.state, inst.uid)
+        owner = where.owner if where is not None and where.owner is not None else self.ctx.me
+        self.state.emit(f"{before} flips to {name(inst)}.", seat=owner.seat)
+        raise_event(self.state, "flip", owner.seat, inst.uid)
+        return
+        yield  # pragma: no cover
+
+    def give(self, inst: Inst) -> Gen:
+        """Give a card that is not an Incident to the opponent: into their hand (KW-GIVE-01), or onto the Bot deck.
+        Does nothing without a real opponent; card code handles Cadet Training itself."""
+        self._use(A.GIVE)
+        opp = self.ctx.opponent
+        if opp is None:
+            return None
+        take_out(self.state, inst)
+        inst.res.clear()
+        if opp.bot is not None:
+            opp.draw.insert(0, inst)
+        else:
+            opp.hand.append(inst)
+        self.state.emit(f"{self.ctx.me.name} gives {name(inst)} to {opp.name}.", irreversible=True)
+        return inst
+        yield  # pragma: no cover
+
+    def put_in_discard(self, inst: Inst, player: Player) -> Gen:
+        """Put a card into a player's Discard pile, the opponent's too (Khan's Incidents). It becomes theirs."""
+        self._use(A.PUT)
+        take_out(self.state, inst)
+        inst.res.clear()
+        player.discard.append(inst)
+        self.state.emit(f"{self.ctx.me.name} puts {name(inst)} into {player.name}'s Discard pile.", seat=player.seat)
+        return inst
+        yield  # pragma: no cover
+
+    def put_in_development(self, inst: Inst) -> Gen:
+        """Put a card back into your Development pile (Ceti Eel). It can be enlisted again."""
+        self._use(A.PUT)
+        take_out(self.state, inst)
+        inst.res.clear()
+        self.ctx.me.development.append(inst)
+        self.emit(f"{self.ctx.me.name} puts {name(inst)} back into their Development pile.")
+        return inst
+        yield  # pragma: no cover
+
+    def peek_location_deck(self, n: int = 2) -> Gen:
+        """Look privately at the top n cards of the Location deck; they stay there (S.S. Botany Bay)."""
+        self._use(A.PEEK)
+        top = list(self.state.location_deck[:n])
+        if top:
+            self.state.emit(f"{self.ctx.me.name} looks at the top {len(top)} card(s) of the Location deck.",
+                            seat=self.ctx.me.seat, irreversible=True)
+        return top
+        yield  # pragma: no cover
+
+    def put_on_location_deck(self, inst: Inst, *, bottom: bool = True) -> Gen:
+        """Move a Location deck card to the bottom (or top) of that deck (S.S. Botany Bay)."""
+        self._use(A.PUT)
+        if inst in self.state.location_deck:
+            self.state.location_deck.remove(inst)
+            if bottom:
+                self.state.location_deck.append(inst)
+            else:
+                self.state.location_deck.insert(0, inst)
+            self.emit(f"{self.ctx.me.name} puts a Location on the {'bottom' if bottom else 'top'} of the Location deck.")
+        return
+        yield  # pragma: no cover
 
     def exhaust(self, inst: Inst) -> Gen:
         self._use(A.EXHAUST)
@@ -2152,12 +2422,20 @@ def _cost_variants(costs, discount: bool) -> list[tuple[str, tuple]]:
     return out or [("", tuple(costs))]
 
 
-def _payable_developments(ctx: Ctx, free: bool = False, discount: bool = False) -> list[Inst]:
+def _dev_costs(card_id: str, no_resources: bool = False) -> tuple:
+    """A Development's cost, without its resource and Incident parts when an effect waives those (Cpt. Terrell)."""
+    costs = registry.DEV_COSTS[card_id]
+    if no_resources:
+        costs = tuple(c for c in costs if not isinstance(c, (Spend, SpendUnless, SpendVariable, TakeIncidentCost)))
+    return costs
+
+
+def _payable_developments(ctx: Ctx, free: bool = False, discount: bool = False, no_resources: bool = False) -> list[Inst]:
     out = []
     for inst in ctx.me.development:
-        costs = registry.DEV_COSTS.get(inst.card)
-        if costs is None:
+        if inst.card not in registry.DEV_COSTS:
             continue  # development cost not implemented yet
+        costs = _dev_costs(inst.card, no_resources)
         if free or any(all(c.can_pay(ctx) for c in cs) for _, cs in _cost_variants(costs, discount)):
             out.append(inst)
     return out
@@ -2204,9 +2482,7 @@ def _legal(state: GameState, player: Player, inst: Inst, index: int, *, free: bo
     if index in registry.GRANTED_PLAYS and index not in granted_indexes(player, inst):
         return False
     if impl is None:
-        # Placeholder: only Khan's cards still lack code (plans/card-implementation.md Step 18 is on hold). They stay
-        # playable so a Khan game can run; their effects are skipped with a note.
-        return card(inst).deck == "khan"
+        return False  # no code: only the solo-only SURPRISE operations, which are never played this way
     ctx = Ctx(state, OpRef(mode="play", seat=player.seat, uid=inst.uid, index=index))
     if op.action_cost and not free and player.actions <= 0:
         return False
@@ -2283,6 +2559,14 @@ def system(name_: str):
 def _duty_trim(ctx: Ctx, actions: Actions) -> Gen:
     """A player has more Duty Officers than their slots allow, e.g. Illyrians left the Staging Area."""
     yield from actions._trim_duty(ctx.me)
+
+
+@system("mark_trait")
+def _mark_for_control(ctx: Ctx, actions: Actions) -> Gen:
+    """Khan took control of a Location in the Control Step: he may mark one of its traits before its CONTROL
+    operation resolves (REQ-CD-KHN-06, -08)."""
+    if ctx.this_card is not None:
+        yield from actions._offer_mark(ctx.this_card)
 
 
 @system("drawup")

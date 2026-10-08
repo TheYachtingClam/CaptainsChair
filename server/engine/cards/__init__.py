@@ -104,6 +104,12 @@ PROTECTED_BEAMED: set[str] = set()
 BEFORE_SCORING: set[str] = set()
 # SPECIAL: while this card is in its owner's play (not beamed), the opponent cannot use REACTIONs on the owner's turn.
 NO_OPPONENT_REACTIONS: set[str] = set()
+# PASSIVE "You do not enlist when you cycle your deck" (Khan's Captain, REQ-CD-KHN-03). Table positions.
+NO_ENLIST_ON_CYCLE: set[str] = set()
+# PASSIVE "Ignore all [Research]/[Influence]/[Military] requirements" (Wrathful Khan, REQ-CD-KHN-04). Table positions.
+IGNORE_SPECIALTY_REQUIREMENTS: set[str] = set()
+# PASSIVE "This ship cannot be warped" (S.S. Botany Bay): no effect can warp it.
+CANNOT_WARP: set[str] = set()
 # Resources a player gains when this card is dismissed, instead of the usual return to the supply (R.I.S. Talvath).
 DISMISS_REWARDS: dict[str, Callable[["GameState", "Player", "Inst"], dict[str, int]]] = {}
 
@@ -257,7 +263,7 @@ def _passive_registries():
     return (HAND_SIZE, DUTY_LIMIT, SKILLS, SCANS_INCLUDE_JUNK, STATE_CHECKS, DISMISS_REWARDS, NO_OPPONENT_REACTIONS,
             DUTY_SLOTS, RESTRICTIONS, TRAIT_MODIFIERS, ALSO_SUIT, INCIDENTS_FROM_JUNK, CANNOT_PROMOTE, CANNOT_LOG,
             VP_SPECIAL, WARP_DESTINATIONS, PROTECTED_BEAMED, SKILL_REWRITES, INCIDENTS_FROM_LOG, DECK_FACE_UP,
-            SHIP_WEIGHT, RESOURCES_INTERCHANGEABLE, {source for source, _, _ in GRANTED_PLAYS.values()})
+            SHIP_WEIGHT, RESOURCES_INTERCHANGEABLE, NO_ENLIST_ON_CYCLE, IGNORE_SPECIALTY_REQUIREMENTS, CANNOT_WARP, {source for source, _, _ in GRANTED_PLAYS.values()})
 
 
 def has_code(card_id: str, index: int, kind: str) -> bool:

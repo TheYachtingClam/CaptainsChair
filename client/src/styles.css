@@ -188,6 +188,14 @@ button.secondary { background: var(--bg); color: var(--text); border: 1px solid 
   position: absolute; width: 4.2%; aspect-ratio: 1; transform: translate(-50%, -50%);
   border: 2px solid #fff; border-radius: 3px; box-shadow: 0 2px 4px #0008;
 }
+/* Khan's trait tokens lie in the 12 slots of his Crew board; a marked one shows its dark side with a tick. */
+.trait-token {
+  position: absolute; width: 27.5%; height: auto; transform: translate(-50%, -50%);
+  border-radius: 3px; box-shadow: 0 1px 3px #0009;
+}
+.crew-board img.trait-token { width: 27.5%; border-radius: 3px; }
+.trait-token.marked { box-shadow: 0 0 0 2px #3ddc84, 0 1px 3px #0009; }
+.trait-count { position: absolute; left: 6px; top: 6px; font-size: 0.72rem; background: #000a; color: #fff; padding: 1px 6px; border-radius: 4px; }
 .mission-tokens { position: absolute; right: 6px; top: 6px; font-size: 0.72rem; background: #000a; color: #fff; padding: 1px 6px; border-radius: 4px; }
 
 .badge.away { left: auto; right: -6px; top: 34%; bottom: auto; background: #9b4fd1; color: #fff; }

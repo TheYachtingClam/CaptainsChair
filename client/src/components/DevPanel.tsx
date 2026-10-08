@@ -83,6 +83,11 @@ export function DevPanel({ gameId }: { gameId: string }) {
             <button className="secondary" disabled={send.isPending} onClick={() => send.mutate({ kind: "track", track: t, amount: 5 })}>+5</button>
           </div>
         ))}
+        <div className="dev-row" title="Khan only: marks the next unmarked trait slots, in board order">
+          <span>Khan traits</span>
+          <button className="secondary" disabled={send.isPending} onClick={() => send.mutate({ kind: "mark", amount: 1 })}>+1</button>
+          <button className="secondary" disabled={send.isPending} onClick={() => send.mutate({ kind: "mark", amount: 3 })}>+3</button>
+        </div>
       </div>
       {send.error && <p className="error" role="alert">{send.error.message}</p>}
       <p className="muted small">Each change is an undoable command, and shows in the log as [Dev].</p>

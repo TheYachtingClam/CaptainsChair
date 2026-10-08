@@ -95,6 +95,15 @@ class BotState(BaseModel):
     facedown: list[str] = Field(default_factory=list)  # uids drawn this turn, not yet flipped (REQ-SOLO-53, -54)
 
 
+class Mark(BaseModel):
+    """A marked trait slot on Khan's Crew board (REQ-CD-KHN-06): the slot, the trait it was marked with (which matters
+    for the two entries that depend on the opponent's Captain) and the card that marked it, if a card did."""
+
+    slot: str
+    trait: str
+    card: str | None = None
+
+
 class Player(BaseModel):
     seat: int
     name: str
@@ -125,6 +134,9 @@ class Player(BaseModel):
     missions_completed: list[str] = Field(default_factory=list)
     enlisted: list[str] = Field(default_factory=list)  # card ids of Developments enlisted this game
     controls_this_turn: int = 0
+    marks: list[Mark] = Field(default_factory=list)  # Khan: trait slots marked on the Crew board (REQ-CD-KHN-06)
+    # Cadet Training: the random other Captain whose traits set Khan's two opponent entries (REQ-CD-KHN-10).
+    rival_captain: str | None = None
     bot: BotState | None = None  # set for the Bot in solo mode
     # Five-Year Mission campaign (REQ-CAMP-20 to -23): cards earned in earlier games, taken with Reinforce. They are
     # not owned, so they never score, until taken.

@@ -92,6 +92,9 @@ class Board(BaseModel):
     mission_completion_tokens: int
     tracks: dict[Specialty, dict[int, int]]  # empty for Khan, who has no Specialty tracks
     trait_slots: int | None = None  # Khan only
+    # Khan only: the trait slots in board order (REQ-CD-KHN-06, -11). A slot id is the trait in lower case, or one of
+    # the two entries that depend on the opponent's Captain. Token images are khan-<slot> and khan-<slot>-marked.
+    trait_order: tuple[str, ...] = ()
     missions: tuple[Mission, ...] = Field(min_length=1)
 
     def multiplier(self, specialty: Specialty, highest_space: int) -> int:

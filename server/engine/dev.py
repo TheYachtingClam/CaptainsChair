@@ -7,6 +7,7 @@ A developer command is a dict:
   {"kind": "card", "card": "2PER01", "zone": "hand"}         a new copy of any card, placed in a zone
   {"kind": "resource", "resource": "dilithium", "amount": 3}  dilithium, latinum, glory or actions
   {"kind": "track", "track": "military", "amount": 2}          move a Specialty track (negative moves it back)
+  {"kind": "mark", "amount": 3}                                mark that many trait slots on Khan's board, in board order
 
 Placing a card does not count as putting it into play and triggers nothing: it sets up a position.
 """
@@ -71,6 +72,20 @@ def apply(state: GameState, seat: int, cmd: dict, *, flag_irreversible: bool = T
         player.tracks[track] = max(0, min(15, player.tracks[track] + amount))
         player.highest[track] = max(player.highest[track], player.tracks[track])
         state.emit(f"[Dev] {player.name}: {track.capitalize()} {amount:+d} (now {player.tracks[track]}).", seat=seat)
+    elif kind == "mark":
+        from engine.ops import mark_options
+        from engine.state import Mark
+
+        amount = int(cmd.get("amount", 0))
+        marked = 0
+        for _ in range(max(0, amount)):
+            found = mark_options(state, player, None)  # any unmarked slot, in board order
+            if not found:
+                break
+            slot, trait = found[0]
+            player.marks.append(Mark(slot=slot, trait=trait))
+            marked += 1
+        state.emit(f"[Dev] {player.name} marks {marked} trait(s) (now {len(player.marks)}).", seat=seat)
     else:
         raise DevCommandError(f"Unknown developer command {kind!r}")
 

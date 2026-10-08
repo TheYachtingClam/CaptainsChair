@@ -20,7 +20,6 @@ from engine.setup import refill_market
 from engine.state import Decision, GameState, Inst, Option, Player
 
 BASE_HAND_SIZE = 5
-KHAN_CAPTAINS = {"2KHA01A", "2KHA01B"}
 
 
 class IllegalCommand(ValueError):
@@ -239,10 +238,6 @@ def table_cards(player: Player) -> list[Inst]:
     return [player.captain, *player.status, *player.fleet, *player.locations, *player.duty]
 
 
-def is_khan(player: Player) -> bool:
-    return player.captain.card in KHAN_CAPTAINS
-
-
 def draw(state: GameState, player: Player, count: int, *, announce: bool = True) -> int:
     drawn = 0
     for _ in range(count):
@@ -262,7 +257,8 @@ def cycle_deck(state: GameState, player: Player) -> bool:
     player.draw, player.discard = player.discard, []
     state.shuffle(player.draw)
     state.emit(f"{player.name} shuffles their Discard pile into a new deck.", seat=player.seat, irreversible=True)
-    if is_khan(player):
+    ops.raise_event(state, "cycle", player.seat, None)
+    if not ops.enlists_on_cycle(player):
         return True  # Khan does not enlist when cycling (REQ-CD-KHN-03)
     if player.reserve:
         player.draw.insert(0, player.reserve.pop(0))
@@ -407,6 +403,9 @@ def take_control(state: GameState, player: Player, location: Inst, *, run_contro
     ops.raise_event(state, "take_control", player.seat, location.uid)
     if run_control:
         ops.put_into_play(state, player, location)
+        if ops.trait_board(player) and player.bot is None:
+            # Khan may mark one of its traits before the CONTROL operation resolves (REQ-CD-KHN-08).
+            state.op_queue.append(ops.OpRef(mode="system", seat=player.seat, uid=location.uid, system="mark_trait"))
         for index, op in enumerate(card(location).operations):
             if op.kind == "CONTROL":
                 state.op_queue.append(ops.OpRef(mode="auto", seat=player.seat, uid=location.uid, index=index))

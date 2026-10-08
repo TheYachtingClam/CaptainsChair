@@ -67,7 +67,7 @@ These shape every step. Each has a recommended default, which I'll use unless yo
 5. **Watching the Bot is client-side.**
    - The engine runs the whole Bot turn at once and logs each step in plain words (REQ-SOLO-05): which card was flipped, which row matched and why, and what each step did.
    - The client replays those log entries one at a time, with Next, Auto-play and Skip (REQ-SOLO-56).
-6. **Khan stays out**, as in the card plan. His Bot depends on the same open questions as his deck. The Khan Bot and his SURPRISE cards join when Khan does.
+6. **The Khan Bot stays out for now.** Khan's human-player deck is done (card plan, Step 18) and his open questions are answered, including the board order of his trait tokens for the Bot's tie-breaker. The Khan Bot, his SURPRISE cards and his campaign bonuses are the next piece of work.
 7. **Campaigns belong to a campaign link.** The server has no accounts, only a shared password. So a campaign gets its own secret link, stored as a token hash like seat tokens, which you can bookmark (REQ-CAMP-54).
 
 ---
@@ -251,7 +251,7 @@ The campaign without bonuses and challenges:
 
 ## Not in this plan
 
-- **The Khan Bot** and Khan's SURPRISE cards. They wait for Khan's open questions, like his deck.
+- **The Khan Bot**, Khan's SURPRISE cards and his campaign bonuses. Nothing blocks them now: his deck is implemented and his questions are answered.
 - **The Core Box Burnham Bot** (REQ-SOLO-59, -72). Its content isn't in the app.
 - **Using *Conspiracy* as a second Ticking Clock** (REQ-SOLO-132). It is a Core Box card, also not in the app.
 

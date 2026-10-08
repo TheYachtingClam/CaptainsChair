@@ -4492,6 +4492,7 @@ cards:
     - SEND_AWAY_TEAM
     - PUT
     - DRAW
+    - FORCE
     undoable: false
   - kind: PLAY
     text: Find any card and log the found card. You may return an Incident. Log this card.
@@ -4593,6 +4594,8 @@ cards:
     - GIVE
     - FORCE
     - LOG
+    - DESTROY
+    - GAIN_RESOURCE
     undoable: false
   - kind: SPECIAL
     text: During scoring, each of your Incident scores an additional [-1 VP].
@@ -4948,6 +4951,7 @@ cards:
     uses:
     - DISCARD
     - GAIN_ACTION
+    - SPEND
     - ENLIST_DEVELOPMENT
     - DISMISS
     undoable: true
@@ -5040,6 +5044,8 @@ cards:
     - ATTACK
     - GAIN_RESOURCE
     - DRAW
+    - FORCE
+    - RETURN_INCIDENT
     undoable: false
   - kind: SURPRISE
     text: Discard the top card of the Bot deck. Put this card in your Discard pile. Draw a card.
@@ -5086,6 +5092,8 @@ cards:
     - ATTACK
     - GAIN_RESOURCE
     - DRAW
+    - FORCE
+    - RETURN_INCIDENT
     undoable: false
   - kind: SURPRISE
     text: Discard the top card of the Bot deck. Put this card in your Discard pile. Draw a card.
@@ -5132,6 +5140,8 @@ cards:
     - ATTACK
     - GAIN_RESOURCE
     - DRAW
+    - FORCE
+    - RETURN_INCIDENT
     undoable: false
   - kind: SURPRISE
     text: Discard the top card of the Bot deck. Put this card in your Discard pile. Draw a card.
@@ -5174,6 +5184,7 @@ cards:
     - WARP
     - FREE_PLAY
     - RETURN_INCIDENT
+    - FORCE
     undoable: true
   - kind: SURPRISE
     text: You may warp a Ship. If Bot has Augment in play, return this card; otherwise continue resolution.

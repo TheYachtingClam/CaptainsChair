@@ -27,6 +27,7 @@ boards:
       13: 4
       15: 5
   trait_slots: null
+  trait_order: []
   missions:
   - id: project-swing-by
     name: Project Swing By
@@ -85,6 +86,7 @@ boards:
       13: 5
       15: 6
   trait_slots: null
+  trait_order: []
   missions:
   - id: project-swing-by
     name: Project Swing By
@@ -115,6 +117,7 @@ boards:
       5: 2
       9: 3
   trait_slots: null
+  trait_order: []
   missions:
   - id: weight-of-the-future
     name: Weight of the Future
@@ -164,6 +167,7 @@ boards:
       5: 3
       9: 4
   trait_slots: null
+  trait_order: []
   missions:
   - id: weight-of-the-future
     name: Weight of the Future
@@ -196,6 +200,7 @@ boards:
       11: 3
       15: 5
   trait_slots: null
+  trait_order: []
   missions:
   - id: battling-the-pakled
     name: Battling the Pakled
@@ -248,6 +253,7 @@ boards:
       11: 4
       15: 6
   trait_slots: null
+  trait_order: []
   missions:
   - id: battling-the-pakled
     name: Battling the Pakled
@@ -280,6 +286,7 @@ boards:
       8: 3
       15: 5
   trait_slots: null
+  trait_order: []
   missions:
   - id: history-with-every-light-year
     name: History with Every Light-Year
@@ -335,6 +342,7 @@ boards:
       8: 4
       15: 6
   trait_slots: null
+  trait_order: []
   missions:
   - id: history-with-every-light-year
     name: History with Every Light-Year
@@ -372,6 +380,7 @@ boards:
       10: 3
       14: 4
   trait_slots: null
+  trait_order: []
   missions:
   - id: call-in-the-reinforcements
     name: Call in the Reinforcements
@@ -430,6 +439,7 @@ boards:
       10: 4
       14: 5
   trait_slots: null
+  trait_order: []
   missions:
   - id: call-in-the-reinforcements
     name: Call in the Reinforcements
@@ -451,6 +461,19 @@ boards:
   mission_completion_tokens: 3
   tracks: {}
   trait_slots: 12
+  trait_order:
+  - ambassador
+  - business
+  - cloak
+  - creature
+  - doctor
+  - engineer
+  - scientist
+  - spy
+  - synthetic
+  - telepath
+  - captain-trait
+  - different-trait-than-opponent
   missions:
   - id: ive-hurt-you
     name: I've Hurt You
@@ -502,6 +525,7 @@ boards:
       6: 3
       10: 4
   trait_slots: null
+  trait_order: []
   missions:
   - id: where-no-man-has-gone-before
     name: Where No Man Has Gone Before
@@ -558,6 +582,7 @@ boards:
       6: 4
       10: 5
   trait_slots: null
+  trait_order: []
   missions:
   - id: where-no-man-has-gone-before
     name: Where No Man Has Gone Before
@@ -584,6 +609,7 @@ boards:
       12: 4
       15: 5
   trait_slots: null
+  trait_order: []
   missions:
   - id: things-that-make-us-smart
     name: Things That Make Us Smart
@@ -627,6 +653,7 @@ boards:
       12: 5
       15: 6
   trait_slots: null
+  trait_order: []
   missions:
   - id: things-that-make-us-smart
     name: Things That Make Us Smart
@@ -663,6 +690,7 @@ boards:
       13: 4
       15: 5
   trait_slots: null
+  trait_order: []
   missions:
   - id: my-mind-to-your-mind
     name: My Mind to Your Mind
@@ -720,6 +748,7 @@ boards:
       13: 5
       15: 6
   trait_slots: null
+  trait_order: []
   missions:
   - id: my-mind-to-your-mind
     name: My Mind to Your Mind

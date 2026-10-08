@@ -225,6 +225,15 @@ export interface OptionView {
   reason: string | null;
 }
 
+/** One trait slot on Khan's Crew board: its token image changes when it is marked. */
+export interface TraitSlot {
+  slot: string;
+  label: string;
+  marked: boolean;
+  trait: string | null;
+  image: string;
+}
+
 export interface PlayerView {
   seat: number;
   name: string;
@@ -248,6 +257,8 @@ export interface PlayerView {
   resources: { dilithium: number; latinum: number; glory: number };
   actions: number;
   tracks: Record<string, number>;
+  /** Khan only: the 12 trait slots of his Crew board, in board order (REQ-CD-KHN-06). */
+  traits?: TraitSlot[] | null;
   away_pool: number;
   reserve?: CardView[] | null; // your own Reserve deck's contents, sorted by name; never its order (REQ-INF-05)
   // Five-Year Mission games only
@@ -329,7 +340,8 @@ export interface GameStateView {
 export type DevCommand =
   | { kind: "card"; card: string; zone: string }
   | { kind: "resource"; resource: "dilithium" | "latinum" | "glory" | "actions"; amount: number }
-  | { kind: "track"; track: "research" | "influence" | "military"; amount: number };
+  | { kind: "track"; track: "research" | "influence" | "military"; amount: number }
+  | { kind: "mark"; amount: number };
 
 export interface CardText {
   name: string;

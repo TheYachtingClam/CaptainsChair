@@ -130,6 +130,27 @@ def opponent_has(ctx: Ctx, pred) -> bool:
     return ctx.count_in_play(pred, ctx.opponent) > 0
 
 
+def in_play_ids(ctx: Ctx) -> set[str]:
+    """The card ids you have in play (table, Staging Area and beamed), for "if you have X and Y in play"."""
+    return {i.card for i in ctx.in_play()}
+
+
+def draw_up_to_twice(ctx, actions):
+    """Up to twice: draw a card from your deck or take one from your Discard pile (Wajahut, Joachim)."""
+    for n in (1, 2):
+        options = [("deck", "Draw from your deck")]
+        if ctx.me.discard:
+            options.append(("discard", "Take a card from your Discard pile"))
+        options.append(("stop", "Stop"))
+        choice = yield from actions.choose(f"Draw a card ({n} of up to 2)?", options)
+        if choice == "stop":
+            break
+        if choice == "deck":
+            yield from actions.draw(1)
+        else:
+            yield from actions.draw_from_discard()
+
+
 # ----------------------------------------------------------------------- scoring-time helpers (ENDGAME, VP_SPECIAL)
 
 
@@ -160,6 +181,14 @@ def highest_multiplier(player) -> int:
 
     board = content().boards[player.board]
     return max((board.multiplier(t, player.highest[t]) for t in ("research", "influence", "military")), default=0)
+
+
+def completed_mission_vp(player) -> int:
+    """The printed VP of the missions the player has completed (Genesis Device scores them again)."""
+    from engine.content import content
+
+    board = content().boards[player.board]
+    return sum(m.vp or 0 for m in board.missions if m.id in player.missions_completed)
 
 
 def stardate_sequence(state) -> int:

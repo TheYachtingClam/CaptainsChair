@@ -82,6 +82,15 @@ def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str]
         state.players.append(_player_setup(state, seat, choice, data))
     if mode == "solo":
         state.players.append(_bot_setup(state, len(state.players), bot, data))
+    if mode == "cadet":
+        for player in state.players:
+            if data.boards[player.board].trait_order:
+                # Khan in Cadet Training: a random other Captain sets his two opponent entries (REQ-CD-KHN-10).
+                captains = sorted(c.id for c in data.cards.values()
+                                  if c.suit == "Captain" and c.set in sets and c.deck != player.deck)
+                player.rival_captain = captains[state.rng().randrange(len(captains))]
+                state.emit(f"{player.name}'s two Opponent's Captain entries use the traits of "
+                           f"{data.cards[player.rival_captain].name}.", seat=player.seat)
     state.shuffle(state.incident)  # after Crew cards marked Incident Deck were added (REQ-PS-11)
     for seat, choice in enumerate(seats):
         if choice.campaign and choice.campaign.extra_incident and state.incident:

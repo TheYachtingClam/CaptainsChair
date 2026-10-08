@@ -2,8 +2,8 @@
 mission has code, except what waits on purpose.
 
 Waiting on purpose:
-- Khan's deck and missions (Step 18 is on hold: Khan has open questions);
-- solo-only cards and SURPRISE operations, which need the Bot (requirements/22-solo-mode.md);
+- solo-only cards and SURPRISE operations, which need the Bot (requirements/22-solo-mode.md); Khan's four SURPRISE
+  operations and his Bot rows wait for the Khan Bot;
 - Stardate WHEN EMPTIED and STARDATE RESOLUTION, which the engine runs itself."""
 
 from engine import cards as registry
@@ -13,7 +13,7 @@ ENGINE_KINDS = {"WHEN EMPTIED", "STARDATE RESOLUTION"}
 
 
 def _waits(card) -> bool:
-    return card.deck == "khan" or (card.position or "").startswith("Solo")
+    return (card.position or "").startswith("Solo")
 
 
 def test_every_printed_operation_has_code():
@@ -32,8 +32,6 @@ def test_every_printed_operation_has_code():
 def test_every_mission_has_a_goal_and_a_reward():
     missing = []
     for board in content().boards.values():
-        if board.captain == "khan":
-            continue
         for mission in board.missions:
             impl = registry.MISSIONS.get(mission.id)
             if impl is None or impl.goal is None or impl.reward is None:
@@ -42,7 +40,7 @@ def test_every_mission_has_a_goal_and_a_reward():
 
 
 def test_only_waiting_cards_lack_code():
-    """The 'not implemented yet' placeholder is only for Khan and the solo-only cards."""
+    """Every PLAY outside the solo-only cards has code, so nothing reaches the 'not implemented yet' note."""
     from engine.ops import legal
     from tests.scenario import given
 

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from engine.content import content
 from engine.game import hand_size, secured_by
-from engine.ops import deck_face_up
+from engine.ops import OPPONENT_SLOTS, deck_face_up, rival_pairs, trait_board
 from engine.state import GameState, Inst, Player
 
 
@@ -58,6 +58,7 @@ def player_view(state: GameState, player: Player, viewer: int | None) -> dict:
         "resources": {"dilithium": player.dilithium, "latinum": player.latinum, "glory": player.glory},
         "actions": player.actions,
         "tracks": dict(player.tracks),
+        "traits": _trait_board(state, player),
         "away_pool": player.away_pool,
         "mission_tokens": player.mission_tokens,
         "missions_completed": list(player.missions_completed),
@@ -67,6 +68,28 @@ def player_view(state: GameState, player: Player, viewer: int | None) -> dict:
         "only_ship": player.only_ship,
         "teams_aside": player.teams_until_reserve_empty,
     }
+
+
+def _trait_board(state: GameState, player: Player) -> list[dict] | None:
+    """Khan's Crew board: its trait slots in board order, with the token image for each (REQ-CD-KHN-06). An opponent
+    entry lists the traits that can still fill it, then the trait it was marked with."""
+    board = trait_board(player)
+    if not board:
+        return None
+    marked = {m.slot: m for m in player.marks}
+    other = next((marked[s].trait for s in OPPONENT_SLOTS if s in marked), None)
+    open_traits = sorted({t for pair in rival_pairs(state, player) if other is None or other in pair
+                          for t in pair if t != other})
+    out = []
+    for slot in board:
+        mark = marked.get(slot)
+        if slot in OPPONENT_SLOTS:
+            label = f"Opponent's Captain: {mark.trait if mark else ' / '.join(open_traits) or 'unknown'}"
+        else:
+            label = slot.capitalize()
+        out.append({"slot": slot, "label": label, "marked": mark is not None, "trait": mark.trait if mark else None,
+                    "image": f"khan-{slot}-marked" if mark else f"khan-{slot}"})
+    return out
 
 
 def _reserve_contents(player: Player) -> list[dict]:

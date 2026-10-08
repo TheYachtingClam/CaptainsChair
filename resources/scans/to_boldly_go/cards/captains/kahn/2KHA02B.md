@@ -37,7 +37,7 @@ scan: 2KHA02B.jpg
 - **Cost:** none
 - **Effect:**
   1. The opponent takes an Incident (attack part).
-  2. Move every Away Team on Khan's Captain to this Location.
+  2. Move every one of your Away Teams to this Location: those on Khan's Captain and those at every other Location.
 - **Actions used:** `ATTACK`, `TAKE_INCIDENT`, `SEND_AWAY_TEAM`
 - **Undoable:** no
 
@@ -92,11 +92,13 @@ The Bot ignores the printed text and resolves this card through its Automated Co
 
 - One side of a double-sided card. The card starts with its A side up; the B side is hidden until the card flips (REQ-CD-KHN-01).
 - Its CONTROL is triggered by Ceti Alpha VI's RESUPPLY when the card flips.
+- Ruling: the ACTIVATION can be used with an Away Team here; it then draws nothing but still exhausts the card, which Marla McGivers' CLEAN-UP looks for.
+- Ruling: "Send all of your Away Team here" moves every one of Khan's Away Teams here: those on his Captain and those at every other Location, controlled or neutral.
 - Khan's main way to enlist Developments (REQ-CD-KHN-03).
 
 ## Tests
 
-- When its control resolves, then: The opponent takes an Incident (attack part). Move every Away Team on Khan's Captain to this Location.
+- When its control resolves, then: The opponent takes an Incident (attack part). Move every one of your Away Teams, from the Captain and from every other Location, to this Location.
 - When its activation resolves, then: If none of your Away Teams are here, draw a card.
 - When its reaction triggers (you put an augment into play), then: Draw a card. You may enlist a Development, paying its cost.
 - When its passive triggers (you return an incident), then: Refresh this Location.

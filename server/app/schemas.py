@@ -40,7 +40,7 @@ class CommandRequest(BaseModel):
 class DevCommand(BaseModel):
     """Developer panel command (engine/dev.py)."""
 
-    kind: Literal["card", "resource", "track"]
+    kind: Literal["card", "resource", "track", "mark"]
     card: str | None = None
     zone: str | None = None
     resource: str | None = None

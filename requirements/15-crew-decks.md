@@ -44,8 +44,8 @@ The *Second Contact* expansion adds Pike, Riker and Freeman. Their rules are in 
 - **REQ-CD-KHN-03 No Reserve deck.** "Enlist a Reserve" does nothing for Khan. Per his Captain card, he does not enlist when the deck cycles. His main way to enlist Developments is on *Devastated Ceti Alpha V*, built around Augment cards.
 - **REQ-CD-KHN-04 No Specialty tracks.** Effects that gain Research, Influence or Military do nothing for Khan.
   - Before the Captain flips, Khan cannot meet Specialty restrictions.
-  - After it flips to *Wrathful*, he automatically meets them all.
-- **REQ-CD-KHN-05 Focus icons.** Before *Wrathful* they score 0. After *Wrathful* they score 1 or 3 VP each, depending on how many traits are marked. Thresholds are on the board data.
+  - After it flips to *Wrathful*, he automatically meets them all, including conditionals such as "if [Military] is at 5+" (ruling).
+- **REQ-CD-KHN-05 Focus icons.** Before *Wrathful* they score 0. After *Wrathful* they score 1 VP each, or 3 VP each with all 12 traits marked, as printed on *Wrathful Khan*.
 - **REQ-CD-KHN-06 Trait marking.** The board has 12 Trait Mark tokens, starting unmarked.
   - After **gaining** a card or **taking control** of a Location with an unmarked trait from the board, Khan may mark one such trait.
   - A Wildcard counts as any single trait for this. No Market or common Location card currently has Wildcard.
@@ -53,14 +53,14 @@ The *Second Contact* expansion adds Pike, Riker and Freeman. Their rules are in 
 - **REQ-CD-KHN-08** Each trait can be marked once, in any order. The choice is made immediately on gaining, or before resolving CONTROL, and cannot be changed.
 - **REQ-CD-KHN-09 Opponent-dependent entries.** Two entries depend on the opponent's Captain.
   - They must be marked with two **different** traits from the opponent's Captain, excluding Human if possible.
-  - Either may repeat a trait already on the board, but the same card cannot mark both.
+  - One of the two, not both, may repeat a trait already printed on the board. The same card cannot mark both.
   - A Wildcard card can mark either of these entries (ruling).
   - Against another Khan the two entries are Augment and Human (ruling).
   - "The same card" means the physical card: one that marked one entry cannot mark the other when gained again later (ruling).
   - Examples:
     - Against Archer: any two of NX-01, Pilot and Starfleet.
     - Against Kirk: Starfleet and Human, because Kirk has no other traits.
-    - Against Soval: one Captain-specific entry is Ambassador or Telepath, and the other is Vulcan.
+    - Against Soval: one Captain-specific entry is Ambassador or Telepath, and the other is Vulcan, because Ambassador and Telepath are both printed on the board.
 - **REQ-CD-KHN-10 Khan in Cadet mode.**
   - Pick a random other Captain to set the two opponent-dependent traits.
   - *Revenge Is A Dish Best Served Cold*'s first operation may mark a trait from a card in the Junk.

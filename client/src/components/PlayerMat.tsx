@@ -8,12 +8,32 @@ const TRACK_STEP = 0.0553; // distance between spaces
 const TRACK_Y: Record<string, number> = { research: 0.51, influence: 0.71, military: 0.9 };
 const TRACK_COLOUR: Record<string, string> = { research: "#2f7de1", influence: "#e0b400", military: "#d93636" };
 
+// Khan's board: centres of its 12 trait slots, 3 across and 4 down, as fractions of the board image. The slots are
+// filled in reading order, left to right and then top to bottom (REQ-CD-KHN-11).
+const TRAIT_X = [0.1675, 0.4875, 0.8075];
+const TRAIT_Y = [0.467, 0.614, 0.758, 0.903];
+
 function CrewBoard({ p }: { p: PlayerView }) {
-  const hasTracks = p.deck !== "khan"; // Khan marks traits instead (REQ-CD-KHN-04)
+  const traits = p.traits ?? null; // Khan marks traits instead of moving along tracks (REQ-CD-KHN-04, -06)
+  const hasTracks = !traits;
+  const marked = traits?.filter((t) => t.marked).length ?? 0;
   const preview = usePreviewHandlers(p.board, true);
   return (
     <div className="crew-board" {...preview} title={`${p.name}'s Crew board`}>
       <img src={imageUrl(p.board)} alt={`${p.name}'s Crew board`} />
+      {traits?.map((t, i) => (
+        <img
+          key={t.slot}
+          className={`trait-token ${t.marked ? "marked" : ""}`}
+          src={imageUrl(t.image)}
+          alt={`${t.label}: ${t.marked ? "marked" : "not marked"}`}
+          title={`${t.label}: ${t.marked ? "marked" : "not marked"}`}
+          style={{ left: `${TRAIT_X[i % 3] * 100}%`, top: `${TRAIT_Y[Math.floor(i / 3)] * 100}%` }}
+        />
+      ))}
+      {traits && (
+        <span className="trait-count" title="Traits marked on the Crew board">Traits {marked}/{traits.length}</span>
+      )}
       {hasTracks && Object.entries(p.tracks).map(([track, value]) => (
         <span
           key={track}

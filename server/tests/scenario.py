@@ -26,7 +26,8 @@ def given(deck: str = "georgiou", *, opponent: str | None = "soval", mode: str =
     """A game at seat 0's Action Step.
 
     Keyword arguments named after zones (hand, staging, duty, fleet, locations, discard, draw, log) take
-    lists of card ids to add. dilithium, latinum, glory and actions add to the pool. `opp` takes the same
+    lists of card ids to add. dilithium, latinum, glory and actions add to the pool. `marks` marks that many of Khan's
+    trait slots. `opp` takes the same
     keywords for seat 1. `empty_hand=True` discards the starting hand first.
     """
     if mode == "cadet":
@@ -56,6 +57,8 @@ def _setup(state: GameState, seat: int, *, tracks: dict[str, int] | None = None,
         if kw.get(resource):
             dev.apply(state, seat, {"kind": "resource", "resource": resource, "amount": kw.pop(resource)},
                       flag_irreversible=False)
+    if kw.get("marks"):
+        dev.apply(state, seat, {"kind": "mark", "amount": kw.pop("marks")}, flag_irreversible=False)
     for track, amount in (tracks or {}).items():
         dev.apply(state, seat, {"kind": "track", "track": track, "amount": amount}, flag_irreversible=False)
     unknown = set(kw) - set(dev.RESOURCES)
