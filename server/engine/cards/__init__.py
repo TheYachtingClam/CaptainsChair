@@ -290,4 +290,26 @@ def load_all() -> None:
             importlib.import_module(mod.name)
 
 
+def link_copies() -> None:
+    """Give a card whose spec says `same_as` (a reprint in another box, a copy in another Crew deck) the code of its
+    twin: every operation, development cost, ENDGAME and registry entry. Entries the copy registered itself are kept.
+    scripts/build_content.py checks that the two print the same operations."""
+    from engine.content import content
+
+    registries = [reg for name, reg in globals().items()
+                  if name.isupper() and name not in ("OPS", "MISSIONS", "GRANTED_PLAYS") and isinstance(reg, (dict, set))]
+    for card in content().cards.values():
+        twin = card.same_as
+        if not twin:
+            continue
+        for (cid, index), impl in list(OPS.items()):
+            if cid == twin and index < 100:
+                OPS.setdefault((card.id, index), OpImpl(card.id, index, impl.fn, impl.uses, impl.costs, impl.requires,
+                                                        impl.trigger))
+        for reg in registries:
+            if twin in reg and card.id not in reg:
+                reg.add(card.id) if isinstance(reg, set) else reg.__setitem__(card.id, reg[twin])
+
+
 load_all()
+link_copies()

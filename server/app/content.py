@@ -6,6 +6,8 @@ CONTENT_DIR = Path(__file__).resolve().parent.parent / "content"
 
 BASE_SET = "to_boldly_go"
 EXPANSIONS = {"second_contact": "Second Contact"}
+BOX_NAMES = {"core": "Core Box", "to_boldly_go": "To Boldly Go", "both": "Both combined"}  # REQ-CORE-10
+DEFAULT_BOX = "to_boldly_go"
 
 
 @lru_cache
@@ -13,17 +15,24 @@ def decks() -> list[dict]:
     return json.loads((CONTENT_DIR / "decks.json").read_text())
 
 
-def deck_ids_for(expansions: list[str]) -> set[str]:
-    allowed = {BASE_SET, *expansions}
+def box_sets(box: str) -> tuple[str, ...]:
+    """The sets whose Crew decks a box allows (REQ-CORE-11)."""
+    from engine.setup import BOXES
+
+    return BOXES[box]
+
+
+def deck_ids_for(expansions: list[str], box: str = DEFAULT_BOX) -> set[str]:
+    allowed = {*box_sets(box), *expansions}
     return {d["id"] for d in decks() if d["set"] in allowed}
 
 
-def bot_ids_for(expansions: list[str]) -> set[str]:
+def bot_ids_for(expansions: list[str], box: str = DEFAULT_BOX) -> set[str]:
     """Crews that can be the Bot in solo mode: they have Automated Command cards and their Bot is written."""
     from engine.content import content
     from engine.setup import BOT_UNAVAILABLE
 
-    return {d for d in deck_ids_for(expansions) if d in content().command and d not in BOT_UNAVAILABLE}
+    return {d for d in deck_ids_for(expansions, box) if d in content().command and d not in BOT_UNAVAILABLE}
 
 
 # Processed images (cards, crew boards, command cards), produced by scripts/process_scans.py.

@@ -18,6 +18,8 @@ class Game(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     mode: Mapped[str] = mapped_column(String(20))
     expansions: Mapped[list[str]] = mapped_column(JSON, default=list)
+    # The box played with: core, to_boldly_go or both (REQ-CORE-10). Older games are To Boldly Go games.
+    box: Mapped[str] = mapped_column(String(20), default="to_boldly_go", server_default=text("'to_boldly_go'"))
     # Promo cards are shuffled into their matching common decks at setup when true.
     promos: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
     # The engine state is rebuilt by replaying commands from the seed (REQ-SRV-14).
@@ -64,6 +66,7 @@ class Campaign(Base):
     deck_id: Mapped[str] = mapped_column(String(40))
     mode: Mapped[str] = mapped_column(String(30))
     expansions: Mapped[list[str]] = mapped_column(JSON, default=list)
+    box: Mapped[str] = mapped_column(String(20), default="to_boldly_go", server_default=text("'to_boldly_go'"))
     promos: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
     rank: Mapped[str] = mapped_column(String(20), default="ensign")
     # One row per assignment: number, game_id, date, rank, bot, difficulty, board_side, outcome, scores, upgrade.

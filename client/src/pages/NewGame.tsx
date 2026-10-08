@@ -1,29 +1,40 @@
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { BotChoice, DIFFICULTIES, Deck, GameMode, MODE_LABELS, SeatChoice, api, saveSeatToken } from "../api";
+import {
+  BotChoice, Box, DEFAULT_BOX, DIFFICULTIES, Deck, GameMode, MODE_LABELS, SeatChoice, api, byComplexity, saveSeatToken, setsFor,
+} from "../api";
 import { SeatForm } from "../components/SeatForm";
 
 export function NewGame() {
   const navigate = useNavigate();
   const expansions = useQuery({ queryKey: ["expansions"], queryFn: api.expansions });
   const [mode, setMode] = useState<GameMode>("two_player");
+  const boxes = useQuery({ queryKey: ["boxes"], queryFn: api.boxes });
+  const [box, setBox] = useState<Box>(DEFAULT_BOX);
   const [chosen, setChosen] = useState<string[]>([]);
   const [promos, setPromos] = useState(false);
   const [seat, setSeat] = useState<SeatChoice>({ display_name: "", deck_id: "", board_side: "basic" });
   const [bot, setBot] = useState<BotChoice>({ deck_id: "", difficulty: "ensign", ticking_clock: false });
   const decks = useQuery({ queryKey: ["decks"], queryFn: api.decks });
-  const sets = ["to_boldly_go", ...chosen];
-  const bots = (decks.data ?? []).filter((d: Deck) => d.bot && sets.includes(d.set)).sort((a, b) => a.complexity - b.complexity);
+  const sets = setsFor(boxes.data, box, chosen);
+  const bots = (decks.data ?? []).filter((d: Deck) => d.bot && sets.includes(d.set)).sort(byComplexity);
   const solo = mode === "solo";
 
   const create = useMutation({
-    mutationFn: () => api.createGame({ ...seat, mode, expansions: chosen, promos, ...(solo ? { bot } : {}) }),
+    mutationFn: () => api.createGame({ ...seat, mode, box, expansions: chosen, promos, ...(solo ? { bot } : {}) }),
     onSuccess: (grant) => {
       saveSeatToken(grant.game.id, grant.seat_token);
       navigate(`/games/${grant.game.id}`);
     },
   });
+
+  // A Crew deck or Bot of another box cannot stay chosen (REQ-CORE-11).
+  function chooseBox(next: Box) {
+    setBox(next);
+    setSeat((s) => ({ ...s, deck_id: "" }));
+    setBot((b) => ({ ...b, deck_id: "" }));
+  }
 
   function toggle(id: string) {
     setChosen((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id]));
@@ -55,6 +66,19 @@ export function NewGame() {
           )}
         </fieldset>
         <fieldset>
+          <legend>Box</legend>
+          {(Object.entries(boxes.data ?? {}) as [Box, { name: string }][]).map(([id, b]) => (
+            <label key={id} className="inline">
+              <input type="radio" name="box" checked={box === id} onChange={() => chooseBox(id)} />
+              {b.name}
+            </label>
+          ))}
+          <p className="muted">
+            The box sets the Market, Locations and which Crew decks you can choose.
+            {box !== "to_boldly_go" && " Core Box cards are still being added: most of them do nothing yet."}
+          </p>
+        </fieldset>
+        <fieldset>
           <legend>Expansions</legend>
           {Object.entries(expansions.data ?? {}).map(([id, name]) => (
             <label key={id} className="inline">
@@ -74,7 +98,7 @@ export function NewGame() {
             <label>
               Bot Crew
               <select value={bot.deck_id} onChange={(e) => setBot({ ...bot, deck_id: e.target.value })}>
-                <option value="">Choose the Bot's captain…</option>
+                <option value="">{bots.length ? "Choose the Bot's captain…" : "No Bot is available for this box yet"}</option>
                 {bots.map((d) => (
                   <option key={d.id} value={d.id}>
                     {d.captain} ({d.faction})

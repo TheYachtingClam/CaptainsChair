@@ -5132,6 +5132,7 @@ cards:
     attack: false
     cost: spend 2 Dilithium or 1 Latinum
     uses:
+    - SPEND
     - REFRESH
     undoable: true
 - id: 1PER12

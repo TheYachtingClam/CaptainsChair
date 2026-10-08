@@ -8,6 +8,11 @@ from engine.content import MARKET_SUITS, Card, content
 from engine.state import GameState, Inst, Player
 
 BASE_SET = "to_boldly_go"
+CORE_SET = "base_game"
+# The box a game is played with (REQ-CORE-10, -11): its common cards, and the sets its Crew decks may come from.
+BOXES = {"core": (CORE_SET,), "to_boldly_go": (BASE_SET,), "both": (CORE_SET, BASE_SET)}
+DEFAULT_BOX = "to_boldly_go"
+COMBINED_INCIDENTS = 6  # REQ-CORE-23
 STARDATE_MODE = {"two_player": "2-Player", "cadet": "Solo Cadet Practice", "solo": "Solo vs {difficulty} Bot"}
 DIFFICULTIES = ("ensign", "lieutenant", "commander", "captain", "admiral")  # REQ-SOLO-10, easiest first
 # Crews whose Bot is not written yet: the Core Box Crews, until plans/base-game.md Step 13.
@@ -55,8 +60,24 @@ class SetupError(ValueError):
     pass
 
 
+def common_cards(data, box: str, expansions: list[str], promos: bool) -> list[Card]:
+    """The common cards of a game (REQ-CORE-11, -20, -21). With both boxes, a Core Box card that To Boldly Go reprints
+    or replaces is left out, so one copy and only the new version remain."""
+    sets = {*BOXES[box], *expansions} | ({"promo2"} if promos else set())
+    cards = [c for c in data.cards.values() if c.is_common and c.set in sets and c.position not in SOLO_ONLY]
+    if box == "both":
+        def superseded(c: Card) -> bool:
+            twin = data.cards.get(c.same_as or c.replaced_by or "")
+            return c.set == CORE_SET and twin is not None and twin.is_common and twin.set in sets
+
+        cards = [c for c in cards if not superseded(c)]
+    return cards
+
+
 def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str] | None = None, promos: bool = False,
-             bot: BotSetup | None = None) -> GameState:
+             bot: BotSetup | None = None, box: str = DEFAULT_BOX) -> GameState:
+    if box not in BOXES:
+        raise SetupError(f"Unknown box {box!r}")
     if mode not in STARDATE_MODE:
         raise SetupError(f"Mode {mode!r} is not supported by the engine yet")
     expected = 2 if mode == "two_player" else 1
@@ -71,12 +92,12 @@ def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str]
             raise SetupError(f"There is no {bot.deck!r} Bot yet")
     expansions = list(expansions or [])
     data = content()
-    sets = {BASE_SET, *expansions} | ({"promo2"} if promos else set())
+    sets = {*BOXES[box], *expansions} | ({"promo2"} if promos else set())
 
     # Players are created first so their captains exist; central setup follows the rulebook order.
     state = GameState(seed=seed, mode=mode, expansions=expansions, promos=promos, players=[], first_seat=0, active=0,
-                      difficulty=bot.difficulty if bot else None)
-    common = [c for c in data.cards.values() if c.is_common and c.set in sets and c.position not in SOLO_ONLY]
+                      difficulty=bot.difficulty if bot else None, box=box)
+    common = common_cards(data, box, expansions, promos)
 
     _central_setup(state, common, data)
     for seat, choice in enumerate(seats):
@@ -133,6 +154,11 @@ def _central_setup(state: GameState, common: list[Card], data) -> None:
     state.shuffle(state.encounter)
 
     incidents = by_suit("Incident")
+    if state.box == "both":
+        # Combined boxes: random Incidents go back to the box until 6 remain (REQ-CORE-23).
+        incidents = sorted(incidents, key=lambda c: c.id)
+        while len(incidents) > COMBINED_INCIDENTS:
+            incidents.pop(state.rng().randrange(len(incidents)))
     if any(c.id == SUBSPACE_RHAPSODY for c in incidents):
         # Its SPECIAL replaces a random Incident (REQ-CS-22).
         others = [c for c in incidents if c.id != SUBSPACE_RHAPSODY]
@@ -142,6 +168,12 @@ def _central_setup(state: GameState, common: list[Card], data) -> None:
 
     for suit in MARKET_SUITS:
         refill_market(state, suit, announce=False)
+
+    # Combined boxes seed the Junk with one card per Market deck (REQ-CORE-24).
+    if state.box == "both":
+        for suit in MARKET_SUITS:
+            if state.market_decks[suit]:
+                state.junk.append(state.market_decks[suit].pop(0))
 
     # Second Contact seeds the Junk with one card per Market deck (REQ-EXP-12).
     if "second_contact" in state.expansions:

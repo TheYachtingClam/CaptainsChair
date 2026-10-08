@@ -1766,16 +1766,19 @@ class Actions:
         return
         yield  # pragma: no cover
 
-    def peek_and_reorder(self, n: int = 2) -> Gen:
+    def peek_and_reorder(self, n: int = 2, deck: str = "reserve") -> Gen:
         """Look at the top n cards of your Reserve deck and put each on the top or bottom, in any order (Faith of the
-        Heart). Only you see them."""
+        Heart). Only you see them. `deck` may instead name a common deck: "location" or "encounter" (Unstable
+        Wormhole, The Wormhole)."""
         self._use(A.PEEK)
         self._use(A.REORDER)
-        deck = self.ctx.me.reserve
+        label = {"reserve": "their Reserve deck", "location": "the Location deck", "encounter": "the Encounter deck"}[deck]
+        deck = {"reserve": self.ctx.me.reserve, "location": self.state.location_deck,
+                "encounter": self.state.encounter}[deck]
         looked = deck[:n]
         if not looked:
             return
-        self.state.emit(f"{self.ctx.me.name} looks at the top {len(looked)} card(s) of their Reserve deck.",
+        self.state.emit(f"{self.ctx.me.name} looks at the top {len(looked)} card(s) of {label}.",
                         seat=self.ctx.me.seat, irreversible=True)
         top, bottom = [], []
         remaining = list(looked)

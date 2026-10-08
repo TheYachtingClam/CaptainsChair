@@ -1,4 +1,5 @@
-"""2CAR14 Phasers (Cargo). Spec: resources/scans/to_boldly_go/cards/cargo/2CAR14.md"""
+"""2CAR14 Phasers (Cargo). Spec: resources/scans/to_boldly_go/cards/cargo/2CAR14.md
+The older Core Box version 1CAR11 shares the second PLAY."""
 
 from engine.cards import operation
 from engine.ops import A, Spend
@@ -12,7 +13,7 @@ def arm(ctx, actions):
     yield from actions.deploy(ctx.this_card)
 
 
-@operation("2CAR14", 1, uses=[A.GAIN_ACTION, A.JUNK, A.DEPLOY], cost=[Spend(dilithium=1)],
+@operation(("2CAR14", "1CAR11"), 1, uses=[A.GAIN_ACTION, A.JUNK, A.DEPLOY], cost=[Spend(dilithium=1)],
            requires=lambda ctx: ctx.track("military") >= 4)
 def ready(ctx, actions):
     """PLAY: Requires [Military] 4. Spend 1 [Dilithium] to gain an [Action]. Junk a card from the Market. Deploy

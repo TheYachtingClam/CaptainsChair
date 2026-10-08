@@ -1,5 +1,5 @@
 """2PER14 Phlox (Person). Spec: resources/scans/to_boldly_go/cards/person/2PER14.md
-"""
+Also the older Core Box version 1PER18, which plays the same."""
 
 from engine.cards import operation
 from engine.ops import A, Spend
@@ -11,14 +11,14 @@ def _incidents(cards):
     return [i for i in cards if is_suit(i, "Incident")]
 
 
-@operation("2PER14", 0, uses=[A.RETURN_INCIDENT], requires=lambda ctx: bool(_incidents(others_in_hand(ctx))))
+@operation(("2PER14", "1PER18"), 0, uses=[A.RETURN_INCIDENT], requires=lambda ctx: bool(_incidents(others_in_hand(ctx))))
 def treat(ctx, actions):
     """PLAY: Return an Incident from your hand."""
     card = yield from actions.pick_card("Return which Incident?", _incidents(others_in_hand(ctx)))
     yield from actions.return_incident(card)
 
 
-@operation("2PER14", 1, uses=[A.RETURN_INCIDENT, A.BEAM], requires=lambda ctx: ctx.track("research") >= 6)
+@operation(("2PER14", "1PER18"), 1, uses=[A.RETURN_INCIDENT, A.BEAM], requires=lambda ctx: ctx.track("research") >= 6)
 def sickbay(ctx, actions):
     """PLAY: Requires [Research] 6. Return any number of Incident from your hand. You may return an Incident from
     your Discard pile. Beam this card to a deployed Ship, if able."""
@@ -37,7 +37,7 @@ def sickbay(ctx, actions):
         yield from actions.beam(ctx.this_card, ship)
 
 
-@operation("2PER14", 2, uses=[A.GAIN_SPECIALTY], cost=[Spend(dilithium=1)],
+@operation(("2PER14", "1PER18"), 2, uses=[A.GAIN_SPECIALTY], cost=[Spend(dilithium=1)],
            trigger=lambda ctx, ev: ev["kind"] == "send_away_team" and ev["seat"] == ctx.me.seat and ev.get("neutral"))
 def field_medicine(ctx, actions):
     """REACTION: After sending an [Away Team] to a neutral Location, spend 1 [Dilithium] to gain 1 [Research]."""

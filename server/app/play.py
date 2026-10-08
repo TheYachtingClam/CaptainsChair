@@ -30,7 +30,7 @@ def start(game: Game) -> None:
     game.commands = []
     game.status = "active"
     # Validate setup now rather than on the first view. The game id may not exist yet, so no caching.
-    new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game))
+    new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game), game.box)
 
 
 def seat_setups(game: Game) -> list[SeatSetup]:
@@ -61,7 +61,7 @@ def build(game: Game) -> GameState:
     cached = _cache.get(game.id)
     if cached and cached[0] == key:
         return copy.deepcopy(cached[1])
-    state = new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game))
+    state = new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game), game.box)
     advance(state, flag_irreversible=False)
     # Replay without the can't-be-undone flagging (it tries every option on a copy), then flag the last question.
     for i, command in enumerate(game.commands):

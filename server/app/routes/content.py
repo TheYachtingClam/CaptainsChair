@@ -9,8 +9,14 @@ router = APIRouter(prefix="/api/content", tags=["content"], dependencies=[Depend
 
 @router.get("/decks")
 def list_decks() -> list[dict]:
-    bots = content.bot_ids_for(list(content.EXPANSIONS))
+    bots = content.bot_ids_for(list(content.EXPANSIONS), "both")
     return [{**d, "bot": d["id"] in bots} for d in content.decks()]  # "bot": can be the solo-mode Bot
+
+
+@router.get("/boxes")
+def list_boxes() -> dict[str, dict]:
+    """The boxes a game can be played with, and the sets whose Crew decks each allows (REQ-CORE-10, -11)."""
+    return {box: {"name": name, "sets": list(content.box_sets(box))} for box, name in content.BOX_NAMES.items()}
 
 
 @router.get("/expansions")

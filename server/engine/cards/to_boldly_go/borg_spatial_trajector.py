@@ -1,4 +1,5 @@
-"""2CAR02 Borg Spatial Trajector (Cargo). Spec: resources/scans/to_boldly_go/cards/cargo/2CAR02.md"""
+"""2CAR02 Borg Spatial Trajector (Cargo). Spec: resources/scans/to_boldly_go/cards/cargo/2CAR02.md
+The older Core Box version 1CAR02 shares the first PLAY."""
 
 from engine.cards import operation
 from engine.ops import A
@@ -6,7 +7,7 @@ from engine.ops import A
 from ._util import is_suit, ships
 
 
-@operation("2CAR02", 0, uses=[A.BEAM, A.PUT, A.SEND_AWAY_TEAM], requires=lambda ctx: ctx.track("research") >= 4)
+@operation(("2CAR02", "1CAR02"), 0, uses=[A.BEAM, A.PUT, A.SEND_AWAY_TEAM], requires=lambda ctx: ctx.track("research") >= 4)
 def transport(ctx, actions):
     """PLAY: Requires [Research] 4. Select up to 3 Person from your hand or Discard pile. For each either: beam it to
     a Ship OR put it on the top of your deck to send an [Away Team] to a Location."""

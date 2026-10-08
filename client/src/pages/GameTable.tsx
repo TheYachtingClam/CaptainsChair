@@ -106,6 +106,8 @@ export function GameTable() {
       )}
       <p className="muted">
         Game {g.id.slice(0, 8)} · {g.status === "waiting" ? "waiting for players" : g.status}
+        {g.box === "core" && " · Core Box"}
+        {g.box === "both" && " · Core Box and To Boldly Go combined"}
         {g.expansions.length > 0 && ` · expansions: ${g.expansions.join(", ")}`}
         {g.promos && " · promo cards"}
       </p>

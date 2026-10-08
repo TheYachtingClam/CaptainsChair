@@ -12,11 +12,29 @@ export interface BotChoice {
   ticking_clock: boolean;
 }
 
+/** The box a game is played with (REQ-CORE-10). */
+export type Box = "core" | "to_boldly_go" | "both";
+/** Each box's name and the sets whose Crew decks it allows. */
+export type Boxes = Record<Box, { name: string; sets: string[] }>;
+export const DEFAULT_BOX: Box = "to_boldly_go";
+/** The sets whose Crew decks a game allows: its box's sets and its expansions. */
+export function setsFor(boxes: Boxes | undefined, box: Box, expansions: string[]): string[] {
+  return [...(boxes?.[box]?.sets ?? ["to_boldly_go"]), ...expansions];
+}
+/** "Picard (Starfleet) – complexity 4/10"; the Core Box Crews have no printed complexity. */
+export function deckLabel(d: Deck): string {
+  return `${d.captain} (${d.faction})${d.complexity == null ? "" : ` – complexity ${d.complexity}/10`}`;
+}
+/** Easiest first; Crews without a complexity come last, by name. */
+export function byComplexity(a: Deck, b: Deck): number {
+  return (a.complexity ?? 99) - (b.complexity ?? 99) || a.captain.localeCompare(b.captain);
+}
+
 export interface Deck {
   id: string;
   captain: string;
   faction: string;
-  complexity: number;
+  complexity: number | null;
   set: string;
   summary: string;
   bot?: boolean; // can be the solo-mode Bot
@@ -33,6 +51,7 @@ export interface Game {
   id: string;
   created_at: string;
   mode: GameMode;
+  box: Box;
   expansions: string[];
   promos: boolean;
   status: string;
@@ -95,6 +114,7 @@ export interface CampaignView {
   captain: string;
   mode: CampaignMode;
   mode_name: string;
+  box: Box;
   expansions: string[];
   rank: string;
   phase: "start" | "playing" | "upgrade" | "finished";
@@ -359,8 +379,8 @@ function seatHeaders(id: string): Record<string, string> {
 
 export const campaignApi = {
   challenges: (deckId: string) => request<Challenge[]>(`/api/campaigns/challenges/${deckId}`),
-  create: (body: { display_name: string; deck_id: string; mode: CampaignMode; expansions: string[]; promos: boolean;
-    challenges: string[] }) =>
+  create: (body: { display_name: string; deck_id: string; mode: CampaignMode; box: Box; expansions: string[];
+    promos: boolean; challenges: string[] }) =>
     request<{ campaign: CampaignView; token: string }>("/api/campaigns", { method: "POST", body: JSON.stringify(body) }),
   get: (id: string) => request<CampaignView>(`/api/campaigns/${id}`, { headers: campaignHeaders(id) }),
   start: (id: string, body: { bot_deck_id: string | null; board_side: BoardSide; drop: "dilithium" | "latinum" | null }) =>
@@ -411,12 +431,13 @@ export const api = {
   logout: () => request<void>("/api/auth/logout", { method: "POST" }),
   decks: () => request<Deck[]>("/api/content/decks"),
   expansions: () => request<Record<string, string>>("/api/content/expansions"),
+  boxes: () => request<Boxes>("/api/content/boxes"),
   games: () => request<Game[]>("/api/games"),
   game: (id: string) => {
     const token = loadSeatToken(id);
     return request<Game>(`/api/games/${id}`, { headers: token ? { "X-Seat-Token": token } : {} });
   },
-  createGame: (body: SeatChoice & { mode: GameMode; expansions: string[]; promos: boolean; bot?: BotChoice }) =>
+  createGame: (body: SeatChoice & { mode: GameMode; box: Box; expansions: string[]; promos: boolean; bot?: BotChoice }) =>
     request<SeatGrant>("/api/games", { method: "POST", body: JSON.stringify(body) }),
   cardText: () => request<Record<string, CardText>>("/api/content/cards"),
   state: (id: string) => request<GameStateView>(`/api/games/${id}/state`, { headers: seatHeaders(id) }),

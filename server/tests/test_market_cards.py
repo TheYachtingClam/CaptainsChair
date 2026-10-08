@@ -66,6 +66,14 @@ NEEDS_OWN_SETUP = {
     ("2PER03", 1),  # needs Klingon >= Starfleet in play
     ("2PER21", 0),  # needs one of your Away Teams on a Location
     ("2PER09", 1),  # needs two Persons beamed to Landru
+    # Core Box (tests/test_core_market.py)
+    ("1CAR02", 1),  # Borg-only, like 2CAR02
+    ("1PER21", 1),  # Sakonna's Badlands: never offered
+    ("1PER23", 0),  # Talok (reprint of 2PER21)
+    ("1PER03", 2),  # needs a Cloak in play
+    ("1PER11", 2),  # needs an exhausted card
+    ("1PER25", 1),  # needs a Ship in hand
+    ("1SHI12", 3),  # needs a Human Person beamed here
 }
 
 

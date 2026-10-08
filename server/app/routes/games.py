@@ -24,6 +24,7 @@ def summarize(game: Game) -> dict:
         "id": game.id,
         "created_at": game.created_at,
         "mode": game.mode,
+        "box": game.box,
         "expansions": game.expansions,
         "promos": game.promos,
         "status": game.status,
@@ -48,8 +49,8 @@ def load_game(db: Session, game_id: str) -> Game:
     return game
 
 
-def validate_deck(deck_id: str, expansions: list[str]) -> None:
-    if deck_id not in content.deck_ids_for(expansions):
+def validate_deck(deck_id: str, expansions: list[str], box: str = content.DEFAULT_BOX) -> None:
+    if deck_id not in content.deck_ids_for(expansions, box):
         raise HTTPException(422, "That Crew deck is not available in this game")
 
 
@@ -84,15 +85,15 @@ def create_game(body: CreateGameRequest, db: Session = Depends(get_db)) -> dict:
     unknown = set(body.expansions) - set(content.EXPANSIONS)
     if unknown:
         raise HTTPException(422, f"Unknown expansion: {', '.join(sorted(unknown))}")
-    validate_deck(body.deck_id, body.expansions)
+    validate_deck(body.deck_id, body.expansions, body.box)
     bot = None
     if body.mode == "solo":
         if body.bot is None:
             raise HTTPException(422, "Choose a Bot to play against")
-        if body.bot.deck_id not in content.bot_ids_for(body.expansions):
+        if body.bot.deck_id not in content.bot_ids_for(body.expansions, body.box):
             raise HTTPException(422, "That Bot is not available in this game")
         bot = body.bot.model_dump()
-    game = Game(mode=body.mode, expansions=body.expansions, promos=body.promos, bot=bot)
+    game = Game(mode=body.mode, box=body.box, expansions=body.expansions, promos=body.promos, bot=bot)
     db.add(game)
     seat, token = add_seat(db, game, body)
     return {"game": {**summarize(game), "your_seat": seat.index}, "seat_index": seat.index, "seat_token": token}
@@ -103,7 +104,7 @@ async def join_game(game_id: str, body: SeatChoice, db: Session = Depends(get_db
     game = load_game(db, game_id)
     if len(game.seats) >= seat_count(game):
         raise HTTPException(status.HTTP_409_CONFLICT, "This game is full")
-    validate_deck(body.deck_id, game.expansions)
+    validate_deck(body.deck_id, game.expansions, game.box)
     if any(s.deck_id == body.deck_id for s in game.seats):
         raise HTTPException(status.HTTP_409_CONFLICT, "Your opponent already chose that Crew deck")
     seat, token = add_seat(db, game, body)

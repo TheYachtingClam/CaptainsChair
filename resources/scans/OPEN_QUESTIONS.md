@@ -75,7 +75,6 @@ From writing the specs (plans/base-game.md Step 2). None of these cards has code
 
 Questions about a card:
 
-- **Sakonna** (1PER21): her second PLAY needs "a Ship at the Badlands". No Location named Badlands is in any scanned set. Default: the PLAY can never be used. Is a card missing from the scans?
 - **Mirok** (1PER15): the set code is printed with a dagger (†) and a 2025 copyright, unlike every other Core Box card, and no *To Boldly Go* card replaces him. Default: the mark has no effect.
 - **Xindi-Reptilian Battleship** (1SHI13, 2SHI13): the Core Box card spells it "Reptilian"; the *To Boldly Go* spec says "Reptillian". Default: keep the *To Boldly Go* spelling on both until you check the card.
 - **Sha Ka Ree** (1ENC07): "considered a Location for all purposes" and "deploying it counts as taking control". Default: Ships can warp to it and Away Teams can be sent to it, as to a controlled Location; it stays in the Fleet Area.
@@ -90,6 +89,19 @@ Questions about a card:
 - **Quark** (1SIS24): "after resolving an operation with a [Latinum] cost". Default: only Latinum paid as a cost counts, not Latinum spent by a "you may spend" effect.
 - **"Discovery"** on the Picard and Burnham boards. Default: it means Encounter.
 - **Founding the Federation** (Shran's mission): Default: the Human and the three other traits come from four different cards.
+
+Rulings made while writing the Market cards (Step 5). Each is implemented as described; confirm or say which to change.
+
+- **Ferengi Wine** (1CAR04): it counts itself as a Ferengi in play, since the text does not say "excluding this card".
+- **Laris** (1PER11): "a Resupply operation you have already resolved this turn" means the RESUPPLY of a card before her in the fixed order the engine resolves them: Captain, Status, Fleet, Locations, then Duty Officers in order.
+- **Laris** (1PER11): her Activation is offered only when a Captain, Cargo, Ship or Location of yours is exhausted.
+- **B-4** (1PER05): you gain the Dilithium for your Log even when the opponent ignores the attack; only their Incident is skipped.
+- **Mek'leth** (1CAR09): the opponent's whole hand is named in the log, then you may pick one Attack from it. Against the Bot you say whether it succeeded.
+- **Tachyon Detection Grid** (1CAR13): a Cloak in the opponent's Staging Area cannot be chosen. In Cadet Training you gain the Glory.
+- **Mirok** (1PER15): he may be promoted whether or not a Cloak was logged.
+- **Admiral Pressman** (1PER03): "Free play an Attack" is mandatory when you have one in hand.
+- **Captain Dorg** (1PER07): a Klingon in your Staging Area cannot pay his first Reaction, since the Staging Area cannot be dismissed from (KW-DSM-04).
+- **U.S.S. Reliant** (1SHI11): in Cadet Training the virtual opponent counts as having at most 1 Ship.
 
 Questions about a Bot row:
 

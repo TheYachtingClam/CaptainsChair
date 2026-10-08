@@ -62,7 +62,7 @@ This replaces the outline in REQ-CS-31.
 
 - **REQ-CORE-20 Reprints.** *To Boldly Go* reprints 45 Core Box cards, marked `•` on the *To Boldly Go* printing: 44 common cards and *Reinforce*. A combined game has **one** copy of each. The app keeps the *To Boldly Go* printing.
 - **REQ-CORE-21 Replacements.** *To Boldly Go* replaces 9 Core Box cards, marked `†` on the *To Boldly Go* printing: *Borg Spatial Trajector*, *Lirpa*, *Orb of Time*, *Phasers*, *Solum*, *Phlox*, *Holographic Drone Ship*, *Kazon Raider* and *U.S.S. Enterprise-C*. A combined game uses only the *To Boldly Go* version. A Core Box game uses the old version.
-- **REQ-CORE-22 Market, Locations, Encounters.** Shuffle the remaining cards of each type together. That gives 105 Market cards (Ally 21, Cargo 24, Person 42, Ship 18), 29 Locations and 13 Encounters.
+- **REQ-CORE-22 Market, Locations, Encounters.** Shuffle the remaining cards of each type together. That gives 105 Market cards (Ally 21, Cargo 24, Person 42, Ship 18), 29 Locations (14 Starting, 15 Advanced) and 13 Encounters. As in any game, only 4 Starting Locations are used (REQ-CS-09, -10); the rest go back to the box.
 - **REQ-CORE-23 Incidents.** Shuffle the remaining 8 common Incidents and return random ones to the box until **6** remain. Do this before promo Incidents replace any (REQ-CS-22) and before Crew decks add theirs (REQ-PS-11).
 - **REQ-CORE-24 Junk.** After the Market is revealed, move the top card of each of the four Market decks into the Junk pile. With *Second Contact* as well, REQ-EXP-12 seeds once more, so the Junk starts with 8 cards.
 - **REQ-CORE-25 Stardates.** As REQ-CORE-03.
@@ -114,7 +114,7 @@ Rules that more than one card relies on, or that change a core rule. Single-card
 
 ## 6. Acceptance scenarios
 
-- **CORE-AS-1 Combined setup.** Given both boxes without expansions or promos, then the four Market decks plus the Market and the Junk hold 105 cards, the Location deck plus the Neutral Zone 29, the Encounter deck 13, the Incident deck 6 before Crew Incidents, and the Junk 4.
+- **CORE-AS-1 Combined setup.** Given both boxes without expansions or promos, then the four Market decks plus the Market and the Junk hold 105 cards, the Location deck plus the Neutral Zone 19 (15 Advanced and 4 Starting), the Encounter deck 13, the Incident deck 6 before Crew Incidents, and the Junk 4.
 - **CORE-AS-2 One version of a replaced card.** Given both boxes, then *Phasers* 2CAR14 is in the game and 1CAR11 is not. Given the Core Box alone, the reverse.
 - **CORE-AS-3 Box limits Crews.** Given the Core Box, then Georgiou cannot be chosen as a Crew deck or a Bot, and Picard can.
 - **CORE-AS-4 Inert Dilithium.** Given Burnham with 1 Dilithium, when she plays *Jett Reno*'s "Gain 3 [Dilithium]", then her supply still has 1 and *Inert Dilithium* holds 3. When she then plays "Recrystallize 2 [Dilithium]", her supply has 3 and the card holds 1.

@@ -211,3 +211,25 @@ def test_moves_that_no_longer_apply_are_dropped(authed):
     view = authed.get(f"/api/games/{game_id}/state", headers=h).json()
     assert view["decision"]["kind"] == "wipe"
     assert any("no longer apply" in line for line in view["log"])
+
+
+def test_the_box_limits_crew_decks(authed):
+    """CORE-AS-3 (REQ-CORE-11): a Core Box game takes Core Box Crews only; both boxes take either."""
+    assert create(authed, box="core", deck_id="georgiou").status_code == 422
+    assert create(authed, deck_id="picard").status_code == 422  # the default box is To Boldly Go
+    r = create(authed, box="core", deck_id="picard")
+    assert r.status_code == 201 and r.json()["game"]["box"] == "core"
+    game_id = r.json()["game"]["id"]
+    join = lambda deck: authed.post(f"/api/games/{game_id}/join", json={"display_name": "B", "deck_id": deck})  # noqa: E731
+    assert join("kirk").status_code == 422
+    assert join("sisko").status_code == 200
+    assert create(authed, box="both", deck_id="georgiou").status_code == 201
+    assert create(authed, box="deluxe", deck_id="georgiou").status_code == 422
+
+
+def test_boxes_and_core_box_bots(authed):
+    boxes = authed.get("/api/content/boxes").json()
+    assert list(boxes) == ["core", "to_boldly_go", "both"] and boxes["both"]["sets"] == ["base_game", "to_boldly_go"]
+    assert create(authed, mode="solo", box="core", deck_id="picard", bot={"deck_id": "sisko"}).status_code == 422  # no Bot yet
+    assert create(authed, mode="solo", box="core", deck_id="picard", bot={"deck_id": "soval"}).status_code == 422
+    assert create(authed, mode="solo", box="both", deck_id="picard", bot={"deck_id": "soval"}).status_code == 201

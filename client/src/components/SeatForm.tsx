@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { BoardSide, Deck, SeatChoice, api } from "../api";
+import { BoardSide, Deck, SeatChoice, api, byComplexity, deckLabel } from "../api";
 
 interface Props {
   value: SeatChoice;
@@ -14,7 +14,7 @@ export function SeatForm({ value, onChange, sets, takenDecks = [] }: Props) {
   const decks = useQuery({ queryKey: ["decks"], queryFn: api.decks });
   const available = (decks.data ?? [])
     .filter((d: Deck) => sets.includes(d.set) && !takenDecks.includes(d.id))
-    .sort((a, b) => a.complexity - b.complexity);
+    .sort(byComplexity);
   const selected = available.find((d) => d.id === value.deck_id);
 
   return (
@@ -33,7 +33,7 @@ export function SeatForm({ value, onChange, sets, takenDecks = [] }: Props) {
           <option value="">Choose a captain…</option>
           {available.map((d) => (
             <option key={d.id} value={d.id}>
-              {d.captain} ({d.faction}) – complexity {d.complexity}/10
+              {deckLabel(d)}
             </option>
           ))}
         </select>

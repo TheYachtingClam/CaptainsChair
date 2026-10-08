@@ -119,21 +119,35 @@ No code changed. The acceptance scenarios get their tests in the step that build
 
 **You test:** read `requirements/23-core-box.md`, above all §2 (choosing a box) and §4.1 (Burnham).
 
-## Step 4: Box choice and combined setup
+## Step 4: Box choice and combined setup (done)
 
-- `new_game` takes the box choice. Core-only and combined setup follow REQ-CS-31: drop the `•` and `†` cards, shuffle the rest together, cut the Incidents to 6 before Crew Incidents are added, and seed the Junk.
-- The API, the stored game and the new-game and new-campaign pages offer the choice and list only the Crews and Bots of the chosen box.
-- Tests for REQ-CORE-10 to -27, CORE-AS-1 to -3, and that existing games replay unchanged.
-- The Ticking Clock choice (REQ-SOLO-133) and the stored weekday (REQ-SRV-52) come with the cards that need them, in Steps 13 and 6.
+- `new_game` takes the box choice, and the API, the stored game and the pages offer it.
 
-**You test:** create a game with each box choice and check the Market, Locations and Crew list.
+**What was done:**
 
-## Step 5: Common Market cards
+- **Engine.** `new_game(..., box=)` with `setup.BOXES` (`core`, `to_boldly_go`, `both`); `state.box` records it. `setup.common_cards` picks the common cards: with both boxes it leaves out each Core Box card that *To Boldly Go* reprints or replaces. Combined setup cuts the Incidents to 6 and seeds the Junk (REQ-CORE-20 to -24). The default box is *To Boldly Go*, and such a game is set up exactly as before.
+- **Server.** `Game.box` and `Campaign.box` columns (older rows are *To Boldly Go*), `box` on game and campaign creation, Crew and Bot checks against the box, and `GET /api/content/boxes`. The six Core Box Crews are in `content/decks.json`, without a complexity, which their components do not print.
+- **Client.** A Box choice on the new-game and new-campaign pages; the Crew and Bot lists follow it; the lobby and game table show the box.
+- **Tests.** `tests/test_core_box.py` (CORE-AS-1 and -2, REQ-CORE-03, -11, -20 to -27) and two API tests in `tests/test_games.py` (CORE-AS-3).
+- **Not yet:** Core Box cards, missions and Bots have no code, so in a Core Box game most cards log "Card effect not implemented yet", and no Core Box Bot can be chosen. Random two-player and Cadet games with every Core Box Crew run to the end without errors.
+- **Promo set 1** is not added by the promo option yet. It joins in Step 6 with its code, behind a stored flag so that games already created with promos replay unchanged.
 
-- The 45 reprints: add each Core Box id to its existing module.
-- The 9 old versions and the new Persons, Cargo, Ships and Allies, with any small engine additions they need.
+**You test:** create a game with each box choice and check the Market, Locations and Crew list. In a Core Box game the cards show but mostly do nothing yet.
 
-**You test:** a Core-only game with Georgiou-style developer tools: put the new Market cards in hand and play them.
+## Step 5: Common Market cards (done)
+
+- The reprints, the old versions and the new Persons, Cargo, Ships and Allies.
+
+**What was done:**
+
+- **Reprints and copies.** `cards.link_copies()` gives every card whose spec says `same_as` the operations and registry entries of its twin. All 45 reprints and the 33 Crew copies of existing cards are covered without a module of their own.
+- **40 Market cards written**, one module each in `server/engine/cards/base_game/`: 5 Allies, 10 Cargo, 17 Persons and 8 Ships. That is the 32 new Market cards and the 8 old versions.
+- **Old versions.** *Lirpa*, *Holographic Drone Ship* and *U.S.S. Enterprise-C* play differently from their *To Boldly Go* versions and have their own code. *Phlox* and *Kazon Raider* print the same text and are registered with the newer card. *Orb of Time*, *Phasers* and *Borg Spatial Trajector* play the same but are worded differently, so they have their own modules; an existing test requires shared code to have identical text. *Solum*, a Location, was done here too.
+- **Engine.** One addition: `peek_and_reorder(n, deck=)` now also works on the Location and Encounter decks (*Unstable Wormhole*).
+- **Tests.** `tests/test_core_market.py`: 40 tests, one or more per card with logic. The existing "every operation runs" test now covers every Core Box Market operation. 40 random two-player games with Core Box and mixed Crews ran to the end.
+- **Rulings made** are in `resources/scans/OPEN_QUESTIONS.md` under "Core Box and promo set 1".
+
+**You test:** a Core Box game with the developer panel: put the new Market cards in hand and play them.
 
 ## Step 6: Locations, Encounters, Incidents and promo set 1
 

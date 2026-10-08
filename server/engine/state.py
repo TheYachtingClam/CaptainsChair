@@ -157,6 +157,7 @@ class GameState(BaseModel):
     mode: str
     expansions: list[str] = Field(default_factory=list)
     promos: bool = False
+    box: str = "to_boldly_go"  # core, to_boldly_go or both (REQ-CORE-10)
     players: list[Player]
     first_seat: int  # holds the Starting Player token
     difficulty: str | None = None  # solo mode: the Bot's difficulty, which picks the Stardate cards (REQ-SOLO-11)

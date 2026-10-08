@@ -6,7 +6,7 @@ Guidance for Claude Code when working in this repository.
 
 An online version of the board game *Star Trek: Captain's Chair*.
 
-- The Core Box is being added step by step: see `plans/base-game.md`. Its rules are in `requirements/23-core-box.md`. Its scans, images and specs are in place (sets `base_game` and `promo1`); its cards, missions, Bot rows and bonuses have no code yet, and nothing offers them in a game (`setup.BOT_UNAVAILABLE`, and `WAITING_SETS` and `WAITING_CREWS` in `tests/test_registry.py`). A spec's `same_as` names an identical card whose code it shares.
+- The Core Box is being added step by step: see `plans/base-game.md`. Its rules are in `requirements/23-core-box.md`. Its scans, images and specs are in place (sets `base_game` and `promo1`); its cards, missions, Bot rows and bonuses have no code yet (`setup.BOT_UNAVAILABLE`, and `WAITING_SETS` and `WAITING_CREWS` in `tests/test_registry.py`). A game is played with a box, `new_game(..., box=)`: `core`, `to_boldly_go` (the default) or `both` (`setup.BOXES`, `setup.common_cards`; requirements/23-core-box.md §2 and §3). A spec's `same_as` names an identical card: `cards.link_copies()` gives it every operation and registry entry of its twin, so such a card has no module of its own. Core Box card modules are in `server/engine/cards/base_game/`; the common Market cards are done (`tests/test_core_market.py`).
 - `requirements/` holds the requirements. Start at `requirements/00-README.md`. They are the source of truth. If code and requirements disagree, stop and flag it rather than guessing.
 - `resources/` holds source material that is **never** copied into the Docker image:
   - `resources/scans/<set>/`: everything for one product (`base_game` is the Core Box, `to_boldly_go`, `second_contact`, `promo1`, `promo2`), by kind: `cards/`, `boards/`, `command/`, and the rulebook scans in `manual/` and `solo/`. See `resources/scans/README.md`.
@@ -228,7 +228,7 @@ These are the only actions card code may call. Each maps to a keyword in `requir
 | `SWAP_JUNK_WITH_MARKET` | Exchange a card in the Junk with the faceup Market card of the same suit. The Market card goes to the Junk and the Junk card takes its slot. A Market card with tokens cannot be swapped (Plomeek Tea) | KW-JUNK-02 | No |
 | `DRAW_FROM_LOG` | Take a card from your Captain's Log into hand (Shax, Search for Spock). Only when an effect says so; the Log is otherwise out of play | KW-LOG-05 | No |
 | `SHUFFLE_INTO` | Shuffle a card into your Draw deck (`shuffle_into`: Second Contact, Dooplers), or shuffle the deck itself (`shuffle_deck`, Gluonic Distortion) | — | Yes |
-| `REORDER` | Put cards you have looked at back on the top and/or bottom of their deck in an order you choose (Faith of the Heart). Used after `PEEK` | — | No |
+| `REORDER` | Put cards you have looked at back on the top and/or bottom of their deck in an order you choose: your Reserve deck (Faith of the Heart), or with `peek_and_reorder(n, deck="location"\|"encounter")` the Location or Encounter deck (Unstable Wormhole). Used after `PEEK` | — | No |
 | `TAKE_FROM_REINFORCEMENT` | Take a card of your choice from your Reinforcement pile into hand (Reinforce; solo campaign only) | REQ-CAMP-21 | No |
 
 ### Resources and actions

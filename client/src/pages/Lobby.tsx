@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { Game, MODE_LABELS, SeatChoice, api, campaignApi, forgetSeatToken, knownCampaigns, loadSeatToken, saveSeatToken } from "../api";
+import { Game, MODE_LABELS, SeatChoice, api, campaignApi, forgetSeatToken, knownCampaigns, loadSeatToken, saveSeatToken, setsFor } from "../api";
 import { SeatForm } from "../components/SeatForm";
 
 export function Lobby() {
@@ -50,6 +50,8 @@ function GameLine({ game }: { game: Game }) {
   return (
     <div>
       <strong>{MODE_LABELS[game.mode]}</strong> · {players}
+      {game.box === "core" && <span className="muted"> · Core Box</span>}
+      {game.box === "both" && <span className="muted"> · both boxes</span>}
       {game.open_seats > 0 && <span className="muted"> · waiting for opponent</span>}
     </div>
   );
@@ -93,6 +95,7 @@ function MyGame({ game }: { game: Game }) {
 }
 
 function OpenGame({ game }: { game: Game }) {
+  const boxes = useQuery({ queryKey: ["boxes"], queryFn: api.boxes });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [joining, setJoining] = useState(false);
@@ -118,7 +121,7 @@ function OpenGame({ game }: { game: Game }) {
           <SeatForm
             value={seat}
             onChange={setSeat}
-            sets={["to_boldly_go", ...game.expansions]}
+            sets={setsFor(boxes.data, game.box, game.expansions)}
             takenDecks={game.seats.map((s) => s.deck_id)}
           />
           {join.error && <p className="error" role="alert">{join.error.message}</p>}

@@ -32,6 +32,7 @@ class NewCampaign(BaseModel):
     display_name: str = Field(min_length=1, max_length=40)
     deck_id: str
     mode: str = "set_phasers_to_stun"
+    box: Literal["core", "to_boldly_go", "both"] = "to_boldly_go"
     expansions: list[str] = []
     promos: bool = False
     challenges: list[str] = []
@@ -73,7 +74,7 @@ def _captain(deck_id: str) -> str:
 def _opponents(camp: Campaign) -> list[str]:
     """Bots you can face: not one you have already beaten in this campaign (REQ-CAMP-05)."""
     beaten = {a["bot"] for a in camp.assignments if a.get("outcome") == "win"}
-    return sorted(d for d in content.bot_ids_for(camp.expansions) if d not in beaten)
+    return sorted(d for d in content.bot_ids_for(camp.expansions, camp.box) if d not in beaten)
 
 
 def _sync(db: Session, camp: Campaign) -> None:
@@ -144,6 +145,7 @@ def _view(camp: Campaign) -> dict:
         "captain": _captain(camp.deck_id),
         "mode": camp.mode,
         "mode_name": rules.MODE_NAMES.get(camp.mode, camp.mode),
+        "box": camp.box,
         "expansions": camp.expansions,
         "rank": camp.rank,
         "phase": phase,
@@ -182,7 +184,9 @@ def create_campaign(body: NewCampaign, db: Session = Depends(get_db)) -> dict:
     unknown = set(body.expansions) - set(content.EXPANSIONS)
     if unknown:
         raise HTTPException(422, f"Unknown expansion: {', '.join(sorted(unknown))}")
-    validate_deck(body.deck_id, body.expansions)
+    validate_deck(body.deck_id, body.expansions, body.box)
+    if not content.bot_ids_for(body.expansions, body.box):
+        raise HTTPException(422, "No Bot is available for this box yet")
     if body.mode not in rules.MODES:
         raise HTTPException(422, "Unknown campaign mode")
     allowed = rules.available_challenges(body.deck_id)
@@ -190,7 +194,7 @@ def create_campaign(body: NewCampaign, db: Session = Depends(get_db)) -> dict:
         raise HTTPException(422, "A chosen challenge is not available for this Crew deck")
     token = new_seat_token()
     camp = Campaign(display_name=body.display_name.strip(), deck_id=body.deck_id, mode=body.mode,
-                    expansions=body.expansions, promos=body.promos, token_hash=hash_seat_token(token),
+                    box=body.box, expansions=body.expansions, promos=body.promos, token_hash=hash_seat_token(token),
                     challenges=[c for c in rules.CHALLENGES if c in body.challenges])
     db.add(camp)
     db.commit()
@@ -220,7 +224,7 @@ def start_assignment(campaign_id: str, body: NewAssignment, db: Session = Depend
         raise HTTPException(422, "You cannot face that Bot in this campaign")
     number = len(camp.assignments) + 1
     level = rules.difficulty(camp.rank, camp.mode)
-    game = Game(mode="solo", expansions=camp.expansions, promos=camp.promos,
+    game = Game(mode="solo", box=camp.box, expansions=camp.expansions, promos=camp.promos,
                 bot={"deck_id": bot, "difficulty": level, "ticking_clock": False},
                 campaign={"id": camp.id, "assignment": number, "reinforcement": list(camp.reinforcement),
                           "setup": asdict(_setup(camp, body.drop))})

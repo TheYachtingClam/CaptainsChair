@@ -1,7 +1,9 @@
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { CAMPAIGN_MODES, CampaignMode, Deck, api, campaignApi, saveCampaignToken } from "../api";
+import {
+  Box, CAMPAIGN_MODES, CampaignMode, DEFAULT_BOX, Deck, api, byComplexity, campaignApi, deckLabel, saveCampaignToken, setsFor,
+} from "../api";
 
 /** Start a Five-Year Mission (REQ-CAMP-02): your Crew deck and a campaign mode. You start as an Ensign. */
 export function NewCampaign() {
@@ -11,17 +13,20 @@ export function NewCampaign() {
   const [name, setName] = useState("");
   const [deck, setDeck] = useState("");
   const [mode, setMode] = useState<CampaignMode>("set_phasers_to_stun");
+  const boxes = useQuery({ queryKey: ["boxes"], queryFn: api.boxes });
+  const [box, setBox] = useState<Box>(DEFAULT_BOX);
   const [chosen, setChosen] = useState<string[]>([]);
   const [promos, setPromos] = useState(false);
   const [challenges, setChallenges] = useState<string[]>([]);
   // REQ-CAMP-41: only the challenges this Crew deck can take are shown.
   const available = useQuery({ queryKey: ["challenges", deck], queryFn: () => campaignApi.challenges(deck), enabled: !!deck });
-  const sets = ["to_boldly_go", ...chosen];
-  const crews = (decks.data ?? []).filter((d: Deck) => sets.includes(d.set)).sort((a, b) => a.complexity - b.complexity);
+  const sets = setsFor(boxes.data, box, chosen);
+  const crews = (decks.data ?? []).filter((d: Deck) => sets.includes(d.set)).sort(byComplexity);
+  const noBots = !(decks.data ?? []).some((d: Deck) => d.bot && sets.includes(d.set));
 
   const create = useMutation({
     mutationFn: () => campaignApi.create({
-      display_name: name.trim(), deck_id: deck, mode, expansions: chosen, promos,
+      display_name: name.trim(), deck_id: deck, mode, box, expansions: chosen, promos,
       challenges: challenges.filter((c) => available.data?.some((a) => a.id === c)),
     }),
     onSuccess: ({ campaign, token }) => {
@@ -48,6 +53,16 @@ export function NewCampaign() {
           <input maxLength={40} value={name} onChange={(e) => setName(e.target.value)} />
         </label>
         <fieldset>
+          <legend>Box</legend>
+          {(Object.entries(boxes.data ?? {}) as [Box, { name: string }][]).map(([id, b]) => (
+            <label key={id} className="inline">
+              <input type="radio" name="box" checked={box === id} onChange={() => { setBox(id); setDeck(""); }} />
+              {b.name}
+            </label>
+          ))}
+          {noBots && <p className="muted">No Bot is available for this box yet, so a campaign cannot start with it.</p>}
+        </fieldset>
+        <fieldset>
           <legend>Expansions</legend>
           {Object.entries(expansions.data ?? {}).map(([id, label]) => (
             <label key={id} className="inline">
@@ -66,7 +81,7 @@ export function NewCampaign() {
           <select value={deck} onChange={(e) => setDeck(e.target.value)}>
             <option value="">Choose a captain…</option>
             {crews.map((d) => (
-              <option key={d.id} value={d.id}>{d.captain} ({d.faction}) – complexity {d.complexity}/10</option>
+              <option key={d.id} value={d.id}>{deckLabel(d)}</option>
             ))}
           </select>
         </label>
