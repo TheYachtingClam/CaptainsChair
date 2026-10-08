@@ -18,6 +18,8 @@ The digital game needs data definitions for every physical component below. Card
 - **REQ-CMP-01** Each Crew deck is a set of cards plus a double-sided Crew board (Basic and Advanced sides).
 - **REQ-CMP-02** Crew-deck-specific components (for example Khan's Trait Mark tokens) must be supported. See [15-crew-decks.md](15-crew-decks.md).
 
+The Core Box has its own six Crew decks and common cards; see [23-core-box.md](23-core-box.md) §1.
+
 ## 2. Common cards
 
 73 common Market cards:

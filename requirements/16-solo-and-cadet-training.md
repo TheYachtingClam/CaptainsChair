@@ -27,7 +27,7 @@ A single-player practice mode for learning a deck without the Bot's rules.
 ### Clean-up and Stardates
 
 - **REQ-CTM-20** During Clean-up, wipe **one** Market card of the player's choice: return its tokens and junk it. Then place 1 Glory from the Stardate card on a Market card.
-- **REQ-CTM-21** Core Box Burnham variant: remove 1 Glory from the Stardate and place 1 Dilithium instead. Her Status card says 2, but Cadet mode uses 1.
+- **REQ-CTM-21** Core Box Burnham variant: in her Clean-up, remove 1 Glory from the Stardate and place 1 Dilithium on a Market card instead. Her Captain card says 2 (REQ-CORE-33), but Cadet mode uses 1.
 - **REQ-CTM-22** The first Stardate card empties during turn 5's Clean-up.
   - Put it in the player's Staging Area, then refill the second Stardate card with 5 Glory from the supply.
   - In turn 6's Stardate Resolution, wipe the Market and every Neutral Zone Location with no player tokens.

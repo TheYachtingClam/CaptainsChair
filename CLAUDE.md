@@ -6,7 +6,7 @@ Guidance for Claude Code when working in this repository.
 
 An online version of the board game *Star Trek: Captain's Chair*.
 
-- The Core Box is being added step by step: see `plans/base-game.md`. Its scans, images and specs are in place (sets `base_game` and `promo1`); its cards, missions, Bot rows and bonuses have no code yet, and nothing offers them in a game (`setup.BOT_UNAVAILABLE`, and `WAITING_SETS` and `WAITING_CREWS` in `tests/test_registry.py`). A spec's `same_as` names an identical card whose code it shares.
+- The Core Box is being added step by step: see `plans/base-game.md`. Its rules are in `requirements/23-core-box.md`. Its scans, images and specs are in place (sets `base_game` and `promo1`); its cards, missions, Bot rows and bonuses have no code yet, and nothing offers them in a game (`setup.BOT_UNAVAILABLE`, and `WAITING_SETS` and `WAITING_CREWS` in `tests/test_registry.py`). A spec's `same_as` names an identical card whose code it shares.
 - `requirements/` holds the requirements. Start at `requirements/00-README.md`. They are the source of truth. If code and requirements disagree, stop and flag it rather than guessing.
 - `resources/` holds source material that is **never** copied into the Docker image:
   - `resources/scans/<set>/`: everything for one product (`base_game` is the Core Box, `to_boldly_go`, `second_contact`, `promo1`, `promo2`), by kind: `cards/`, `boards/`, `command/`, and the rulebook scans in `manual/` and `solo/`. See `resources/scans/README.md`.
@@ -295,5 +295,5 @@ Automated Command rows use the same action names. In a Bot context the engine su
   - card modules import only the allowed modules.
   - every printed operation and mission has code (`engine.cards.has_code`, `tests/test_registry.py`), except the solo-only cards and the SURPRISE operations, which the Bot tests cover.
 - The engine enforces `uses` at runtime too. A test must fail if an operation calls an action it did not declare.
-- Each acceptance scenario in `requirements/18-acceptance-scenarios.md`, `21-expansion-second-contact.md` §8 and `22-solo-mode.md` §13 has an engine test.
+- Each acceptance scenario in `requirements/18-acceptance-scenarios.md`, `21-expansion-second-contact.md` §8 and `22-solo-mode.md` §13 has an engine test. The Core Box scenarios in `23-core-box.md` §6 get theirs in the plan step that builds each feature (`plans/base-game.md`).
 - `tests/test_solo_sweep.py` plays a random game against every Bot at every difficulty, random campaign games with every challenge and random Boosts, and checks that undo stops at the Bot's turn (REQ-SOLO-200).

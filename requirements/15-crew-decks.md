@@ -17,7 +17,7 @@ Each Crew deck is a content pack of cards, a Crew board and Ship tokens. Some de
 
 - **REQ-CD-01** Show complexity and summary text on the selection screen. Recommend Georgiou versus Soval for first games.
 
-The *Second Contact* expansion adds Pike, Riker and Freeman. Their rules are in [21-expansion-second-contact.md](21-expansion-second-contact.md) §7. Rules for any Crew deck played by the Bot are in [22-solo-mode.md](22-solo-mode.md).
+The *Second Contact* expansion adds Pike, Riker and Freeman. Their rules are in [21-expansion-second-contact.md](21-expansion-second-contact.md) §7. The Core Box adds Picard, Shran, Koloth, Sela, Sisko and Burnham. Their rules are in [23-core-box.md](23-core-box.md) §4. Rules for any Crew deck played by the Bot are in [22-solo-mode.md](22-solo-mode.md).
 
 ## 2. Archer
 

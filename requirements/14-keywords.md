@@ -269,7 +269,9 @@ Each keyword below must be a reusable engine primitive that card scripts call. E
 
 ## Recrystallize
 
-- **KW-RECRY-01** This keyword belongs to Burnham's deck in the Core Box. It is out of scope for this box and should be supported only if Core Box content is added.
+- **KW-RECRY-01** "Recrystallize N [Dilithium]" belongs to Burnham's deck in the Core Box. Move up to N Dilithium from her *Inert Dilithium* Status card to her supply (REQ-CORE-31).
+- **KW-RECRY-02** It is moving, not gaining: effects that trigger on gaining Dilithium do not trigger, and the Dilithium is not placed back on *Inert Dilithium*.
+- **KW-RECRY-03** "Recrystallize all" moves everything on the card. With nothing on the card, or no *Inert Dilithium* in play, nothing happens.
 
 ## Refresh
 

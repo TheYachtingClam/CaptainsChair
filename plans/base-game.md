@@ -104,19 +104,27 @@ How the specs were made: I read every card, board and command card from the scan
 
 **You test:** spot-check specs against the cards, above all Burnham's deck and the two Skill-icon readings noted in the open questions. Answer the open questions.
 
-## Step 3: Requirements
+## Step 3: Requirements (done)
 
-- A new `requirements/23-core-box.md`: components, the six Crew decks' own rules (Burnham's Inert Dilithium and recrystallize above all), *Conspiracy*, promo set 1, and the box choice.
-- Updates: REQ-CS-30 and -31 (box choice, combining), REQ-CS-20 to -23 (two promo sets), KW-RECRY-01, REQ-CTM-21, REQ-SOLO-59, -72 and -132, `02-components.md`, `15-crew-decks.md`, and gap 3 in `00-README.md`.
-- Acceptance scenarios for combining boxes and for Burnham's Dilithium.
+- A new `requirements/23-core-box.md`, and updates to the documents that pointed at missing Core Box content.
 
-**You test:** read the new document.
+**What was done:**
+
+- **`23-core-box.md`** (REQ-CORE-01 to -63): components, choosing a box, combining boxes, Burnham's Inert Dilithium, recrystallize and Clean-up rule, the other Crews' rules, *Sha Ka Ree*, the promo cards, the six Bots and *Conspiracy*, and eight acceptance scenarios (CORE-AS-1 to -8).
+- **Combining boxes** is now exact: 105 Market cards, 29 Locations, 13 Encounters, Incidents cut from 8 to 6, Junk seeded with 4.
+- **Updated:** REQ-CS-20, -30 and -31, KW-RECRY-01 to -03, REQ-CTM-21, REQ-SOLO-132 and -133, REQ-SRV-18, a new REQ-SRV-52 (the server stores the weekday with each command), the document map and gap 3 in `00-README.md`, and pointers in `02-components.md` and `15-crew-decks.md`.
+- Three requirements are marked "ruling, to confirm": REQ-CORE-32 (Burnham's starting Dilithium is in her supply), REQ-CORE-43 ("Discovery" is Encounter), and the defaults they share with `OPEN_QUESTIONS.md`.
+
+No code changed. The acceptance scenarios get their tests in the step that builds each feature.
+
+**You test:** read `requirements/23-core-box.md`, above all §2 (choosing a box) and §4.1 (Burnham).
 
 ## Step 4: Box choice and combined setup
 
 - `new_game` takes the box choice. Core-only and combined setup follow REQ-CS-31: drop the `•` and `†` cards, shuffle the rest together, cut the Incidents to 6 before Crew Incidents are added, and seed the Junk.
 - The API, the stored game and the new-game and new-campaign pages offer the choice and list only the Crews and Bots of the chosen box.
-- Tests for each rule of REQ-CS-31, and that existing games replay unchanged.
+- Tests for REQ-CORE-10 to -27, CORE-AS-1 to -3, and that existing games replay unchanged.
+- The Ticking Clock choice (REQ-SOLO-133) and the stored weekday (REQ-SRV-52) come with the cards that need them, in Steps 13 and 6.
 
 **You test:** create a game with each box choice and check the Market, Locations and Crew list.
 

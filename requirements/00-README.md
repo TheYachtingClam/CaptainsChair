@@ -1,5 +1,7 @@
 # Star Trek: Captain's Chair – Online Version Requirements
 
+The Core Box, the original game, is covered in [23-core-box.md](23-core-box.md) from its scanned cards alone ([resources/scans/base_game/](../resources/scans/base_game/)); its rulebook is superseded.
+
 These documents turn the *Star Trek: Captain's Chair – To Boldly Go* rulebook (36 pages in [resources/scans/to_boldly_go/manual/](../resources/scans/to_boldly_go/manual/), `page-001.jpg` to `page-036.jpg`) into requirements for a digital, online implementation. They also cover the *Second Contact* expansion ([resources/scans/second_contact/manual/](../resources/scans/second_contact/manual/), 6 pages) and the solo rulebook ([resources/scans/to_boldly_go/solo/](../resources/scans/to_boldly_go/solo/), 21 pages). Page numbers refer to the base rulebook unless a file says otherwise. They are organised by topic, not by page.
 
 ## Document map
@@ -28,6 +30,7 @@ These documents turn the *Star Trek: Captain's Chair – To Boldly Go* rulebook 
 | 20 | [Undo](20-undo.md) | Not from the rulebook |
 | 21 | [Expansion: Second Contact](21-expansion-second-contact.md) | Expansion pp. 1–6 |
 | 22 | [Solo Mode: Playing Against the Bot, and the Five-Year Mission Campaign](22-solo-mode.md) | Solo rulebook pp. 1–21 |
+| 23 | [Core Box: Its Crews, Choosing a Box, Combining Boxes](23-core-box.md) | Core Box cards, not a rulebook |
 
 ## Conventions
 
@@ -39,7 +42,7 @@ These documents turn the *Star Trek: Captain's Chair – To Boldly Go* rulebook 
 
 1. **Card content.** The rulebook shows only example cards. Every Crew deck and common card, about 280 cards, must be transcribed from the physical cards or a publisher list.
 2. **Solo against the Bot (resolved).** The solo rulebook is now covered in [22-solo-mode.md](22-solo-mode.md). The Automated Command card rows for each Bot Crew still have to be transcribed from the physical cards, like all other card text.
-3. **Core Box compatibility.** Combining boxes, Burnham and *Recrystallize* depend on Core Box content that is not in this manual.
+3. **Core Box compatibility (resolved).** The Core Box cards are scanned and specified. Choosing a box, combining boxes, Burnham and *Recrystallize* are in [23-core-box.md](23-core-box.md).
 4. **Log visibility (resolved).** Page 21 calls Logs public, and page 31 says only the owner may look. The developers' errata lets the opponent ask about Log contents. The online game makes the Log viewable by both players with a click.
 5. **Khan setup step number.** The Khan rules say "draw 6 cards in step 13 of player setup", but the opening hand is step 14. Treat it as the opening-hand step.
 6. **Online features.** Lobby, reconnection, the action log and access control are now covered in [19-technical-architecture.md](19-technical-architecture.md). Undo is part of the first version and is specified in [20-undo.md](20-undo.md). Matchmaking, timers and spectators are out of scope for the first version.

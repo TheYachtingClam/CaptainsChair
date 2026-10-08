@@ -26,7 +26,7 @@ The engine must perform central setup automatically, with player choices (Crew d
 
 ## 2. Promo cards (optional)
 
-- **REQ-CS-20** When creating a game, the host chooses whether to include promo cards. They are off by default.
+- **REQ-CS-20** When creating a game, the host chooses whether to include promo cards. They are off by default. The one option covers every promo set (REQ-CORE-13).
 - **REQ-CS-21** When promos are included, shuffle each promo card into the common deck of its suit during central setup, before the Market is revealed:
   - Cargo, Person, Ship and Ally promos go into their Market decks;
   - Incident promos go into the Incident deck;
@@ -34,18 +34,12 @@ The engine must perform central setup automatically, with player choices (Crew d
 - **REQ-CS-22** A promo card's own SPECIAL setup text takes precedence. For example, *Subspace Rhapsody* replaces a random Incident in the Incident deck instead of adding to it.
 - **REQ-CS-23** Promo cards follow all normal rules for common cards once in the game.
 
-## 3. Combining boxes (optional)
+## 3. Choosing and combining boxes
 
-Each Crew deck is balanced for its own box's Market cards. The app may later support mixing decks from this box ("To Boldly Go") with the Core Box.
+Each Crew deck is balanced for its own box's Market cards.
 
-- **REQ-CS-30** By default, only allow Crew decks from the same box as the common cards.
-- **REQ-CS-31** When combining To Boldly Go with the Core Box:
-  - **Duplicates.** Remove the 45 cards marked `•`, including the duplicate solo directive *Reinforce*.
-  - **Replacements.** Remove the old versions of the 9 cards marked `†`.
-  - **Stardate.** Use this box's Stardate cards.
-  - **Market, Locations, Encounters.** Shuffle the remaining cards of each type together.
-  - **Incidents.** Shuffle the remaining cards and return random cards to the box until 6 remain. Do this before adding Incidents from Crew decks.
-  - **Junk.** After creating the Market, flip the top card of each of the four Market decks into the Junk pile.
+- **REQ-CS-30** A game is played with one box, the Core Box or *To Boldly Go*, or with both combined. Only Crew decks of a box in the game may be chosen. The choice is REQ-CORE-10 to -14 in [23-core-box.md](23-core-box.md).
+- **REQ-CS-31** Combining the two boxes follows REQ-CORE-20 to -27: one copy of each of the 45 reprinted cards (marked `•`), only the new version of the 9 replaced cards (marked `†`), the remaining cards of each type shuffled together, Incidents cut to 6, the *To Boldly Go* Stardate cards, and the Junk seeded with the top card of each Market deck.
 
 ## 4. Layout (for UI)
 

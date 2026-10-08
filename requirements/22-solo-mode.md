@@ -161,8 +161,8 @@ The human plays as normal. The Bot resolves each step as follows.
 
 - **REQ-SOLO-130** An optional challenge for expert players. Add the solo Directive *Time Is Running Out* to the Bot's Reserve cards when building the Supplement deck.
 - **REQ-SOLO-131** It has the Surprise trait, so its effects are on the card (§6.2).
-- **REQ-SOLO-132** With Core Box content, the Core Box card *Conspiracy* can be used instead, or both together for a bigger challenge.
-- **REQ-SOLO-133** The game-creation screen offers Ticking Clock as a checkbox for solo games.
+- **REQ-SOLO-132** With Core Box content, the Core Box card *Conspiracy* can be used instead, or both together for a bigger challenge. Its own rules are REQ-CORE-62.
+- **REQ-SOLO-133** The game-creation screen offers Ticking Clock for solo games: a checkbox, or with Core Box content in the game a choice of none, *Time Is Running Out*, *Conspiracy* or both.
 
 ## 11. Market and Neutral Zone (p. 8)
 

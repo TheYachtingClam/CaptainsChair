@@ -68,7 +68,8 @@ server/
 - **REQ-SRV-16** Undo is part of the first version. Every option in a pending decision says whether it can be undone, so the client can warn the player first. Details are in [20-undo.md](20-undo.md).
 - **REQ-SRV-17** The Bot ([22-solo-mode.md](22-solo-mode.md)) runs inside the server, as part of the rules engine's turn loop: its turn needs no stored commands, so a game is still rebuilt from the seed and the human's commands alone. Its choices use only what the Bot rules allow.
 - **REQ-SRV-19** A game starts as soon as every seat is filled: the server picks a random seed, runs setup, and the first decision goes to the Starting Player. A solo game against the Bot starts with one seat, with the Bot as the second player run by the engine itself (plans/solo-mode.md, design decision 1); Cadet Training starts with one seat and runs the virtual-opponent rules of [16-solo-and-cadet-training.md](16-solo-and-cadet-training.md).
-- **REQ-SRV-18** Game creation accepts the expansions to include, whether to include promo cards (REQ-CS-20), and for solo games the Bot's Crew, difficulty and optional Ticking Clock challenge.
+- **REQ-SRV-18** Game creation accepts the box (REQ-CORE-10), the expansions to include, whether to include promo cards (REQ-CS-20), and for solo games the Bot's Crew, difficulty and optional Ticking Clock challenge.
+- **REQ-SRV-52** The server stores with every accepted command the weekday on which it was received, in the server's time zone. The engine reads the weekday only from there, never from the clock, so a replay gives the same result (REQ-CORE-53). Developer commands and undone commands follow the same rule.
 
 ### 3.4 Hidden information
 
@@ -144,7 +145,7 @@ All endpoints except login and health require a valid session (see §5).
 |---|---|
 | Password page | One password field and a submit button. Shown whenever there is no valid session |
 | Lobby | Create game, list of open games to join, list of the player's own in-progress games. Each of the player's own games has a Delete button that asks for confirmation, because deleting cannot be undone |
-| New game | Choose mode (two-player, solo against the Bot, Cadet Training), expansions, promo cards, Crew deck (with complexity and summary), board side and display name. Solo adds Bot Crew, difficulty and Ticking Clock |
+| New game | Choose mode (two-player, solo against the Bot, Cadet Training), box (Core Box, To Boldly Go or both), expansions, promo cards, Crew deck (with complexity and summary), board side and display name. Solo adds Bot Crew, difficulty and Ticking Clock |
 | Campaign | Five-Year Mission log, rank, upgrades, challenges and the next assignment |
 | Game table | The main play screen (§4.3) |
 | Score screen | Final score breakdown per player, following [13-final-scoring.md](13-final-scoring.md) |
