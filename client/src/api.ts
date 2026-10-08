@@ -249,6 +249,7 @@ export interface PlayerView {
   actions: number;
   tracks: Record<string, number>;
   away_pool: number;
+  reserve?: CardView[] | null; // your own Reserve deck's contents, sorted by name; never its order (REQ-INF-05)
   // Five-Year Mission games only
   reinforcement?: CardView[];
   boosts?: string[];

@@ -44,6 +44,9 @@ def player_view(state: GameState, player: Player, viewer: int | None) -> dict:
         # Gluonic Distortion: the Draw deck is face-up, so both players see it, in order (REQ-SRV-20).
         "draw": [card_view(i) for i in player.draw] if deck_face_up(player) else None,
         "reserve_count": len(player.reserve),
+        # The owner may see what is in their Reserve deck, never its order (REQ-INF-05): sorted by name, with stand-in
+        # uids so nothing about the real order can be read from them.
+        "reserve": _reserve_contents(player) if mine and player.bot is None else None,
         "discard": [card_view(i) for i in player.discard],
         "development": [card_view(i) for i in player.development],
         "staging": [card_view(i) if not _facedown(player, i) else {"uid": i.uid, "facedown": True}
@@ -64,6 +67,17 @@ def player_view(state: GameState, player: Player, viewer: int | None) -> dict:
         "only_ship": player.only_ship,
         "teams_aside": player.teams_until_reserve_empty,
     }
+
+
+def _reserve_contents(player: Player) -> list[dict]:
+    cards = sorted(player.reserve, key=lambda i: (content().cards[i.card].name, i.card))
+    out = []
+    for n, inst in enumerate(cards):
+        view = card_view(inst)
+        view["uid"] = f"reserve-{n}"
+        view.pop("at", None)
+        out.append(view)
+    return out
 
 
 def _boost_text(key: str) -> str:

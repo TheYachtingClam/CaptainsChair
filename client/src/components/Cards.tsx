@@ -197,10 +197,10 @@ export function usePreviewHandlers(image: string, wide = false) {
 }
 
 /** A facedown deck: card back with its label and count. */
-export function CardBack({ label, count, onClick }: { label: string; count: number; onClick?: () => void }) {
+export function CardBack({ label, count, onClick, title }: { label: string; count: number; onClick?: () => void; title?: string }) {
   return (
     <button type="button" className={`card-back ${count === 0 ? "empty" : ""}`} onClick={onClick} disabled={!onClick}
-      aria-label={`${label}: ${count} card(s)`}>
+      aria-label={`${label}: ${count} card(s)`} title={title}>
       <span className="card-back-label">{label}</span>
       <span className="card-back-count">{count}</span>
     </button>
@@ -213,7 +213,13 @@ export function Slot({ label, tone }: { label: string; tone: "duty" | "status" |
 }
 
 /** Modal listing every card in a public pile. */
-export function PileViewer({ title, cards, onClose }: { title: string; cards: CardView[]; onClose: () => void }) {
+export function PileViewer({ title, cards, onClose, note }: {
+  title: string;
+  cards: CardView[];
+  onClose: () => void;
+  /** A line under the title, e.g. that a deck's order is not shown. */
+  note?: string;
+}) {
   return (
     <div className="modal-backdrop" onClick={onClose} onKeyDown={(e) => e.key === "Escape" && onClose()}>
       <div className="card modal wide" role="dialog" aria-label={title} onClick={(e) => e.stopPropagation()}>
@@ -221,6 +227,7 @@ export function PileViewer({ title, cards, onClose }: { title: string; cards: Ca
           <h2>{title} ({cards.length})</h2>
           <button className="secondary" onClick={onClose} autoFocus>Close</button>
         </div>
+        {note && <p className="pile-note">{note}</p>}
         <div className="cards">{cards.length ? cards.map((c) => <Card key={c.uid} card={c} />) : <span className="muted">Empty</span>}</div>
       </div>
     </div>

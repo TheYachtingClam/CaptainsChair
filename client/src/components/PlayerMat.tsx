@@ -119,12 +119,13 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
   /** Shown on your own mat. Undefined while ending the turn is not possible. */
   onEndTurn?: (() => void) | null;
 }) {
-  const [viewing, setViewing] = useState<null | "discard" | "development" | "log" | "draw">(null);
+  const [viewing, setViewing] = useState<null | "discard" | "development" | "log" | "draw" | "reserve">(null);
   const piles = {
     discard: ["Discard pile", p.discard],
     development: ["Development pile", p.development],
     log: ["Captain's Log", p.log],
     draw: ["Draw deck (face-up, top first)", p.draw ?? []],
+    reserve: ["Reserve deck contents", p.reserve ?? []],
   } as const;
   const topDiscard = p.discard[p.discard.length - 1];
 
@@ -151,7 +152,9 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
         {/* Left column: Reserve, Status, Development, tokens, Crew board (items 7, 4, 6, 12, 1) */}
         <div className="mat-left">
           <div className="row top">
-            <CardBack label={p.bot ? "Supplement" : "Reserve"} count={p.reserve_count} />
+            <CardBack label={p.bot ? "Supplement" : "Reserve"} count={p.reserve_count}
+              onClick={p.reserve ? () => setViewing("reserve") : undefined}
+              title={p.reserve ? "See what is in your Reserve deck (not its order)" : undefined} />
             {p.status.map((c) => <Card key={c.uid} card={c} />)}
           </div>
           {p.bot ? <CommandCards bot={p.bot} highlight={highlight} onSoloRules={onSoloRules} /> : (
@@ -246,7 +249,10 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
         <span className="muted hand-size">Hand {p.hand_count} / {p.hand_size}</span>
       </div>}
 
-      {viewing && <PileViewer title={piles[viewing][0]} cards={[...piles[viewing][1]]} onClose={() => setViewing(null)} />}
+      {viewing && <PileViewer title={piles[viewing][0]} cards={[...piles[viewing][1]]} onClose={() => setViewing(null)}
+        note={viewing === "reserve"
+          ? "These are the cards in your Reserve deck, sorted by name. This is not the order they are in: the deck's order stays hidden, even from you."
+          : undefined} />}
     </section>
   );
 }

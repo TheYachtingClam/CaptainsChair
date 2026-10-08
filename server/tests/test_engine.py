@@ -202,11 +202,25 @@ def test_views_hide_secrets():
     assert view["players"][me]["hand"] is not None
     assert view["players"][other]["hand"] is None and view["players"][other]["hand_count"] == 5
     text = str(view)
-    for inst in s.players[other].hand + s.players[me].draw + s.players[other].reserve:
-        assert inst.uid not in text
+    for inst in s.players[other].hand + s.players[me].draw + s.players[other].reserve + s.players[me].reserve:
+        assert inst.uid not in text  # even your own Reserve deck is sent without real uids, so its order cannot leak
     assert "seed" not in view
     if s.decision.seat != me:
         assert "options" not in view["decision"]
+
+
+def test_you_can_see_what_is_in_your_reserve_deck_but_not_its_order():
+    """REQ-INF-05: the owner sees the contents, sorted by name; the opponent sees only the count."""
+    s = game()
+    names = lambda insts: [content().cards[i.card].name for i in insts]  # noqa: E731
+    view = game_view(s, 0)
+    mine, theirs = view["players"][0], view["players"][1]
+    assert sorted(names(s.players[0].reserve)) == [c["name"] for c in mine["reserve"]]
+    assert [c["uid"] for c in mine["reserve"]] == [f"reserve-{n}" for n in range(len(mine["reserve"]))]
+    assert theirs["reserve"] is None and theirs["reserve_count"] == len(s.players[1].reserve)
+    # Reordering the deck changes nothing the owner is sent.
+    s.players[0].reserve.reverse()
+    assert game_view(s, 0)["players"][0]["reserve"] == mine["reserve"]
 
 
 def test_replay_is_exact():

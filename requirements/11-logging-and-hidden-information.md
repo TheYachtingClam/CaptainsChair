@@ -24,6 +24,7 @@ Source: Rulebook p. 21.
   - The full composition of the common decks. Provide the common card list in-app.
 - **REQ-INF-03** The server is the authority on hidden state. Clients must receive only the information their player may see. The opponent's hand is sent as a count only, and deck order is never sent.
 - **REQ-INF-04** Players can browse public zones at any time.
+- **REQ-INF-05** A player may look through what is in their own Reserve deck at any time, to get to know their Crew. Only the contents are shown, sorted by name and labelled as not being the deck's order; the order stays hidden from everyone (REQ-INF-01). The opponent does not see it, because cards can be put onto a Reserve deck from hand.
 
 ## 3. Viewing the Captain's Log (online ruling)
 

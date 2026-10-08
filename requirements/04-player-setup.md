@@ -34,7 +34,7 @@ The engine must track these zones per player:
 | Hand | Owner only | No hand limit |
 | Draw deck ("your deck") | Hidden, ordered | "Your deck" always means the Draw deck unless another deck is named |
 | Discard pile | Public | |
-| Reserve deck | Hidden, ordered | Source of enlisted cards |
+| Reserve deck | Hidden, ordered; the owner may view its contents, not its order (REQ-INF-05) | Source of enlisted cards |
 | Development pile | Public | Enlisted by paying a development cost |
 | Staging Area | Public | Bottom row. Cards played this turn |
 | Fleet Area | Public | Middle row. Captain, deployed Ships and Ongoing cards |
