@@ -92,10 +92,11 @@ The slots on the board are blank; each holds a Trait Mark token (images in `toke
 - Ruling: the board's slots are blank, so the game fixes no token order. This game uses the order in Trait slots above: the ten fixed traits alphabetically, then the two opponent-dependent entries (REQ-CD-KHN-09). The order matters only to the Khan Bot's tie-breaker (REQ-CD-KHN-11); a human Khan marks in any order.
 - Ruling: the second mission's reward is the only thing that flips the Captain. Ceti Alpha VI flips only Ceti Alpha V.
 - Ruling: a Wildcard card can mark either of the two opponent-dependent entries, as it can any other entry. It still marks only one entry per gain or take control.
-- Ruling: of the two opponent-dependent entries, at most one may use a trait that is also printed on the board. This is the rulebook's Soval example: Soval is Vulcan, Telepath and Ambassador, and the two entries are Vulcan plus Ambassador or Telepath, never Ambassador and Telepath together.
+- Ruling (confirmed 2026-10-09): of the two opponent-dependent entries, at most one may use a trait that is also printed on the board. This is the rulebook's Soval example: Soval is Vulcan, Telepath and Ambassador, and the two entries are Vulcan plus Ambassador or Telepath, never Ambassador and Telepath together.
 - Ruling: Human is excluded while the opponent's Captain has two or more other traits; otherwise all its traits are used (Kirk: Starfleet and Human).
 - Ruling: Khan against Khan marks the two opponent-dependent entries with Augment and Human, as in the rulebook's Kirk example (the opponent has only one non-Human trait).
 - Ruling: "you cannot mark the two entries with the same card" is about the physical card. A card that marked one of the two entries cannot mark the other if Khan gains that same card again later. Another copy, or any other card, can.
+- Ruling (confirmed 2026-10-09): for *Marooned for All Eternity! Buried Alive!* the opponent chooses one of their Duty Officers or beamed Persons; a Person in their Staging Area cannot be chosen.
 
 ## Tests
 

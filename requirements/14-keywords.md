@@ -243,7 +243,7 @@ Each keyword below must be a reusable engine primitive that card scripts call. E
 ## Put into play
 
 - **KW-PIP-01** A card is **put into play** when:
-  - it is played, immediately after one of its PLAY operations resolves;
+  - it is played, immediately after one of its PLAY operations resolves, even when that PLAY moved the card away again (logged, returned or recalled it), as in the rulebook's Bynars and V'Lar example (ruling, confirmed 2026-10-09);
   - a neutral Location is taken under control, immediately before its CONTROL operation resolves;
   - a Person is promoted from hand or Discard pile;
   - it is beamed from hand or Discard pile;

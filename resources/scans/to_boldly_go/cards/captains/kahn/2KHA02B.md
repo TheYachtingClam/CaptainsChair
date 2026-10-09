@@ -92,7 +92,7 @@ The Bot ignores the printed text and resolves this card through its Automated Co
 
 - One side of a double-sided card. The card starts with its A side up; the B side is hidden until the card flips (REQ-CD-KHN-01).
 - Its CONTROL is triggered by Ceti Alpha VI's RESUPPLY when the card flips.
-- Ruling: the ACTIVATION can be used with an Away Team here; it then draws nothing but still exhausts the card, which Marla McGivers' CLEAN-UP looks for.
+- Ruling (confirmed 2026-10-09): the ACTIVATION can be used with an Away Team here; it then draws nothing but still exhausts the card, which Marla McGivers' CLEAN-UP looks for.
 - Ruling: "Send all of your Away Team here" moves every one of Khan's Away Teams here: those on his Captain and those at every other Location, controlled or neutral.
 - Khan's main way to enlist Developments (REQ-CD-KHN-03).
 

@@ -118,8 +118,8 @@ Image id: `khan-five-year-mission-upgrades`. Used only in the solo campaign (REQ
 - "Your Captain" in the Incident rows means the human's Captain.
 - The Incident row with a Duty Officer gives the Incident to the human ("you take this card"), an attack. If you cancel it, the Incident is returned to the Incident deck (KW-GIVE-04).
 - The Khan Bot never flips its Captain (REQ-CD-KHN-11).
-- The Bot marks a trait whenever it gains, takes or takes control of a card, Incidents and Encounters included, and for the Encounter gained when it leaves exile. For an Opponent's Captain entry it uses the first fitting trait in the printed order of your Captain's traits.
-- The 3 extra value for an unmarked card applies to every Bot choice by value, not only to gains.
+- Ruling (confirmed 2026-10-09): the Bot marks a trait whenever it gains, takes or takes control of a card, Incidents and Encounters included, and for the Encounter gained when it leaves exile. For an Opponent's Captain entry it uses the first fitting trait in the printed order of your Captain's traits.
+- Ruling (confirmed 2026-10-09): the 3 extra value for an unmarked card applies to every Bot choice by value, not only to gains.
 - KHAN IN EXILE: a card matches a row by trait or by suit; a Wildcard matches only the Augment row; an Encounter matches no row. "Drawn from the Supplement deck" includes the card put on a new Bot deck at a reshuffle and a card resolved from the top of the Supplement deck. A Location played from the Bot deck stays in the Staging Area and is discarded at Clean-up.
 - A reshuffle puts the top Supplement card on the new Bot deck although Khan's Captain says he does not enlist: the Bot ignores card text (REQ-SOLO-80).
 - "Take an Incident to gain a Person" does both.

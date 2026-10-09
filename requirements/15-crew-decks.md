@@ -53,7 +53,7 @@ The *Second Contact* expansion adds Pike, Riker and Freeman. Their rules are in 
 - **REQ-CD-KHN-08** Each trait can be marked once, in any order. The choice is made immediately on gaining, or before resolving CONTROL, and cannot be changed.
 - **REQ-CD-KHN-09 Opponent-dependent entries.** Two entries depend on the opponent's Captain.
   - They must be marked with two **different** traits from the opponent's Captain, excluding Human if possible.
-  - One of the two, not both, may repeat a trait already printed on the board. The same card cannot mark both.
+  - One of the two, not both, may repeat a trait already printed on the board (confirmed 2026-10-09). The same card cannot mark both.
   - A Wildcard card can mark either of these entries (ruling).
   - Against another Khan the two entries are Augment and Human (ruling).
   - "The same card" means the physical card: one that marked one entry cannot mark the other when gained again later (ruling).

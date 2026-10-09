@@ -82,7 +82,7 @@ The Bot ignores the printed text and resolves this card through its Automated Co
 - One side of a double-sided card. The card starts with its A side up; the B side is hidden until the card flips (REQ-CD-KHN-01).
 - Wrathful Khan's Away Team count is not printed; the Away Teams from the A side carry over.
 - Ruling: "Ignore all requirements" treats every Specialty track as being at its top. Every Specialty check succeeds, including a conditional such as "if [Military] is at 5+" on another card (REQ-CD-KHN-04).
-- A Best Focus icon counts as one Focus icon for the ENDGAME.
+- Ruling (confirmed 2026-10-09): a Best Focus icon counts as one Focus icon for the ENDGAME.
 
 ## Tests
 
