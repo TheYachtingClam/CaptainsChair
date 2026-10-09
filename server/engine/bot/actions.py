@@ -838,7 +838,11 @@ class BotActions:
             return False
         officer = yield from self._ui.pick_card("Dismiss one of your Duty Officers (Bot attack).", list(human.duty),
                                                 seat=human.seat)
-        self._human_actions(A.DISMISS)._dismiss(officer)
+        theirs = self._human_actions(A.DISMISS)
+        if (yield from theirs._would(human.seat, {"kind": "would_dismiss_duty_officer", "seat": human.seat,
+                                                  "uid": officer.uid, "attacker": self.bot.seat})):
+            return False  # Book's Ship
+        theirs._dismiss(officer)
         return True
 
     def human_takes_incident(self) -> Gen:

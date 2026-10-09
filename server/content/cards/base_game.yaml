@@ -780,6 +780,7 @@ cards:
     uses:
     - TAKE_INCIDENT
     - GAIN_CARD
+    - DISCARD
     undoable: false
   - kind: DEVELOPMENT COST
     text: Dismiss a deployed Ship.

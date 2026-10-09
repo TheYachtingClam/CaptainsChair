@@ -93,6 +93,18 @@ INCIDENTS_FROM_JUNK: set[str] = set()
 CANNOT_LOG: set[str] = set()
 # SPECIAL "This card cannot be promoted" (Ensign Boimler, Ensign Mariner).
 CANNOT_PROMOTE: set[str] = set()
+# PASSIVE "Any [Dilithium] you gain, except from the Market, must be placed on this card" (Inert Dilithium): card id
+# -> resource. Tokens on the card are not the owner's until an effect moves them off (recrystallize, KW-RECRY).
+HOLDS_GAINS: dict[str, str] = {}
+# PASSIVE "You cannot spend [Glory] as [Dilithium]" (Inert Dilithium). Table positions.
+NO_GLORY_AS_DILITHIUM: set[str] = set()
+# PASSIVE "Your [Dilithium] cannot be stolen" (U.S.S. Discovery-A): card id -> resource. Table positions.
+CANNOT_BE_STOLEN: dict[str, str] = {}
+# PASSIVE "You cannot send [Away Team] here" (Theta Zeta).
+NO_AWAY_TEAMS_HERE: set[str] = set()
+# PASSIVE "During your Clean-up step, ... instead": card id -> the index of the operation that replaces placing 1
+# Glory on a Market card (REQ-CU-10) while the card is in a table position (Michael Burnham).
+REPLACES_CLEANUP_GLORY: dict[str, int] = {}
 # Asterisk VP: fn(state, player, inst) -> the card's VP at final scoring, wherever it is (REQ-FS-02 component 4).
 VP_SPECIAL: dict[str, Callable] = {}
 # PASSIVE "Ship can warp here" on a non-Location card (Archer's Earth). Table positions.
@@ -273,7 +285,8 @@ def _passive_registries():
             DUTY_SLOTS, RESTRICTIONS, TRAIT_MODIFIERS, ALSO_SUIT, INCIDENTS_FROM_JUNK, CANNOT_PROMOTE, CANNOT_LOG,
             VP_SPECIAL, WARP_DESTINATIONS, PROTECTED_BEAMED, SKILL_REWRITES, INCIDENTS_FROM_LOG, DECK_FACE_UP,
             SHIP_WEIGHT, RESOURCES_INTERCHANGEABLE, NO_ENLIST_ON_CYCLE, IGNORE_SPECIALTY_REQUIREMENTS, CANNOT_WARP, STAGING_PEOPLE_ACTIVE,
-            REPLACES_AN_INCIDENT, IGNORE_OPPONENT_SHIPS, {source for source, _, _ in GRANTED_PLAYS.values()})
+            REPLACES_AN_INCIDENT, IGNORE_OPPONENT_SHIPS,
+            HOLDS_GAINS, NO_GLORY_AS_DILITHIUM, CANNOT_BE_STOLEN, NO_AWAY_TEAMS_HERE, REPLACES_CLEANUP_GLORY, {source for source, _, _ in GRANTED_PLAYS.values()})
 
 
 def has_code(card_id: str, index: int, kind: str) -> bool:

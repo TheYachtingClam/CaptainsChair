@@ -613,6 +613,14 @@ def step_cleanup(state: GameState) -> None:
         if not slots:
             state.substep = "discard"
             return
+        from engine.cards import REPLACES_CLEANUP_GLORY
+
+        instead = next((i for i in table_cards(player) if i.card in REPLACES_CLEANUP_GLORY), None)
+        if instead is not None:  # "During your Clean-up step ... instead" (Michael Burnham, REQ-CORE-33)
+            state.op_queue.append(ops.OpRef(mode="auto", seat=player.seat, uid=instead.uid,
+                                            index=REPLACES_CLEANUP_GLORY[instead.card]))
+            state.substep = "discard"
+            return
         ask(state, player.seat, "glory", "Place 1 Glory on a Market card.",
             [(f"glory:{suit}", f"{name(inst)} ({suit}, {inst.res.get('glory', 0)} Glory)") for suit, inst in slots])
     elif state.substep == "discard":

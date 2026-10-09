@@ -447,12 +447,24 @@ def interchangeable(player: Player) -> bool:
     return any(i.card in registry.RESOURCES_INTERCHANGEABLE for i in table_cards(player))
 
 
+def glory_buys_dilithium(player: Player) -> bool:
+    """False while a card says "You cannot spend [Glory] as [Dilithium]" (Inert Dilithium)."""
+    return not any(i.card in registry.NO_GLORY_AS_DILITHIUM for i in table_cards(player))
+
+
+def gain_holder(player: Player, kind: str) -> Inst | None:
+    """The player's card that holds what they gain of this resource (Inert Dilithium, REQ-CORE-30), if in play."""
+    return next((i for i in table_cards(player) if registry.HOLDS_GAINS.get(i.card) == kind), None)
+
+
 def can_afford(player: Player, dilithium: int = 0, latinum: int = 0, glory: int = 0) -> bool:
     if interchangeable(player):
         short = max(0, dilithium + latinum - player.dilithium - player.latinum)
         return player.glory >= glory + math.ceil(short / 2)  # 1 Glory = 2 Dilithium, which also pay for Latinum
     short_l = max(0, latinum - player.latinum)
     short_d = max(0, dilithium - player.dilithium)
+    if short_d and not glory_buys_dilithium(player):
+        return False
     return player.glory >= glory + short_l + math.ceil(short_d / 2)
 
 
@@ -1060,9 +1072,15 @@ class Actions:
 
     def dismiss(self, inst: Inst) -> Gen:
         self._use(A.DISMISS)
+        opp = self.ctx.opponent
+        if self._attack and opp is not None and any(i.uid == inst.uid for i in opp.duty):
+            # "When an attack would dismiss your Duty Officer ... ignore the effect" (Book's Ship).
+            if (yield from self._would(opp.seat, {"kind": "would_dismiss_duty_officer", "seat": opp.seat,
+                                                  "uid": inst.uid, "attacker": self.ctx.me.seat})):
+                self.state.emit(f"{name(inst)} is not dismissed.", seat=opp.seat)
+                return
         self._dismiss(inst)
         return
-        yield  # pragma: no cover
 
     def _dismiss(self, inst: Inst, why: str = "") -> None:
         """Dismiss a card. `why` is added to the log line, e.g. " (used for the mission X)"."""
@@ -1428,7 +1446,7 @@ class Actions:
             # Every resource token on a Market card goes to the player who gains it (REQ-GN-06).
             for kind, n in sorted(inst.res.items()):
                 if n:
-                    gain(self.state, self.ctx.me, kind, n, source=inst)
+                    gain(self.state, self.ctx.me, kind, n, source=inst, market=True)
             inst.res.clear()
             _refill(self.state, key)
         elif kind == "deck":
@@ -1631,6 +1649,24 @@ class Actions:
         self._use(A.GAIN_RESOURCE)
         gain(self.state, player or self.ctx.me, kind, n, source=source, supply=supply)
         return
+        yield  # pragma: no cover
+
+    def recrystallize(self, n: int | None = None) -> Gen:
+        """Recrystallize up to n Dilithium, or all of it: move it from the card that holds your gained Dilithium to
+        your supply (KW-RECRY). It is moving, not gaining. Returns how many moved; 0 with no such card in play."""
+        self._use(A.MOVE_RESOURCES)
+        holder = gain_holder(self.ctx.me, "dilithium")
+        have = holder.res.get("dilithium", 0) if holder is not None else 0
+        moved = have if n is None else min(n, have)
+        if moved <= 0:
+            self.emit(f"{self.ctx.me.name} has no Dilithium to recrystallize.")
+            return 0
+        holder.res["dilithium"] -= moved
+        if not holder.res["dilithium"]:
+            del holder.res["dilithium"]
+        self.ctx.me.dilithium += moved
+        self.emit(f"{self.ctx.me.name} recrystallizes {moved} Dilithium.")
+        return moved
         yield  # pragma: no cover
 
     def can_spend(self, dilithium: int = 0, latinum: int = 0, glory: int = 0, actions: int = 0) -> bool:
@@ -1905,7 +1941,7 @@ class Actions:
             theirs = weight(self.ctx.ships_at(loc, opp)) if opp else 0
             if ignore_ships or theirs <= mine:
                 out.append(loc)
-        return [loc for loc in out if where is None or where(loc)]
+        return [loc for loc in out if loc.card not in registry.NO_AWAY_TEAMS_HERE and (where is None or where(loc))]
 
     def send_away_team(self, n: int = 1, where: Callable[[Inst], bool] | None = None, *,
                        same_location: bool = False, target: Inst | None = None, ignore_ships: bool = False) -> Gen:
@@ -2230,9 +2266,20 @@ class Actions:
             taken = min(n, 1) if self.ctx.virtual_opponent else 0
         elif opp.bot is not None:
             taken = n  # against the Bot a steal always succeeds, from the supply, never from the Bot (REQ-SOLO-195)
+        elif any(registry.CANNOT_BE_STOLEN.get(i.card) == kind for i in table_cards(opp)):
+            taken = 0
+            self.emit(f"{opp.name}'s {kind.capitalize()} cannot be stolen.")
         else:
-            taken = min(n, getattr(opp, kind))
-            setattr(opp, kind, getattr(opp, kind) - taken)
+            # What they gained and could not yet use is stolen first (Inert Dilithium, REQ-CORE-30).
+            holder = gain_holder(opp, kind)
+            held = min(n, holder.res.get(kind, 0)) if holder is not None else 0
+            if held:
+                holder.res[kind] -= held
+                if not holder.res[kind]:
+                    del holder.res[kind]
+            pooled = min(n - held, getattr(opp, kind))
+            setattr(opp, kind, getattr(opp, kind) - pooled)
+            taken = held + pooled
         if taken:
             setattr(self.ctx.me, kind, getattr(self.ctx.me, kind) + taken)
         self.emit(f"{self.ctx.me.name} steals {taken} {kind.capitalize()}.")
@@ -2301,9 +2348,21 @@ class Actions:
 # =========================================================================== shared rules used by actions
 
 
+def _bank(state: GameState, player: Player, kind: str, n: int, market: bool = False) -> str:
+    """Put gained resources in the player's supply, or on their card that holds them (Inert Dilithium: every gain
+    except the tokens on a Market card they gain, REQ-CORE-30). Returns a note for the log line."""
+    holder = None if market or player.bot is not None else gain_holder(player, kind)
+    if holder is None:
+        setattr(player, kind, getattr(player, kind) + n)
+        return ""
+    holder.res[kind] = holder.res.get(kind, 0) + n
+    return f", placed on {name(holder)}"
+
+
 def gain(state: GameState, player: Player, kind: str, n: int, *, source: Inst | None = None,
-         supply: bool = False) -> None:
-    """Gain resources, from the supply or from tokens on a card (`source`). Raises a gain_resource event."""
+         supply: bool = False, market: bool = False) -> None:
+    """Gain resources, from the supply or from tokens on a card (`source`). Raises a gain_resource event.
+    `market` marks the tokens on a Market card being gained."""
     if n <= 0:
         return
     if source is not None:
@@ -2313,16 +2372,17 @@ def gain(state: GameState, player: Player, kind: str, n: int, *, source: Inst | 
         source.res[kind] -= n
         if not source.res[kind]:
             del source.res[kind]
-        setattr(player, kind, getattr(player, kind) + n)
-        state.emit(f"{player.name} gains {n} {kind.capitalize()} from {name(source)}.", seat=player.seat)
+        note = _bank(state, player, kind, n, market)
+        state.emit(f"{player.name} gains {n} {kind.capitalize()} from {name(source)}{note}.", seat=player.seat)
     else:
         if kind == "glory" and not supply:
             from engine import game
 
             game.gain_glory(state, player, n)
+            note = ""
         else:
-            setattr(player, kind, getattr(player, kind) + n)
-        state.emit(f"{player.name} gains {n} {kind.capitalize()}.", seat=player.seat)
+            note = _bank(state, player, kind, n)
+        state.emit(f"{player.name} gains {n} {kind.capitalize()}{note}.", seat=player.seat)
     raise_event(state, "gain_resource", player.seat, source.uid if source else None, resource=kind, amount=n)
 
 
@@ -2333,8 +2393,8 @@ def dismissal_rewards(state: GameState, owner: Player, inst: Inst) -> None:
         return
     for kind, n in reward(state, owner, inst).items():
         if n > 0:
-            setattr(owner, kind, getattr(owner, kind) + n)
-            state.emit(f"{owner.name} gains {n} {kind.capitalize()} from {name(inst)}.", seat=owner.seat)
+            note = _bank(state, owner, kind, n)
+            state.emit(f"{owner.name} gains {n} {kind.capitalize()} from {name(inst)}{note}.", seat=owner.seat)
             raise_event(state, "gain_resource", owner.seat, inst.uid, resource=kind, amount=n)
 
 

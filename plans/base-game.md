@@ -175,7 +175,7 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 9. **Koloth** (done)
 10. **Sela** (done)
 11. **Sisko** (done)
-12. **Burnham**, with Inert Dilithium, recrystallize, her Clean-up rule and REQ-CTM-21
+12. **Burnham** (done), with Inert Dilithium, recrystallize, her Clean-up rule and REQ-CTM-21
 
 **You test:** a two-player game and a Cadet Training game with the step's Crew.
 
@@ -217,6 +217,13 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 - **3 missions** in `missions_sisko.py`: *A Call to Arms*, *Bajor's Application to the Federation*, *Contacting the Dominion*.
 - **Engine:** `enlist_development(discount=n)` and `discount="both"`; the `spend` event says how much Latinum and Dilithium an operation's cost asked for (*Quark*); a PASSIVE "when you would be attacked" runs before any Reaction is offered and is not optional (*Self-Replicating Mines*); playing a Crew Location from hand now raises `take_control`, as KW-TC-02 says, so *Benjamin Sisko*, *Wajahut*, *Chancellor Gowron*, *Proconsul Neral* and *Ambassador Kamarag* react to it.
 - **Tests:** `tests/test_sisko.py`, 71 tests, with 6 random games and a Cadet Training game.
+
+### Step 12: Burnham (done)
+
+- **21 cards** of her own in new modules; 4 are copies (*Inspire*, *Strange New Worlds*, *Maximum Warp*, *Subspace Phenomenon*). Her two big Ships share the *Shenzhou*'s promote.
+- **3 missions** in `missions_burnham.py`: *Investigate the Burn*, *Reunite the Federation*, *Dealing with the Emerald Chain*.
+- **Engine:** five registries, none named after a card: `HOLDS_GAINS` (Inert Dilithium), `NO_GLORY_AS_DILITHIUM`, `CANNOT_BE_STOLEN`, `NO_AWAY_TEAMS_HERE` and `REPLACES_CLEANUP_GLORY`. `actions.recrystallize` (under `MOVE_RESOURCES`). A new "would" event, `would_dismiss_duty_officer`, raised when an attack's effect dismisses a Duty Officer, also for the Bot's bold "you dismiss a Duty Officer" (*Book's Ship*).
+- **Tests:** `tests/test_burnham.py`, 78 tests, with CORE-AS-4, -5 and -6, 6 random games and a Cadet Training game.
 
 ## Step 13: The six Bots
 

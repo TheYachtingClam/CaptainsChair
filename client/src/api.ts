@@ -21,7 +21,7 @@ export const DEFAULT_BOX: Box = "to_boldly_go";
 export function setsFor(boxes: Boxes | undefined, box: Box, expansions: string[]): string[] {
   return [...(boxes?.[box]?.sets ?? ["to_boldly_go"]), ...expansions];
 }
-/** "Picard (Starfleet) – complexity 4/10"; the Core Box Crews have no printed complexity. */
+/** "Picard (Starfleet) – complexity 1/10". */
 export function deckLabel(d: Deck): string {
   return `${d.captain} (${d.faction})${d.complexity == null ? "" : ` – complexity ${d.complexity}/10`}`;
 }

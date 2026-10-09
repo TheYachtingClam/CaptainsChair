@@ -20,6 +20,8 @@ Crew decks:
 | Sisko | 25 | *Deep Space 9* (Deployed), *Bajor* (Controlled Location) | Deep Space 9, U.S.S. Defiant, U.S.S. Rio Grande |
 | Burnham | 26 | *U.S.S. Discovery-A* (Deployed), *Inert Dilithium* (Status); *Subspace Phenomenon* in the Incident deck | U.S.S. Discovery-A, U.S.S. Federation, Book's Ship |
 
+Complexity, from the rulebook's "Meet the Crew Decks" (p. 34–35; REQ-CD-01): Picard 1/10, Shran 2/10, Koloth 3/10, Sisko 4/10, Sela 5/10, Burnham 7/10. The "Rules for Burnham" box on p. 35 is the source for §4.1.
+
 Each has a double-sided Crew board with 3 Actions, Control max 1, one mission on the Basic side and three on the Advanced side.
 
 Common cards:
@@ -78,10 +80,12 @@ Rules that more than one card relies on, or that change a core rule. Single-card
 - **REQ-CORE-30 Inert Dilithium** is Burnham's Status card. While it is in play:
   - her hand size is 1 higher;
   - any Dilithium she **gains**, except Dilithium on a Market card she gains, is placed on *Inert Dilithium* instead of in her supply;
-  - Dilithium on the card cannot be spent, and is not hers for stealing or for counting "the Dilithium you have";
+  - Dilithium on the card cannot be spent, and is not hers for counting "the Dilithium you have" or for any other effect;
+  - when the opponent steals her Dilithium, it is taken from the card first, then from her supply;
+  - Dilithium she steals goes to her supply, because stealing is not gaining;
   - she cannot spend Glory as Dilithium.
 - **REQ-CORE-31 Recrystallize.** "Recrystallize N [Dilithium]" moves up to N Dilithium from *Inert Dilithium* to her supply. It is not gaining, so nothing that triggers on gaining Dilithium triggers. With no *Inert Dilithium* in play it does nothing. This is KW-RECRY-01.
-- **REQ-CORE-32** The Dilithium every player starts with (REQ-PS-13) starts in Burnham's supply (ruling, to confirm).
+- **REQ-CORE-32** The Dilithium every player starts with (REQ-PS-13) starts in Burnham's supply: the rulebook redirects only Dilithium gained "via any operation" (ruling).
 - **REQ-CORE-33 Clean-up.** In Burnham's Clean-up step, instead of REQ-CU-10 she removes 1 Glory from the Stardate card, returning it to the supply, and places 2 Dilithium from the supply on one Market card. If that empties the Stardate card, REQ-CU-11 applies. After a Resolution no Glory is removed and the Dilithium is still placed.
 - **REQ-CORE-34** *Theta Zeta* recrystallizes everything and logs *Inert Dilithium*. From then on REQ-CORE-30 no longer applies.
 - **REQ-CORE-35** While *U.S.S. Discovery-A* is in play, Burnham's Dilithium cannot be stolen.

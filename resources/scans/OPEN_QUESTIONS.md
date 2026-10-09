@@ -79,9 +79,6 @@ Questions about a card:
 - **Xindi-Reptilian Battleship** (1SHI13, 2SHI13): the Core Box card spells it "Reptilian"; the *To Boldly Go* spec says "Reptillian". Default: keep the *To Boldly Go* spelling on both until you check the card.
 - **Sha Ka Ree** (1ENC07): implemented as a card that goes among your controlled Locations when played. Ships can warp to it, Away Teams can be sent to it, it counts as a controlled Location, and playing it counts as taking control. Confirm.
 - **Conspiracy** (1DIR01): it cannot be discarded, so it stays in a human's hand at Clean-up. Default: it counts as a card in hand for the refill.
-- **Inert Dilithium** (1BUR02):
-  - Default: the 1 Dilithium at setup starts in Burnham's supply, not on the card.
-  - Default: Dilithium on the card does not count for "for every N Dilithium you have" (Theta Zeta, Coridan) and cannot be stolen.
 - **Weytahn** (1SHR12): "If there are no Away Team here, dismiss this card." Default: only the owner's Away Teams count.
 - **Orb of Prophecy and Change** (1SIS04): "Refresh a Bajoran to draw a card." Default: offered only when an exhausted Bajoran is in play.
 - **Halkan Council** (1ALL07): its CLEAN-UP logs it "if you have an Attack in play". Default: mandatory, checked while the card is still in the Staging Area.
@@ -170,6 +167,23 @@ Rulings made while writing Sisko's deck (Step 11):
 - **U.S.S. Defiant** (1SIS15): the attack is made only when the opponent has a Ship at the Location it warped to.
 - **Miles O'Brien, and the other "cannot be promoted" cards:** a promote effect can still pick him, and then does nothing.
 
+Rulings made while writing Burnham's deck (Step 12):
+
+- **Inert Dilithium** (1BUR02): follows the rulebook's "Rules for Burnham" (p. 35). The one thing it does not say: the 1 Dilithium at setup starts in her supply, because it is not gained by an operation.
+- **Michael Burnham** (1BUR01): her Clean-up removes 1 Glory from the Stardate card even when the Market is not empty of Glory; nobody gains it. After a Resolution only the Dilithium is placed.
+- **Jett Reno** (1BUR07): "gain a Cargo or a Ship and discard the gained card": the card is gained onto the deck as usual, then discarded from there.
+- **Trance Worm** (1BUR11): the Latinum is spent whenever you can pay it; with none, nothing is gained. The Glory counts the gained card's printed traits.
+- **Theta Zeta** (1BUR10): no one can send an Away Team there, by any effect that chooses a Location. Its ENDGAME counts the Dilithium in your supply.
+- **Book's Ship** (1BUR15): its Reaction saves the one Duty Officer; the rest of the attack still resolves. It also works against the Bot's "you dismiss a Duty Officer".
+- **U.S.S. Discovery-A** (1BUR03): its warp Activation refreshes it, so it can be used again in the same turn. The free play needs a second card to discard.
+- **Paul Stamets** (1BUR24): he recrystallizes 1 Dilithium for each of your deployed Ships. His Activation needs the *Discovery-A* deployed and him on duty.
+- **Sylvia Tilly** (1BUR22): "for each Engineer in play" counts your cards only.
+- **Hugh Culber** (1BUR13): his Reaction returns the Incident just taken, and only while it is still in your hand.
+- **Joann Owosekun** (1BUR21): without the *Discovery-A* deployed her PLAY does nothing. Her Activation needs a ready Ship at a Location.
+- **Keyla Detmer** (1BUR20): the Away Team is sent only if the Location warped to is one you may send to.
+- **Investigate the Burn** (mission): one card may be both the Scientist and the Kelpien.
+- **Reunite the Federation** (mission): the 3 different Species are counted on the Ship card and the cards beamed to it, leaving out cards with Starfleet.
+
 Questions about a Bot row:
 
 - **Picard, Klingon row:** "If able, you remove an Away Team." Default: from the Location the Bot just sent to; if you have none there, from a Location of your choice.
@@ -184,9 +198,5 @@ The Core Box needs these additions. Each is a general option on an existing acti
 
 | Need | Cards | Proposed |
 |---|---|---|
-| Recrystallize: move Dilithium from Inert Dilithium to the supply | Jett Reno, Sylvia Tilly, Paul Stamets, Theta Zeta, Burnham's mission | `MOVE_RESOURCES` with the card as source (`recrystallize(n)`), and a registry that redirects the owner's Dilithium gains onto a Status card |
-| Log a Status card | Theta Zeta | `LOG` reaches Status cards |
-| An attack that dismisses a Duty Officer can be ignored by a specific Reaction | Book's Ship | `attack(dismisses_duty_officer=True)`, as `removes_away_teams` |
-| "You cannot send Away Teams here" | Theta Zeta | a registry read by `away_targets` |
 | Which RESUPPLY operations resolved this turn | Laris | engine bookkeeping; `DUPLICATE` with `kind="RESUPPLY"` already exists |
 | The Bot gains "the Market card with the most Dilithium, then most Glory" | Burnham Bot | `gain_most(resource)` generalising `gain_most_glory` |
