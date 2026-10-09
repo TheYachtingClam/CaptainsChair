@@ -664,7 +664,9 @@ class EffectCost(Cost):
         return self.test(ctx)
 
     def pay(self, actions):
-        yield from self.effect(actions.ctx, Actions(actions.ctx, self.uses))
+        sub = Actions(actions.ctx, self.uses)
+        yield from self.effect(actions.ctx, sub)
+        actions.paid.extend(sub.paid)  # an effect may record what it used: "log a Location ... if the logged card"
 
 
 @dataclass
@@ -849,11 +851,20 @@ class Actions:
         return player.draw[0]
         yield  # pragma: no cover
 
-    def discard_from_deck(self, inst: Inst | None = None) -> Gen:
+    def discard_from_deck(self, inst: Inst | None = None, *, player: Player | None = None) -> Gen:
         """Discard the top card of your Draw deck (Chief Engineer), cycling if it is empty, or `inst`, a deck card
-        you have looked at (Deanna Troi-Riker)."""
+        you have looked at (Deanna Troi-Riker). `player=opponent` discards the top card of their Draw deck instead
+        (Tarah, Korax)."""
         self._use(A.DISCARD)
-        me = self.ctx.me
+        me = player or self.ctx.me
+        if me.bot is not None:
+            from engine.bot import draw_card
+
+            inst = draw_card(self.state, me)
+            if inst is not None:
+                me.discard.append(inst)
+                self.state.emit(f"{me.name} discards {name(inst)} from the top of its deck.", irreversible=True)
+            return inst
         if inst is None:
             if not me.draw and not (yield from self._cycle(me)):
                 return None
@@ -1226,17 +1237,19 @@ class Actions:
                 self.emit(f"{owner.name} puts the Incident into their Discard pile.")
         return taken
 
-    def return_incident(self, inst: Inst) -> Gen:
+    def return_incident(self, inst: Inst, *, player: Player | None = None) -> Gen:
+        """Return an Incident to the bottom of the Incident deck. `player=opponent` is the opponent returning one of
+        theirs ("all players may return an Incident": Ambassador Thoris)."""
         self._use(A.RETURN_INCIDENT)
+        who = player or self.ctx.me
         # "When you would return an Incident" replacements, e.g. Ambassador Gral (REQ-AS-27).
-        if (yield from self._would(self.ctx.me.seat, {"kind": "would_return_incident", "seat": self.ctx.me.seat,
-                                                      "uid": inst.uid})):
+        if (yield from self._would(who.seat, {"kind": "would_return_incident", "seat": who.seat, "uid": inst.uid})):
             return
         take_out(self.state, inst)
         inst.res.clear()
         self.state.incident.append(inst)
-        self.emit(f"{self.ctx.me.name} returns {name(inst)} to the Incident deck.")
-        raise_event(self.state, "return_incident", self.ctx.me.seat, inst.uid)
+        self.state.emit(f"{who.name} returns {name(inst)} to the Incident deck.", seat=who.seat)
+        raise_event(self.state, "return_incident", who.seat, inst.uid)
 
     def take_encounter(self, look: int = 1, *, to: str = "hand", bottom: bool = False) -> Gen:
         """Take the top Encounter (or choose 1 of the top `look`, the rest go to the bottom) into hand, or `to` "top" of

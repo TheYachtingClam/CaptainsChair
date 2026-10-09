@@ -123,6 +123,16 @@ Rulings made while writing Picard's deck (Step 7):
 - **Type 7 Shuttlecraft** (1PIC14): with no Ship at a Location, its first PLAY sends no Away Team but may still be put back on your deck.
 - **Worf** (1PIC23): his Activation is offered only when an opponent Away Team shares a Location with one of yours. In Cadet Training that is any neutral Location where you have one.
 
+Rulings made while writing Shran's deck (Step 8):
+
+- **Founding the Federation** (mission): the Ship card itself counts as a card "on the same Ship" (REQ-MS-03), so the Andorian *Kumari* supplies Andorian. The Human and the three traits still come from four different cards.
+- **Tarah, Korax** ("discard the top card of your opponent's Draw deck"): discarding it is the attack part; the Glory is gained either way. In Cadet Training there is no deck, so only the Glory is gained.
+- **Ambassador Thoris** (1SHR09): the opponent chooses whether to return one. The Bot declines. You gain Glory for theirs as well as yours.
+- **Imperial Pride** (1SHR16): "shares no traits with your Captain" compares printed and "treated as" traits of the logged Location.
+- **Talas** (1SHR20): the opponent's Captain cannot be chosen, nor a card in their Staging Area.
+- **Tarah** (1SHR21): her Activation refreshes a Ship and a Location if either is exhausted; it can be used with neither.
+- **Aenar** (1SHR03): the cards logged or discarded must be among the 3 just drawn.
+
 Questions about a Bot row:
 
 - **Picard, Klingon row:** "If able, you remove an Away Team." Default: from the Location the Bot just sent to; if you have none there, from a Location of your choice.
@@ -139,7 +149,6 @@ The Core Box needs these additions. Each is a general option on an existing acti
 |---|---|---|
 | Recrystallize: move Dilithium from Inert Dilithium to the supply | Jett Reno, Sylvia Tilly, Paul Stamets, Theta Zeta, Burnham's mission | `MOVE_RESOURCES` with the card as source (`recrystallize(n)`), and a registry that redirects the owner's Dilithium gains onto a Status card |
 | Draw the bottom card of your deck | Boreth | `draw(bottom=True)` |
-| Discard the top card of the opponent's Draw deck | Tarah, Korax, Shran Bot | `discard_from_deck(player=opponent)`, an attack part |
 | Log a Status card | Theta Zeta | `LOG` reaches Status cards |
 | Enlist with a discount of several resources | Orb of Prophecy and Change, Sisko's mission | `enlist_development(discount=n)` or a per-resource discount |
 | An attack that dismisses a Duty Officer can be ignored by a specific Reaction | Book's Ship | `attack(dismisses_duty_officer=True)`, as `removes_away_teams` |

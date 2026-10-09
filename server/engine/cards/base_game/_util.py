@@ -56,3 +56,40 @@ def beamed_to_ships(ctx):
     from engine.cards.to_boldly_go._util import ships
 
     return [(ship, [ship, *ship.beamed]) for ship in ships(ctx)]
+
+
+def draw_then_decide(ctx, actions):
+    """PLAY: Draw a card, then either: keep it OR discard it to gain 1 [Glory] OR log it (Deanna Troi, Jhamel)."""
+    before = [i.uid for i in ctx.me.hand]
+    yield from actions.draw(1)
+    drawn = next((i for i in ctx.me.hand if i.uid not in before), None)
+    if drawn is None:
+        return
+    choice = yield from actions.choose(f"{ctx.name(drawn)}: what now?",
+                                       [("keep", "Keep it"), ("discard", "Discard it to gain 1 Glory"), ("log", "Log it")],
+                                       show=[drawn])
+    if choice == "discard":
+        yield from actions.discard(1, pred=lambda i: i.uid == drawn.uid)
+        yield from actions.gain_resource("glory", 1)
+    elif choice == "log":
+        yield from actions.log(drawn)
+
+
+def discard_their_top_card(ctx, actions):
+    """ATTACK PLAY: Gain 1 [Glory] and discard the top card of your opponent's Draw deck. If it is a Person, you both
+    take an Incident (Tarah, Korax). The Cadet virtual opponent has no deck: you gain the Glory only."""
+    yield from actions.gain_resource("glory", 1)
+    opp = ctx.opponent
+    if opp is None or not (yield from actions.attack()):
+        return
+    discarded = yield from actions.discard_from_deck(player=opp)
+    if discarded is not None and is_suit(discarded, "Person"):
+        yield from actions.take_incident()
+        yield from actions.take_incident(opponent=True)
+
+
+def send_team_here(ctx, actions):
+    """ACTIVATION: Send an [Away Team] to this ship's Location."""
+    from engine.cards.to_boldly_go._util import send_team_to_this_ship
+
+    yield from send_team_to_this_ship(ctx, actions)

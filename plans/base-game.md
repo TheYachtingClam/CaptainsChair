@@ -171,7 +171,7 @@ No code changed. The acceptance scenarios get their tests in the step that build
 One Crew per step: its cards, board missions, Cadet Training rulings and random-play games. Order, simplest first:
 
 7. **Picard** (done)
-8. **Shran**
+8. **Shran** (done)
 9. **Koloth**
 10. **Sela**
 11. **Sisko**
@@ -187,6 +187,13 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 - **Engine:** one new registry, `IGNORE_OPPONENT_SHIPS`, for *Phasing Cloak*. *Deanna Troi* uses the existing granted-PLAY registry.
 - **Tests:** `tests/test_picard.py`, 61 tests: every operation, each mission, 6 random two-player games against other Crews and a Cadet Training game.
 - Picard can be chosen in Core Box and combined games. His Bot and campaign bonuses come in Steps 13 and 14.
+
+### Step 8: Shran (done)
+
+- **19 cards** of his own; *Kumari* shares the *Shenzhou*'s code and 4 are copies. *Confiscate* and *Imperial Pride* are written here and shared with Koloth's and Sela's copies.
+- **3 missions** in `missions_shran.py`: *Securing Andoria's Borders*, *Founding the Federation*, *Andorian Mining Consortium*.
+- **Engine:** three small options on existing actions: `discard_from_deck(player=opponent)` (*Tarah*), `return_incident(player=opponent)` (*Ambassador Thoris*), and an `EffectCost` may record what it used in `actions.paid` (*Imperial Pride*).
+- **Tests:** `tests/test_shran.py`, 60 tests, with 6 random games and a Cadet Training game.
 
 ## Step 13: The six Bots
 
