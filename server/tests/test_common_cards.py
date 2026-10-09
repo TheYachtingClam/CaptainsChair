@@ -33,6 +33,7 @@ NEEDS_OWN_SETUP = {
     ("2ENC05", 1),  # needs a beamed Incident
     ("2INC01", 1),  # needs a Kelpien in play
     ("0INC03", 0),  # needs a Directive in hand (the generous hand has Analyze, so this is offered)
+    ("0INC01", 1),  # needs a Pilot in play (tests/test_core_common.py)
 }
 COMMON_POSITION = {**RICH, "expansions": ["second_contact"], "promos": True,
                    "staging": ["2PER22", "2PER21", "2PER16", "2CAR13"], "locations": ["2GEO19"]}

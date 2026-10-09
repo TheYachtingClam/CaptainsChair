@@ -121,9 +121,10 @@ def _collect_triggers(state: GameState, seat: int, trigger_event: dict) -> None:
     if player.bot is not None:
         return  # the Bot ignores the text on its cards, Reactions included (REQ-SOLO-80)
     mandatory, optional = [], []
-    for inst in table_cards(player):
+    staged = ops.staged_people(player)  # Wesley Crusher: their Reactions too, but not their PASSIVEs
+    for inst in [*table_cards(player), *staged]:
         for index, op in enumerate(card(inst).operations):
-            if op.kind not in ("REACTION", "PASSIVE"):
+            if op.kind not in ("REACTION", "PASSIVE") or (op.kind == "PASSIVE" and inst in staged):
                 continue
             impl = card_code.OPS.get((inst.card, index))
             if impl is None or impl.trigger is None:
@@ -555,7 +556,7 @@ def step_action(state: GameState) -> None:
             if ops.legal(state, player, inst, i):
                 cost = " (action)" if op.action_cost else ""
                 options.append((f"play:{inst.uid}:{i}", f"Play {name(inst)}{cost}: {op.text}"))
-    for inst in table_cards(player):
+    for inst in [*table_cards(player), *ops.staged_people(player)]:  # Wesley Crusher adds staged Persons
         if inst.exhausted:
             continue
         for i, op in enumerate(card(inst).operations):

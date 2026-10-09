@@ -22,6 +22,8 @@ class Game(Base):
     box: Mapped[str] = mapped_column(String(20), default="to_boldly_go", server_default=text("'to_boldly_go'"))
     # Promo cards are shuffled into their matching common decks at setup when true.
     promos: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    # Which promo sets are in the game (REQ-CORE-13). Null on games saved before promo set 1 existed: promo set 2 only.
+    promo_sets: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
     # The engine state is rebuilt by replaying commands from the seed (REQ-SRV-14).
     seed: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     commands: Mapped[list[dict]] = mapped_column(JSON, default=list, server_default=text("'[]'"))
@@ -68,6 +70,7 @@ class Campaign(Base):
     expansions: Mapped[list[str]] = mapped_column(JSON, default=list)
     box: Mapped[str] = mapped_column(String(20), default="to_boldly_go", server_default=text("'to_boldly_go'"))
     promos: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    promo_sets: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
     rank: Mapped[str] = mapped_column(String(20), default="ensign")
     # One row per assignment: number, game_id, date, rank, bot, difficulty, board_side, outcome, scores, upgrade.
     assignments: Mapped[list[dict]] = mapped_column(JSON, default=list, server_default=text("'[]'"))

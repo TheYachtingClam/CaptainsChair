@@ -1,6 +1,7 @@
 """Helpers shared with the base set. Registers nothing."""
 
 from engine.cards.to_boldly_go._util import *  # noqa: F401,F403
+from engine.cards.to_boldly_go._locations import beamed_here, no_effect  # noqa: F401
 from engine.cards.to_boldly_go._util import is_suit, others_in_hand
 
 
@@ -28,3 +29,8 @@ def non_time_travel_in_staging(ctx):
 
 def people_in_hand(ctx):
     return others_in_hand(ctx, lambda i: is_suit(i, "Person"))
+
+
+def location_of_player(player, card_id: str):
+    """A player's controlled Location with this id, for its ENDGAME."""
+    return next((loc for loc in player.locations if loc.card == card_id), None)

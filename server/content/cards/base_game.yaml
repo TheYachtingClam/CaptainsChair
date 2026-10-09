@@ -2519,7 +2519,7 @@ cards:
     action_cost: true
     attack: true
     uses:
-    - DEPLOY
+    - TAKE_CONTROL
     - BEAM
     - ATTACK
     - TAKE_INCIDENT

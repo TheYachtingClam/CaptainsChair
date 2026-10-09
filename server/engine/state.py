@@ -158,6 +158,10 @@ class GameState(BaseModel):
     expansions: list[str] = Field(default_factory=list)
     promos: bool = False
     box: str = "to_boldly_go"  # core, to_boldly_go or both (REQ-CORE-10)
+    promo_sets: list[str] = Field(default_factory=list)  # the promo sets in the game (REQ-CORE-13)
+    # The real weekday of the command being resolved, Monday 0 to Sunday 6; the server sets it before each command
+    # (REQ-SRV-52). None in tests and for commands saved before it was recorded.
+    weekday: int | None = None
     players: list[Player]
     first_seat: int  # holds the Starting Player token
     difficulty: str | None = None  # solo mode: the Bot's difficulty, which picks the Stardate cards (REQ-SOLO-11)

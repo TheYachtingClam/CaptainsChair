@@ -30,7 +30,8 @@ def start(game: Game) -> None:
     game.commands = []
     game.status = "active"
     # Validate setup now rather than on the first view. The game id may not exist yet, so no caching.
-    new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game), game.box)
+    new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game), game.box,
+                     game.promo_sets)
 
 
 def seat_setups(game: Game) -> list[SeatSetup]:
@@ -51,6 +52,13 @@ def bot_setup(game: Game) -> BotSetup | None:
     return BotSetup(game.bot["deck_id"], game.bot.get("difficulty", "ensign"), bool(game.bot.get("ticking_clock")))
 
 
+def today() -> int:
+    """The weekday now in the server's time zone, Monday 0 to Sunday 6 (REQ-SRV-52). Stored with each command."""
+    from datetime import datetime
+
+    return datetime.now().weekday()
+
+
 def _live(command: dict) -> bool:
     """A move that still counts: not undone, not dropped, and not a note."""
     return not command.get("undone") and not command.get("dropped") and "note" not in command
@@ -61,7 +69,8 @@ def build(game: Game) -> GameState:
     cached = _cache.get(game.id)
     if cached and cached[0] == key:
         return copy.deepcopy(cached[1])
-    state = new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game), game.box)
+    state = new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game), game.box,
+                     game.promo_sets)
     advance(state, flag_irreversible=False)
     # Replay without the can't-be-undone flagging (it tries every option on a copy), then flag the last question.
     for i, command in enumerate(game.commands):
@@ -70,6 +79,7 @@ def build(game: Game) -> GameState:
             continue
         if not _live(command):
             continue
+        state.weekday = command.get("weekday")  # REQ-SRV-52: the day it was played, never today's
         try:
             if "dev" in command:
                 dev.apply(state, command["seat"], command["dev"], flag_irreversible=False)
@@ -122,9 +132,11 @@ def apply(db: Session, game: Game, seat: int, option: str) -> None:
     with _lock:
         state = build(game)
         before = len(state.log)
+        state.weekday = weekday = today()
         choose(state, seat, option)  # raises IllegalCommand
         irreversible = any(e.irreversible for e in state.log[before:])
-        game.commands = [*game.commands, {"seat": seat, "option": option, "irreversible": irreversible, "turn": state.turn}]
+        game.commands = [*game.commands, {"seat": seat, "option": option, "irreversible": irreversible,
+                                          "turn": state.turn, "weekday": weekday}]
         if state.step == "over":
             game.status = "finished"
         flag_modified(game, "commands")
@@ -135,11 +147,13 @@ def apply_dev(db: Session, game: Game, seat: int, cmd: dict) -> None:
     """A developer command (engine/dev.py). It is stored like a move, so undo and replay include it."""
     with _lock:
         state = build(game)
+        state.weekday = weekday = today()
         try:
             dev.apply(state, seat, cmd)
         except dev.DevCommandError as err:
             raise IllegalCommand(str(err)) from err
-        game.commands = [*game.commands, {"seat": seat, "dev": cmd, "irreversible": False, "turn": state.turn}]
+        game.commands = [*game.commands, {"seat": seat, "dev": cmd, "irreversible": False, "turn": state.turn,
+                                          "weekday": weekday}]
         flag_modified(game, "commands")
         db.commit()
 

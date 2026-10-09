@@ -8,6 +8,7 @@ BASE_SET = "to_boldly_go"
 EXPANSIONS = {"second_contact": "Second Contact"}
 BOX_NAMES = {"core": "Core Box", "to_boldly_go": "To Boldly Go", "both": "Both combined"}  # REQ-CORE-10
 DEFAULT_BOX = "to_boldly_go"
+ALL_PROMOS = ("promo1", "promo2")  # what the promo option adds to a new game (REQ-CORE-13)
 
 
 @lru_cache

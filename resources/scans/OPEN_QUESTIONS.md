@@ -77,7 +77,7 @@ Questions about a card:
 
 - **Mirok** (1PER15): the set code is printed with a dagger (†) and a 2025 copyright, unlike every other Core Box card, and no *To Boldly Go* card replaces him. Default: the mark has no effect.
 - **Xindi-Reptilian Battleship** (1SHI13, 2SHI13): the Core Box card spells it "Reptilian"; the *To Boldly Go* spec says "Reptillian". Default: keep the *To Boldly Go* spelling on both until you check the card.
-- **Sha Ka Ree** (1ENC07): "considered a Location for all purposes" and "deploying it counts as taking control". Default: Ships can warp to it and Away Teams can be sent to it, as to a controlled Location; it stays in the Fleet Area.
+- **Sha Ka Ree** (1ENC07): implemented as a card that goes among your controlled Locations when played. Ships can warp to it, Away Teams can be sent to it, it counts as a controlled Location, and playing it counts as taking control. Confirm.
 - **Conspiracy** (1DIR01): it cannot be discarded, so it stays in a human's hand at Clean-up. Default: it counts as a card in hand for the refill.
 - **Inert Dilithium** (1BUR02):
   - Default: the 1 Dilithium at setup starts in Burnham's supply, not on the card.
@@ -103,6 +103,16 @@ Rulings made while writing the Market cards (Step 5). Each is implemented as des
 - **Captain Dorg** (1PER07): a Klingon in your Staging Area cannot pay his first Reaction, since the Staging Area cannot be dismissed from (KW-DSM-04).
 - **U.S.S. Reliant** (1SHI11): in Cadet Training the virtual opponent counts as having at most 1 Ship.
 
+Rulings made while writing the Locations, Encounters and promo cards (Step 6):
+
+- **Amargosa Observatory** (1LOC01): when it is logged, you choose one Location you control or a neutral one, and every Ship of yours that can warp goes there.
+- **Iconian Gateway** (1ENC04): you choose how many Away Teams to send, 0 to 3, then the one Location.
+- **Derna** (1LOC09): "return an Incident" is from your hand; with none, you still gain the Dilithium.
+- **Regula I** (1LOC15): the CONTROL is one choice: find a Scientist, or pay 3 Dilithium to scan for one, or neither.
+- **Wesley Crusher** (0ENC01): the PASSIVE works only while he is in a table position, in practice as a Duty Officer. It covers Activations and Reactions of staged Persons, not their PASSIVEs.
+- **U.S.S. Enterprise-B** (0SHI01): when the weekday is not known (a game saved before weekdays were recorded) it is not Tuesday.
+- **Whale Probe Incursion** (0INC02): recalling your own Ship is mandatory when you have one; without a Creature the card stays yours and is discarded at Clean-up.
+
 Questions about a Bot row:
 
 - **Picard, Klingon row:** "If able, you remove an Away Team." Default: from the Location the Bot just sent to; if you have none there, from a Location of your choice.
@@ -120,16 +130,12 @@ The Core Box needs these additions. Each is a general option on an existing acti
 | Recrystallize: move Dilithium from Inert Dilithium to the supply | Jett Reno, Sylvia Tilly, Paul Stamets, Theta Zeta, Burnham's mission | `MOVE_RESOURCES` with the card as source (`recrystallize(n)`), and a registry that redirects the owner's Dilithium gains onto a Status card |
 | Draw the bottom card of your deck | Boreth | `draw(bottom=True)` |
 | Discard the top card of the opponent's Draw deck | Tarah, Korax, Shran Bot | `discard_from_deck(player=opponent)`, an attack part |
-| Resolve the top card of the Bot deck from a SURPRISE | Flight Training Accident | `RESOLVE_CARD` available to SURPRISE operations, as `CONTINUE_RESOLUTION` now is |
 | Log a Status card | Theta Zeta | `LOG` reaches Status cards |
-| "Considered a Location" | Sha Ka Ree | an `ALSO_SUIT`-style entry, and a `take_control` event on deploy |
 | Enlist with a discount of several resources | Orb of Prophecy and Change, Sisko's mission | `enlist_development(discount=n)` or a per-resource discount |
 | An attack that dismisses a Duty Officer can be ignored by a specific Reaction | Book's Ship | `attack(dismisses_duty_officer=True)`, as `removes_away_teams` |
-| Use another card's Activations and Reactions | Wesley Crusher | a registry like `@granted_play` for ACTIVATION and REACTION |
 | Ignore opponent Ships for every Away Team sent | Phasing Cloak | a registry read by `away_targets` |
 | "You cannot send Away Teams here" | Theta Zeta | a registry read by `away_targets` |
 | Which RESUPPLY operations resolved this turn | Laris | engine bookkeeping; `DUPLICATE` with `kind="RESUPPLY"` already exists |
 | "After resolving an operation with a Latinum cost" | Quark | a new event, `operation_resolved`, carrying what the cost paid |
 | "After attacking your opponent" | Sela | the existing `attacked` event, seen from the attacker's side |
-| The weekday | U.S.S. Enterprise-B | the server stores the weekday with each command; `ctx.weekday()` reads it |
 | The Bot gains "the Market card with the most Dilithium, then most Glory" | Burnham Bot | `gain_most(resource)` generalising `gain_most_glory` |

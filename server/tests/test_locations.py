@@ -51,6 +51,7 @@ def test_every_location_operation_runs(cid, index):
         loc = card(s, cid, zone="locations")
         loc.away[0] = 2
         loc.beamed.append(s.new_inst("2PER07"))
+        me(s).fleet[0].at = loc.uid  # a Ship of yours here (Tulgana IV)
         refresh(s)
         if kind == "ACTIVATION":
             assert f"activate:{loc.uid}:{index}" in {o.id for o in s.decision.options}

@@ -233,3 +233,35 @@ def test_boxes_and_core_box_bots(authed):
     assert create(authed, mode="solo", box="core", deck_id="picard", bot={"deck_id": "sisko"}).status_code == 422  # no Bot yet
     assert create(authed, mode="solo", box="core", deck_id="picard", bot={"deck_id": "soval"}).status_code == 422
     assert create(authed, mode="solo", box="both", deck_id="picard", bot={"deck_id": "soval"}).status_code == 201
+
+
+def test_the_weekday_is_stored_with_each_command_and_replayed(authed, monkeypatch):
+    """REQ-SRV-52: the engine reads the weekday from the stored command, so a later replay gives the same game."""
+    from app import play
+
+    monkeypatch.setattr(play, "today", lambda: 1)  # a Tuesday
+    r = create(authed, mode="cadet")
+    game_id, headers = r.json()["game"]["id"], {"X-Seat-Token": r.json()["seat_token"]}
+    assert authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}, headers=headers).status_code == 200
+    from app.db import get_db
+    from app.main import app
+    from app.models import Game
+
+    db = next(app.dependency_overrides.get(get_db, get_db)())
+    game = db.get(Game, game_id)
+    assert [c["weekday"] for c in game.commands] == [1]
+    monkeypatch.setattr(play, "today", lambda: 4)  # replayed on a Friday
+    play._cache.clear()
+    state = play.build(game)
+    assert state.weekday == 1
+
+
+def test_new_games_with_promos_include_both_promo_sets(authed):
+    r = create(authed, mode="cadet", promos=True)
+    assert r.status_code == 201
+    from app.db import get_db
+    from app.main import app
+    from app.models import Game
+
+    db = next(app.dependency_overrides.get(get_db, get_db)())
+    assert db.get(Game, r.json()["game"]["id"]).promo_sets == ["promo1", "promo2"]

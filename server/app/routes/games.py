@@ -93,7 +93,8 @@ def create_game(body: CreateGameRequest, db: Session = Depends(get_db)) -> dict:
         if body.bot.deck_id not in content.bot_ids_for(body.expansions, body.box):
             raise HTTPException(422, "That Bot is not available in this game")
         bot = body.bot.model_dump()
-    game = Game(mode=body.mode, box=body.box, expansions=body.expansions, promos=body.promos, bot=bot)
+    game = Game(mode=body.mode, box=body.box, expansions=body.expansions, promos=body.promos, bot=bot,
+                promo_sets=list(content.ALL_PROMOS) if body.promos else [])
     db.add(game)
     seat, token = add_seat(db, game, body)
     return {"game": {**summarize(game), "your_seat": seat.index}, "seat_index": seat.index, "seat_token": token}

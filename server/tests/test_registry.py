@@ -5,7 +5,7 @@ Waiting on purpose:
 - solo-only cards and SURPRISE operations, which need the Bot (requirements/22-solo-mode.md) and are covered by the
   Bot tests;
 - Stardate WHEN EMPTIED and STARDATE RESOLUTION, which the engine runs itself;
-- the Core Box and promo set 1 (`WAITING_SETS`), until plans/base-game.md writes their code."""
+- the Core Box Crew decks (`WAITING_SETS`), until plans/base-game.md writes their code."""
 
 from engine import cards as registry
 from engine.content import content
@@ -13,12 +13,12 @@ from engine.content import content
 ENGINE_KINDS = {"WHEN EMPTIED", "STARDATE RESOLUTION"}
 
 
-WAITING_SETS = {"base_game", "promo1"}  # the Core Box: specs are written, code comes in plans/base-game.md Steps 5 to 13
+WAITING_SETS = {"base_game"}  # the Core Box Crew decks: specs are written, code comes in plans/base-game.md Steps 7 to 12
 WAITING_CREWS = {"burnham", "koloth", "picard", "sela", "shran", "sisko"}  # their missions, Bot rows and bonuses too
 
 
 def _waits(card) -> bool:
-    return (card.position or "").startswith("Solo") or card.set in WAITING_SETS
+    return (card.position or "").startswith("Solo") or (card.set in WAITING_SETS and not card.is_common)
 
 
 def test_every_printed_operation_has_code():

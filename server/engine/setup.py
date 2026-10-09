@@ -20,7 +20,15 @@ BOT_UNAVAILABLE: set[str] = {"burnham", "koloth", "picard", "sela", "shran", "si
 TIME_IS_RUNNING_OUT = "2DIR01"
 REINFORCE = "2DIR02"
 SOLO_ONLY = {"Solo Challenge", "Solo Campaign"}  # Reinforce, Time Is Running Out
-SUBSPACE_RHAPSODY = "0INC03"
+ALL_PROMOS = ("promo1", "promo2")
+LEGACY_PROMOS = ("promo2",)  # what "promos" meant before promo set 1 was added; games saved then still replay
+
+
+def promo_sets_for(promos: bool, promo_sets=None) -> tuple[str, ...]:
+    """The promo sets of a game: the stored list, or for a game saved before the list existed, promo set 2."""
+    if promo_sets is not None:
+        return tuple(promo_sets)
+    return LEGACY_PROMOS if promos else ()
 
 
 @dataclass(frozen=True)
@@ -60,10 +68,12 @@ class SetupError(ValueError):
     pass
 
 
-def common_cards(data, box: str, expansions: list[str], promos: bool) -> list[Card]:
+def common_cards(data, box: str, expansions: list[str], promos) -> list[Card]:
     """The common cards of a game (REQ-CORE-11, -20, -21). With both boxes, a Core Box card that To Boldly Go reprints
-    or replaces is left out, so one copy and only the new version remain."""
-    sets = {*BOXES[box], *expansions} | ({"promo2"} if promos else set())
+    or replaces is left out, so one copy and only the new version remain. `promos` is the promo sets in the game, or
+    True for the older meaning, promo set 2."""
+    promo = promo_sets_for(bool(promos)) if isinstance(promos, bool) else tuple(promos)
+    sets = {*BOXES[box], *expansions, *promo}
     cards = [c for c in data.cards.values() if c.is_common and c.set in sets and c.position not in SOLO_ONLY]
     if box == "both":
         def superseded(c: Card) -> bool:
@@ -75,7 +85,7 @@ def common_cards(data, box: str, expansions: list[str], promos: bool) -> list[Ca
 
 
 def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str] | None = None, promos: bool = False,
-             bot: BotSetup | None = None, box: str = DEFAULT_BOX) -> GameState:
+             bot: BotSetup | None = None, box: str = DEFAULT_BOX, promo_sets=None) -> GameState:
     if box not in BOXES:
         raise SetupError(f"Unknown box {box!r}")
     if mode not in STARDATE_MODE:
@@ -92,12 +102,13 @@ def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str]
             raise SetupError(f"There is no {bot.deck!r} Bot yet")
     expansions = list(expansions or [])
     data = content()
-    sets = {*BOXES[box], *expansions} | ({"promo2"} if promos else set())
+    promo = promo_sets_for(promos, promo_sets)
+    sets = {*BOXES[box], *expansions, *promo}
 
     # Players are created first so their captains exist; central setup follows the rulebook order.
     state = GameState(seed=seed, mode=mode, expansions=expansions, promos=promos, players=[], first_seat=0, active=0,
-                      difficulty=bot.difficulty if bot else None, box=box)
-    common = common_cards(data, box, expansions, promos)
+                      difficulty=bot.difficulty if bot else None, box=box, promo_sets=list(promo))
+    common = common_cards(data, box, expansions, promo)
 
     _central_setup(state, common, data)
     for seat, choice in enumerate(seats):
@@ -153,18 +164,21 @@ def _central_setup(state: GameState, common: list[Card], data) -> None:
     state.encounter = _insts(state, by_suit("Encounter"))
     state.shuffle(state.encounter)
 
-    incidents = by_suit("Incident")
+    from engine import cards as registry
+
+    every = by_suit("Incident")
+    replacing = sorted((c for c in every if c.id in registry.REPLACES_AN_INCIDENT), key=lambda c: c.id)
+    incidents = [c for c in every if c.id not in registry.REPLACES_AN_INCIDENT]
     if state.box == "both":
         # Combined boxes: random Incidents go back to the box until 6 remain (REQ-CORE-23).
         incidents = sorted(incidents, key=lambda c: c.id)
         while len(incidents) > COMBINED_INCIDENTS:
             incidents.pop(state.rng().randrange(len(incidents)))
-    if any(c.id == SUBSPACE_RHAPSODY for c in incidents):
-        # Its SPECIAL replaces a random Incident (REQ-CS-22).
-        others = [c for c in incidents if c.id != SUBSPACE_RHAPSODY]
-        removed = others[state.rng().randrange(len(others))]
-        incidents = [c for c in incidents if c.id != removed.id]
-    state.incident = _insts(state, incidents)
+    for _ in replacing:
+        # Its SPECIAL replaces a random Incident, never another such card (REQ-CS-22, REQ-CORE-52).
+        if incidents:
+            incidents.pop(state.rng().randrange(len(incidents)))
+    state.incident = _insts(state, incidents + replacing)
 
     for suit in MARKET_SUITS:
         refill_market(state, suit, announce=False)

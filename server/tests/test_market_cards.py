@@ -74,6 +74,8 @@ NEEDS_OWN_SETUP = {
     ("1PER11", 2),  # needs an exhausted card
     ("1PER25", 1),  # needs a Ship in hand
     ("1SHI12", 3),  # needs a Human Person beamed here
+    ("0CAR01", 1),  # Sehlat needs a Vulcan Person in hand (tests/test_core_common.py)
+    ("0CAR01", 2),
 }
 
 

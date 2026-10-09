@@ -149,12 +149,22 @@ No code changed. The acceptance scenarios get their tests in the step that build
 
 **You test:** a Core Box game with the developer panel: put the new Market cards in hand and play them.
 
-## Step 6: Locations, Encounters, Incidents and promo set 1
+## Step 6: Locations, Encounters, Incidents and promo set 1 (done)
 
-- The remaining common cards.
-- The five promo cards. The server records the weekday with each command for *U.S.S. Enterprise-B* (decision 3).
+- The remaining common cards and the five promo cards.
 
-**You test:** take control of new Locations; play the promo cards with promos on.
+**What was done:**
+
+- **9 Locations and 5 Encounters** in `server/engine/cards/base_game/`, and **5 promo cards** in `server/engine/cards/promo1/`. Every common Core Box card now has code except *Conspiracy*, which waits for the Bots (Step 13). The common Incidents needed nothing: all six are reprints or copies.
+- **The weekday** (REQ-SRV-52). The server stores the weekday with each command and sets `state.weekday` before applying or replaying it; *U.S.S. Enterprise-B* reads `ctx.weekday()`.
+- **Promo sets.** New games with promos get both sets, stored in `Game.promo_sets`. Games created earlier keep promo set 2 only, and one such setup was compared field by field with the setup before this change.
+- **Promo Incidents** each replace a different random Incident (`REPLACES_AN_INCIDENT`). With both boxes, the cut to 6 now happens before the promos replace any; before, a promo Incident could be cut.
+- **Sha Ka Ree** goes among your controlled Locations when played, which counts as taking control.
+- **Wesley Crusher** is a Person who can be promoted, and lets you use the Activations and Reactions of Persons in your Staging Area (`STAGING_PEOPLE_ACTIVE`).
+- **The promo SURPRISE operations** are written; `resolve_bot_top` lets *Flight Training Accident* resolve the Bot's next card.
+- **Tests.** `tests/test_core_common.py` (24 tests) and two API tests. The existing generic tests now run every operation of these cards as well.
+
+**You test:** take control of the new Locations; with promos on, play the promo cards. On a Tuesday, *U.S.S. Enterprise-B* offers an Away Team.
 
 ## Steps 7 to 12: Crew decks
 

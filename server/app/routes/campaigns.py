@@ -194,7 +194,8 @@ def create_campaign(body: NewCampaign, db: Session = Depends(get_db)) -> dict:
         raise HTTPException(422, "A chosen challenge is not available for this Crew deck")
     token = new_seat_token()
     camp = Campaign(display_name=body.display_name.strip(), deck_id=body.deck_id, mode=body.mode,
-                    box=body.box, expansions=body.expansions, promos=body.promos, token_hash=hash_seat_token(token),
+                    box=body.box, expansions=body.expansions, promos=body.promos,
+                    promo_sets=list(content.ALL_PROMOS) if body.promos else [], token_hash=hash_seat_token(token),
                     challenges=[c for c in rules.CHALLENGES if c in body.challenges])
     db.add(camp)
     db.commit()
@@ -224,7 +225,7 @@ def start_assignment(campaign_id: str, body: NewAssignment, db: Session = Depend
         raise HTTPException(422, "You cannot face that Bot in this campaign")
     number = len(camp.assignments) + 1
     level = rules.difficulty(camp.rank, camp.mode)
-    game = Game(mode="solo", box=camp.box, expansions=camp.expansions, promos=camp.promos,
+    game = Game(mode="solo", box=camp.box, expansions=camp.expansions, promos=camp.promos, promo_sets=camp.promo_sets,
                 bot={"deck_id": bot, "difficulty": level, "ticking_clock": False},
                 campaign={"id": camp.id, "assignment": number, "reinforcement": list(camp.reinforcement),
                           "setup": asdict(_setup(camp, body.drop))})

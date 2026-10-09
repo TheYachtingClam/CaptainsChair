@@ -108,6 +108,12 @@ NO_OPPONENT_REACTIONS: set[str] = set()
 NO_ENLIST_ON_CYCLE: set[str] = set()
 # PASSIVE "Ignore all [Research]/[Influence]/[Military] requirements" (Wrathful Khan, REQ-CD-KHN-04). Table positions.
 IGNORE_SPECIALTY_REQUIREMENTS: set[str] = set()
+# PASSIVE "You may use the Activations and Reactions of any Person in your Staging Area" (Wesley Crusher). Table
+# positions.
+STAGING_PEOPLE_ACTIVE: set[str] = set()
+# SPECIAL "During setup, replace a random Incident in the Incident deck with this card" (Subspace Rhapsody, Flight
+# Training Accident, Whale Probe Incursion; REQ-CS-22, REQ-CORE-52). Read by setup.
+REPLACES_AN_INCIDENT: set[str] = set()
 # PASSIVE "This ship cannot be warped" (S.S. Botany Bay): no effect can warp it.
 CANNOT_WARP: set[str] = set()
 # Resources a player gains when this card is dismissed, instead of the usual return to the supply (R.I.S. Talvath).
@@ -263,7 +269,8 @@ def _passive_registries():
     return (HAND_SIZE, DUTY_LIMIT, SKILLS, SCANS_INCLUDE_JUNK, STATE_CHECKS, DISMISS_REWARDS, NO_OPPONENT_REACTIONS,
             DUTY_SLOTS, RESTRICTIONS, TRAIT_MODIFIERS, ALSO_SUIT, INCIDENTS_FROM_JUNK, CANNOT_PROMOTE, CANNOT_LOG,
             VP_SPECIAL, WARP_DESTINATIONS, PROTECTED_BEAMED, SKILL_REWRITES, INCIDENTS_FROM_LOG, DECK_FACE_UP,
-            SHIP_WEIGHT, RESOURCES_INTERCHANGEABLE, NO_ENLIST_ON_CYCLE, IGNORE_SPECIALTY_REQUIREMENTS, CANNOT_WARP, {source for source, _, _ in GRANTED_PLAYS.values()})
+            SHIP_WEIGHT, RESOURCES_INTERCHANGEABLE, NO_ENLIST_ON_CYCLE, IGNORE_SPECIALTY_REQUIREMENTS, CANNOT_WARP, STAGING_PEOPLE_ACTIVE,
+            REPLACES_AN_INCIDENT, {source for source, _, _ in GRANTED_PLAYS.values()})
 
 
 def has_code(card_id: str, index: int, kind: str) -> bool:

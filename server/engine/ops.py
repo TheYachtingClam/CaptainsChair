@@ -183,6 +183,14 @@ def table_cards(p: Player) -> list[Inst]:
     return [p.captain, *p.status, *p.fleet, *p.locations, *p.duty]
 
 
+def staged_people(p: Player) -> list[Inst]:
+    """Persons in the Staging Area whose Activations and Reactions their owner may use (Wesley Crusher in a table
+    position). Empty for everyone else."""
+    if not any(i.card in registry.STAGING_PEOPLE_ACTIVE for i in table_cards(p)):
+        return []
+    return [i for i in p.staging if "Person" in suits_of(i)]
+
+
 def deck_face_up(p: Player) -> bool:
     """Whether the player's Draw deck is face-up (Gluonic Distortion in play)."""
     return any(i.card in registry.DECK_FACE_UP for i in table_cards(p))
@@ -401,6 +409,11 @@ class Ctx:
     def opponent_captain_traits(self) -> tuple[str, ...]:
         """The printed traits of your opponent's Captain. In Cadet Training, those of Khan's random Captain."""
         return rival_traits(self.state, self.me)
+
+    def weekday(self) -> int | None:
+        """The real weekday of the command being resolved, Monday 0 to Sunday 6, or None when it is not known. The
+        server records it with each command, so a replay gives the same answer (REQ-SRV-52, REQ-CORE-53)."""
+        return self.state.weekday
 
     def actions_left(self) -> int:
         return self.me.actions
@@ -1123,7 +1136,7 @@ class Actions:
     def promote(self, inst: Inst, *, as_person: bool = False) -> Gen:
         """Promote to Duty Officer. `as_person` promotes a non-Person "as if it is a Person" (The Riker Maneuver)."""
         self._use(A.PROMOTE)
-        if card(inst).suit != "Person" and not as_person:
+        if "Person" not in suits_of(inst) and not as_person:  # Wesley Crusher is considered a Person
             self.emit(f"{name(inst)} is not a Person, so it cannot be promoted.")  # KW-PROM-06
             return
         if inst.card in registry.CANNOT_PROMOTE:
@@ -1952,6 +1965,9 @@ class Actions:
             take_out(self.state, loc)
             self.ctx.me.locations.append(loc)
             self.emit(f"{self.ctx.me.name} takes control of {name(loc)}.")
+            if card(loc).suit != "Location":
+                # A card "considered a Location": putting it into play counts as taking control (Sha Ka Ree).
+                raise_event(self.state, "take_control", self.ctx.me.seat, loc.uid)
         yield from self._offer_mark(loc)  # Khan marks before the CONTROL operation resolves (REQ-CD-KHN-08)
         yield from run_inline(self.ctx, loc, "CONTROL")
         return loc
@@ -2132,7 +2148,8 @@ class Actions:
         while True:
             options: list[tuple[str, str]] = []
             found: dict[str, tuple[Inst, int, Any]] = {}
-            sources = [] if blocked else [(i, "REACTION") for i in table_cards(player) if not i.exhausted]
+            sources = [] if blocked else [(i, "REACTION") for i in [*table_cards(player), *staged_people(player)]
+                                          if not i.exhausted]
             if support_window(self.state, seat):
                 sources += [(i, "SUPPORT") for i in player.hand]
             for inst, kind in sources:
@@ -2187,6 +2204,21 @@ class Actions:
         self.emit(f"{self.ctx.me.name} steals {taken} {kind.capitalize()}.")
         return taken
         yield  # pragma: no cover
+
+    def resolve_bot_top(self) -> Gen:
+        """SURPRISE operations only: the Bot resolves the top card of its deck at once (Flight Training Accident,
+        REQ-SOLO-100). Returns the card."""
+        self._use(A.RESOLVE_CARD)
+        from engine.bot import draw_card, resolve
+
+        bot = self.ctx.me
+        inst = draw_card(self.state, bot)
+        if inst is None:
+            return None
+        bot.staging.append(inst)
+        self.state.emit(f"{bot.name} resolves {name(inst)} at once.", seat=bot.seat, irreversible=True, card=inst.card)
+        yield from resolve(self.ctx, inst)
+        return inst
 
     def continue_resolution(self) -> Gen:
         """SURPRISE operations only: after this operation the Bot goes on to the Automated Command row the card

@@ -1,9 +1,12 @@
 """0INC03 Subspace Rhapsody (Incident, promo). Spec: resources/scans/promo2/cards/incident/0INC03.md"""
 
+from engine import cards as registry
 from engine.cards import operation
 from engine.ops import A
 
 from ._util import is_suit
+
+registry.REPLACES_AN_INCIDENT.add("0INC03")  # SPECIAL: during setup, replace a random Incident with this card
 
 
 def _directives(ctx):
