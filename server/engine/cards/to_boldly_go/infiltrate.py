@@ -5,10 +5,11 @@ from engine.ops import A, DiscardFromHand, Spend
 
 from ._util import has_trait, ships
 
+IDS = ("2KHA09", "1SEL21")  # Sela's Infiltrate prints the same two PLAYs, without a development cost
 development_cost("2KHA09", Spend(latinum=2))
 
 
-@operation("2KHA09", 0, uses=[A.WARP])
+@operation(IDS, 0, uses=[A.WARP])
 def slip_past(ctx, actions):
     """PLAY: You may warp up to 3 of your Ship with Cloak."""
     warped: set[str] = set()
@@ -22,7 +23,7 @@ def slip_past(ctx, actions):
         yield from actions.warp(ship)
 
 
-@operation("2KHA09", 1, uses=[A.GAIN_CARD], cost=[DiscardFromHand(2), Spend(dilithium=1)])
+@operation(IDS, 1, uses=[A.GAIN_CARD], cost=[DiscardFromHand(2), Spend(dilithium=1)])
 def recruit(ctx, actions):
     """PLAY: Discard 2 cards and spend 1 [Dilithium] to gain a Person/Cargo/Ally."""
     yield from actions.gain_card(["Person", "Cargo", "Ally"], label="a Person, Cargo or Ally")

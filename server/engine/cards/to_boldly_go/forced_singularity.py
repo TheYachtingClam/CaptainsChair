@@ -1,12 +1,15 @@
-"""2CAR06 Forced Singularity (Cargo). Spec: resources/scans/to_boldly_go/cards/cargo/2CAR06.md"""
+"""2CAR06 Forced Singularity (Cargo). Spec: resources/scans/to_boldly_go/cards/cargo/2CAR06.md
+Also the copy in Sela's deck (1SEL08), a Development with the same operations."""
 
 from engine.cards import duty_slots, operation
 from engine.ops import A, DiscardFromHand, Spend
 
 from ._util import has_trait, others_in_hand
 
+IDS = ("2CAR06", "1SEL08")
 
-@operation("2CAR06", 0, uses=[A.DISCARD, A.FIND, A.JUNK, A.DEPLOY], cost=[Spend(dilithium=2)])
+
+@operation(IDS, 0, uses=[A.DISCARD, A.FIND, A.JUNK, A.DEPLOY], cost=[Spend(dilithium=2)])
 def singularity(ctx, actions):
     """PLAY: You may discard a card to find an Engineer/Ops. Junk a card from the Market. Spend 2 [Dilithium] to
     deploy this card. Ruling: the 2 Dilithium is a required cost of the PLAY."""
@@ -17,7 +20,7 @@ def singularity(ctx, actions):
     yield from actions.deploy(ctx.this_card)
 
 
-@operation("2CAR06", 2, uses=[A.DRAW, A.PUT],
+@operation(IDS, 2, uses=[A.DRAW, A.PUT],
            cost=[DiscardFromHand(1, lambda ctx, i: has_trait(i, "Engineer"), "an Engineer")])
 def engineering(ctx, actions):
     """ACTIVATION: Discard an Engineer to draw 2 cards and put one of them on the top of your deck."""
@@ -29,7 +32,7 @@ def engineering(ctx, actions):
         yield from actions.put_on_deck(card)
 
 
-@duty_slots("2CAR06")
+@duty_slots(IDS)
 def extra_officer(state, owner, inst):
     """PASSIVE: Requires [Military] 3. You may have an additional Person on duty."""
     return [None] if owner.tracks["military"] >= 3 else []

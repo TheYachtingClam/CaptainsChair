@@ -173,7 +173,7 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 7. **Picard** (done)
 8. **Shran** (done)
 9. **Koloth** (done)
-10. **Sela**
+10. **Sela** (done)
 11. **Sisko**
 12. **Burnham**, with Inert Dilithium, recrystallize, her Clean-up rule and REQ-CTM-21
 
@@ -203,6 +203,13 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 - **Engine:** one option, `draw(bottom=True)`, for *Boreth*.
 - **Tests:** `tests/test_koloth.py`, 63 tests, with 6 random games and a Cadet Training game.
 - **Added after Step 9 (decision, 2026-10-09):** the turn-long Cloak is tracked. A new action, `TREAT_AS`, gives a card a trait until the end of the turn (KW-TREAT-05); *Cloaking Device* and *Prototype Cloak* use it.
+
+### Step 10: Sela (done)
+
+- **17 cards** of her own in new modules; 5 are copies. *Forced Singularity* and *Infiltrate* print the operations of cards that already existed (2CAR06, 2KHA09) and are registered with them; her three plain Warbirds share one module, and *I.R.W. Valdore* shares their PLAY.
+- **3 missions** in `missions_sela.py`: *Romulan Might*, *The Reunification Plot*, *The Duras Plot*, which reads the turn-long Cloak.
+- **Engine:** in Cadet Training an attack now raises the `attacked` event for the attacker's own effects, so Sela is paid there too. Logging an opponent's Location (*Scimitar*) needed nothing new.
+- **Tests:** `tests/test_sela.py`, 67 tests, with 6 random games and a Cadet Training game.
 
 ## Step 13: The six Bots
 

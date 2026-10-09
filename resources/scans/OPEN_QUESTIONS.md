@@ -143,6 +143,18 @@ Rulings made while writing Koloth's deck (Step 9):
 - **Boreth** (1KOL05): its ENDGAME counts every Skill icon on your cards in play that are not beamed, your Captain's and Boreth's own included.
 - **Sabotage** (mission): you choose whether to attack; if you do, the opponent may ignore it.
 
+Rulings made while writing Sela's deck (Step 10):
+
+- **Sela** (1SEL01): she is paid once per attack, also when the opponent ignores it, and in Cadet Training. Her Activation needs *Infiltrate* or *Conquer* in hand, matched by name.
+- **Scimitar** (1SEL07): the Romulan is found and destroyed even when you cannot then beam a card to *Remus*; the Ship is deployed only if both happened. *Remus* must be under your control.
+- **Scimitar** (1SEL07): the logged Location goes to its owner's Log. Glory counts its Skill icons as its owner had them. In Cadet Training it gains 1 Glory.
+- **Donatra** (1SEL04): for each of the 3 drawn cards you choose to pay 1 Dilithium to keep it, or it is discarded.
+- **Shinzon** (1SEL06): his RESUPPLY must log a Romulan when one is in your hand or Discard pile.
+- **Tomalak, T'Rul** ("discard a card to draw X from your Discard pile"): the card just discarded cannot be the one drawn.
+- **Remans** (1SEL24): you choose between logging the card and letting the opponent draw.
+- **The Duras Plot** (mission): you choose which one Cloak to dismiss; a Cloak in your Staging Area cannot be chosen.
+- **Romulan Might** (mission): enlisting a Development still costs its development cost.
+
 Questions about a Bot row:
 
 - **Picard, Klingon row:** "If able, you remove an Away Team." Default: from the Location the Bot just sent to; if you have none there, from a Location of your choice.
@@ -164,5 +176,4 @@ The Core Box needs these additions. Each is a general option on an existing acti
 | "You cannot send Away Teams here" | Theta Zeta | a registry read by `away_targets` |
 | Which RESUPPLY operations resolved this turn | Laris | engine bookkeeping; `DUPLICATE` with `kind="RESUPPLY"` already exists |
 | "After resolving an operation with a Latinum cost" | Quark | a new event, `operation_resolved`, carrying what the cost paid |
-| "After attacking your opponent" | Sela | the existing `attacked` event, seen from the attacker's side |
 | The Bot gains "the Market card with the most Dilithium, then most Glory" | Burnham Bot | `gain_most(resource)` generalising `gain_most_glory` |

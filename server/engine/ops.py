@@ -2142,6 +2142,8 @@ class Actions:
             self._attack = self.ctx.virtual_opponent
             if self._attack:
                 self.emit(f"{self.ctx.me.name} attacks the virtual opponent.")
+                # No player was attacked, but the attacker's own "after attacking" effects still apply (Sela).
+                raise_event(self.state, "attacked", -1, None, attacker=self.ctx.me.seat)
             return self._attack
         self.state.emit(f"{self.ctx.me.name} attacks {opp.name}.", irreversible=True)
         raise_event(self.state, "attacked", opp.seat, None, attacker=self.ctx.me.seat)
