@@ -170,7 +170,7 @@ No code changed. The acceptance scenarios get their tests in the step that build
 
 One Crew per step: its cards, board missions, Cadet Training rulings and random-play games. Order, simplest first:
 
-7. **Picard**
+7. **Picard** (done)
 8. **Shran**
 9. **Koloth**
 10. **Sela**
@@ -178,6 +178,15 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 12. **Burnham**, with Inert Dilithium, recrystallize, her Clean-up rule and REQ-CTM-21
 
 **You test:** a two-player game and a Cadet Training game with the step's Crew.
+
+### Step 7: Picard (done)
+
+- **17 cards** of his own in `server/engine/cards/base_game/`; his other 7 are copies that already worked. The *U.S.S. Enterprise-D* prints the same operations as the *U.S.S. Shenzhou* and is registered with it (as is Shran's *Kumari*).
+- **3 missions** in `missions_picard.py`: *Peace Negotiations*, *Arbiter of Succession*, *Seek Out New Life*.
+- **8 development costs**, including "take an Incident" (*Tamarians*) and "find a Person and log it" (*Phasing Cloak*).
+- **Engine:** one new registry, `IGNORE_OPPONENT_SHIPS`, for *Phasing Cloak*. *Deanna Troi* uses the existing granted-PLAY registry.
+- **Tests:** `tests/test_picard.py`, 61 tests: every operation, each mission, 6 random two-player games against other Crews and a Cadet Training game.
+- Picard can be chosen in Core Box and combined games. His Bot and campaign bonuses come in Steps 13 and 14.
 
 ## Step 13: The six Bots
 

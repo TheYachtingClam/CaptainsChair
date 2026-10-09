@@ -113,6 +113,16 @@ Rulings made while writing the Locations, Encounters and promo cards (Step 6):
 - **U.S.S. Enterprise-B** (0SHI01): when the weekday is not known (a game saved before weekdays were recorded) it is not Tuesday.
 - **Whale Probe Incursion** (0INC02): recalling your own Ship is mandatory when you have one; without a Creature the card stays yours and is discarded at Clean-up.
 
+Rulings made while writing Picard's deck (Step 7):
+
+- **Jean-Luc Picard** (1PIC01): the gained Ally is beamed from wherever it went (top of your deck or your Discard pile).
+- **Seek Out New Life** (mission): each Alien card and each Transcendent card is one species of its own; its other Species traits are not counted as well. Wildcards are not counted.
+- **Data** (1PIC12): each point from his Activation may go on a different track.
+- **Tamarians** (1PIC04): the discards are chosen from your whole hand after drawing, not only from the 3 cards drawn.
+- **Starbase 74** (1PIC07): the found Person can be free played only if it ended up in your hand, which a find always does.
+- **Type 7 Shuttlecraft** (1PIC14): with no Ship at a Location, its first PLAY sends no Away Team but may still be put back on your deck.
+- **Worf** (1PIC23): his Activation is offered only when an opponent Away Team shares a Location with one of yours. In Cadet Training that is any neutral Location where you have one.
+
 Questions about a Bot row:
 
 - **Picard, Klingon row:** "If able, you remove an Away Team." Default: from the Location the Bot just sent to; if you have none there, from a Location of your choice.
@@ -133,7 +143,6 @@ The Core Box needs these additions. Each is a general option on an existing acti
 | Log a Status card | Theta Zeta | `LOG` reaches Status cards |
 | Enlist with a discount of several resources | Orb of Prophecy and Change, Sisko's mission | `enlist_development(discount=n)` or a per-resource discount |
 | An attack that dismisses a Duty Officer can be ignored by a specific Reaction | Book's Ship | `attack(dismisses_duty_officer=True)`, as `removes_away_teams` |
-| Ignore opponent Ships for every Away Team sent | Phasing Cloak | a registry read by `away_targets` |
 | "You cannot send Away Teams here" | Theta Zeta | a registry read by `away_targets` |
 | Which RESUPPLY operations resolved this turn | Laris | engine bookkeeping; `DUPLICATE` with `kind="RESUPPLY"` already exists |
 | "After resolving an operation with a Latinum cost" | Quark | a new event, `operation_resolved`, carrying what the cost paid |

@@ -1873,6 +1873,7 @@ class Actions:
         """Locations an Away Team may be sent to (KW-SEND-03). `ignore_ships` skips the opponent-Ship rule."""
         opp = self.ctx.opponent
         out = list(self.ctx.me.locations)
+        ignore_ships = ignore_ships or any(i.card in registry.IGNORE_OPPONENT_SHIPS for i in table_cards(self.ctx.me))
         def weight(ships):  # REQ-AT-02a: each Ship token counts its weight (A Fleet of 30 California-Class Ships)
             return sum(registry.SHIP_WEIGHT.get(s.card, 1) for s in ships)
 

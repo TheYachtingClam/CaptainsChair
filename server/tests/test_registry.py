@@ -14,11 +14,12 @@ ENGINE_KINDS = {"WHEN EMPTIED", "STARDATE RESOLUTION"}
 
 
 WAITING_SETS = {"base_game"}  # the Core Box Crew decks: specs are written, code comes in plans/base-game.md Steps 7 to 12
-WAITING_CREWS = {"burnham", "koloth", "picard", "sela", "shran", "sisko"}  # their missions, Bot rows and bonuses too
+WAITING_BOTS = {"burnham", "koloth", "picard", "sela", "shran", "sisko"}  # Bot rows: Step 13
+WAITING_CREWS = WAITING_BOTS - {"picard"}  # Crew cards and missions: Steps 7 to 12, one Crew at a time
 
 
 def _waits(card) -> bool:
-    return (card.position or "").startswith("Solo") or (card.set in WAITING_SETS and not card.is_common)
+    return (card.position or "").startswith("Solo") or (card.set in WAITING_SETS and card.deck in WAITING_CREWS)
 
 
 def test_every_printed_operation_has_code():
@@ -70,7 +71,7 @@ def test_every_bot_row_has_code():
 
     missing = []
     for crew, data in content().command.items():
-        if crew in WAITING_CREWS:
+        if crew in WAITING_BOTS:
             continue
         for side in data.sides:
             for r in side.rows:

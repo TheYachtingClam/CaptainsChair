@@ -6,7 +6,7 @@ from engine.ops import A, DiscardFromHand, Spend
 
 from ._util import is_suit
 
-IDS = ("2GEO02", "2KIRK02")
+IDS = ("2GEO02", "2KIRK02", "1PIC02", "1SHR02")  # also the Core Box's U.S.S. Enterprise-D and Kumari
 
 
 @operation(IDS, 0, uses=[A.DEPLOY, A.WARP, A.BEAM])

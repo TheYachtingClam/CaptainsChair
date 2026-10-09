@@ -114,6 +114,9 @@ STAGING_PEOPLE_ACTIVE: set[str] = set()
 # SPECIAL "During setup, replace a random Incident in the Incident deck with this card" (Subspace Rhapsody, Flight
 # Training Accident, Whale Probe Incursion; REQ-CS-22, REQ-CORE-52). Read by setup.
 REPLACES_AN_INCIDENT: set[str] = set()
+# PASSIVE "You ignore all opponent Ship when sending [Away Team] to a neutral Location" (Phasing Cloak, REQ-CORE-44).
+# Table positions.
+IGNORE_OPPONENT_SHIPS: set[str] = set()
 # PASSIVE "This ship cannot be warped" (S.S. Botany Bay): no effect can warp it.
 CANNOT_WARP: set[str] = set()
 # Resources a player gains when this card is dismissed, instead of the usual return to the supply (R.I.S. Talvath).
@@ -270,7 +273,7 @@ def _passive_registries():
             DUTY_SLOTS, RESTRICTIONS, TRAIT_MODIFIERS, ALSO_SUIT, INCIDENTS_FROM_JUNK, CANNOT_PROMOTE, CANNOT_LOG,
             VP_SPECIAL, WARP_DESTINATIONS, PROTECTED_BEAMED, SKILL_REWRITES, INCIDENTS_FROM_LOG, DECK_FACE_UP,
             SHIP_WEIGHT, RESOURCES_INTERCHANGEABLE, NO_ENLIST_ON_CYCLE, IGNORE_SPECIALTY_REQUIREMENTS, CANNOT_WARP, STAGING_PEOPLE_ACTIVE,
-            REPLACES_AN_INCIDENT, {source for source, _, _ in GRANTED_PLAYS.values()})
+            REPLACES_AN_INCIDENT, IGNORE_OPPONENT_SHIPS, {source for source, _, _ in GRANTED_PLAYS.values()})
 
 
 def has_code(card_id: str, index: int, kind: str) -> bool:
