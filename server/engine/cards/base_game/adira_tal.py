@@ -14,10 +14,10 @@ def memories(ctx, actions):
 
 @operation("1BUR06", 1, uses=[A.SCAN, A.GAIN_RESOURCE],
            trigger=lambda ctx, ev: ev["kind"] == "would_gain_market" and ev["seat"] == ctx.me.seat
-           and len(ev.get("suits") or []) == 1)
+           and bool(ev.get("suits")))
 def curiosity(ctx, actions):
-    """REACTION: When you would gain a card, scan 2 of the same suit instead and gain 1 [Glory]. Only when the gain
-    is of one suit (REQ-CORE-42)."""
+    """REACTION: When you would gain a card, scan 2 of the same suit instead and gain 1 [Glory]. With a gain that
+    offers a choice of suits you choose which of them to scan; not offered for a gain by trait (REQ-CORE-42)."""
     yield from actions.scan(2, list(ctx.event["suits"]))
     yield from actions.gain_resource("glory", 1)
     return True

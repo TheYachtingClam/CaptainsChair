@@ -587,3 +587,26 @@ def test_stolen_dilithium_comes_off_inert_dilithium_first():
     while s.decision is not None and s.decision.kind != "action":
         answer(s, options(s)[0])
     assert held(s) == 1 and me(s).dilithium == 1 and opp(s).dilithium == theirs + 1
+
+
+def test_scan_instead_lets_you_choose_the_suit_of_a_multi_suit_gain():
+    """Decision 2026-10-09 (REQ-CORE-42): Adira Tal, Jadzia Dax and the T88 Diagnostic Tool."""
+    s = burnham(duty=["1BUR06"], hand=["1BUR23"], empty_hand=True, dilithium=1)
+    glory = me(s).glory
+    deck = len(s.market_decks["Cargo"])
+    play(s, card(s, "1BUR23", zone="hand"), 1)  # Cleveland Booker: gain a Person or a Cargo
+    answer(s, "Use Adira Tal")
+    assert s.decision.prompt == "Scan which suit?" and options(s) == ["Person", "Cargo"]
+    answer(s, "Cargo")
+    drive(s)
+    assert me(s).glory == glory + 1 and len(s.market_decks["Cargo"]) < deck
+    assert ("3FRE07", 1) in registry.OPS and ("1SIS22", 2) in registry.OPS
+
+
+def test_scan_instead_is_not_offered_for_a_gain_by_trait():
+    s = burnham(duty=["1BUR06", "1BUR25"], hand=["1BUR25"], empty_hand=True)
+    for trigger in (registry.OPS[("1BUR06", 1)].trigger, registry.OPS[("3FRE07", 1)].trigger,
+                    registry.OPS[("1SIS22", 2)].trigger):
+        ctx = Ctx(s, OpRef(mode="trigger", seat=0, uid=card(s, "1BUR06", zone="duty").uid, index=1))
+        assert not trigger(ctx, {"kind": "would_gain_market", "seat": 0, "uid": None, "suits": []})
+        assert trigger(ctx, {"kind": "would_gain_market", "seat": 0, "uid": None, "suits": ["Person", "Ship"]})

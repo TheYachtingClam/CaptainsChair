@@ -95,7 +95,7 @@ Rules that more than one card relies on, or that change a core rule. Single-card
 
 - **REQ-CORE-40 Sisko.** *Deep Space 9* is a Ship that cannot be warped. Its token stays on the card. *Orb of the Emissary* is an Encounter in his Development pile; it cannot be played.
 - **REQ-CORE-41 Development conditions.** A development cost may include a condition that pays nothing, such as "have 10+ [Glory]", "have 12+ [Research]" or "free if *I.K.S. Devisor* is in play". The Development can be enlisted only while the condition holds.
-- **REQ-CORE-42 "When you would gain a card, scan 2 of the same suit instead"** (*Adira Tal*, *Jadzia Dax*). It replaces a gain of a single suit from the Market. The scan is not replaced again.
+- **REQ-CORE-42 "When you would gain a card, scan 2 of the same suit instead"** (*Adira Tal*, *Jadzia Dax*). It replaces a gain by suit from the Market. When the gain offers a choice of suits ("a Person or a Cargo"), the player chooses which of those suits to scan. It is not offered for a gain by trait, which names no suit. The scan is not replaced again. The same holds for *T88 Diagnostic Tool* and *Lieutenant Dax* in *Second Contact* (decision, 2026-10-09).
 - **REQ-CORE-43 Discovery.** On the Core Box Crew boards, "Discovery" is the Encounter suit (ruling, to confirm).
 - **REQ-CORE-44** "Ignoring any opponent Ship" as a standing rule (*Phasing Cloak*) applies to every Away Team its owner sends to a neutral Location.
 
