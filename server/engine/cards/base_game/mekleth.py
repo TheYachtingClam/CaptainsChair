@@ -10,15 +10,14 @@ from ._util import has_trait
            cost=[DiscardFromHand(1)])
 def duel(ctx, actions):
     """ATTACK PLAY: Discard a card to gain 1 [Military]. Force your opponent to reveal their hand. You may discard an
-    Attack from their hand to gain 1 [Glory]. Against the Bot, which has no hand, you say whether it succeeded
-    (REQ-SOLO-190)."""
+    Attack from their hand to gain 1 [Glory]. Against the Bot, which has no hand, no Attack can be discarded, so the
+    Glory is never gained (decision, 2026-10-09); the reveal is still an attack on its hand (REQ-SOLO-190 to -193)."""
     yield from actions.gain_specialty("military", 1)
     opp = ctx.opponent
     if opp is None or not (yield from actions.attack()):
         return
     if opp.bot is not None:
-        if (yield from actions.bot_hand_attack(opp)):
-            yield from actions.gain_resource("glory", 1)
+        yield from actions.bot_hand_attack(opp)
         return
     hand = list(opp.hand)
     actions.emit(f"{opp.name} reveals their hand: {', '.join(ctx.name(c) for c in hand) or 'no cards'}.",

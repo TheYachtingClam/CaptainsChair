@@ -71,7 +71,7 @@ Same goal and reward as the Basic side; see [cb-picard-basic.md](cb-picard-basic
 
 ## Rulings and open questions
 
-- Ruling: "Discovery" on the Core Box boards is the Encounter suit (the pill carries the Encounter icon).
+- Ruling (confirmed 2026-10-09): "Discovery" on the Core Box boards is the Encounter suit (the pill carries the Encounter icon).
 
 ## Tests
 

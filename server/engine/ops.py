@@ -471,9 +471,10 @@ def can_afford(player: Player, dilithium: int = 0, latinum: int = 0, glory: int 
 def pay_resources(player: Player, dilithium: int = 0, latinum: int = 0, glory: int = 0,
                   state: GameState | None = None, *, as_cost: bool = False) -> None:
     """Spend resources, substituting Glory where needed: 1 Glory = 1 Latinum or 2 Dilithium (KW-SPEND-02).
-    With `state`, raises a spend event with what was actually paid (Barry Waddle reacts to spending Latinum). A cost,
-    as opposed to a "you may spend" effect, also carries `cost_latinum` and `cost_dilithium`, the amounts the cost
-    asked for (Quark: "an operation with a [Latinum] cost")."""
+    With `state`, raises a spend event with what was actually paid (Barry Waddle reacts to spending Latinum). Spending
+    that an operation asks for, as its cost or as a "spend X to …" in its effect, also carries `cost_latinum` and
+    `cost_dilithium`, the amounts asked for (Quark: "an operation with a [Latinum] cost"). A development cost does
+    not: it is not part of an operation."""
     use_l = min(latinum, player.latinum)
     use_d = min(dilithium, player.dilithium)
     short_l, short_d = latinum - use_l, dilithium - use_d
@@ -1686,7 +1687,7 @@ class Actions:
         self._use(A.SPEND)
         if not self.can_spend(dilithium, latinum, glory, actions):
             return False
-        pay_resources(self.ctx.me, dilithium, latinum, glory, self.state)
+        pay_resources(self.ctx.me, dilithium, latinum, glory, self.state, as_cost=True)  # "spend X to …" in an effect
         self.ctx.me.actions -= actions
         self.emit(f"{self.ctx.me.name} spends {_res_text(dilithium, latinum, glory, actions)}.")
         return True

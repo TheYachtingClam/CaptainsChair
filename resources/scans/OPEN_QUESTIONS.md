@@ -8,33 +8,7 @@ None open.
 
 ## Core Box and promo set 1
 
-From writing the specs and the code (plans/base-game.md). Every card here has code that follows the default or ruling stated; none has been confirmed yet. Confirm or change each one.
-
-Questions about a card:
-
-- **Mirok** (1PER15): the set code is printed with a dagger (†) and a 2025 copyright, unlike every other Core Box card, and no *To Boldly Go* card replaces him. Default: the mark has no effect.
-- **Xindi-Reptilian Battleship** (1SHI13, 2SHI13): the Core Box card spells it "Reptilian"; the *To Boldly Go* spec says "Reptillian". Default: keep the *To Boldly Go* spelling on both until you check the card.
-- **Sha Ka Ree** (1ENC07): implemented as a card that goes among your controlled Locations when played. Ships can warp to it, Away Teams can be sent to it, it counts as a controlled Location, and playing it counts as taking control. Confirm.
-- **Weytahn** (1SHR12): "If there are no Away Team here, dismiss this card." Default: only the owner's Away Teams count.
-- **Orb of Prophecy and Change** (1SIS04): "Refresh a Bajoran to draw a card." Default: offered only when an exhausted Bajoran is in play.
-- **Halkan Council** (1ALL07): its CLEAN-UP logs it "if you have an Attack in play". Default: mandatory, checked while the card is still in the Staging Area.
-- **Wesley Crusher** (0ENC01): the two Skill icons are read as [Any Skill]; they are small in the scan. Check the card.
-- **Quark** (1SIS24): "after resolving an operation with a [Latinum] cost". Default: only Latinum paid as a cost counts, not Latinum spent by a "you may spend" effect.
-- **"Discovery"** on the Picard and Burnham boards. Default: it means Encounter.
-- **Founding the Federation** (Shran's mission): Default: the Human and the three other traits come from four different cards.
-
-Rulings made while writing the Market cards (Step 5). Each is implemented as described; confirm or say which to change.
-
-- **Ferengi Wine** (1CAR04): it counts itself as a Ferengi in play, since the text does not say "excluding this card".
-- **Laris** (1PER11): "a Resupply operation you have already resolved this turn" means the RESUPPLY of a card before her in the fixed order the engine resolves them: Captain, Status, Fleet, Locations, then Duty Officers in order.
-- **Laris** (1PER11): her Activation is offered only when a Captain, Cargo, Ship or Location of yours is exhausted.
-- **B-4** (1PER05): you gain the Dilithium for your Log even when the opponent ignores the attack; only their Incident is skipped.
-- **Mek'leth** (1CAR09): the opponent's whole hand is named in the log, then you may pick one Attack from it. Against the Bot you say whether it succeeded.
-- **Tachyon Detection Grid** (1CAR13): a Cloak in the opponent's Staging Area cannot be chosen. In Cadet Training you gain the Glory.
-- **Mirok** (1PER15): he may be promoted whether or not a Cloak was logged.
-- **Admiral Pressman** (1PER03): "Free play an Attack" is mandatory when you have one in hand.
-- **Captain Dorg** (1PER07): a Klingon in your Staging Area cannot pay his first Reaction, since the Staging Area cannot be dismissed from (KW-DSM-04).
-- **U.S.S. Reliant** (1SHI11): in Cadet Training the virtual opponent counts as having at most 1 Ship.
+From writing the specs and the code (plans/base-game.md). Every card here has code that follows the ruling stated. Items are removed as they are confirmed; confirm or change the rest.
 
 Rulings made while writing the Locations, Encounters and promo cards (Step 6):
 
@@ -58,7 +32,7 @@ Rulings made while writing Picard's deck (Step 7):
 
 Rulings made while writing Shran's deck (Step 8):
 
-- **Founding the Federation** (mission): the Ship card itself counts as a card "on the same Ship" (REQ-MS-03), so the Andorian *Kumari* supplies Andorian. The Human and the three traits still come from four different cards.
+- **Founding the Federation** (mission): the Ship card itself counts as a card "on the same Ship" (REQ-MS-03), so the Andorian _Kumari_ supplies Andorian. The Human and the three traits still come from four different cards.
 - **Tarah, Korax** ("discard the top card of your opponent's Draw deck"): discarding it is the attack part; the Glory is gained either way. In Cadet Training there is no deck, so only the Glory is gained.
 - **Ambassador Thoris** (1SHR09): the opponent chooses whether to return one. The Bot declines. You gain Glory for theirs as well as yours.
 - **Imperial Pride** (1SHR16): "shares no traits with your Captain" compares printed and "treated as" traits of the logged Location.
@@ -72,14 +46,14 @@ Rulings made while writing Koloth's deck (Step 9):
 - **Kang** (1KOL07): his first PLAY gains the Glory even with no Incident to return. His Reaction does not trigger itself, since he is exhausted by it.
 - **Good Day to Die** (1KOL17): with fewer than two deployed Ships the second sentence does nothing, and with two you may still decline it.
 - **Korax** (1KOL22): at Clean-up the hand size rises by 1 for each unspent Action, and you are asked once whether to take that many Glory.
-- **Korax** (1KOL22): his Activation is offered only when the *Gr'oth* or another Klingon Ship is exhausted.
+- **Korax** (1KOL22): his Activation is offered only when the _Gr'oth_ or another Klingon Ship is exhausted.
 - **Boreth** (1KOL05): its ENDGAME counts every Skill icon on your cards in play that are not beamed, your Captain's and Boreth's own included.
 - **Sabotage** (mission): you choose whether to attack; if you do, the opponent may ignore it.
 
 Rulings made while writing Sela's deck (Step 10):
 
-- **Sela** (1SEL01): she is paid once per attack, also when the opponent ignores it, and in Cadet Training. Her Activation needs *Infiltrate* or *Conquer* in hand, matched by name.
-- **Scimitar** (1SEL07): the Romulan is found and destroyed even when you cannot then beam a card to *Remus*; the Ship is deployed only if both happened. *Remus* must be under your control.
+- **Sela** (1SEL01): she is paid once per attack, also when the opponent ignores it, and in Cadet Training. Her Activation needs _Infiltrate_ or _Conquer_ in hand, matched by name.
+- **Scimitar** (1SEL07): the Romulan is found and destroyed even when you cannot then beam a card to _Remus_; the Ship is deployed only if both happened. _Remus_ must be under your control.
 - **Scimitar** (1SEL07): the logged Location goes to its owner's Log. Glory counts its Skill icons as its owner had them. In Cadet Training it gains 1 Glory.
 - **Donatra** (1SEL04): for each of the 3 drawn cards you choose to pay 1 Dilithium to keep it, or it is discarded.
 - **Shinzon** (1SEL06): his RESUPPLY must log a Romulan when one is in your hand or Discard pile.
@@ -90,15 +64,15 @@ Rulings made while writing Sela's deck (Step 10):
 
 Rulings made while writing Sisko's deck (Step 11):
 
-- **Taking control** (all decks): playing a Crew Location from hand counts as taking control of a Location (KW-TC-02). So *Benjamin Sisko* gains 2 Dilithium for *The Wormhole* and *Starbase 375*, and the older cards that react to taking control (*Wajahut*, *Chancellor Gowron*, *Proconsul Neral*, *Ambassador Kamarag*) now react to it too. Confirm.
-- **Benjamin Sisko** (1SIS01): his Activation needs a Location with Starfleet or Starbase. *Deep Space 9* is a Ship, so it does not count; *Bajor* has neither trait.
-- **Self-Replicating Mines** (1SIS06): the PASSIVE is not optional. The first attack against you while the card is deployed is ignored and the card is logged, before *Worf, Son of Mogh* or any other Reaction is offered.
+- **Taking control** (all decks): playing a Crew Location from hand counts as taking control of a Location (KW-TC-02). So _Benjamin Sisko_ gains 2 Dilithium for _The Wormhole_ and _Starbase 375_, and the older cards that react to taking control (_Wajahut_, _Chancellor Gowron_, _Proconsul Neral_, _Ambassador Kamarag_) now react to it too. Confirm.
+- **Benjamin Sisko** (1SIS01): his Activation needs a Location with Starfleet or Starbase. _Deep Space 9_ is a Ship, so it does not count; _Bajor_ has neither trait.
+- **Self-Replicating Mines** (1SIS06): the PASSIVE is not optional. The first attack against you while the card is deployed is ignored and the card is logged, before _Worf, Son of Mogh_ or any other Reaction is offered.
 - **Worf, Son of Mogh** (1SIS10): his Activation gains the Glory even when the attack is ignored. It needs an opponent Away Team at a neutral Location.
 - **Garak** (1SIS09): only "dismiss a Duty Officer" is the attack. You draw the card even when the attack is ignored or the opponent has no Duty Officer.
-- **Orb of Prophecy and Change** (1SIS04): "refresh a Bajoran" needs an exhausted Bajoran. The discount is 1 Dilithium and 1 Latinum, each only if the cost has it.
-- **A Call to Arms** (mission): for each Starbase in play you choose whether it takes off 1 Dilithium or 1 Latinum. *Deep Space 9* counts.
+- **Orb of Prophecy and Change** (1SIS04): the discount is 1 Dilithium and 1 Latinum, each only if the cost has it.
+- **A Call to Arms** (mission): for each Starbase in play you choose whether it takes off 1 Dilithium or 1 Latinum. _Deep Space 9_ counts.
 - **Miles O'Brien** (1SIS13): "draw a Ship from your Discard pile and free play it" plays that Ship; if it cannot be played it stays in hand.
-- **Quark** (1SIS24): his Reaction is for Latinum that a cost asks for, even when Glory paid for it. Latinum spent by a "you may spend" effect, and development costs, do not count.
+- **Quark** (1SIS24): development costs do not count for his Reaction, also when a card's operation enlists the Development (_Orb of Prophecy and Change_). Confirm.
 - **Kira Nerys** (1SIS23): the Cardassian or Dominion card must be in the opponent's Control Area or Fleet; not their Captain and not a card in their Staging Area.
 - **U.S.S. Defiant** (1SIS15): the attack is made only when the opponent has a Ship at the Location it warped to.
 - **Miles O'Brien, and the other "cannot be promoted" cards:** a promote effect can still pick him, and then does nothing.
@@ -112,10 +86,10 @@ Rulings made while writing Burnham's deck (Step 12):
 - **Theta Zeta** (1BUR10): no one can send an Away Team there, by any effect that chooses a Location. Its ENDGAME counts the Dilithium in your supply.
 - **Book's Ship** (1BUR15): its Reaction saves the one Duty Officer; the rest of the attack still resolves. It also works against the Bot's "you dismiss a Duty Officer".
 - **U.S.S. Discovery-A** (1BUR03): its warp Activation refreshes it, so it can be used again in the same turn. The free play needs a second card to discard.
-- **Paul Stamets** (1BUR24): he recrystallizes 1 Dilithium for each of your deployed Ships. His Activation needs the *Discovery-A* deployed and him on duty.
+- **Paul Stamets** (1BUR24): he recrystallizes 1 Dilithium for each of your deployed Ships. His Activation needs the _Discovery-A_ deployed and him on duty.
 - **Sylvia Tilly** (1BUR22): "for each Engineer in play" counts your cards only.
 - **Hugh Culber** (1BUR13): his Reaction returns the Incident just taken, and only while it is still in your hand.
-- **Joann Owosekun** (1BUR21): without the *Discovery-A* deployed her PLAY does nothing. Her Activation needs a ready Ship at a Location.
+- **Joann Owosekun** (1BUR21): without the _Discovery-A_ deployed her PLAY does nothing. Her Activation needs a ready Ship at a Location.
 - **Keyla Detmer** (1BUR20): the Away Team is sent only if the Location warped to is one you may send to.
 - **Investigate the Burn** (mission): one card may be both the Scientist and the Kelpien.
 - **Reunite the Federation** (mission): the 3 different Species are counted on the Ship card and the cards beamed to it, leaving out cards with Starfleet.

@@ -29,6 +29,6 @@ def bar(ctx, actions):
            trigger=lambda ctx, ev: ev["kind"] == "spend" and ev["seat"] == ctx.me.seat
            and (ev.get("cost_latinum") or 0) > 0)
 def profit(ctx, actions):
-    """REACTION: After resolving an operation with a [Latinum] cost, gain 1 [Glory]. Only Latinum asked for by a
-    cost counts, not Latinum spent by a "you may spend" effect."""
+    """REACTION: After resolving an operation with a [Latinum] cost, gain 1 [Glory]. Latinum the operation asks for
+    counts, as its cost or as a "you may spend 1 [Latinum] to …" in its effect (decision, 2026-10-09)."""
     yield from actions.gain_resource("glory", 1)

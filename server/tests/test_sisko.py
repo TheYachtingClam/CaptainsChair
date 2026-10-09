@@ -473,3 +473,19 @@ def test_contacting_the_dominion():
     drive(s)
     assert me(s).tracks["influence"] == 3 and len(me(s).hand) >= hand + 2
     assert score_player(s, me(s))["parts"]["missions"] == 3
+
+
+def test_quark_is_paid_for_latinum_spent_by_an_effect():
+    """Decision 2026-10-09: "You may spend [Latinum] to ..." inside an effect counts as a Latinum cost."""
+    s = sisko(duty=["1SIS24"], hand=["1SIS12"], empty_hand=True, latinum=1)
+    glory = me(s).glory
+    play(s, card(s, "1SIS12", zone="hand"), 1)  # People of Bajor: you may spend 2 Latinum to send another Away Team
+    drive(s, "Yes")
+    assert me(s).latinum == 0 and me(s).glory == glory + 1 and card(s, "1SIS24", zone="duty").exhausted
+    s = sisko(duty=["1SIS24"], hand=["1SIS12"], empty_hand=True, latinum=1)
+    glory = me(s).glory
+    play(s, card(s, "1SIS12", zone="hand"), 1)
+    while s.decision.kind != "action":
+        opts = options(s)
+        answer(s, "No" if "No" in opts else opts[0])
+    assert me(s).glory == glory  # no Latinum spent, no Glory

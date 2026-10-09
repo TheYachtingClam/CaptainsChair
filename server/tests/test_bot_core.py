@@ -552,3 +552,19 @@ def test_conspiracy_play_discards_it():
     play(s, card(s, "1DIR01", zone="hand"), 0)
     p = s.players[0]
     assert [i.card for i in p.discard[-2:]] == ["1BUR05", "1DIR01"] and len(p.hand) == 1
+
+
+def test_mekleth_gains_no_glory_against_the_bot():
+    """Decision 2026-10-09: the Bot has no hand, so no Attack is discarded and the Glory is not gained."""
+    s = solo("picard")
+    human = me(s)
+    human.hand[:] = [s.new_inst("1CAR09"), s.new_inst("1CAR04")]
+    s.decision = None
+    advance(s, flag_irreversible=False)
+    blade = next(i for i in me(s).hand if i.card == "1CAR09")
+    glory = me(s).glory
+    choose(s, 0, f"play:{blade.uid}:0", flag_irreversible=False)
+    while s.decision is not None and s.decision.kind != "action":
+        opts = [o.label for o in s.decision.options]
+        answer(s, next((o for o in opts if "succeeded" in o), opts[0]))
+    assert me(s).glory == glory and me(s).tracks["military"] == 1

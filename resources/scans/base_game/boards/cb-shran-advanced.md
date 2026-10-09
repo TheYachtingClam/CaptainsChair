@@ -71,7 +71,7 @@ Same goal and reward as the Basic side; see [cb-shran-basic.md](cb-shran-basic.m
 
 ## Rulings and open questions
 
-- Open question: whether the Human card may also supply one of the three other traits. Default: no, four different cards.
+- Ruling (confirmed 2026-10-09): the Human and the three other traits come from four different cards; the Human card cannot also supply one of the other traits.
 
 ## Tests
 
