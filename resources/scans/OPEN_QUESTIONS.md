@@ -204,6 +204,14 @@ Rulings made while writing the six Bots (Step 13):
 
 Reprints: the 45 Core Box cards that *To Boldly Go* reprints were matched by name, and their specs are copies of the *To Boldly Go* specs. I compared the text of each pair on screen but not word for word, so small wording differences on the older printing may be unrecorded. The reprint shares the newer card's code either way.
 
+Rulings made for the Core Box Five-Year Mission bonuses (Step 14):
+
+- **Picard's "find two cards":** the two finds are separate, so you may look again after the first. A card already in your hand can be "found", which wastes the find.
+- **Sela's "find a card (from your draw deck or Reserve) and log the found card":** your hand and Discard pile are not searched.
+- **Sela's "take a card from your Reinforcement deck":** with an empty Reinforcement pile it does nothing.
+- **"A non-Incident card from your Available cards":** only cards whose setup position is Available; not your deployed Ship, controlled Location or Sela's three Discard pile cards.
+- **A Dilithium Boost for Burnham** goes onto *Inert Dilithium*.
+
 ## Gaps in the CLAUDE.md action list
 
 None. Everything the Core Box needed is written and listed in CLAUDE.md.

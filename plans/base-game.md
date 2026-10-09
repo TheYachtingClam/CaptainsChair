@@ -241,11 +241,18 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 - **Conspiracy** (1DIR01) is written, with its SURPRISE. The game-creation screen offers it beside *Time Is Running Out* when the game has Core Box content; both can be ticked (REQ-SOLO-133).
 - **Tests:** `tests/test_bot_core.py`, 156 tests: every row on a matching card, the rows that needed something new, the Burnham Bot's rule, *Conspiracy* and CORE-AS-8. The solo sweep now plays every Core Box Bot at every difficulty, half the time against a Core Box Crew.
 
-## Step 14: Five-Year Mission upgrades
+## Step 14: Five-Year Mission upgrades (done)
 
 - Option A restrictions and option B bonuses for the six Crews.
 
 **You test:** a campaign assignment against a Core Box Bot, then pick each kind of upgrade.
+
+### Step 14: Five-Year Mission upgrades (done)
+
+- **24 bonuses**, one function each, in `engine/upgrades/picard.py`, `shran.py`, `koloth.py`, `sela.py`, `sisko.py` and `burnham.py`: 17 Boosts and 7 REINFORCE bonuses. No new action was needed.
+- **Option A** needed no code: the printed lines ("Ship", "Cargo / Human / Tellarite", ...) are read by the existing `matches_restriction`.
+- A Dilithium Boost goes onto *Inert Dilithium* when the campaign's Crew is Burnham, like any Dilithium she gains.
+- **Tests:** in `tests/test_campaign_bonuses.py`: every Core Box Boost with every Core Box Crew, each bonus that does more than gain, the REINFORCE pools, the option A lines, and a Core Box campaign through the API. `scripts/card_coverage.py` now reports 2033 of 2033.
 
 ## Step 15: Final sweep
 

@@ -34,16 +34,11 @@ def run_to_action(s, pick=lambda d: d.options[0].id):
 
 # ------------------------------------------------------------------ the registry
 
-WAITING_BONUSES = {"burnham", "koloth", "picard", "sela", "shran", "sisko"}  # plans/base-game.md Step 14
-
-
 def test_every_bonus_has_code():
     for crew, data in content().command.items():
         for side, section in (("win", data.upgrades.win), ("loss", data.upgrades.loss)):
             for i, printed in enumerate(section.bonuses):
                 key = upgrades.key(crew, side, i)
-                if crew in WAITING_BONUSES:
-                    continue  # the Core Box Bots' bonuses come in plans/base-game.md Step 14
                 if printed.startswith("REINFORCE"):
                     assert key in upgrades.REINFORCES, key
                 else:
@@ -349,3 +344,103 @@ def test_khan_scan_boost_costs_a_latinum():
     s = run_to_action(game(boosts=("khan:win:0",)))
     human = s.players[0]
     assert human.latinum == 0 and len(human.discard) + (len(human.draw) + len(human.hand) - 10) >= 1
+
+
+# ------------------------------------------------------------------ the Core Box bonuses (plans/base-game.md Step 14)
+
+def core_game(deck="picard", seed=3, reinforcement=(), **camp):
+    return new_game(seed, "solo", [SeatSetup("Me", deck, "basic", tuple(reinforcement), CampaignSetup(**camp))], [],
+                    False, bot=BotSetup("sisko"), box="both")
+
+
+@pytest.mark.parametrize("deck", ["picard", "shran", "koloth", "sela", "sisko", "burnham"])
+def test_core_box_crews_use_every_core_box_boost(deck):
+    for key in sorted(k for k in upgrades.BOOSTS if k.split(":")[0] in ("picard", "shran", "koloth", "sela", "sisko",
+                                                                       "burnham")):
+        s = run_to_action(core_game(deck, boosts=(key,)))
+        assert s.step == "action" and any("Boost" in e.text for e in s.log), (deck, key)
+
+
+def test_plain_gain_boosts():
+    human = run_to_action(core_game(boosts=("picard:win:0", "koloth:win:0", "sisko:win:0"))).players[0]
+    assert (human.tracks["research"], human.tracks["influence"], human.tracks["military"]) == (3, 3, 3)
+    human = run_to_action(core_game(boosts=("shran:win:1", "sisko:win:1", "koloth:win:1"))).players[0]
+    assert (human.dilithium, human.latinum, human.glory) == (3, 3, 3)
+
+
+def test_a_dilithium_boost_is_inert_for_burnham():
+    human = run_to_action(core_game("burnham", boosts=("shran:win:1",))).players[0]
+    assert human.dilithium == 1 and human.status[0].res == {"dilithium": 2}
+
+
+def test_picard_boost_finds_two_cards_before_the_hand():
+    human = run_to_action(core_game("kirk", boosts=("picard:win:1",)), pick=lambda d: d.options[-1].id).players[0]
+    assert len(human.hand) == 5 + 2  # two different cards, then the starting hand and len(human.reserve) == len(core_game("kirk").players[0].reserve)
+
+
+def test_burnham_boosts_draw_after_the_hand():
+    assert len(run_to_action(core_game(boosts=("burnham:win:0",))).players[0].hand) == 7
+    assert len(run_to_action(core_game(boosts=("burnham:loss:0",))).players[0].hand) == 6
+
+
+def test_shran_boost_free_plays_a_location():
+    human = run_to_action(core_game("sisko", boosts=("shran:win:0",))).players[0]
+    assert len(human.locations) == 2  # Bajor, and a Location found and played
+
+
+def test_sela_boost_logs_a_found_card():
+    plain = core_game("kirk").players[0]
+    human = run_to_action(core_game("kirk", boosts=("sela:win:0",))).players[0]
+    assert len(human.log) == 1 and len(human.hand) == 5
+    assert len(human.draw) + len(human.reserve) == len(plain.draw) + len(plain.reserve) - 1
+
+
+def test_sela_boost_takes_a_reinforcement_card():
+    s = run_to_action(core_game(reinforcement=("1CAR04",), boosts=("sela:win:1",)))
+    human = s.players[0]
+    assert not human.reinforcement and any(i.card == "1CAR04" for i in human.hand) and len(human.hand) == 6
+    empty = run_to_action(core_game(boosts=("sela:win:1",))).players[0]
+    assert len(empty.hand) == 5
+
+
+def test_core_box_reinforce_pools():
+    reserve = rules.reinforce_pools("koloth:loss:0", "sela")[0]
+    assert reserve and all(CARDS[c].position == "Reserve" and CARDS[c].suit != "Incident" for c in reserve)
+    available = rules.reinforce_pools("burnham:loss:1", "burnham")[0]
+    assert available and all(CARDS[c].position == "Available" and CARDS[c].suit != "Incident" for c in available)
+    assert "1BUR26" not in available and "1BUR03" not in available  # her Incident, and the deployed Discovery-A
+    for key in ("shran:loss:1", "sela:loss:0", "sela:loss:1", "koloth:loss:1", "burnham:win:1"):
+        assert key in upgrades.REINFORCES and rules.reinforce_pools(key, "picard")[0], key
+
+
+def test_core_box_option_a_restrictions():
+    assert rules.restriction("koloth", True) == "Ship" and rules.restriction("shran", False) == "Cargo / Human / Tellarite"
+    assert rules.matches_restriction("1SHI08", "Ship") and not rules.matches_restriction("1CAR04", "Ship")
+    assert rules.matches_restriction("1CAR04", rules.restriction("shran", False))  # a Cargo
+    assert rules.matches_restriction("1CAR08", rules.restriction("shran", True))  # Lirpa is a Weapon
+    assert rules.matches_restriction("1ALL05", rules.restriction("picard", True))  # Edosians are Alien
+    assert not rules.matches_restriction("1ALL02", rules.restriction("picard", True))
+    assert rules.matches_restriction("1ALL02", rules.restriction("picard", False))  # any Ally after a loss
+    for crew in ("picard", "shran", "koloth", "sela", "sisko", "burnham"):
+        for won in (True, False):
+            line = rules.restriction(crew, won)
+            assert line and any(rules.matches_restriction(c.id, line) and rules.can_be_reinforced(c.id)
+                                for c in CARDS.values() if c.set == "base_game"), (crew, won)
+
+
+def test_a_core_box_campaign_earns_and_uses_a_core_box_bonus(authed, monkeypatch):
+    grant = create(authed, deck_id="burnham", box="core").json()
+    cid, h = grant["campaign"]["id"], {"X-Campaign-Token": grant["token"]}
+    view = authed.get(f"/api/campaigns/{cid}", headers=h).json()
+    assert sorted(o["deck_id"] for o in view["opponents"]) == ["burnham", "koloth", "picard", "sela", "shran", "sisko"]
+    authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "shran"}, headers=h)
+    _finish(monkeypatch, won=True)
+    view = authed.get(f"/api/campaigns/{cid}", headers=h).json()
+    assert [b["key"] for b in view["upgrade"]["bonuses"]] == ["shran:win:0", "shran:win:1"]
+    authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "shran:win:1"}, headers=h)
+    monkeypatch.undo()
+    r = authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "koloth"}, headers=h).json()
+    state = authed.get(f"/api/games/{r['game_id']}/state", headers={"X-Seat-Token": r["seat_token"]}).json()
+    me = state["players"][0]
+    assert me["boosts"] == ["BOOST: Gain 2 [Dilithium]."] and me["resources"]["dilithium"] == 1  # inert for Burnham
+    assert me["status"][0]["resources"] == {"dilithium": 2}
