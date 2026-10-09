@@ -15,7 +15,7 @@ DEFAULT_BOX = "to_boldly_go"
 COMBINED_INCIDENTS = 6  # REQ-CORE-23
 STARDATE_MODE = {"two_player": "2-Player", "cadet": "Solo Cadet Practice", "solo": "Solo vs {difficulty} Bot"}
 DIFFICULTIES = ("ensign", "lieutenant", "commander", "captain", "admiral")  # REQ-SOLO-10, easiest first
-# Crews whose Bot is not written yet: the Core Box Crews, until plans/base-game.md Step 13.
+# Crews whose Bot is not written yet. None at present; a new Crew is listed here until its rows have code.
 BOT_UNAVAILABLE: set[str] = set()
 TIME_IS_RUNNING_OUT = "2DIR01"
 CONSPIRACY = "1DIR01"

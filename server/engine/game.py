@@ -4,9 +4,8 @@ Public interface:
     advance(state)               run until a player decision is needed or the game is over
     choose(state, seat, option)  apply a player's answer to the pending decision, then advance
 
-Card operations are placeholders in this skeleton: playing a card moves it to the Staging Area
-and spends its action, using an Activation exhausts the card, and the effect itself is logged
-as not yet implemented. Everything else follows requirements/05 to 07 and 13.
+Card operations are code in engine/cards (see CLAUDE.md, "Card effects are code") and run through engine/ops.py.
+Everything else follows requirements/05 to 07 and 13.
 """
 
 from __future__ import annotations

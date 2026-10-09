@@ -1,6 +1,6 @@
 # Star Trek: Captain's Chair – Online Version Requirements
 
-The Core Box, the original game, is covered in [23-core-box.md](23-core-box.md) from its scanned cards alone ([resources/scans/base_game/](../resources/scans/base_game/)); its rulebook is superseded.
+The Core Box, the original game, is covered in [23-core-box.md](23-core-box.md) from its scanned cards ([resources/scans/base_game/](../resources/scans/base_game/)) and its rulebook's "Meet the Crew Decks" pages (p. 34–35, in `manual/`), which give the complexity ratings and the rules for Burnham; the rest of its rulebook is superseded.
 
 These documents turn the *Star Trek: Captain's Chair – To Boldly Go* rulebook (36 pages in [resources/scans/to_boldly_go/manual/](../resources/scans/to_boldly_go/manual/), `page-001.jpg` to `page-036.jpg`) into requirements for a digital, online implementation. They also cover the *Second Contact* expansion ([resources/scans/second_contact/manual/](../resources/scans/second_contact/manual/), 6 pages) and the solo rulebook ([resources/scans/to_boldly_go/solo/](../resources/scans/to_boldly_go/solo/), 21 pages). Page numbers refer to the base rulebook unless a file says otherwise. They are organised by topic, not by page.
 
@@ -40,8 +40,8 @@ These documents turn the *Star Trek: Captain's Chair – To Boldly Go* rulebook 
 
 ## Known gaps and open questions
 
-1. **Card content.** The rulebook shows only example cards. Every Crew deck and common card, about 280 cards, must be transcribed from the physical cards or a publisher list.
-2. **Solo against the Bot (resolved).** The solo rulebook is now covered in [22-solo-mode.md](22-solo-mode.md). The Automated Command card rows for each Bot Crew still have to be transcribed from the physical cards, like all other card text.
+1. **Card content (resolved).** Every card, Crew board and Automated Command card of the Core Box, *To Boldly Go*, *Second Contact* and the two promo sets is transcribed as a spec under `resources/scans/` and has code. Rulings made on the way that are not yet confirmed are in `resources/scans/OPEN_QUESTIONS.md`.
+2. **Solo against the Bot (resolved).** The solo rulebook is now covered in [22-solo-mode.md](22-solo-mode.md). The Automated Command rows of all 15 Bot Crews are transcribed and written.
 3. **Core Box compatibility (resolved).** The Core Box cards are scanned and specified. Choosing a box, combining boxes, Burnham and *Recrystallize* are in [23-core-box.md](23-core-box.md).
 4. **Log visibility (resolved).** Page 21 calls Logs public, and page 31 says only the owner may look. The developers' errata lets the opponent ask about Log contents. The online game makes the Log viewable by both players with a click.
 5. **Khan setup step number.** The Khan rules say "draw 6 cards in step 13 of player setup", but the opening hand is step 14. Treat it as the opening-hand step.

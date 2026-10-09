@@ -254,8 +254,15 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 - A Dilithium Boost goes onto *Inert Dilithium* when the campaign's Crew is Burnham, like any Dilithium she gains.
 - **Tests:** in `tests/test_campaign_bonuses.py`: every Core Box Boost with every Core Box Crew, each bonus that does more than gain, the REINFORCE pools, the option A lines, and a Core Box campaign through the API. `scripts/card_coverage.py` now reports 2033 of 2033.
 
-## Step 15: Final sweep
+## Step 15: Final sweep (done)
 
 - Random games for every Crew and Bot with each box choice, in the solo and campaign sweeps.
 - `scripts/card_coverage.py` shows every group done.
 - CLAUDE.md, the requirements index and `OPEN_QUESTIONS.md` are up to date.
+
+### Step 15: Final sweep (done)
+
+- **Sweep:** `tests/test_box_sweep.py` plays 111 random games: a two-player game, a Cadet Training game and a solo game for every Crew and every Bot in each box choice, with and without promos and both Ticking Clock cards, and 12 campaign games with Core Box Crews, Bots, Boosts and every challenge. All finish.
+- **Coverage:** `scripts/card_coverage.py` reports every group done, 2033 of 2033.
+- **No waiting lists left:** the registry test checks every set with no exceptions; `setup.BOT_UNAVAILABLE` is empty.
+- **Docs:** CLAUDE.md, the requirements index and `OPEN_QUESTIONS.md` are current. What is still open is listed in `OPEN_QUESTIONS.md`: rulings made while writing the code that have not been confirmed.

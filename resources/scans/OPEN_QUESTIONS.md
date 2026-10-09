@@ -1,16 +1,10 @@
 # Open questions from card specs
 
-Collected from the "Rulings and open questions" sections of every card, board and command-card spec under `resources/scans/`. Each needs a decision before the code that depends on it is written. Answered and confirmed items are removed from this file; their rulings live in the card specs and in `requirements/`.
+Collected from the "Rulings and open questions" sections of every card, board and command-card spec under `resources/scans/`. The code follows the default or ruling given for each; an item stays here until it is confirmed. Answered and confirmed items are removed from this file; their rulings live in the card specs and in `requirements/`.
 
 ## Rules questions
 
 None open.
-
-## Deferred until the Core Box is scanned
-
-Not open for now. Leave this as it is and don't raise it again until the Core Box content is in `resources/scans/`.
-
-- **Core Box Burnham variant** (REQ-CTM-21): The rule refers to a Burnham Status card, but no Crew deck with that card is in the content yet. Not implemented.
 
 ## Rulings made while implementing the Crew decks
 
@@ -71,7 +65,7 @@ Made while writing the code. Each is implemented as described. Confirm, or say w
 
 ## Core Box and promo set 1
 
-From writing the specs (plans/base-game.md Step 2). None of these cards has code yet. Each has a default, which is what the spec says; confirm or change before the step that writes the card.
+From writing the specs and the code (plans/base-game.md). Every card here has code that follows the default or ruling stated; none has been confirmed yet. Confirm or change each one.
 
 Questions about a card:
 
