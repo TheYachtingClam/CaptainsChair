@@ -474,3 +474,34 @@ def test_voth_research_vessel_trades_a_beamed_human_for_an_encounter():
     activate(s, card(s, "1SHI12", zone="fleet"), 3)
     assert len(s.encounter) == encounters - 1 and me(s).log[-1].card == "1SHI12"
     assert any(i.card == "2PER06" for i in me(s).discard)
+
+
+# ------------------------------------------------------------------ the turn-long Cloak (KW-TREAT-05)
+
+def test_cloaking_device_gives_a_deployed_ship_cloak_until_the_turn_ends():
+    from engine.ops import Ctx
+    from engine.state import OpRef
+
+    for device in ("2CAR03", "1CAR03", "1KOL03"):  # Cloaking Device, its Core Box printing, Prototype Cloak
+        s = given(hand=["2SHI01", "2KHA09"], fleet=[device], empty_hand=True)
+        ship = card(s, "2SHI01", zone="hand")
+        play(s, ship, 0)  # Borg Probe: deploy and warp this ship
+        while s.decision.kind != "action":
+            opts = options(s)
+            answer(s, next((o for o in opts if o.startswith("Use")), "No" if "No" in opts else opts[0]))
+        ctx = Ctx(s, OpRef(mode="auto", seat=0))
+        probe = card(s, "2SHI01", zone="fleet")
+        assert ctx.has(probe, "Cloak") and s.turn_traits == {probe.uid: ["Cloak"]}, device
+        play(s, card(s, "2KHA09", zone="hand"), 0)  # Infiltrate: warp up to 3 of your Ship with Cloak
+        assert "Borg Probe" in options(s), device
+        finish(s)
+        answer(s, "End")
+        finish(s)
+        assert s.turn_traits == {} and not Ctx(s, OpRef(mode="auto", seat=0)).has(card(s, "2SHI01"), "Cloak"), device
+
+
+def test_a_ship_that_already_has_cloak_gets_nothing_extra():
+    s = given(hand=["1SHI01"], fleet=["2CAR03"], empty_hand=True)  # Bird-of-Prey is a Cloak Ship
+    play(s, card(s, "1SHI01", zone="hand"), 0)
+    finish(s)
+    assert s.turn_traits == {}

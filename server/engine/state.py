@@ -162,6 +162,8 @@ class GameState(BaseModel):
     # The real weekday of the command being resolved, Monday 0 to Sunday 6; the server sets it before each command
     # (REQ-SRV-52). None in tests and for commands saved before it was recorded.
     weekday: int | None = None
+    # "Treated as [trait] for the remainder of your turn": card uid -> traits; cleared when the turn ends (KW-TREAT-05).
+    turn_traits: dict[str, list[str]] = Field(default_factory=dict)
     players: list[Player]
     first_seat: int  # holds the Starting Player token
     difficulty: str | None = None  # solo mode: the Bot's difficulty, which picks the Stardate cards (REQ-SOLO-11)

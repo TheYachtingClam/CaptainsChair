@@ -364,6 +364,7 @@ Each keyword below must be a reusable engine primitive that card scripts call. E
 - **KW-TREAT-01** A card "treated as [trait]" has that trait while the operation lasts.
 - **KW-TREAT-02** "[Cards] are additionally treated as [trait]" keeps their printed traits and adds this one.
 - **KW-TREAT-03** It does nothing to a card that already has the trait, because each card has each trait only once.
+- **KW-TREAT-05** "Treated as [trait] for the remainder of your turn" (or "gains [trait] for the remainder of your turn") lasts until the turn ends, wherever the card goes in the meantime. Every effect that reads traits sees it, for example a Ship given Cloak by *Cloaking Device* can be warped by *Infiltrate*.
 - **KW-TREAT-04** Some cards treat Skill icons of one colour as another. The original colour is then gone unless the card says otherwise. See [21-expansion-second-contact.md](21-expansion-second-contact.md) §6.
 
 ## Trigger [a Location's CONTROL operation]

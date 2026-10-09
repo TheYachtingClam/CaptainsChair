@@ -1730,6 +1730,7 @@ cards:
     attack: false
     trigger: You deploy a Ship that does not have Cloak.
     uses:
+    - TREAT_AS
     - DISCARD
     - SEND_AWAY_TEAM
     undoable: true

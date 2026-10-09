@@ -670,6 +670,7 @@ def end_turn(state: GameState) -> None:
     state.emit(f"{state.player(state.active).name} ends their turn.", irreversible=True)
     for p in state.players:
         p.hand_bonus = 0
+    state.turn_traits = {}  # "for the remainder of your turn" ends here (KW-TREAT-05)
     if state.last_turn is not None and state.turn >= state.last_turn:
         # SPECIAL "before scoring" operations run first (Su'Kal), then final scoring.
         state.step = "final"

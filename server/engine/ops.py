@@ -55,6 +55,7 @@ class A:
     EXHAUST = "EXHAUST"; REFRESH = "REFRESH"; FORCE = "FORCE"; ATTACK = "ATTACK"; MOVE_RESOURCES = "MOVE_RESOURCES"
     ADJUST_HAND_SIZE = "ADJUST_HAND_SIZE"; TAKE_FROM_REINFORCEMENT = "TAKE_FROM_REINFORCEMENT"
     MARK_TRAIT = "MARK_TRAIT"; FLIP_CARD = "FLIP_CARD"  # Khan's Crew board and double-sided cards
+    TREAT_AS = "TREAT_AS"  # a card gains a trait until the end of the turn (Cloaking Device)
     # Bot rows only (solo mode): engine/bot
     EXPLORE = "EXPLORE"; ENGAGE = "ENGAGE"; RESOLVE_CARD = "RESOLVE_CARD"; CONTINUE_RESOLUTION = "CONTINUE_RESOLUTION"
 
@@ -808,11 +809,12 @@ class Actions:
         return chosen
 
     # ------------------------------------------------------------ cards
-    def draw(self, n: int = 1, player: Player | None = None) -> Gen:
+    def draw(self, n: int = 1, player: Player | None = None, *, bottom: bool = False) -> Gen:
+        """Draw from the Draw deck. `bottom=True` draws its bottom card instead of the top one (Boreth)."""
         self._use(A.DRAW)
-        return (yield from self._draw(n, player))
+        return (yield from self._draw(n, player, bottom=bottom))
 
-    def _draw(self, n: int, player: Player | None = None) -> Gen:
+    def _draw(self, n: int, player: Player | None = None, *, bottom: bool = False) -> Gen:
         player = player or self.ctx.me
         if player.bot is not None:
             # The Bot has no hand: a draw offered or forced on it discards the top card of its deck (REQ-SOLO-186).
@@ -832,7 +834,8 @@ class Actions:
                 ok = yield from self._cycle(player)
                 if not ok:
                     break
-            top = yield from self._deck_card(player, "Draw which card from your face-up deck?")
+            top = player.draw[-1] if bottom else (
+                yield from self._deck_card(player, "Draw which card from your face-up deck?"))
             player.draw.remove(top)
             player.hand.append(top)
             drawn += 1
@@ -2234,6 +2237,18 @@ class Actions:
         yield from resolve(self.ctx, inst)
         return inst
 
+    def treat_as(self, inst: Inst, trait: str) -> Gen:
+        """The card is additionally treated as `trait` for the remainder of this turn (KW-TREAT-05): "that Ship gains
+        Cloak for the remainder of your turn" (Cloaking Device, Prototype Cloak). It keeps the trait wherever it goes
+        this turn."""
+        self._use(A.TREAT_AS)
+        if trait in traits_of(self.state, inst):
+            return  # each card has each trait only once (KW-TREAT-03)
+        self.state.turn_traits.setdefault(inst.uid, []).append(trait)
+        self.emit(f"{name(inst)} is treated as {trait} for the rest of this turn.")
+        return
+        yield  # pragma: no cover
+
     def continue_resolution(self) -> Gen:
         """SURPRISE operations only: after this operation the Bot goes on to the Automated Command row the card
         matches (Two Dimensional Thinking, REQ-SOLO-120)."""
@@ -2390,7 +2405,7 @@ def restricted(state: GameState, player: Player, target: Inst, verb: str) -> boo
 
 def traits_of(state: GameState, inst: Inst) -> set[str]:
     """Printed traits plus "treated as" modifiers from the owner's cards (KW-TREAT-02)."""
-    traits = set(card(inst).traits)
+    traits = set(card(inst).traits) | set(state.turn_traits.get(inst.uid, ()))
     if not registry.TRAIT_MODIFIERS:
         return traits
     where = locate(state, inst.uid)

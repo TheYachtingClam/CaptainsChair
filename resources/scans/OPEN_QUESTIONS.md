@@ -133,6 +133,16 @@ Rulings made while writing Shran's deck (Step 8):
 - **Tarah** (1SHR21): her Activation refreshes a Ship and a Location if either is exhausted; it can be used with neither.
 - **Aenar** (1SHR03): the cards logged or discarded must be among the 3 just drawn.
 
+Rulings made while writing Koloth's deck (Step 9):
+
+- **Sword of Kahless** (1KOL04): dismissing a Klingon Duty Officer for 4 Glory is optional; the card is logged either way.
+- **Kang** (1KOL07): his first PLAY gains the Glory even with no Incident to return. His Reaction does not trigger itself, since he is exhausted by it.
+- **Good Day to Die** (1KOL17): with fewer than two deployed Ships the second sentence does nothing, and with two you may still decline it.
+- **Korax** (1KOL22): at Clean-up the hand size rises by 1 for each unspent Action, and you are asked once whether to take that many Glory.
+- **Korax** (1KOL22): his Activation is offered only when the *Gr'oth* or another Klingon Ship is exhausted.
+- **Boreth** (1KOL05): its ENDGAME counts every Skill icon on your cards in play that are not beamed, your Captain's and Boreth's own included.
+- **Sabotage** (mission): you choose whether to attack; if you do, the opponent may ignore it.
+
 Questions about a Bot row:
 
 - **Picard, Klingon row:** "If able, you remove an Away Team." Default: from the Location the Bot just sent to; if you have none there, from a Location of your choice.
@@ -148,7 +158,6 @@ The Core Box needs these additions. Each is a general option on an existing acti
 | Need | Cards | Proposed |
 |---|---|---|
 | Recrystallize: move Dilithium from Inert Dilithium to the supply | Jett Reno, Sylvia Tilly, Paul Stamets, Theta Zeta, Burnham's mission | `MOVE_RESOURCES` with the card as source (`recrystallize(n)`), and a registry that redirects the owner's Dilithium gains onto a Status card |
-| Draw the bottom card of your deck | Boreth | `draw(bottom=True)` |
 | Log a Status card | Theta Zeta | `LOG` reaches Status cards |
 | Enlist with a discount of several resources | Orb of Prophecy and Change, Sisko's mission | `enlist_development(discount=n)` or a per-resource discount |
 | An attack that dismisses a Duty Officer can be ignored by a specific Reaction | Book's Ship | `attack(dismisses_duty_officer=True)`, as `removes_away_teams` |

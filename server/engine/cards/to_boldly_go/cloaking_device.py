@@ -20,13 +20,13 @@ def cloak(ctx, actions):
     yield from actions.deploy(ctx.this_card)
 
 
-@operation("2CAR03", 1, uses=[A.DISCARD, A.SEND_AWAY_TEAM],
+@operation("2CAR03", 1, uses=[A.TREAT_AS, A.DISCARD, A.SEND_AWAY_TEAM],
            trigger=lambda ctx, ev: ev["kind"] == "deploy" and ev["seat"] == ctx.me.seat
            and ctx.event_card is not None and is_suit(ctx.event_card, "Ship") and not has_trait(ctx.event_card, "Cloak"))
 def cloak_ship(ctx, actions):
     """REACTION: After deploying a Ship without Cloak, that Ship is additionally treated as Cloak for the remainder of
-    your turn, and you may discard a card to send an [Away Team] to a Location, ignoring any opponent Ship.
-    Ruling: nothing in these sets reads Cloak afterwards, so the "treated as Cloak" part has no effect."""
+    your turn, and you may discard a card to send an [Away Team] to a Location, ignoring any opponent Ship."""
+    yield from actions.treat_as(ctx.event_card, "Cloak")
     if others_in_hand(ctx) and (yield from actions.may("Discard a card to send an Away Team, ignoring opponent Ships?")):
         yield from actions.discard(1)
         yield from actions.send_away_team(1, ignore_ships=True)

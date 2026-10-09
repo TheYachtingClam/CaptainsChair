@@ -15,7 +15,7 @@ ENGINE_KINDS = {"WHEN EMPTIED", "STARDATE RESOLUTION"}
 
 WAITING_SETS = {"base_game"}  # the Core Box Crew decks: specs are written, code comes in plans/base-game.md Steps 7 to 12
 WAITING_BOTS = {"burnham", "koloth", "picard", "sela", "shran", "sisko"}  # Bot rows: Step 13
-WAITING_CREWS = WAITING_BOTS - {"picard", "shran"}  # Crew cards and missions: Steps 7 to 12, one Crew at a time
+WAITING_CREWS = WAITING_BOTS - {"picard", "shran", "koloth"}  # Crew cards and missions: Steps 7 to 12, one Crew at a time
 
 
 def _waits(card) -> bool:

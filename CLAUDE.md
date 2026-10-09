@@ -6,7 +6,7 @@ Guidance for Claude Code when working in this repository.
 
 An online version of the board game *Star Trek: Captain's Chair*.
 
-- The Core Box is being added step by step: see `plans/base-game.md`. Its rules are in `requirements/23-core-box.md`. Its scans, images and specs are in place (sets `base_game` and `promo1`); its cards, missions, Bot rows and bonuses have no code yet (`setup.BOT_UNAVAILABLE`, and `WAITING_SETS` and `WAITING_CREWS` in `tests/test_registry.py`). A game is played with a box, `new_game(..., box=)`: `core`, `to_boldly_go` (the default) or `both` (`setup.BOXES`, `setup.common_cards`; requirements/23-core-box.md §2 and §3). A spec's `same_as` names an identical card: `cards.link_copies()` gives it every operation and registry entry of its twin, so such a card has no module of its own. Core Box card modules are in `server/engine/cards/base_game/`; every common Core Box card and promo set 1 (`cards/promo1/`) are done (`tests/test_core_market.py`, `tests/test_core_common.py`); of the six Crew decks, Picard's and Shran's are done (`tests/test_picard.py`, `tests/test_shran.py`; missions in `cards/base_game/missions_<crew>.py`).
+- The Core Box is being added step by step: see `plans/base-game.md`. Its rules are in `requirements/23-core-box.md`. Its scans, images and specs are in place (sets `base_game` and `promo1`); its cards, missions, Bot rows and bonuses have no code yet (`setup.BOT_UNAVAILABLE`, and `WAITING_SETS` and `WAITING_CREWS` in `tests/test_registry.py`). A game is played with a box, `new_game(..., box=)`: `core`, `to_boldly_go` (the default) or `both` (`setup.BOXES`, `setup.common_cards`; requirements/23-core-box.md §2 and §3). A spec's `same_as` names an identical card: `cards.link_copies()` gives it every operation and registry entry of its twin, so such a card has no module of its own. Core Box card modules are in `server/engine/cards/base_game/`; every common Core Box card and promo set 1 (`cards/promo1/`) are done (`tests/test_core_market.py`, `tests/test_core_common.py`); of the six Crew decks, Picard's, Shran's and Koloth's are done (`tests/test_<crew>.py`; missions in `cards/base_game/missions_<crew>.py`).
 - The weekday: card code may not read the clock. The server stores the weekday with each command (`play.today`, REQ-SRV-52) and sets `state.weekday` before applying or replaying it; card code reads `ctx.weekday()` (U.S.S. Enterprise-B).
 - Promo sets: `Game.promo_sets` lists them; a game saved before the list existed has promo set 2 only (`setup.promo_sets_for`).
 - `requirements/` holds the requirements. Start at `requirements/00-README.md`. They are the source of truth. If code and requirements disagree, stop and flag it rather than guessing.
@@ -200,7 +200,7 @@ These are the only actions card code may call. Each maps to a keyword in `requir
 
 | Action (`A.`) | Does | Keyword | Irreversible |
 |---|---|---|---|
-| `DRAW` | Draw from the Draw deck, cycling if empty | KW-DRW | Yes |
+| `DRAW` | Draw from the Draw deck, cycling if empty. `draw(bottom=True)` draws the bottom card (Boreth) | KW-DRW | Yes |
 | `DRAW_FROM_DISCARD` | Take a matching card from the Discard pile to hand | KW-DRW-03 | No |
 | `DISCARD` | Discard from hand, or the top card of your Draw deck (`discard_from_deck`, Chief Engineer). `discard_from_deck(player=opponent)` discards the top card of their deck, an attack part (Tarah, Korax) | KW-DIS | No |
 | `DISMISS` | Move from play to the Discard pile | KW-DSM | No |
@@ -260,6 +260,7 @@ These are the only actions card code may call. Each maps to a keyword in `requir
 | `EXHAUST` | Exhaust an in-play card as an effect | KW-EXH | No |
 | `REFRESH` | Refresh an in-play card | KW-REF | No |
 | `MARK_TRAIT` | Khan only: mark one trait of a card on his Crew board (`mark_trait(card)`: Vacated Regula I, Revenge Is a Dish Best Served Cold), or any one trait (`mark_trait()`: Genesis Device). The board's own rule, marking after a gain or before a CONTROL, is the engine's and needs no declaration | REQ-CD-KHN-06 | No |
+| `TREAT_AS` | A card is additionally treated as a trait for the remainder of this turn (`treat_as(card, "Cloak")`: Cloaking Device, Prototype Cloak). Kept in `state.turn_traits`, read by every trait check, cleared when the turn ends | KW-TREAT-05 | No |
 | `FLIP_CARD` | Flip a double-sided card to its other side (`flip`). It stays where it is with its tokens; card ids ending in A and B are the two sides | REQ-CD-KHN-01 | No |
 
 ### Interaction
@@ -284,8 +285,8 @@ Automated Command rows use the same action names. In a Bot context the engine su
 ### Changing the action list
 
 - Add an action only when no existing action, or combination of actions, can express an effect.
-- A new action must be general. It must not be named after a card or used by only one card, except the Khan and Bot actions above. `PEEK`, `REORDER`, `SHUFFLE_INTO` and `TAKE_FROM_REINFORCEMENT` have only one or two users today; they are written generally so later cards can reuse them.
-- Adding an action means updating, in the same change: `server/engine/actions.py`, the tables in this file, its irreversible flag, and its tests.
+- A new action must be general. It must not be named after a card or used by only one card, except the Khan and Bot actions above. `PEEK`, `REORDER`, `SHUFFLE_INTO`, `TREAT_AS` and `TAKE_FROM_REINFORCEMENT` have only one or two users today; they are written generally so later cards can reuse them.
+- Adding an action means updating, in the same change: the `A` names and the `Actions` method in `server/engine/ops.py`, the tables in this file, its irreversible flag, and its tests.
 
 ## Tests
 

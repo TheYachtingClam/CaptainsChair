@@ -172,7 +172,7 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 
 7. **Picard** (done)
 8. **Shran** (done)
-9. **Koloth**
+9. **Koloth** (done)
 10. **Sela**
 11. **Sisko**
 12. **Burnham**, with Inert Dilithium, recrystallize, her Clean-up rule and REQ-CTM-21
@@ -194,6 +194,15 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 - **3 missions** in `missions_shran.py`: *Securing Andoria's Borders*, *Founding the Federation*, *Andorian Mining Consortium*.
 - **Engine:** three small options on existing actions: `discard_from_deck(player=opponent)` (*Tarah*), `return_incident(player=opponent)` (*Ambassador Thoris*), and an `EffectCost` may record what it used in `actions.paid` (*Imperial Pride*).
 - **Tests:** `tests/test_shran.py`, 60 tests, with 6 random games and a Cadet Training game.
+
+### Step 9: Koloth (done)
+
+- **19 cards** of his own; 5 are copies. *I.K.S. Klothos* shares the first four operations of *I.K.S. Gr'oth*. *Conquer* is written here and shared with Sela's copy.
+- **3 missions** in `missions_koloth.py`: *Expanding the Empire*, *Romulan Weapons Trade Agreement*, *Sabotage* (an ATTACK reward).
+- **Development costs with conditions:** "have 10+ [Glory]" (*Boreth*, *Kor*), "have 8+" (*Kang*), and "free if the *I.K.S. Devisor* is in play" (*Sword of Kahless*), all with the existing `Condition` and `SpendUnless` costs.
+- **Engine:** one option, `draw(bottom=True)`, for *Boreth*.
+- **Tests:** `tests/test_koloth.py`, 63 tests, with 6 random games and a Cadet Training game.
+- **Added after Step 9 (decision, 2026-10-09):** the turn-long Cloak is tracked. A new action, `TREAT_AS`, gives a card a trait until the end of the turn (KW-TREAT-05); *Cloaking Device* and *Prototype Cloak* use it.
 
 ## Step 13: The six Bots
 
