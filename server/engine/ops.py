@@ -457,9 +457,11 @@ def can_afford(player: Player, dilithium: int = 0, latinum: int = 0, glory: int 
 
 
 def pay_resources(player: Player, dilithium: int = 0, latinum: int = 0, glory: int = 0,
-                  state: GameState | None = None) -> None:
+                  state: GameState | None = None, *, as_cost: bool = False) -> None:
     """Spend resources, substituting Glory where needed: 1 Glory = 1 Latinum or 2 Dilithium (KW-SPEND-02).
-    With `state`, raises a spend event with what was actually paid (Barry Waddle reacts to spending Latinum)."""
+    With `state`, raises a spend event with what was actually paid (Barry Waddle reacts to spending Latinum). A cost,
+    as opposed to a "you may spend" effect, also carries `cost_latinum` and `cost_dilithium`, the amounts the cost
+    asked for (Quark: "an operation with a [Latinum] cost")."""
     use_l = min(latinum, player.latinum)
     use_d = min(dilithium, player.dilithium)
     short_l, short_d = latinum - use_l, dilithium - use_d
@@ -474,7 +476,8 @@ def pay_resources(player: Player, dilithium: int = 0, latinum: int = 0, glory: i
     player.dilithium -= use_d
     player.glory -= used_g
     if state is not None and (use_d or use_l or used_g):
-        raise_event(state, "spend", player.seat, None, dilithium=use_d, latinum=use_l, glory=used_g)
+        raise_event(state, "spend", player.seat, None, dilithium=use_d, latinum=use_l, glory=used_g,
+                    **({"cost_latinum": latinum, "cost_dilithium": dilithium} if as_cost else {}))
 
 
 @dataclass
@@ -490,7 +493,9 @@ class Spend(Cost):
         return can_afford(ctx.me, self.dilithium, self.latinum, self.glory) and ctx.me.actions >= self.actions
 
     def pay(self, actions):
-        pay_resources(actions.ctx.me, self.dilithium, self.latinum, self.glory, actions.ctx.state)
+        # A development cost is not the cost of an operation (Quark).
+        pay_resources(actions.ctx.me, self.dilithium, self.latinum, self.glory, actions.ctx.state,
+                      as_cost=not getattr(actions, "paying_development", False))
         actions.ctx.me.actions -= self.actions
         spent = _res_text(self.dilithium, self.latinum, self.glory, self.actions)
         actions.ctx.state.emit(f"{actions.ctx.me.name} spends {spent}.", seat=actions.ctx.me.seat)
@@ -1593,8 +1598,10 @@ class Actions:
                         if all(c.can_pay(self.ctx) for c in costs)]
             costs = variants[0][1] if len(variants) == 1 else dict(variants)[
                 (yield from self.choose("Pay 1 less of which resource?", [(k, k) for k, _ in variants]))]
+            self.paying_development = True
             for cost in costs:
                 yield from cost.pay(self)
+            self.paying_development = False
         self.ctx.me.development.remove(inst)
         self.ctx.me.draw.insert(0, inst)
         self.ctx.me.enlisted.append(inst.card)
@@ -1978,13 +1985,12 @@ class Actions:
             game.take_control(self.state, self.ctx.me, loc, run_control=False)
             put_into_play(self.state, self.ctx.me, loc)
         else:
-            # A Crew Location played from hand: its PLAY raises "put into play" once it resolves.
+            # A Crew Location played from hand: its PLAY raises "put into play" once it resolves. This is taking
+            # control too (KW-TC-02), also for a card "considered a Location" (Sha Ka Ree).
             take_out(self.state, loc)
             self.ctx.me.locations.append(loc)
             self.emit(f"{self.ctx.me.name} takes control of {name(loc)}.")
-            if card(loc).suit != "Location":
-                # A card "considered a Location": putting it into play counts as taking control (Sha Ka Ree).
-                raise_event(self.state, "take_control", self.ctx.me.seat, loc.uid)
+            raise_event(self.state, "take_control", self.ctx.me.seat, loc.uid)
         yield from self._offer_mark(loc)  # Khan marks before the CONTROL operation resolves (REQ-CD-KHN-08)
         yield from run_inline(self.ctx, loc, "CONTROL")
         return loc
@@ -2163,6 +2169,15 @@ class Actions:
         player = self.state.player(seat)
         if player.bot is not None:
             return False  # the Bot ignores its card text, "when … would" Reactions included (REQ-SOLO-80)
+        # A PASSIVE "when you would ..." is mandatory and comes first (Self-Replicating Mines).
+        for inst in list(table_cards(player)):
+            for index, op in enumerate(card(inst).operations):
+                impl = impl_for(inst, index)
+                if op.kind != "PASSIVE" or impl is None or impl.trigger is None:
+                    continue
+                sub = Ctx(self.state, OpRef(mode="trigger", seat=seat, uid=inst.uid, index=index, event=event))
+                if impl.trigger(sub, event) and (yield from impl.fn(sub, Actions(sub, impl.uses))):
+                    return True
         blocked = reactions_blocked(self.state, seat)
         while True:
             options: list[tuple[str, str]] = []
@@ -2493,20 +2508,30 @@ def put_into_play(state: GameState, player: Player, inst: Inst, *, played: bool 
     raise_event(state, "put_into_play", player.seat, inst.uid, played=played, index=index, beamed=beamed)
 
 
-def _cost_variants(costs, discount: bool) -> list[tuple[str, tuple]]:
-    """The ways to pay a development cost: as printed, or with 1 less Dilithium or 1 less Latinum of a Spend."""
+def _cost_variants(costs, discount) -> list[tuple[str, tuple]]:
+    """The ways to pay a development cost. `discount` is False (as printed), True or a number n ("1 less Dilithium or
+    1 less Latinum", n times: Things That Make Us Smart; Sisko's A Call to Arms), or "both" (1 less Dilithium and 1
+    less Latinum: Orb of Prophecy and Change). A discount never takes a resource below 0."""
     if not discount:
         return [("", tuple(costs))]
-    out = []
-    for kind in ("dilithium", "latinum"):
-        for i, cost in enumerate(costs):
-            spend = cost.spend if isinstance(cost, SpendUnless) else cost
-            if isinstance(spend, Spend) and getattr(spend, kind) > 0:
-                cheaper = dataclasses.replace(spend, **{kind: getattr(spend, kind) - 1})
-                if isinstance(cost, SpendUnless):
-                    cheaper = dataclasses.replace(cost, spend=cheaper)
-                out.append((f"1 less {kind.capitalize()}", (*costs[:i], cheaper, *costs[i + 1:])))
-                break
+    where = next((i for i, c in enumerate(costs) if isinstance(c.spend if isinstance(c, SpendUnless) else c, Spend)), None)
+    if where is None:
+        return [("", tuple(costs))]
+    cost = costs[where]
+    spend = cost.spend if isinstance(cost, SpendUnless) else cost
+
+    def cheaper(less_d: int, less_l: int):
+        new = dataclasses.replace(spend, dilithium=spend.dilithium - less_d, latinum=spend.latinum - less_l)
+        new = dataclasses.replace(cost, spend=new) if isinstance(cost, SpendUnless) else new
+        label = " and ".join(f"{n} less {kind}" for n, kind in ((less_d, "Dilithium"), (less_l, "Latinum")) if n)
+        return label, (*costs[:where], new, *costs[where + 1:])
+
+    if discount == "both":
+        return [cheaper(min(1, spend.dilithium), min(1, spend.latinum))]
+    n = 1 if discount is True else int(discount)
+    splits = {(min(d, spend.dilithium), min(n - d, spend.latinum)) for d in range(n + 1)}
+    best = max(a + b for a, b in splits)
+    out = [cheaper(d, l) for d, l in sorted(splits, reverse=True) if d + l == best and d + l > 0]
     return out or [("", tuple(costs))]
 
 

@@ -174,7 +174,7 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 8. **Shran** (done)
 9. **Koloth** (done)
 10. **Sela** (done)
-11. **Sisko**
+11. **Sisko** (done)
 12. **Burnham**, with Inert Dilithium, recrystallize, her Clean-up rule and REQ-CTM-21
 
 **You test:** a two-player game and a Cadet Training game with the step's Crew.
@@ -210,6 +210,13 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 - **3 missions** in `missions_sela.py`: *Romulan Might*, *The Reunification Plot*, *The Duras Plot*, which reads the turn-long Cloak.
 - **Engine:** in Cadet Training an attack now raises the `attacked` event for the attacker's own effects, so Sela is paid there too. Logging an opponent's Location (*Scimitar*) needed nothing new.
 - **Tests:** `tests/test_sela.py`, 67 tests, with 6 random games and a Cadet Training game.
+
+### Step 11: Sisko (done)
+
+- **19 cards** of his own in new modules; 6 are copies. *U.S.S. Rio Grande* shares a PLAY with Picard's *Type 7 Shuttlecraft*, and *Deep Space 9* shares the *Shenzhou*'s promote. *Orb of the Emissary* has a development cost and no operations.
+- **3 missions** in `missions_sisko.py`: *A Call to Arms*, *Bajor's Application to the Federation*, *Contacting the Dominion*.
+- **Engine:** `enlist_development(discount=n)` and `discount="both"`; the `spend` event says how much Latinum and Dilithium an operation's cost asked for (*Quark*); a PASSIVE "when you would be attacked" runs before any Reaction is offered and is not optional (*Self-Replicating Mines*); playing a Crew Location from hand now raises `take_control`, as KW-TC-02 says, so *Benjamin Sisko*, *Wajahut*, *Chancellor Gowron*, *Proconsul Neral* and *Ambassador Kamarag* react to it.
+- **Tests:** `tests/test_sisko.py`, 71 tests, with 6 random games and a Cadet Training game.
 
 ## Step 13: The six Bots
 

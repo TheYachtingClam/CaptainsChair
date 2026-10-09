@@ -155,6 +155,21 @@ Rulings made while writing Sela's deck (Step 10):
 - **The Duras Plot** (mission): you choose which one Cloak to dismiss; a Cloak in your Staging Area cannot be chosen.
 - **Romulan Might** (mission): enlisting a Development still costs its development cost.
 
+Rulings made while writing Sisko's deck (Step 11):
+
+- **Taking control** (all decks): playing a Crew Location from hand counts as taking control of a Location (KW-TC-02). So *Benjamin Sisko* gains 2 Dilithium for *The Wormhole* and *Starbase 375*, and the older cards that react to taking control (*Wajahut*, *Chancellor Gowron*, *Proconsul Neral*, *Ambassador Kamarag*) now react to it too. Confirm.
+- **Benjamin Sisko** (1SIS01): his Activation needs a Location with Starfleet or Starbase. *Deep Space 9* is a Ship, so it does not count; *Bajor* has neither trait.
+- **Self-Replicating Mines** (1SIS06): the PASSIVE is not optional. The first attack against you while the card is deployed is ignored and the card is logged, before *Worf, Son of Mogh* or any other Reaction is offered.
+- **Worf, Son of Mogh** (1SIS10): his Activation gains the Glory even when the attack is ignored. It needs an opponent Away Team at a neutral Location.
+- **Garak** (1SIS09): only "dismiss a Duty Officer" is the attack. You draw the card even when the attack is ignored or the opponent has no Duty Officer.
+- **Orb of Prophecy and Change** (1SIS04): "refresh a Bajoran" needs an exhausted Bajoran. The discount is 1 Dilithium and 1 Latinum, each only if the cost has it.
+- **A Call to Arms** (mission): for each Starbase in play you choose whether it takes off 1 Dilithium or 1 Latinum. *Deep Space 9* counts.
+- **Miles O'Brien** (1SIS13): "draw a Ship from your Discard pile and free play it" plays that Ship; if it cannot be played it stays in hand.
+- **Quark** (1SIS24): his Reaction is for Latinum that a cost asks for, even when Glory paid for it. Latinum spent by a "you may spend" effect, and development costs, do not count.
+- **Kira Nerys** (1SIS23): the Cardassian or Dominion card must be in the opponent's Control Area or Fleet; not their Captain and not a card in their Staging Area.
+- **U.S.S. Defiant** (1SIS15): the attack is made only when the opponent has a Ship at the Location it warped to.
+- **Miles O'Brien, and the other "cannot be promoted" cards:** a promote effect can still pick him, and then does nothing.
+
 Questions about a Bot row:
 
 - **Picard, Klingon row:** "If able, you remove an Away Team." Default: from the Location the Bot just sent to; if you have none there, from a Location of your choice.
@@ -171,9 +186,7 @@ The Core Box needs these additions. Each is a general option on an existing acti
 |---|---|---|
 | Recrystallize: move Dilithium from Inert Dilithium to the supply | Jett Reno, Sylvia Tilly, Paul Stamets, Theta Zeta, Burnham's mission | `MOVE_RESOURCES` with the card as source (`recrystallize(n)`), and a registry that redirects the owner's Dilithium gains onto a Status card |
 | Log a Status card | Theta Zeta | `LOG` reaches Status cards |
-| Enlist with a discount of several resources | Orb of Prophecy and Change, Sisko's mission | `enlist_development(discount=n)` or a per-resource discount |
 | An attack that dismisses a Duty Officer can be ignored by a specific Reaction | Book's Ship | `attack(dismisses_duty_officer=True)`, as `removes_away_teams` |
 | "You cannot send Away Teams here" | Theta Zeta | a registry read by `away_targets` |
 | Which RESUPPLY operations resolved this turn | Laris | engine bookkeeping; `DUPLICATE` with `kind="RESUPPLY"` already exists |
-| "After resolving an operation with a Latinum cost" | Quark | a new event, `operation_resolved`, carrying what the cost paid |
 | The Bot gains "the Market card with the most Dilithium, then most Glory" | Burnham Bot | `gain_most(resource)` generalising `gain_most_glory` |
