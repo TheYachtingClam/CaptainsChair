@@ -16,8 +16,9 @@ COMBINED_INCIDENTS = 6  # REQ-CORE-23
 STARDATE_MODE = {"two_player": "2-Player", "cadet": "Solo Cadet Practice", "solo": "Solo vs {difficulty} Bot"}
 DIFFICULTIES = ("ensign", "lieutenant", "commander", "captain", "admiral")  # REQ-SOLO-10, easiest first
 # Crews whose Bot is not written yet: the Core Box Crews, until plans/base-game.md Step 13.
-BOT_UNAVAILABLE: set[str] = {"burnham", "koloth", "picard", "sela", "shran", "sisko"}
+BOT_UNAVAILABLE: set[str] = set()
 TIME_IS_RUNNING_OUT = "2DIR01"
+CONSPIRACY = "1DIR01"
 REINFORCE = "2DIR02"
 SOLO_ONLY = {"Solo Challenge", "Solo Campaign"}  # Reinforce, Time Is Running Out
 ALL_PROMOS = ("promo1", "promo2")
@@ -61,7 +62,8 @@ class BotSetup:
 
     deck: str
     difficulty: str = "ensign"
-    ticking_clock: bool = False
+    ticking_clock: bool = False  # Time Is Running Out
+    conspiracy: bool = False  # the Core Box Ticking Clock card, instead of or with it (REQ-SOLO-132)
 
 
 class SetupError(ValueError):
@@ -100,6 +102,8 @@ def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str]
             raise SetupError(f"Unknown difficulty {bot.difficulty!r}")
         if bot.deck in BOT_UNAVAILABLE or bot.deck not in content().command:
             raise SetupError(f"There is no {bot.deck!r} Bot yet")
+        if bot.conspiracy and "base_game" not in BOXES[box]:
+            raise SetupError("Conspiracy needs Core Box content in the game")  # REQ-CORE-62
     expansions = list(expansions or [])
     data = content()
     promo = promo_sets_for(promos, promo_sets)
@@ -318,6 +322,7 @@ def _bot_setup(state: GameState, seat: int, choice: BotSetup, data) -> Player:
     player = Player(seat=seat, name=f"{captain_card.name} Bot", deck=choice.deck, board=board.id,
                     captain=state.new_inst(captain_card.id),
                     bot=BotState(crew=choice.deck, difficulty=choice.difficulty, ticking_clock=choice.ticking_clock,
+                                 conspiracy=choice.conspiracy,
                                  exile=data.command[choice.deck].side("exile_traits") is not None))
     player.actions = 0
     player.mission_tokens = 0
@@ -332,6 +337,8 @@ def _bot_setup(state: GameState, seat: int, choice: BotSetup, data) -> Player:
     reserves = _insts(state, by_position.pop("Reserve", []))
     if choice.ticking_clock:  # REQ-SOLO-130
         reserves.append(state.new_inst(TIME_IS_RUNNING_OUT))
+    if choice.conspiracy:  # REQ-SOLO-132
+        reserves.append(state.new_inst(CONSPIRACY))
     last = rules.SUPPLEMENT_BOTTOM.get(choice.deck, ())  # Khan: Genesis Device goes on the bottom (REQ-CD-KHN-11)
     bottom = [i for i in developments if i.card in last]
     developments = [i for i in developments if i.card not in last]

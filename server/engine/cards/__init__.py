@@ -105,6 +105,9 @@ NO_AWAY_TEAMS_HERE: set[str] = set()
 # PASSIVE "During your Clean-up step, ... instead": card id -> the index of the operation that replaces placing 1
 # Glory on a Market card (REQ-CU-10) while the card is in a table position (Michael Burnham).
 REPLACES_CLEANUP_GLORY: dict[str, int] = {}
+# SPECIAL "This card cannot be beamed or discarded by any effect except its own play operation" (Conspiracy): it
+# is never offered as a card to discard from a human's hand or to beam, and stays in hand at Clean-up.
+CANNOT_BE_DISCARDED: set[str] = set()
 # Asterisk VP: fn(state, player, inst) -> the card's VP at final scoring, wherever it is (REQ-FS-02 component 4).
 VP_SPECIAL: dict[str, Callable] = {}
 # PASSIVE "Ship can warp here" on a non-Location card (Archer's Earth). Table positions.
@@ -286,7 +289,7 @@ def _passive_registries():
             VP_SPECIAL, WARP_DESTINATIONS, PROTECTED_BEAMED, SKILL_REWRITES, INCIDENTS_FROM_LOG, DECK_FACE_UP,
             SHIP_WEIGHT, RESOURCES_INTERCHANGEABLE, NO_ENLIST_ON_CYCLE, IGNORE_SPECIALTY_REQUIREMENTS, CANNOT_WARP, STAGING_PEOPLE_ACTIVE,
             REPLACES_AN_INCIDENT, IGNORE_OPPONENT_SHIPS,
-            HOLDS_GAINS, NO_GLORY_AS_DILITHIUM, CANNOT_BE_STOLEN, NO_AWAY_TEAMS_HERE, REPLACES_CLEANUP_GLORY, {source for source, _, _ in GRANTED_PLAYS.values()})
+            CANNOT_BE_DISCARDED, HOLDS_GAINS, NO_GLORY_AS_DILITHIUM, CANNOT_BE_STOLEN, NO_AWAY_TEAMS_HERE, REPLACES_CLEANUP_GLORY, {source for source, _, _ in GRANTED_PLAYS.values()})
 
 
 def has_code(card_id: str, index: int, kind: str) -> bool:

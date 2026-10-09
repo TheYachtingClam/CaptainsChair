@@ -297,12 +297,13 @@ class BotActions:
         """"If able to do both, log a controlled Location and remove 2 [Away Team]" (Directive rows)."""
         return bool(self.bot.locations) and self.away_teams_on_board() >= 2
 
-    def log_controlled_location(self) -> Gen:
-        """Log one of the Bot's controlled Locations: the least valuable to it, keeping the best in play."""
+    def log_controlled_location(self, where: Callable[[Inst], bool] | None = None) -> Gen:
+        """Log one of the Bot's controlled Locations: the least valuable to it, keeping the best in play. `where`
+        limits which ("not a Starbase", Sisko)."""
         self._use(A.LOG)
         from engine.bot import least_valuable
 
-        loc = least_valuable(self.state, self.bot.locations, self.bot)
+        loc = least_valuable(self.state, [i for i in self.bot.locations if where is None or where(i)], self.bot)
         if loc is not None:
             self._log(loc)
         return loc
@@ -1015,6 +1016,133 @@ class BotActions:
         self.state.emit(f"{human.name} returns {_name(incident)} to the Incident deck.", seat=human.seat)
         raise_event(self.state, "return_incident", human.seat, incident.uid)
         return True
+
+    # ------------------------------------------------------------------ added for the Core Box Bots
+    def count_in_discard(self, token: str) -> int:
+        """How many cards in the Bot Discard pile match ("For each Person in Bot Discard pile")."""
+        terms = parse_wanted(token)[0]
+        return sum(1 for i in self.bot.discard if any(card_matches(i, t) for t in terms))
+
+    def bot_tokens(self, loc: Inst) -> int:
+        """The Bot's tokens at a Location: its Away Teams and Ships."""
+        return self._tokens(loc, self.bot)
+
+    def put_ship_from_discard_on_top(self) -> Gen:
+        """"If able, return a Ship from Bot Discard pile to the top of the Bot deck": the topmost one. Returns it."""
+        self._use(A.PUT)
+        ship = self._from_discard("Ship")
+        if ship is not None:
+            yield from self.put_on_top(ship)
+        return ship
+
+    def take_supplement_top(self) -> Gen:
+        """"Take the top card of the Supplement deck": onto the Bot deck. Returns it."""
+        self._use(A.PUT)
+        from engine.bot import supplement_card_left
+
+        if not self.bot.reserve:
+            return None
+        inst = self.bot.reserve.pop(0)
+        self.bot.draw.insert(0, inst)
+        self.emit(f"{self.bot.name} takes the top card of its Supplement deck onto its deck.", irreversible=True)
+        supplement_card_left(self.state, self.bot)
+        return inst
+        yield  # pragma: no cover
+
+    def dismiss_deployed_ship(self) -> Gen:
+        """The Bot dismisses one of its deployed Ships, if able: the most recently deployed (REQ-SOLO-166). Returns
+        it."""
+        self._use(A.DISMISS)
+        ships = [s for s in self.bot.fleet if _card(s).suit == "Ship" or _card(s).ship_token]
+        if not ships:
+            return None
+        Actions(self.ctx, [A.DISMISS])._dismiss(ships[-1])
+        return ships[-1]
+        yield  # pragma: no cover
+
+    def gain_most_dilithium(self) -> Gen:
+        """Gain "the card in the Market with the most [Dilithium] > most [Glory]" (Burnham): the one with the most
+        Dilithium on it; if none has any, the one with the most Glory. Ties: the most valuable, then the leftmost."""
+        self._use(A.GAIN_CARD)
+        from engine.bot import market_cards, most_valuable
+
+        cards = market_cards(self.state)
+        if not cards:
+            return None
+        kind = "dilithium" if any(i.res.get("dilithium") for i in cards) else "glory"
+        most = max(i.res.get(kind, 0) for i in cards)
+        target = most_valuable(self.state, [i for i in cards if i.res.get(kind, 0) == most], self.bot)
+        return self._gain_exact(target)
+        yield  # pragma: no cover
+
+    def remove_stardate_glory(self, n: int = 1) -> Gen:
+        """Remove Glory from the Stardate card to the supply; nobody gains it. Nothing after a Resolution."""
+        self._use(A.REMOVE_STARDATE_GLORY)
+        from engine.game import take_glory_from_stardate
+
+        for _ in range(n):
+            if self.state.resolution or not self.state.stardates:
+                break
+            take_glory_from_stardate(self.state)
+            self.emit(f"{self.bot.name} removes 1 Glory from the Stardate card.")
+        return
+        yield  # pragma: no cover
+
+    def human_choice(self, prompt: str, options: list[tuple[str, str]]) -> Gen:
+        """A bold "either ... OR ...": the human chooses (REQ-SOLO-183). Returns the option's key."""
+        if self.human is None:
+            return None
+        return (yield from self._ui.choose(prompt, options, self.human.seat))
+
+    def human_deployed_ships(self) -> list[Inst]:
+        human = self.human
+        return [s for s in human.fleet if _card(s).suit == "Ship" or _card(s).ship_token] if human else []
+
+    def human_dismisses_ship(self) -> Gen:
+        """Bold "you dismiss a Ship": the human picks one of their deployed Ships. Returns it, or None."""
+        self._use(A.DISMISS)
+        ships = self.human_deployed_ships()
+        if not ships:
+            return None
+        ship = yield from self._ui.pick_card("Dismiss one of your Ships (Bot attack).", ships, seat=self.human.seat)
+        self._human_actions(A.DISMISS)._dismiss(ship)
+        return ship
+
+    def human_may_draw(self) -> Gen:
+        """Bold black "You may draw a card": a benefit for the human, who decides."""
+        self._use(A.DRAW)
+        human = self.human
+        if human is None:
+            return False
+        if not (yield from self._ui.may("The Bot's card lets you draw a card. Draw it?", seat=human.seat)):
+            return False
+        yield from self._human_actions(A.DRAW).draw(1)
+        return True
+
+    def human_discards_top(self) -> Gen:
+        """Bold "you discard the top card of your deck". Returns the card."""
+        self._use(A.DISCARD)
+        if self.human is None:
+            return None
+        return (yield from self._human_actions(A.DISCARD).discard_from_deck())
+
+    def human_takes_and_discards_incident(self) -> Gen:
+        """Bold "you take an Incident and discard it": it goes to the human's Discard pile."""
+        self._use(A.TAKE_INCIDENT)
+        self._use(A.DISCARD)
+        if self.human is not None:
+            yield from self._human_actions(A.TAKE_INCIDENT).take_incident(to="discard")
+
+    def human_logs_location(self) -> Gen:
+        """Bold "you log a controlled Location": the human picks one of theirs. Returns it, or None."""
+        self._use(A.LOG)
+        human = self.human
+        if human is None or not human.locations:
+            return None
+        loc = yield from self._ui.pick_card("Log one of your controlled Locations (Bot attack).",
+                                            list(human.locations), seat=human.seat)
+        self._human_actions(A.LOG)._log(loc)
+        return loc
 
     def human_secured(self, loc: Inst) -> bool:
         from engine.game import secured_by

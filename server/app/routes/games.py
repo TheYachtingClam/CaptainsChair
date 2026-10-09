@@ -92,6 +92,8 @@ def create_game(body: CreateGameRequest, db: Session = Depends(get_db)) -> dict:
             raise HTTPException(422, "Choose a Bot to play against")
         if body.bot.deck_id not in content.bot_ids_for(body.expansions, body.box):
             raise HTTPException(422, "That Bot is not available in this game")
+        if body.bot.conspiracy and "base_game" not in content.box_sets(body.box):
+            raise HTTPException(422, "Conspiracy needs Core Box content in the game")  # REQ-CORE-62
         bot = body.bot.model_dump()
     game = Game(mode=body.mode, box=body.box, expansions=body.expansions, promos=body.promos, bot=bot,
                 promo_sets=list(content.ALL_PROMOS) if body.promos else [])

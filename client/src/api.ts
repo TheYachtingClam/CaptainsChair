@@ -10,6 +10,8 @@ export interface BotChoice {
   deck_id: string;
   difficulty: Difficulty;
   ticking_clock: boolean;
+  /** The Core Box Ticking Clock card, instead of or with the other (REQ-SOLO-133). */
+  conspiracy?: boolean;
 }
 
 /** The box a game is played with (REQ-CORE-10). */
@@ -303,6 +305,7 @@ export interface BotView {
   crew: string;
   difficulty: Difficulty;
   ticking_clock: boolean;
+  conspiracy?: boolean;
   suits_side: "no_duty_officer" | "with_duty_officer";
   /** The Khan Bot only: it is still on its KHAN IN EXILE card (REQ-CD-KHN-11). */
   exile: boolean;

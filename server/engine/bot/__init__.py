@@ -46,6 +46,10 @@ FOCUS_VP: dict[str, int] = {}  # each Focus icon scores, and is valued at, this 
 MARK_VP: dict[str, int] = {}  # VP at the end of the game for each marked trait
 ON_SUPPLEMENT: dict[str, Callable[[GameState, Player], None]] = {}  # a card was drawn or discarded from the Supplement deck
 END_OF_TURN: dict[str, Callable[[GameState, Player], None]] = {}  # runs at the end of the Bot's turn
+# Clean-up: (resource, amount) placed on the chosen Market card instead of 1 Glory; 1 Glory then leaves the Stardate
+# card for the supply (Burnham, REQ-SOLO-59).
+CLEANUP_PLACES: dict[str, tuple[str, int]] = {}
+RESOURCE_VP: dict[str, dict[str, int]] = {}  # VP for each of a resource at the end of the game (Burnham, REQ-SOLO-72)
 # Crew special rules run before the matching row, with the Bot actions they need (Pike: gain on a Specialty track).
 ON_RESOLVE: dict[str, tuple[Callable, tuple[str, ...]]] = {}
 
@@ -350,11 +354,12 @@ def _cleanup(state: GameState, bot: Player) -> None:
     bot.bot.facedown = []
     human = next(p for p in state.players if p.bot is None)
     target = least_valuable(state, market_cards(state), human)
+    kind, amount = CLEANUP_PLACES.get(bot.bot.crew, ("glory", 1))
     if target is not None:
-        take_glory_from_stardate(state)
-        target.res["glory"] = target.res.get("glory", 0) + 1
-        state.emit(f"{bot.name} places 1 Glory on {_name(target)}, the Market card least valuable to "
-                   f"{human.name}.", seat=bot.seat)
+        take_glory_from_stardate(state)  # the Glory moves to the card, or to the supply when something else is placed
+        target.res[kind] = target.res.get(kind, 0) + amount
+        state.emit(f"{bot.name} places {amount} {kind.capitalize()} on {_name(target)}, the Market card least "
+                   f"valuable to {human.name}.", seat=bot.seat)
     hook = END_OF_TURN.get(bot.bot.crew)
     if hook is not None:
         hook(state, bot)

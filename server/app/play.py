@@ -49,7 +49,8 @@ def bot_setup(game: Game) -> BotSetup | None:
     """The stored Bot choice of a solo game (REQ-SRV-18)."""
     if not game.bot:
         return None
-    return BotSetup(game.bot["deck_id"], game.bot.get("difficulty", "ensign"), bool(game.bot.get("ticking_clock")))
+    return BotSetup(game.bot["deck_id"], game.bot.get("difficulty", "ensign"), bool(game.bot.get("ticking_clock")),
+                    bool(game.bot.get("conspiracy")))
 
 
 def today() -> int:

@@ -627,7 +627,8 @@ def step_cleanup(state: GameState) -> None:
         player.discard.extend(player.staging)
         player.staging = []
         ask(state, player.seat, "discard", "Discard any cards from your hand, then draw up.",
-            [(f"discard:{i.uid}", f"Discard {name(i)}") for i in player.hand] + [("done", "Done: draw up")])
+            [(f"discard:{i.uid}", f"Discard {name(i)}") for i in player.hand
+             if i.card not in card_code.CANNOT_BE_DISCARDED] + [("done", "Done: draw up")])
     elif state.substep == "draw":
         state.op_queue.append(ops.OpRef(mode="system", seat=player.seat, system="drawup"))
         state.substep = "refresh"

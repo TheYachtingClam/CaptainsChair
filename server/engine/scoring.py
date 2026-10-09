@@ -81,7 +81,9 @@ def score_player(state: GameState, player: Player) -> dict:
         "missions": 0 if bot else missions,
     }
     if bot:  # 1 VP for every 2 Dilithium and Latinum combined (REQ-SOLO-72)
-        parts["resources"] = (player.dilithium + player.latinum) // 2
+        each = rules.RESOURCE_VP.get(player.bot.crew, {})  # Burnham: 1 VP for each Dilithium
+        parts["resources"] = sum(getattr(player, kind) * vp for kind, vp in each.items()) + sum(
+            getattr(player, kind) for kind in ("dilithium", "latinum") if kind not in each) // 2
         if player.bot.crew in rules.MARK_VP:
             parts["traits"] = rules.MARK_VP[player.bot.crew] * len(player.marks)
     return {"seat": player.seat, "name": player.name, "parts": parts, "total": sum(parts.values())}

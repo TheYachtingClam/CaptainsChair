@@ -78,7 +78,6 @@ Questions about a card:
 - **Mirok** (1PER15): the set code is printed with a dagger (†) and a 2025 copyright, unlike every other Core Box card, and no *To Boldly Go* card replaces him. Default: the mark has no effect.
 - **Xindi-Reptilian Battleship** (1SHI13, 2SHI13): the Core Box card spells it "Reptilian"; the *To Boldly Go* spec says "Reptillian". Default: keep the *To Boldly Go* spelling on both until you check the card.
 - **Sha Ka Ree** (1ENC07): implemented as a card that goes among your controlled Locations when played. Ships can warp to it, Away Teams can be sent to it, it counts as a controlled Location, and playing it counts as taking control. Confirm.
-- **Conspiracy** (1DIR01): it cannot be discarded, so it stays in a human's hand at Clean-up. Default: it counts as a card in hand for the refill.
 - **Weytahn** (1SHR12): "If there are no Away Team here, dismiss this card." Default: only the owner's Away Teams count.
 - **Orb of Prophecy and Change** (1SIS04): "Refresh a Bajoran to draw a card." Default: offered only when an exhausted Bajoran is in play.
 - **Halkan Council** (1ALL07): its CLEAN-UP logs it "if you have an Attack in play". Default: mandatory, checked while the card is still in the Staging Area.
@@ -184,19 +183,27 @@ Rulings made while writing Burnham's deck (Step 12):
 - **Investigate the Burn** (mission): one card may be both the Scientist and the Kelpien.
 - **Reunite the Federation** (mission): the 3 different Species are counted on the Ship card and the cards beamed to it, leaving out cards with Starfleet.
 
-Questions about a Bot row:
+Rulings made while writing the six Bots (Step 13):
 
-- **Picard, Klingon row:** "If able, you remove an Away Team." Default: from the Location the Bot just sent to; if you have none there, from a Location of your choice.
-- **Sela, Shady row:** "take control of the neutral Location with most Bot tokens (minimum 1)". Default: the Bot takes it without having secured it, and your tokens there earn you Glory as usual.
-- **Sela, Klingon row:** "either you dismiss a Ship OR resolve the top card of the Bot deck". Default: your choice; with no Ship to dismiss, the Bot resolves the top card.
+- **"If able, you …. Otherwise …"** (Picard Klingon, Koloth Weapon and Attack, Shran Attack): when you cancel the attack with a Reaction, the bold part did not happen, so the "otherwise" part does.
+- **Picard, Klingon row:** you remove an Away Team from the Location the Bot just sent to; if you have none there, from a Location of your choice.
+- **Sela, Shady row:** the Bot takes control of the neutral Location where it has the most tokens (at least 1) without having secured it. Your tokens there earn you Glory as usual.
+- **Sela, Klingon row:** you choose between dismissing one of your Ships and letting the Bot resolve its top card. With no Ship, the Bot resolves the top card. If you choose the Ship and then cancel the attack, nothing more happens.
+- **Sela, Attack row:** both choices are yours. An option you cannot do is not offered. The second pair applies only at 8+ Military.
+- **Sela, Person row:** "dismiss a Ship to gain a Person / Ship" dismisses the Bot's most recently deployed Ship.
+- **Sela and Burnham, Directive rows with a Duty Officer:** "gain top Encounter" puts it in the Bot Discard pile, not on its deck.
+- **Koloth, Directive row with a Duty Officer:** "log a Ship" is the Bot's most recently deployed Ship.
+- **Koloth, Ally row with a Duty Officer:** "you take an Incident and discard it" puts it straight into your Discard pile.
+- **Sisko, Bajoran row:** the Bot gains its 2 Military even when you cancel the attack on your Duty Officer. The 2 Away Teams go to the same Location.
+- **Sisko, Starbase row:** *Deep Space 9* is deployed and does not explore.
+- **Sisko, Ship row with a Duty Officer:** the Starbase logged is the Bot's least valuable one in play, and only when the Supplement deck has a card.
+- **Burnham rows:** "the card in the Market with the most Dilithium > most Glory": the card with the most Dilithium on it; if none has any, the one with the most Glory; ties go to the most valuable.
+- **Burnham Bot scoring:** 1 VP for each Dilithium, and still 1 VP for every 2 Latinum.
+- **"You may draw a card"** (bold black, Koloth and Sela): a benefit for you; you choose.
+- **Conspiracy** (1DIR01): "cannot be beamed or discarded" protects it in your hand only. It counts as a card in hand at Clean-up. Its PLAY puts it in your Discard pile; it still scores -4 for you unless it is logged before scoring.
 
 Reprints: the 45 Core Box cards that *To Boldly Go* reprints were matched by name, and their specs are copies of the *To Boldly Go* specs. I compared the text of each pair on screen but not word for word, so small wording differences on the older printing may be unrecorded. The reprint shares the newer card's code either way.
 
 ## Gaps in the CLAUDE.md action list
 
-The Core Box needs these additions. Each is a general option on an existing action or a new registry, not a new action, except where noted. They are written in the step that first needs them.
-
-| Need | Cards | Proposed |
-|---|---|---|
-| Which RESUPPLY operations resolved this turn | Laris | engine bookkeeping; `DUPLICATE` with `kind="RESUPPLY"` already exists |
-| The Bot gains "the Market card with the most Dilithium, then most Glory" | Burnham Bot | `gain_most(resource)` generalising `gain_most_glory` |
+None. Everything the Core Box needed is written and listed in CLAUDE.md.

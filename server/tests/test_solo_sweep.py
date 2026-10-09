@@ -14,6 +14,7 @@ from engine.views import game_view
 
 BOTS = sorted(c for c in content().command if c not in BOT_UNAVAILABLE)
 DECKS = ["georgiou", "soval", "kirk", "archer", "pike", "riker", "freeman", "rebner"]
+CORE = ["picard", "shran", "koloth", "sela", "sisko", "burnham"]
 upgrades.load()
 
 
@@ -37,8 +38,13 @@ def play_out(s, rng, limit=4000):
 def test_random_game_against_every_bot_at_every_difficulty(bot, difficulty):
     seed = BOTS.index(bot) * 10 + DIFFICULTIES.index(difficulty)
     rng = random.Random(seed)
-    s = new_game(seed, "solo", [SeatSetup("Me", rng.choice(DECKS), rng.choice(["basic", "advanced"]))],
-                 ["second_contact"], True, bot=BotSetup(bot, difficulty, ticking_clock=seed % 3 == 0))
+    deck = rng.choice(DECKS)
+    if bot in CORE:  # a Core Box Bot: both boxes, and every other game a Core Box Crew against it
+        others = [c for c in CORE if c != bot]
+        deck = others[seed % len(others)] if seed % 2 else deck
+    s = new_game(seed, "solo", [SeatSetup("Me", deck, rng.choice(["basic", "advanced"]))],
+                 ["second_contact"], True, bot=BotSetup(bot, difficulty, ticking_clock=seed % 3 == 0),
+                 **({"box": "both"} if bot in CORE else {}))
     s = play_out(s, rng)
     assert s.result and s.result["winners"] in ([0], [1])  # solo games always have a winner
 

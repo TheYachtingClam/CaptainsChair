@@ -230,7 +230,7 @@ def test_the_box_limits_crew_decks(authed):
 def test_boxes_and_core_box_bots(authed):
     boxes = authed.get("/api/content/boxes").json()
     assert list(boxes) == ["core", "to_boldly_go", "both"] and boxes["both"]["sets"] == ["base_game", "to_boldly_go"]
-    assert create(authed, mode="solo", box="core", deck_id="picard", bot={"deck_id": "sisko"}).status_code == 422  # no Bot yet
+    assert create(authed, mode="solo", box="core", deck_id="picard", bot={"deck_id": "sisko"}).status_code == 201
     assert create(authed, mode="solo", box="core", deck_id="picard", bot={"deck_id": "soval"}).status_code == 422
     assert create(authed, mode="solo", box="both", deck_id="picard", bot={"deck_id": "soval"}).status_code == 201
 
@@ -265,3 +265,13 @@ def test_new_games_with_promos_include_both_promo_sets(authed):
 
     db = next(app.dependency_overrides.get(get_db, get_db)())
     assert db.get(Game, r.json()["game"]["id"]).promo_sets == ["promo1", "promo2"]
+
+
+def test_conspiracy_needs_core_box_content(authed):
+    """REQ-SOLO-133, REQ-CORE-62."""
+    bot = {"deck_id": "soval", "difficulty": "ensign", "conspiracy": True}
+    assert create(authed, mode="solo", bot=bot).status_code == 422
+    r = create(authed, mode="solo", box="both", bot={**bot, "deck_id": "picard", "ticking_clock": True})
+    assert r.status_code == 201 and r.json()["game"]["bot"]["conspiracy"]
+    view = authed.get(f"/api/games/{r.json()['game']['id']}", headers={"X-Seat-Token": r.json()["seat_token"]})
+    assert view.status_code == 200

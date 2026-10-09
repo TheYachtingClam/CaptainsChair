@@ -2237,6 +2237,7 @@ cards:
     cost: discard a Person from hand
     uses:
     - DISCARD
+    - PUT
     - DRAW
     undoable: false
   - kind: SPECIAL

@@ -225,13 +225,21 @@ One Crew per step: its cards, board missions, Cadet Training rulings and random-
 - **Engine:** five registries, none named after a card: `HOLDS_GAINS` (Inert Dilithium), `NO_GLORY_AS_DILITHIUM`, `CANNOT_BE_STOLEN`, `NO_AWAY_TEAMS_HERE` and `REPLACES_CLEANUP_GLORY`. `actions.recrystallize` (under `MOVE_RESOURCES`). A new "would" event, `would_dismiss_duty_officer`, raised when an attack's effect dismisses a Duty Officer, also for the Bot's bold "you dismiss a Duty Officer" (*Book's Ship*).
 - **Tests:** `tests/test_burnham.py`, 78 tests, with CORE-AS-4, -5 and -6, 6 random games and a Cadet Training game.
 
-## Step 13: The six Bots
+## Step 13: The six Bots (done)
 
 - Automated Command rows for each Crew, one function per row.
 - The Burnham Bot's special rule (REQ-SOLO-59, -72).
 - *Conspiracy* and its SURPRISE (REQ-SOLO-132), and the SURPRISE operations on the Core Box and promo Incidents.
 
 **You test:** a solo game against each new Bot; one with *Conspiracy* as the Ticking Clock.
+
+### Step 13: The six Bots (done)
+
+- **126 rows**, one function each, in `engine/bot/picard.py`, `shran.py`, `koloth.py`, `sela.py`, `sisko.py` and `burnham.py`. All six can be chosen as the Bot.
+- **Burnham Bot:** its Clean-up places 2 Dilithium and sends 1 Glory from the Stardate card to the supply; it scores 1 VP for each Dilithium. It has no *Inert Dilithium*.
+- **New Bot actions**, all general: the human's "either … OR …" choice, "you dismiss a Ship", "you may draw a card", "you discard the top card of your deck", "you take an Incident and discard it", "you log a controlled Location"; and for the Bot: a Ship from its Discard pile onto its deck, the top Supplement card onto its deck, dismissing its own Ship, and the Market card with the most Dilithium.
+- **Conspiracy** (1DIR01) is written, with its SURPRISE. The game-creation screen offers it beside *Time Is Running Out* when the game has Core Box content; both can be ticked (REQ-SOLO-133).
+- **Tests:** `tests/test_bot_core.py`, 156 tests: every row on a matching card, the rows that needed something new, the Burnham Bot's rule, *Conspiracy* and CORE-AS-8. The solo sweep now plays every Core Box Bot at every difficulty, half the time against a Core Box Crew.
 
 ## Step 14: Five-Year Mission upgrades
 

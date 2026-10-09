@@ -25,6 +25,7 @@ class BotChoice(BaseModel):
     deck_id: str
     difficulty: Difficulty = "ensign"
     ticking_clock: bool = False
+    conspiracy: bool = False
 
 
 class CreateGameRequest(SeatChoice):

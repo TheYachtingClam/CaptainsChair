@@ -125,6 +125,7 @@ def _bot_view(player: Player) -> dict | None:
         "crew": player.bot.crew,
         "difficulty": player.bot.difficulty,
         "ticking_clock": player.bot.ticking_clock,
+        "conspiracy": player.bot.conspiracy,
         "suits_side": player.bot.suits_side,
         "exile": player.bot.exile,
         "special_rule": crew.special_rule,

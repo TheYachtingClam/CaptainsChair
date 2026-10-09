@@ -528,7 +528,8 @@ class DiscardFromHand(Cost):
 
     def candidates(self, ctx):
         this = ctx.this_card
-        return [i for i in ctx.me.hand if i is not this and (self.pred is None or self.pred(ctx, i))]
+        return [i for i in ctx.me.hand if i is not this and i.card not in registry.CANNOT_BE_DISCARDED
+                and (self.pred is None or self.pred(ctx, i))]
 
     def can_pay(self, ctx):
         return len(self.candidates(ctx)) >= self.n
@@ -1021,7 +1022,8 @@ class Actions:
         out = []
         for _ in range(n):
             this = self.ctx.this_card
-            cards = [i for i in player.hand if i is not this and (pred is None or pred(i))]
+            cards = [i for i in player.hand if i is not this and i.card not in registry.CANNOT_BE_DISCARDED
+                     and (pred is None or pred(i))]
             inst = yield from self.pick_card(f"Discard {label}.", cards, optional=optional, seat=player.seat)
             if not inst:
                 break
@@ -1055,6 +1057,9 @@ class Actions:
 
     def _discard(self, inst: Inst) -> None:
         owner = locate(self.state, inst.uid).owner
+        if inst.card in registry.CANNOT_BE_DISCARDED and inst in owner.hand:
+            self.emit(f"{name(inst)} cannot be discarded.")  # Conspiracy
+            return
         take_out(self.state, inst)
         owner.discard.append(inst)
         self.emit(f"{owner.name} discards {name(inst)}.")
@@ -1162,6 +1167,9 @@ class Actions:
 
     def beam(self, inst: Inst, onto: Inst) -> Gen:
         self._use(A.BEAM)
+        if inst.card in registry.CANNOT_BE_DISCARDED:
+            self.emit(f"{name(inst)} cannot be beamed.")  # Conspiracy
+            return
         where = take_out(self.state, inst)
         onto.beamed.append(inst)
         self.emit(f"{self.ctx.me.name} beams {name(inst)} to {name(onto)}.")
@@ -1211,11 +1219,12 @@ class Actions:
         return
         yield  # pragma: no cover
 
-    def put_on_deck(self, inst: Inst, *, bottom: bool = False) -> Gen:
-        """Put a card on top of its owner's Draw deck, or on the bottom (T'Ana)."""
+    def put_on_deck(self, inst: Inst, *, bottom: bool = False, player: Player | None = None) -> Gen:
+        """Put a card on top of its owner's Draw deck, or on the bottom (T'Ana). `player` names another player's
+        deck: the card becomes theirs (Conspiracy's SURPRISE)."""
         self._use(A.PUT)
         where = take_out(self.state, inst)
-        owner = where.owner or self.ctx.me
+        owner = player or where.owner or self.ctx.me
         if bottom:
             owner.draw.append(inst)
         else:

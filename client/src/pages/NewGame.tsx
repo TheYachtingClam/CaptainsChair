@@ -33,7 +33,7 @@ export function NewGame() {
   function chooseBox(next: Box) {
     setBox(next);
     setSeat((s) => ({ ...s, deck_id: "" }));
-    setBot((b) => ({ ...b, deck_id: "" }));
+    setBot((b) => ({ ...b, deck_id: "", conspiracy: false }));
   }
 
   function toggle(id: string) {
@@ -75,7 +75,6 @@ export function NewGame() {
           ))}
           <p className="muted">
             The box sets the Market, Locations and which Crew decks you can choose.
-            {box !== "to_boldly_go" && " Core Box cards are still being added: most of them do nothing yet."}
           </p>
         </fieldset>
         <fieldset>
@@ -120,6 +119,12 @@ export function NewGame() {
               <input type="checkbox" checked={bot.ticking_clock} onChange={(e) => setBot({ ...bot, ticking_clock: e.target.checked })} />
               Ticking Clock challenge (for experts: <em>Time Is Running Out</em> joins the Bot's Supplement deck)
             </label>
+            {sets.includes("base_game") && (
+              <label className="inline">
+                <input type="checkbox" checked={!!bot.conspiracy} onChange={(e) => setBot({ ...bot, conspiracy: e.target.checked })} />
+                Ticking Clock challenge, Core Box (<em>Conspiracy</em> joins the Bot's Supplement deck; tick both for a bigger challenge)
+              </label>
+            )}
           </fieldset>
         )}
         {create.error && <p className="error" role="alert">{create.error.message}</p>}

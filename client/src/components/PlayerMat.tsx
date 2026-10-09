@@ -157,6 +157,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
         <h2>{p.name}{you && " (you)"}</h2>
         {p.bot && <span className="pill bot-pill">Bot · {p.bot.difficulty[0].toUpperCase() + p.bot.difficulty.slice(1)}</span>}
         {p.bot?.ticking_clock && <span className="pill">Ticking Clock</span>}
+        {p.bot?.conspiracy && <span className="pill">Conspiracy</span>}
         {active && <span className="pill">Active player</span>}
         {p.reinforcement && p.reinforcement.length > 0 && (
           <span className="pill" title={p.reinforcement.map((c) => c.name).join(", ")}>Reinforcement pile: {p.reinforcement.length}</span>
