@@ -75,7 +75,7 @@ The *Second Contact* expansion adds Pike, Riker and Freeman. Their rules are in 
   - Set aside the two regular Automated Command cards. Use the "KHAN IN EXILE" card, which says when to swap to the regular cards on the "TRAITS" and "SUITS WITH NO DUTY OFFICER" side.
   - Follow the special rules at the top of the currently active command card.
   - While "KHAN IN EXILE" is in use, a card matches one of its rows by trait or by suit, and there is no SUITS card.
-  - When the Bot deck is reshuffled, the top Supplement card still goes on the new deck (REQ-SOLO-61): the Bot ignores its Captain's text.
+  - When the Bot deck is reshuffled, the top Supplement card still goes on the new deck (REQ-SOLO-61): the Bot ignores its Captain's text. Confirmed 2026-10-09.
 
 ## 5. Card content
 

@@ -97,6 +97,7 @@ Image id: `burnham-five-year-mission-upgrades`. Used only in the solo campaign (
 - 'The card in the Market with the most [Dilithium] > most [Glory]': the Market card with the most Dilithium on it; if none has Dilithium, the one with the most Glory; ties go to the most valuable, then the leftmost. It takes the tokens with the card.
 - Directive row, no Duty Officer: 'Remove 1 [Glory] from the stardate card' returns it to the supply; the Bot does not gain it.
 - "If able to do both, log ... and remove ... to take top Encounter" rows follow the same reading as the other Bots' Directive rows.
+- The rulings for this Bot's rows were confirmed on 2026-10-09; they are listed in requirements/23-core-box.md REQ-CORE-64.
 
 ## Tests
 

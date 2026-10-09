@@ -98,6 +98,7 @@ Image id: `sisko-five-year-mission-upgrades`. Used only in the solo campaign (RE
 - 'Starbase in play' on the Ship row with a Duty Officer is one of the Bot's own cards in play.
 - The folded-corner icons in the gain lists are Focus icons, read as [Military Focus] and [Influence Focus].
 - "If able to do both, log ... and remove ... to take top Encounter" rows follow the same reading as the other Bots' Directive rows.
+- The rulings for this Bot's rows were confirmed on 2026-10-09; they are listed in requirements/23-core-box.md REQ-CORE-64.
 
 ## Tests
 

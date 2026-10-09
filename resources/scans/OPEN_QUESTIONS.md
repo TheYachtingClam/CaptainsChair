@@ -6,31 +6,6 @@ Collected from the "Rulings and open questions" sections of every card, board an
 
 None open.
 
-## Rulings made while implementing the Khan Bot
-
-Made while writing the code. Each is implemented as described. Confirm, or say which to change.
-
-- **KHAN IN EXILE**: a card matches a row by trait or by suit; a Wildcard matches only the Augment row; an Encounter matches no row. A Location played from the Bot deck stays in the Staging Area and is discarded at Clean-up. "Drawn from the Supplement deck" includes the card put on a new Bot deck at a reshuffle.
-- **Reshuffle**: the top Supplement card goes on the new Bot deck although Khan's Captain says he does not enlist, because the Bot ignores card text (REQ-SOLO-80).
-- **Mind Control row**: the Bot gains 2 Glory whenever you dismiss no Duty Officer, also when you cancel the attack.
-- **Attack row**: "you log this card" puts *Revenge Is a Dish Best Served Cold* into your Log and is part of the attack. If you cancel the attack, it stays in the Bot's Staging Area.
-- **"Take an Incident to gain a Person"** does both. **"Gain an unmarked > Person / Cargo / Ship / Ally from the Junk"** takes any unmarked Junk card first.
-- **Khan's three Incidents, SURPRISE** (2KHA19 to 2KHA21): only putting the card in your Discard pile is the attack; you draw either way.
-- **Two Dimensional Thinking, SURPRISE** (2KHA22): the Bot's Captain counts as in play, so the Khan Bot always returns it.
-- **Khan's ATTACK BOOST bonuses** are attacks on the Bot, which cannot cancel them.
-
-## Rulings made for the Five-Year Mission bonuses and challenges
-
-- **Boosts with a cost** ("take an Incident to …", "spend 1 [Dilithium] to …") are optional: the human is asked each game, and the Boost is skipped when the cost cannot be paid. Boosts without a cost always resolve.
-- **Boosts with no moment printed** ("BOOST: Gain an [Action].") resolve at the start of the game: after the starting hand and the "after drawing" Boosts, before the first turn. An Action gained then lasts through the first turn.
-- **Before drawing the starting hand:** cards found or taken then stay in hand, and the full starting hand is drawn afterwards.
-- **The same Boost twice:** losing to the same Bot again may offer a Boost you already have. Taking it again adds a second copy, which resolves twice.
-- **Pike's LOSS REINFORCE** ("a card with [Research]/[Influence]/[Military]") counts [Any Skill] cards.
-- **Option B with nothing to choose:** a REINFORCE bonus with no qualifying card cannot be taken. With no option A card and no option B available (for example Rules of Acquisition after a success), there is no upgrade.
-- **Live Long and Prosper:** after exactly one success, the human chooses on the assignment form which resource to start without.
-- **Two Weeks to the Closest Outpost, They Will Arrive on Tuesday:** "after a success" means the previous assignment was a success. After a failure, Tuesday sets one Away Team aside again.
-- **Only Ship in the Quadrant:** the assignment fails only when the starting Ship is dismissed or recalled, as printed; logging or destroying it does not.
-
 ## Core Box and promo set 1
 
 From writing the specs and the code (plans/base-game.md). Every card here has code that follows the default or ruling stated; none has been confirmed yet. Confirm or change each one.
@@ -144,35 +119,6 @@ Rulings made while writing Burnham's deck (Step 12):
 - **Keyla Detmer** (1BUR20): the Away Team is sent only if the Location warped to is one you may send to.
 - **Investigate the Burn** (mission): one card may be both the Scientist and the Kelpien.
 - **Reunite the Federation** (mission): the 3 different Species are counted on the Ship card and the cards beamed to it, leaving out cards with Starfleet.
-
-Rulings made while writing the six Bots (Step 13):
-
-- **"If able, you …. Otherwise …"** (Picard Klingon, Koloth Weapon and Attack, Shran Attack): when you cancel the attack with a Reaction, the bold part did not happen, so the "otherwise" part does.
-- **Picard, Klingon row:** you remove an Away Team from the Location the Bot just sent to; if you have none there, from a Location of your choice.
-- **Sela, Shady row:** the Bot takes control of the neutral Location where it has the most tokens (at least 1) without having secured it. Your tokens there earn you Glory as usual.
-- **Sela, Klingon row:** you choose between dismissing one of your Ships and letting the Bot resolve its top card. With no Ship, the Bot resolves the top card. If you choose the Ship and then cancel the attack, nothing more happens.
-- **Sela, Attack row:** both choices are yours. An option you cannot do is not offered. The second pair applies only at 8+ Military.
-- **Sela, Person row:** "dismiss a Ship to gain a Person / Ship" dismisses the Bot's most recently deployed Ship.
-- **Sela and Burnham, Directive rows with a Duty Officer:** "gain top Encounter" puts it in the Bot Discard pile, not on its deck.
-- **Koloth, Directive row with a Duty Officer:** "log a Ship" is the Bot's most recently deployed Ship.
-- **Koloth, Ally row with a Duty Officer:** "you take an Incident and discard it" puts it straight into your Discard pile.
-- **Sisko, Bajoran row:** the Bot gains its 2 Military even when you cancel the attack on your Duty Officer. The 2 Away Teams go to the same Location.
-- **Sisko, Starbase row:** *Deep Space 9* is deployed and does not explore.
-- **Sisko, Ship row with a Duty Officer:** the Starbase logged is the Bot's least valuable one in play, and only when the Supplement deck has a card.
-- **Burnham rows:** "the card in the Market with the most Dilithium > most Glory": the card with the most Dilithium on it; if none has any, the one with the most Glory; ties go to the most valuable.
-- **Burnham Bot scoring:** 1 VP for each Dilithium, and still 1 VP for every 2 Latinum.
-- **"You may draw a card"** (bold black, Koloth and Sela): a benefit for you; you choose.
-- **Conspiracy** (1DIR01): "cannot be beamed or discarded" protects it in your hand only. It counts as a card in hand at Clean-up. Its PLAY puts it in your Discard pile; it still scores -4 for you unless it is logged before scoring.
-
-Reprints: the 45 Core Box cards that *To Boldly Go* reprints were matched by name, and their specs are copies of the *To Boldly Go* specs. I compared the text of each pair on screen but not word for word, so small wording differences on the older printing may be unrecorded. The reprint shares the newer card's code either way.
-
-Rulings made for the Core Box Five-Year Mission bonuses (Step 14):
-
-- **Picard's "find two cards":** the two finds are separate, so you may look again after the first. A card already in your hand can be "found", which wastes the find.
-- **Sela's "find a card (from your draw deck or Reserve) and log the found card":** your hand and Discard pile are not searched.
-- **Sela's "take a card from your Reinforcement deck":** with an empty Reinforcement pile it does nothing.
-- **"A non-Incident card from your Available cards":** only cards whose setup position is Available; not your deployed Ship, controlled Location or Sela's three Discard pile cards.
-- **A Dilithium Boost for Burnham** goes onto *Inert Dilithium*.
 
 ## Gaps in the CLAUDE.md action list
 

@@ -94,11 +94,12 @@ Image id: `sela-five-year-mission-upgrades`. Used only in the solo campaign (REQ
 
 ## Rulings and open questions
 
-- Shady row: 'take control of the neutral Location with most Bot tokens (minimum 1)' takes it without securing it; the Bot then resolves it as a controlled Location (REQ-SOLO-52). Open question: whether the human's tokens there still earn them Glory.
+- Shady row: 'take control of the neutral Location with most Bot tokens (minimum 1)' takes it without securing it; the Bot then resolves it as a controlled Location (REQ-SOLO-52). The human's tokens there earn them Glory as usual.
 - Klingon row: 'either you dismiss a Ship OR resolve the top card of the Bot deck' is the human's choice (REQ-SOLO-183); with no Ship to dismiss the Bot resolves the top card.
 - Attack row: both 'OR' choices are the human's. The second pair applies only at 8+ Military.
 - Directive row with a Duty Officer says 'gain top Encounter': it goes to the Bot Discard pile, not the Bot deck.
 - "If able to do both, log ... and remove ... to take top Encounter" rows follow the same reading as the other Bots' Directive rows.
+- The rulings for this Bot's rows were confirmed on 2026-10-09; they are listed in requirements/23-core-box.md REQ-CORE-64.
 
 ## Tests
 

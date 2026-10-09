@@ -97,6 +97,7 @@ Image id: `koloth-five-year-mission-upgrades`. Used only in the solo campaign (R
 - 'Take the top card of the Supplement deck' puts it on top of the Bot deck.
 - Incident row with no Duty Officer: 'You may draw a card' is bold black, a benefit for the human, not an attack.
 - "If able to do both, log ... and remove ... to take top Encounter" rows follow the same reading as the other Bots' Directive rows.
+- The rulings for this Bot's rows were confirmed on 2026-10-09; they are listed in requirements/23-core-box.md REQ-CORE-64.
 
 ## Tests
 

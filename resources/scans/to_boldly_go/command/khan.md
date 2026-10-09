@@ -120,13 +120,13 @@ Image id: `khan-five-year-mission-upgrades`. Used only in the solo campaign (REQ
 - The Khan Bot never flips its Captain (REQ-CD-KHN-11).
 - Ruling (confirmed 2026-10-09): the Bot marks a trait whenever it gains, takes or takes control of a card, Incidents and Encounters included, and for the Encounter gained when it leaves exile. For an Opponent's Captain entry it uses the first fitting trait in the printed order of your Captain's traits.
 - Ruling (confirmed 2026-10-09): the 3 extra value for an unmarked card applies to every Bot choice by value, not only to gains.
-- KHAN IN EXILE: a card matches a row by trait or by suit; a Wildcard matches only the Augment row; an Encounter matches no row. "Drawn from the Supplement deck" includes the card put on a new Bot deck at a reshuffle and a card resolved from the top of the Supplement deck. A Location played from the Bot deck stays in the Staging Area and is discarded at Clean-up.
-- A reshuffle puts the top Supplement card on the new Bot deck although Khan's Captain says he does not enlist: the Bot ignores card text (REQ-SOLO-80).
-- "Take an Incident to gain a Person" does both.
-- "Gain an unmarked > Person / Cargo / Ship / Ally from the Junk": any unmarked card in the Junk comes first.
-- Mind Control row: the Bot gains 2 Glory whenever you dismiss no Duty Officer, also when you cancel the attack (as the Georgiou Bot's Attack row does).
-- Attack row: "you log this card" puts Revenge Is a Dish Best Served Cold into your Captain's Log and is part of the attack; if you cancel it, the card stays in the Staging Area. Any other card is logged by the Bot either way.
-- ATTACK BOOST bonuses are attacks on the Bot, which cannot cancel them.
+- Ruling (confirmed 2026-10-09): KHAN IN EXILE: a card matches a row by trait or by suit; a Wildcard matches only the Augment row; an Encounter matches no row. "Drawn from the Supplement deck" includes the card put on a new Bot deck at a reshuffle and a card resolved from the top of the Supplement deck. A Location played from the Bot deck stays in the Staging Area and is discarded at Clean-up.
+- Ruling (confirmed 2026-10-09): a reshuffle puts the top Supplement card on the new Bot deck although Khan's Captain says he does not enlist: the Bot ignores card text (REQ-SOLO-80).
+- Ruling (confirmed 2026-10-09): "Take an Incident to gain a Person" does both.
+- Ruling (confirmed 2026-10-09): "Gain an unmarked > Person / Cargo / Ship / Ally from the Junk": any unmarked card in the Junk comes first.
+- Ruling (confirmed 2026-10-09): Mind Control row: the Bot gains 2 Glory whenever you dismiss no Duty Officer, also when you cancel the attack (as the Georgiou Bot's Attack row does).
+- Ruling (confirmed 2026-10-09): Attack row: "you log this card" puts Revenge Is a Dish Best Served Cold into your Captain's Log and is part of the attack; if you cancel it, the card stays in the Staging Area. Any other card is logged by the Bot either way.
+- Ruling (confirmed 2026-10-09): ATTACK BOOST bonuses are attacks on the Bot, which cannot cancel them.
 
 ## Tests
 

@@ -96,6 +96,7 @@ Image id: `shran-five-year-mission-upgrades`. Used only in the solo campaign (RE
 - Weapon row: the human chooses between taking an Incident and removing an Away Team (REQ-SOLO-183).
 - Attack row: 'you discard the top card of your deck' and 'you take an Incident' are the attack; the Bot's own Incident is not.
 - "If able to do both, log ... and remove ... to take top Encounter" rows follow the same reading as the other Bots' Directive rows.
+- The rulings for this Bot's rows were confirmed on 2026-10-09; they are listed in requirements/23-core-box.md REQ-CORE-64.
 
 ## Tests
 

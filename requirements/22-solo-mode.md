@@ -328,6 +328,18 @@ The Bot's difficulty depends on the human's current rank and the campaign mode.
 - **REQ-CAMP-29 Reinforce bonuses** add one of the human's own cards to the Reinforcement pile. It starts there in every later game.
 - **REQ-CAMP-30 Boost bonuses** resolve at the start of every later game in the campaign, at the moment the bonus states.
 - **REQ-CAMP-31** Upgrade cards and their options are stored as structured data, like Automated Command rows.
+- **REQ-CAMP-32 Rulings on bonuses** (confirmed 2026-10-09):
+  - A Boost with a cost ("take an Incident to …", "spend 1 [Dilithium] to …") is optional: the human is asked each game, and the Boost is skipped when the cost cannot be paid. A Boost without a cost always resolves.
+  - A Boost with no moment printed ("BOOST: Gain an [Action].") resolves at the start of the game: after the starting hand and the "after drawing" Boosts, before the first turn. An Action gained then lasts through the first turn.
+  - Before drawing the starting hand: cards found or taken then stay in hand, and the full starting hand is drawn afterwards.
+  - Losing to the same Bot again may offer a Boost the human already has. Taking it again adds a second copy, which resolves twice.
+  - Pike's LOSS REINFORCE ("a card with [Research]/[Influence]/[Military]") counts [Any Skill] cards.
+  - A REINFORCE bonus with no qualifying card cannot be taken. With no option A card and no option B available, there is no upgrade.
+  - "Find two cards" (Picard) is two separate finds; a card already in hand can be found, which wastes the find.
+  - "Find a card (from your draw deck or Reserve) and log the found card" (Sela) does not search the hand or the Discard pile.
+  - "Take a card from your Reinforcement deck" (Sela) does nothing when the Reinforcement pile is empty.
+  - "A non-Incident card from your Available cards" means cards whose setup position is Available: not the deployed Ship, the controlled Location or cards that start in the Discard pile (Sela).
+  - A Dilithium Boost goes onto *Inert Dilithium* when the campaign's Crew is Burnham (REQ-CORE-30).
 
 ### 14.4 Challenges
 
@@ -345,6 +357,10 @@ The human may add any of these optional challenges when starting a campaign, at 
 
 - **REQ-CAMP-40** The engine enforces every chosen challenge automatically. *Only Ship in the Quadrant* ends the game at once as a failure.
 - **REQ-CAMP-41** The campaign setup screen hides challenges that are not available for the chosen Crew deck.
+- **REQ-CAMP-42 Rulings on challenges** (confirmed 2026-10-09):
+  - *Live Long and Prosper*: after exactly one success, the human chooses on the assignment form which resource to start without.
+  - *Two Weeks to the Closest Outpost* and *They Will Arrive on Tuesday*: "after a success" means the previous assignment was a success. After a failure, *Tuesday* sets one Away Team aside again.
+  - *Only Ship in the Quadrant*: the assignment fails only when the starting Ship is dismissed or recalled, as printed; logging or destroying it does not.
 
 ### 14.5 Performance review
 

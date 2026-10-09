@@ -94,8 +94,9 @@ Image id: `picard-five-year-mission-upgrades`. Used only in the solo campaign (R
 
 ## Rulings and open questions
 
-- Klingon row: 'you remove an [Away Team]' is read as from the Location the Bot just sent to, the human's choice if that is unclear. Open question.
+- Klingon row: 'you remove an [Away Team]' is read as from the Location the Bot just sent to, the human's choice if that is unclear.
 - "If able to do both, log ... and remove ... to take top Encounter" rows follow the same reading as the other Bots' Directive rows.
+- The rulings for this Bot's rows were confirmed on 2026-10-09; they are listed in requirements/23-core-box.md REQ-CORE-64.
 
 ## Tests
 

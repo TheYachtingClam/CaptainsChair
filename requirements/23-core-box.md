@@ -111,6 +111,23 @@ Rules that more than one card relies on, or that change a core rule. Single-card
 - **REQ-CORE-60** Each Core Box Crew can be the Bot. Its Automated Command rows and Five-Year Mission upgrades follow [22-solo-mode.md](22-solo-mode.md).
 - **REQ-CORE-61 Burnham Bot.** Its Clean-up follows REQ-SOLO-59 and its scoring REQ-SOLO-72. *Inert Dilithium* is a Status card and goes back to the box (REQ-SOLO-26), so the Bot's Dilithium is never held back.
 - **REQ-CORE-62 Conspiracy** is a second Ticking Clock card (REQ-SOLO-132). When the game has Core Box content, the solo options are: no Ticking Clock, *Time Is Running Out*, *Conspiracy*, or both.
+- **REQ-CORE-64 Rulings on the Core Box Bots** (confirmed 2026-10-09):
+  - **"If able, you …. Otherwise …"** (Picard Klingon, Koloth Weapon and Attack, Shran Attack): when you cancel the attack with a Reaction, the bold part did not happen, so the "otherwise" part does.
+  - **Picard, Klingon row:** you remove an Away Team from the Location the Bot just sent to; if you have none there, from a Location of your choice.
+  - **Sela, Shady row:** the Bot takes control of the neutral Location where it has the most tokens (at least 1) without having secured it. Your tokens there earn you Glory as usual.
+  - **Sela, Klingon row:** you choose between dismissing one of your Ships and letting the Bot resolve its top card. With no Ship, the Bot resolves the top card. If you choose the Ship and then cancel the attack, nothing more happens.
+  - **Sela, Attack row:** both choices are yours. An option you cannot do is not offered. The second pair applies only at 8+ Military.
+  - **Sela, Person row:** "dismiss a Ship to gain a Person / Ship" dismisses the Bot's most recently deployed Ship.
+  - **Sela and Burnham, Directive rows with a Duty Officer:** "gain top Encounter" puts it in the Bot Discard pile, not on its deck.
+  - **Koloth, Directive row with a Duty Officer:** "log a Ship" is the Bot's most recently deployed Ship.
+  - **Koloth, Ally row with a Duty Officer:** "you take an Incident and discard it" puts it straight into your Discard pile.
+  - **Sisko, Bajoran row:** the Bot gains its 2 Military even when you cancel the attack on your Duty Officer. The 2 Away Teams go to the same Location.
+  - **Sisko, Starbase row:** *Deep Space 9* is deployed and does not explore.
+  - **Sisko, Ship row with a Duty Officer:** the Starbase logged is the Bot's least valuable one in play, and only when the Supplement deck has a card.
+  - **Burnham rows:** "the card in the Market with the most Dilithium > most Glory": the card with the most Dilithium on it; if none has any, the one with the most Glory; ties go to the most valuable.
+  - **Burnham Bot scoring:** 1 VP for each Dilithium, and still 1 VP for every 2 Latinum.
+  - **"You may draw a card"** (bold black, Koloth and Sela): a benefit for you; you choose.
+  - **Conspiracy** (1DIR01): "cannot be beamed or discarded" protects it in your hand only. It counts as a card in hand at Clean-up. Its PLAY puts it in your Discard pile; it still scores -4 for you unless it is logged before scoring.
   - It cannot be beamed or discarded except by its own PLAY.
   - Before final scoring, if the Bot owns it or it is in a Log, it is destroyed.
   - Otherwise it scores −4 VP for its owner.
