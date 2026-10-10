@@ -73,6 +73,7 @@ Same goal and reward as the Basic side; see [cb-koloth-basic.md](cb-koloth-basic
 
 - The beamed Romulans that met the goal are dismissed afterwards (REQ-MS-06); the Military is counted first.
 - Printed as ATTACK REWARD: the opponent may ignore the Incidents with a 'when you would be attacked' Reaction.
+- Ruling (confirmed 2026-10-10): for *Sabotage*, you choose whether to attack; if you do, the opponent may ignore it.
 
 ## Tests
 

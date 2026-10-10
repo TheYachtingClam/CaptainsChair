@@ -73,7 +73,7 @@ Same goal and reward as the Basic side; see [cb-sela-basic.md](cb-sela-basic.md)
 
 ## Rulings and open questions
 
-None.
+- Ruling (confirmed 2026-10-10): for *The Duras Plot*, you choose which one Cloak to dismiss; a Cloak in your Staging Area cannot be chosen.
 
 ## Tests
 

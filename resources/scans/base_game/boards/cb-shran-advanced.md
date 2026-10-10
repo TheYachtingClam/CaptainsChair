@@ -72,6 +72,7 @@ Same goal and reward as the Basic side; see [cb-shran-basic.md](cb-shran-basic.m
 ## Rulings and open questions
 
 - Ruling (confirmed 2026-10-09): the Human and the three other traits come from four different cards; the Human card cannot also supply one of the other traits.
+- Ruling (confirmed 2026-10-10): for *Founding the Federation*, the Ship card itself counts as a card "on the same Ship", as the rulebook says (p. 20, REQ-MS-03), so the Andorian *Kumari* supplies Andorian.
 
 ## Tests
 

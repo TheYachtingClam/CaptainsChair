@@ -53,6 +53,7 @@ missions:
 - Ruling (confirmed 2026-10-09): "Discovery" on the Core Box boards is the Encounter suit (the pill carries the Encounter icon).
 - Recrystallize moves Dilithium from Inert Dilithium to your supply (KW-RECRY-01).
 - The beamed cards that met the goal are dismissed afterwards (REQ-MS-06).
+- Ruling (confirmed 2026-10-10): for *Investigate the Burn*, one card may be both the Scientist and the Kelpien.
 
 ## Tests
 

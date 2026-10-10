@@ -69,6 +69,7 @@ Same goal and reward as the Basic side; see [cb-burnham-basic.md](cb-burnham-bas
 ## Rulings and open questions
 
 - The Dilithium gained goes onto Inert Dilithium while that card is in play.
+- Ruling (confirmed 2026-10-10): for *Reunite the Federation*, the 3 different Species are counted on the Ship card and the cards beamed to it, leaving out cards with Starfleet.
 
 ## Tests
 

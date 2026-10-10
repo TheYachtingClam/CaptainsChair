@@ -72,6 +72,7 @@ Same goal and reward as the Basic side; see [cb-picard-basic.md](cb-picard-basic
 ## Rulings and open questions
 
 - Ruling (confirmed 2026-10-09): "Discovery" on the Core Box boards is the Encounter suit (the pill carries the Encounter icon).
+- Ruling (confirmed 2026-10-10): for *Seek Out New Life*, each Alien card and each Transcendent card is one species of its own, and its other Species traits are not counted as well. A Wildcard card is not counted.
 
 ## Tests
 

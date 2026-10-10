@@ -50,6 +50,7 @@ missions:
 ## Rulings and open questions
 
 - Needs ENLIST_DEVELOPMENT to take a discount of several resources; today `discount=True` is one.
+- Ruling (confirmed 2026-10-10): for *A Call to Arms*, for each Starbase in play you choose whether it takes off 1 Dilithium or 1 Latinum. *Deep Space 9* counts.
 
 ## Tests
 

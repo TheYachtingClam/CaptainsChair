@@ -50,7 +50,7 @@ missions:
 
 ## Rulings and open questions
 
-None.
+- Ruling (confirmed 2026-10-10): for *Romulan Might*, enlisting a Development still costs its development cost.
 
 ## Tests
 

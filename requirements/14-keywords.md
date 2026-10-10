@@ -352,7 +352,7 @@ Each keyword below must be a reusable engine primitive that card scripts call. E
   2. Move the card to the Location Area.
   3. Resolve its CONTROL operation. This counts as putting the card into play for Reactions.
 - **KW-TC-02** Neutral Locations are normally taken in the Control Step.
-  - A Crew deck's own Locations are played from hand; their PLAY operation runs this procedure.
+  - A Crew deck's own Locations are played from hand; their PLAY operation runs this procedure. Playing one therefore counts as taking control of a Location for effects such as *Benjamin Sisko*, *Wajahut*, *Chancellor Gowron*, *Proconsul Neral* and *Ambassador Kamarag* (ruling, confirmed 2026-10-10).
   - Some effects take control straight from the Location deck.
 
 ## Token
