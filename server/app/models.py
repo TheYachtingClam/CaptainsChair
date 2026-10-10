@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import JSON, BigInteger, Boolean, DateTime, text, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import JSON, BigInteger, Boolean, DateTime, text, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -78,3 +78,20 @@ class Campaign(Base):
     challenges: Mapped[list[str]] = mapped_column(JSON, default=list, server_default=text("'[]'"))  # §14.4
     boosts: Mapped[list[str]] = mapped_column(JSON, default=list, server_default=text("'[]'"))  # REQ-CAMP-30
     status: Mapped[str] = mapped_column(String(20), default="active")
+
+
+class BugReport(Base):
+    """A player's bug report with everything needed to recreate the game (REQ-BUG-01 to -08). It has no foreign key
+    to the game, so it outlives a deleted game."""
+
+    __tablename__ = "bug_reports"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    game_id: Mapped[str] = mapped_column(String(36), index=True)
+    seat: Mapped[int] = mapped_column(Integer)
+    reporter: Mapped[str] = mapped_column(String(40))
+    description: Mapped[str] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(20), default="open")  # open or resolved
+    # The setup, the seed and every command so far (REQ-BUG-03), plus what the reporter saw.
+    bundle: Mapped[dict] = mapped_column(JSON)

@@ -107,6 +107,10 @@ All endpoints except login and health require a valid session (see §5).
 | `POST /api/campaigns/{id}/assignments` | Start the next assignment against a chosen or random Bot |
 | `POST /api/campaigns/{id}/upgrade` | Choose the upgrade after an assignment |
 | `POST /api/games/{id}/undo` | Undo the last command. See [20-undo.md](20-undo.md) |
+| `POST /api/games/{id}/bugs` | A seated player reports a bug; the report keeps the game's setup, seed and commands (§5.5) |
+| `GET /api/admin/bugs`, `GET /api/admin/bugs/{id}` | Admin: list bug reports; one report with its bundle, for download |
+| `POST /api/admin/bugs/{id}/status`, `DELETE /api/admin/bugs/{id}` | Admin: mark a report resolved or open; delete it |
+| `POST /api/admin/bugs/{id}/recreate` | Admin: make a playable copy of the reported game, as reported or some moves earlier |
 
 - **REQ-SRV-30** After creating or joining a game, the player receives a **seat token**. It identifies which seat they hold, so they can rejoin after a refresh. It is separate from the site password session.
 
@@ -147,7 +151,7 @@ All endpoints except login and health require a valid session (see §5).
 | Lobby | Create game, list of open games to join, list of the player's own in-progress games. Each of the player's own games has a Delete button that asks for confirmation, because deleting cannot be undone |
 | New game | Choose mode (two-player, solo against the Bot, Cadet Training), box (Core Box, To Boldly Go or both), expansions, promo cards, Crew deck (with complexity and summary), board side and display name. Solo adds Bot Crew, difficulty and Ticking Clock |
 | Campaign | Five-Year Mission log, rank, upgrades, challenges and the next assignment |
-| Game table | The main play screen (§4.3) |
+| Game table | The main play screen (§4.3), with a Report a bug button (§5.5) |
 | Score screen | Final score breakdown per player, following [13-final-scoring.md](13-final-scoring.md) |
 | Reference | Keyword glossary, icon reference and common card list |
 
@@ -201,6 +205,19 @@ The site has one optional admin, who can clean up games and campaigns that their
 ### 5.4 Limits of this approach
 
 A shared password keeps strangers out, but it does not identify people. Anyone with the password can open any game's lobby entry. Seats are protected by seat tokens (REQ-SRV-30), so one player cannot act as another. If you later need per-person accounts, replace §5 without changing the rest of the system.
+
+### 5.5 Bug reports
+
+A player who sees something wrong can report it from the game table. The report carries what is needed to recreate the game, so the bug can be reproduced later, also after the game has moved on or been deleted.
+
+- **REQ-BUG-01** The game table has a **Report a bug** button for a seated player once the game has started, also after it is over. It is not shown to someone without a seat.
+- **REQ-BUG-02** The button opens a dialog that asks what the player saw and what they expected (required, up to 4000 characters). Sending it does not change or interrupt the game; the dialog confirms that the report was saved.
+- **REQ-BUG-03** The server saves the description with a **bundle**: the game's mode, box, expansions, promo sets, seed, Bot choice, campaign setup, seats (name, Crew deck, board side) and every stored command so far, including undone and dropped ones and each command's weekday (REQ-SRV-52). Because a game is rebuilt from exactly these (REQ-SRV-14), the bundle recreates the game as it was, and any earlier moment by replaying fewer commands.
+- **REQ-BUG-04** The bundle also records what the reporter was looking at, for reading without a replay: the turn, step and active seat, the pending decision with its options, the last 60 log lines, and the reporter's own view of the game.
+- **REQ-BUG-05** Only the admin can read reports, because a bundle holds both players' hidden cards. The Admin page lists them, newest first, with the reporter, the game and the description, and can mark one resolved, reopen it or delete it.
+- **REQ-BUG-06** The admin can download a report as a JSON file. `scripts/replay_bug.py` rebuilds the game from that file with the rules of the current checkout and prints where it stands: the last log lines and the pending decision. `--moves N` and `--back N` stop earlier; `--state` writes the whole engine state.
+- **REQ-BUG-07** The admin can **recreate** a report: the server makes a new game from the bundle, as reported or a chosen number of moves earlier, with new seat tokens for every seat, and the admin is seated where the reporter sat. The copy is an ordinary game and can be played on. The original game is not touched, and a copy of a campaign assignment never counts for the campaign.
+- **REQ-BUG-08** A report has no link to the game's row, so deleting the game keeps the report. If the rules have changed so that a stored move no longer applies, the copy follows REQ-SRV-14's rule for that: the move and the later ones are dropped and a note is logged.
 
 ## 6. Deployment and operations
 

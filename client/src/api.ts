@@ -417,7 +417,39 @@ export interface AdminCampaign {
   created_at: string | null;
 }
 
+/** A player's bug report as the Admin page lists it (REQ-BUG-05). */
+export interface AdminBug {
+  id: string;
+  created_at: string | null;
+  game_id: string;
+  reporter: string;
+  seat: number;
+  description: string;
+  status: "open" | "resolved";
+  mode: GameMode;
+  box: Box;
+  players: string[];
+  bot: string | null;
+  turn: number;
+  step: string;
+  moves: number;
+}
+
+/** A playable copy of a reported game: a new game, with a seat token for every seat (REQ-BUG-07). */
+export interface RecreatedGame {
+  game_id: string;
+  seat_tokens: Record<string, string>;
+  reporter_seat: number;
+}
+
 export const adminApi = {
+  bugs: () => request<AdminBug[]>("/api/admin/bugs"),
+  bug: (id: string) => request<AdminBug & { bundle: unknown }>(`/api/admin/bugs/${id}`),
+  setBugStatus: (id: string, status: AdminBug["status"]) =>
+    request<AdminBug>(`/api/admin/bugs/${id}/status`, { method: "POST", body: JSON.stringify({ status }) }),
+  deleteBug: (id: string) => request<null>(`/api/admin/bugs/${id}`, { method: "DELETE" }),
+  recreateBug: (id: string, moves?: number) =>
+    request<RecreatedGame>(`/api/admin/bugs/${id}/recreate`, { method: "POST", body: JSON.stringify(moves == null ? {} : { moves }) }),
   status: () => request<{ enabled: boolean; admin: boolean }>("/api/admin/status"),
   login: (password: string) => request<null>("/api/admin/login", { method: "POST", body: JSON.stringify({ password }) }),
   logout: () => request<null>("/api/admin/logout", { method: "POST" }),
@@ -447,6 +479,9 @@ export const api = {
   command: (id: string, option: string) =>
     request<GameStateView>(`/api/games/${id}/commands`, { method: "POST", body: JSON.stringify({ option }), headers: seatHeaders(id) }),
   undo: (id: string) => request<GameStateView>(`/api/games/${id}/undo`, { method: "POST", headers: seatHeaders(id) }),
+  /** Report a bug: the server keeps the description with the game's setup, seed and moves (REQ-BUG-01). */
+  reportBug: (id: string, description: string) =>
+    request<{ id: string }>(`/api/games/${id}/bugs`, { method: "POST", body: JSON.stringify({ description }), headers: seatHeaders(id) }),
   dev: (id: string, body: DevCommand) =>
     request<GameStateView>(`/api/games/${id}/dev`, { method: "POST", body: JSON.stringify(body), headers: seatHeaders(id) }),
   deleteGame: (id: string) => request<null>(`/api/games/${id}`, { method: "DELETE", headers: seatHeaders(id) }),

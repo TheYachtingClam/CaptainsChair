@@ -474,3 +474,10 @@ label.challenge { align-items: flex-start; }
 .admin-actions .confirm-delete { justify-content: flex-end; gap: 0.4rem; flex-wrap: wrap; }
 .lobby-footer { margin-top: 2rem; font-size: 0.85rem; }
 .pile-note { margin: 0.25rem 0 0.75rem; padding: 0.5rem 0.75rem; border-left: 3px solid var(--accent); background: rgb(127 127 127 / 0.12); font-weight: 600; }
+
+/* Bug reports (REQ-BUG-01 to -08) */
+.bug-dialog { max-width: 560px; }
+.bug-dialog textarea { width: 100%; font: inherit; resize: vertical; }
+.bug-table .bug-text { white-space: pre-wrap; max-width: 34rem; }
+.bug-table tr.resolved { opacity: 0.55; }
+.bug-table td { vertical-align: top; }

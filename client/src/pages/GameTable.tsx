@@ -24,6 +24,7 @@ export function GameTable() {
   });
   const [socket, setSocket] = useState<SocketState>("connecting");
   const [exiting, setExiting] = useState(false);
+  const [reporting, setReporting] = useState(false);
   const quitting = useRef(false); // we deleted the game ourselves: the page moves on, not the socket handler
   const quit = useMutation({
     mutationFn: () => {
@@ -92,8 +93,14 @@ export function GameTable() {
     <main className="page">
       <div className="row between game-title">
         <h1>{MODE_LABELS[g.mode]}</h1>
-        <button className="secondary" onClick={() => setExiting(true)}>Exit game</button>
+        <div className="row">
+          {started && g.your_seat != null && (
+            <button className="secondary" onClick={() => setReporting(true)}>Report a bug</button>
+          )}
+          <button className="secondary" onClick={() => setExiting(true)}>Exit game</button>
+        </div>
       </div>
+      {reporting && <BugDialog gameId={gameId} onClose={() => setReporting(false)} />}
       {exiting && (
         <ExitDialog mode={g.mode} campaign={!!g.campaign_id} seated={g.your_seat != null} over={g.status === "finished"}
           busy={quit.isPending} error={quit.error?.message}
@@ -156,6 +163,44 @@ function describe(msg: { type: string; [k: string]: unknown }): string {
     case "game_updated": return "A player joined";
     default: return JSON.stringify(msg);
   }
+}
+
+/** Report a bug: the player says what they saw; the server keeps it with the game's setup, seed and every move so
+ *  far, so the game can be recreated as it is now or a few moves back (REQ-BUG-01 to -04). */
+function BugDialog({ gameId, onClose }: { gameId: string; onClose: () => void }) {
+  const [text, setText] = useState("");
+  const box = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => box.current?.focus(), []);
+  const send = useMutation({ mutationFn: () => api.reportBug(gameId, text.trim()) });
+  return (
+    <div className="modal-backdrop" onKeyDown={(e) => e.key === "Escape" && onClose()}>
+      <div className="card modal stack bug-dialog" role="dialog" aria-labelledby="bug-title">
+        <h2 id="bug-title">Report a bug</h2>
+        {send.isSuccess ? (
+          <>
+            <p>Thank you. The report is saved with the game as it is right now, so you can keep playing.</p>
+            <p className="muted">Report {send.data.id.slice(0, 8)}</p>
+            <button onClick={onClose}>Close</button>
+          </>
+        ) : (
+          <form className="stack" onSubmit={(e) => { e.preventDefault(); send.mutate(); }}>
+            <label>
+              What did you see, and what did you expect?
+              <textarea ref={box} rows={7} maxLength={4000} value={text} onChange={(e) => setText(e.target.value)}
+                placeholder="For example: I played Quark's second PLAY with 2 Ferengi in play and gained 1 Latinum, not 2." />
+            </label>
+            <p className="muted">The game's setup and every move so far are saved with your report, so the position can
+              be recreated. Nothing else is sent.</p>
+            {send.error && <p className="error" role="alert">{send.error.message}</p>}
+            <div className="row">
+              <button type="button" className="secondary" onClick={onClose} disabled={send.isPending}>Cancel</button>
+              <button type="submit" disabled={!text.trim() || send.isPending}>Send report</button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
 }
 
 /** Leave the game for now (it stays in "Your games"), or quit it for good, which deletes it. */

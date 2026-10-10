@@ -25,6 +25,7 @@ scripts/start.sh --dev      # API with reload on :8000, client on :5173
 cd client && npm run build  # type-check and build the client
 scripts/process_scans.py    # raw scans -> server/content/images/<same folders>/<id>.webp
 scripts/build_content.py    # card and board specs -> server/content/cards/*.yaml and boards.yaml
+scripts/replay_bug.py f.json # rebuild the game of a downloaded bug report and print where it stands
 scripts/card_coverage.py    # how many card operations, Bot rows and campaign bonuses have code; --missing lists the rest
 ```
 
@@ -48,6 +49,7 @@ Rules for engine code:
 - All randomness goes through `state.shuffle` or `state.rng()`. They derive from the seed and a counter, so replay and undo give the same result.
 - Mark every event that reveals hidden information, uses randomness or ends a turn with `irreversible=True`. Options are flagged for the can't-be-undone warning by trying each one on a copy of the state.
 - The server stores the seed and the list of commands, and rebuilds a game by replaying them (`server/app/play.py`). Undo marks the last command undone and replays.
+- Bug reports (requirements/19-technical-architecture.md §5.5): a seated player's "Report a bug" saves a `BugReport` row with a bundle (`app/bugs.py`): the setup, seed and every command, plus what the reporter saw. The admin lists, downloads and recreates them (`app/routes/admin.py`). To reproduce one, download it from the Admin page and run `scripts/replay_bug.py report.json` (`--back N` for N moves earlier); `bugs.rebuild(bundle)` gives the `GameState` for a test.
 - Developer commands (`engine/dev.py`) put any card into a zone or change resources and tracks, for testing by hand. The server accepts them only when `DEV_TOOLS=true`. They are stored and replayed like moves. Card tests build positions the same way with `given(...)` in `server/tests/scenario.py`.
 
 ## Khan

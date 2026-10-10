@@ -40,6 +40,16 @@ class CommandRequest(BaseModel):
     option: str
 
 
+class BugReportRequest(BaseModel):
+    """What the player saw go wrong (REQ-BUG-02)."""
+
+    description: str = Field(min_length=1, max_length=4000)
+
+
+class BugStatus(BaseModel):
+    status: Literal["open", "resolved"]
+
+
 class DevCommand(BaseModel):
     """Developer panel command (engine/dev.py)."""
 
