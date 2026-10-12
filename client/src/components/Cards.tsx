@@ -113,13 +113,16 @@ export function CardPreview({ preview }: { preview: Preview }) {
   );
 }
 
-/** A faceup card on the table. Hover or focus shows the large preview. */
-export function Card({ card, badges, style, tokens = true }: {
+/** A faceup card on the table. Hover or focus shows the large preview. Cards beamed to it are shown tucked under
+ *  it as small cards of their own, each with its own preview and click (REQ-CLI-12). */
+export function Card({ card, badges, style, tokens = true, mini = false }: {
   card: CardView;
   badges?: React.ReactNode;
   style?: React.CSSProperties;
   /** A Location shows the tokens at it, unless they are listed elsewhere (the Neutral Zone). */
   tokens?: boolean;
+  /** A card beamed to another card: drawn small under its host. */
+  mini?: boolean;
 }) {
   const setPreview = useContext(PreviewContext);
   const playable = useContext(PlayableContext).has(card.uid);
@@ -143,11 +146,12 @@ export function Card({ card, badges, style, tokens = true }: {
     .map(([kind, n]) => `${n} ${kind[0].toUpperCase()}${kind.slice(1)}`)
     .join(" · ");
   const show = (x: number, y: number) => {
-    if (!isSelected) setPreview({ image: card.image, beamed: card.beamed, token: card.token, tokenName: card.name, x, y });
+    if (!isSelected) setPreview({ image: card.image, beamed: card.beamed, token: mini ? undefined : card.token, tokenName: card.name, x, y });
   };
-  return (
+  const beamed = card.beamed ?? [];
+  const body = (
     <div
-      className={`gcard ${card.exhausted ? "exhausted" : ""} ${playable ? "playable" : ""} ${isSelected ? "selected" : ""} ${target ? "target" : ""}`}
+      className={`gcard ${mini ? "mini" : ""} ${card.exhausted && !mini ? "exhausted" : ""} ${playable ? "playable" : ""} ${isSelected ? "selected" : ""} ${target ? "target" : ""}`}
       role="button"
       data-uid={card.uid}
       aria-pressed={isSelected}
@@ -159,7 +163,7 @@ export function Card({ card, badges, style, tokens = true }: {
         }
       }}
       style={style}
-      title={target ? `Choose ${target.label}` : card.name}
+      title={target ? `Choose ${target.label}` : mini ? `${card.name} (beamed)` : card.name}
       tabIndex={0}
       onMouseEnter={(e) => show(e.clientX, e.clientY)}
       onMouseMove={(e) => show(e.clientX, e.clientY)}
@@ -171,10 +175,19 @@ export function Card({ card, badges, style, tokens = true }: {
       onBlur={() => setPreview(null)}
     >
       <img src={imageUrl(card.image)} alt={card.name} loading="lazy" />
-      {resourceText ? <span className="badge">{resourceText}</span> : null}
-      {card.suit === "Location" && tokens && <LocationTokens loc={card} compact />}
-      {card.beamed && card.beamed.length > 0 && <span className="badge bottom-left">+{card.beamed.length} beamed</span>}
+      {resourceText && !mini ? <span className="badge">{resourceText}</span> : null}
+      {card.suit === "Location" && tokens && !mini && <LocationTokens loc={card} compact />}
       {badges}
+    </div>
+  );
+  if (beamed.length === 0) return body;
+  // The host's hover preview shows only the host; each beamed card below has its own.
+  return (
+    <div className={`gcard-stack ${mini ? "mini" : ""}`}>
+      {body}
+      <div className="beamed-strip" role="group" aria-label={`Cards beamed to ${card.name}`}>
+        {beamed.map((b) => <Card key={b.uid} card={b} mini />)}
+      </div>
     </div>
   );
 }

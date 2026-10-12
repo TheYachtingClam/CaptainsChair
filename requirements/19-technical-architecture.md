@@ -159,7 +159,7 @@ All endpoints except login and health require a valid session (see §5).
 
 - **REQ-CLI-10** Show the central area: Market decks and faceup cards, Junk pile, Incident deck, Encounter deck, Stardate pile with its Glory, Location deck and the three Neutral Zone slots with token counts per player.
 - **REQ-CLI-11** Show both player areas: Location Area with Duty Officer slots, Fleet Area, Staging Area, Draw deck count, Discard pile, Reserve deck count, Development pile, Captain's Log, Crew board with tracks and missions, resource pool and Action tokens.
-- **REQ-CLI-12** Clicking any public pile opens a viewer: Discard pile, Junk pile, Development pile, Captain's Log, and beamed cards under a host card.
+- **REQ-CLI-12** Clicking any public pile opens a viewer: Discard pile, Junk pile, Development pile and Captain's Log. Cards beamed to a card are always visible: each is drawn as a small card tucked under its host, in either player's area. Hovering one shows its large preview, and clicking one selects it like any other card, or answers a question it is an option for (for example which beamed card to recall).
 - **REQ-CLI-13** Clicking a card shows a large version with its full rules text. Keywords in the text link to the reference.
 - **REQ-CLI-14** When the player has a pending decision, the table highlights the legal choices and shows a prompt explaining what to choose. Optional decisions have a clear skip button.
 - **REQ-CLI-15** When a Reaction becomes available on the opponent's turn, the player gets a clear prompt with a way to use it or decline.

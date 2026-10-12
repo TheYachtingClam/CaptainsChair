@@ -172,9 +172,12 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
   // Questions asked while a card resolves (where to warp, what to discard...) go in the floating box,
   // and the cards that answer them are highlighted and clickable.
   const midOperation = !!d?.options && (d.kind === "op" || d.kind === "trigger") && !view.result;
-  const visibleCards = [...view.neutral_zone, ...Object.values(view.market).filter((c): c is NonNullable<typeof c> => !!c),
+  // Cards beamed to a card on the table are shown under it, so they are on the board too.
+  const withBeamed = (cards: typeof view.neutral_zone): typeof view.neutral_zone =>
+    cards.flatMap((c) => [c, ...withBeamed(c.beamed ?? [])]);
+  const visibleCards = withBeamed([...view.neutral_zone, ...Object.values(view.market).filter((c): c is NonNullable<typeof c> => !!c),
     ...view.players.flatMap((p) => [p.captain, ...p.status, ...p.fleet, ...p.locations, ...p.duty, ...p.staging,
-      ...(p.hand ?? []), ...p.fleet.flatMap((s) => s.beamed ?? [])])];
+      ...(p.hand ?? [])])]);
   const visibleUids = new Set(visibleCards.map((c) => c.uid));
   // Cards the question is about that are not on the board, e.g. a card just gained or looked at from a deck.
   const shownCards = midOperation ? (d!.cards ?? []).filter((c) => !visibleUids.has(c.uid)) : [];

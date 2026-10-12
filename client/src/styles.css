@@ -481,3 +481,14 @@ label.challenge { align-items: flex-start; }
 .bug-table .bug-text { white-space: pre-wrap; max-width: 34rem; }
 .bug-table tr.resolved { opacity: 0.55; }
 .bug-table td { vertical-align: top; }
+
+/* Beamed cards, tucked under their host as small cards that can be hovered and clicked (REQ-CLI-12) */
+.gcard-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.beamed-strip {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; max-width: calc(var(--cw, 84px) * 1.5);
+  padding: 3px 4px; border-radius: 6px; background: #ffffff14; border: 1px dashed #ffffff55;
+}
+.gcard.mini, .mat .gcard.mini, .hand .gcard.mini, .dock-cards .gcard.mini { width: calc(var(--cw, 84px) * 0.42); margin: 0; }
+.gcard.mini img { border-radius: 3px; }
+.gcard.mini:hover, .gcard.mini:focus-visible { z-index: 3; scale: 1.12; }
+.modal .beamed-strip { background: #0000000f; border-color: var(--border); }
