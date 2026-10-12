@@ -4,7 +4,7 @@
 #
 
 app = 'captains-chair-wild-bush-4325'
-primary_region = 'lhr'
+primary_region = 'lax'
 
 [build]
   dockerfile = 'Dockerfile'
