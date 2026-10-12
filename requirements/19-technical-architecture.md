@@ -236,6 +236,7 @@ A player who sees something wrong can report it from the game table. The report 
 
 - **REQ-OPS-05** Server logs must never contain the password, session cookies or seat tokens.
 - **REQ-OPS-06** The SQLite database file is backed up daily if the host allows it.
+- **REQ-OPS-07** The site is hosted on Fly.io from `fly.toml`: one machine, with one volume mounted at `/app/data` for the SQLite file. It must stay a single machine, because the server caches games in memory and locks commands in-process (REQ-SRV-42). The passwords and the session secret are Fly secrets, never in the file. The container starts as root only to give the mounted volume to the unprivileged `app` user (`scripts/docker-entrypoint.sh`), then runs the server as `app`.
 
 ## 7. Out of scope for the first version
 

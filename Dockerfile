@@ -15,8 +15,11 @@ COPY server/pyproject.toml server/uv.lock ./
 RUN uv sync --frozen --no-dev
 COPY server/ ./
 COPY --from=client /client/dist ./static
+COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN useradd --create-home app && mkdir -p /app/data && chown app /app/data
-USER app
+# The entrypoint starts as root only to give a mounted data volume to "app", then runs the server as "app".
+ENV HOME=/home/app
+ENTRYPOINT ["docker-entrypoint.sh"]
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]
