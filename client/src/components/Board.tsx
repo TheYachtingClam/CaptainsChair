@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CardView, GameStateView, OptionView, RowRef } from "../api";
-import { BotPlayback } from "./BotPlayback";
+import { BotPlayback, botTurnClosed } from "./BotPlayback";
 import { SoloAid } from "./SoloAid";
 import { Card, CardPreview, PlayableContext, Preview, PreviewContext, SelectContext, Selection, TargetContext, PlayersContext } from "./Cards";
 import { CardPanel } from "./CardPanel";
@@ -154,7 +154,14 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
     const r = side?.rows.find((x) => x.number === row.number);
     return r ? `${r.matches.join(" / ")}: ${r.text}` : undefined;
   };
-  const d = view.decision;
+  // After the Bot's turn the player must press Done on its playback before their own turn begins: until then the
+  // next question (such as which secured Location to control) is held back (REQ-SOLO-56). Questions asked during
+  // the Bot's turn are not held: the turn cannot go on without them.
+  const botTurn = bot ? view.bot_turn : null;
+  const [botDone, setBotDone] = useState<number | null>(() =>
+    botTurn && botTurnClosed(gameId, botTurn) ? botTurn.start : null);
+  const botHold = !!botTurn && botTurn.finished && botTurn.steps.length > 0 && botDone !== botTurn.start && !view.result;
+  const d = botHold ? null : view.decision;
   const endOption = d?.kind === "action" ? d.options?.find((o) => o.id === "end") : undefined;
   // Cards named by a "play" or "activate" option the viewer can choose right now.
   const playable = new Set(
@@ -307,7 +314,8 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
       )}
 
       {bot && (
-        <BotPlayback gameId={gameId} turn={view.bot_turn} botName={bot.name} rowText={rowText} onHighlight={setBotRow} />
+        <BotPlayback gameId={gameId} turn={view.bot_turn} botName={bot.name} rowText={rowText} onHighlight={setBotRow}
+          onDone={setBotDone} />
       )}
 
       {others.map((p) => (
@@ -344,10 +352,15 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
         </div>
       )}
       {waiting && <div className="decision-dock waiting-note card" role="status">{waiting}</div>}
+      {botHold && (
+        <div className="decision-dock waiting-note card" role="status">
+          The Bot's turn is over. Press <strong>Done</strong> on its turn panel to start your turn.
+        </div>
+      )}
       {aid && <SoloAid onClose={() => setAid(false)} />}
       <CardPreview preview={preview} />
       {selection && (
-        <CardPanel selection={selection} view={view} onClose={deselect}
+        <CardPanel selection={selection} view={botHold ? { ...view, decision: null } : view} onClose={deselect}
           onChoose={(o) => { setSelection(null); pick(o); }} />
       )}
     </div>

@@ -33,6 +33,14 @@ function saveWatched(gameId: string, watched: Watched) {
   }
 }
 
+/** Whether the player has pressed Done on this Bot turn (REQ-SOLO-56). Until they do, their own next turn waits. */
+export function botTurnClosed(gameId: string, turn: BotTurnView | null): boolean {
+  if (!turn) return true;
+  const w = loadWatched(gameId);
+  // Older saves marked a finished turn by counting past its last step.
+  return w.start === turn.start && (!!w.closed || (turn.finished && w.count >= turn.steps.length));
+}
+
 /** The card and matched row in effect at a step: the latest ones up to and including it. */
 function context(steps: BotStep[], index: number): { card?: BotStep["card"]; row?: RowRef } {
   let card: BotStep["card"];
@@ -52,12 +60,14 @@ function context(steps: BotStep[], index: number): { card?: BotStep["card"]; row
  * (highlighted on its command card through `onHighlight`), and each thing it did. Previous, Next, Auto-play and Skip.
  * Playback stops on the last step so the player can step back through the turn; Done closes the panel.
  */
-export function BotPlayback({ gameId, turn, botName, rowText, onHighlight }: {
+export function BotPlayback({ gameId, turn, botName, rowText, onHighlight, onDone }: {
   gameId: string;
   turn: BotTurnView | null;
   botName: string;
   rowText: (row: RowRef) => string | undefined;
   onHighlight: (row: RowRef | null) => void;
+  /** The player pressed Done on the turn that started at this log position. */
+  onDone: (start: number) => void;
 }) {
   const steps = turn?.steps ?? [];
   const last = Math.max(steps.length - 1, 0);
@@ -65,11 +75,7 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight }: {
     const w = loadWatched(gameId);
     return turn && w.start === turn.start ? Math.min(w.count, last) : 0;
   });
-  const [closed, setClosed] = useState(() => {
-    const w = loadWatched(gameId);
-    // Older saves marked a finished turn by counting past its last step.
-    return !!turn && w.start === turn.start && (!!w.closed || (turn.finished && w.count >= turn.steps.length));
-  });
+  const [closed, setClosed] = useState(() => !!turn && botTurnClosed(gameId, turn));
   const [auto, setAuto] = useState(true);
 
   // A new Bot turn opens at its first step; more steps of the same turn continue where we were.
@@ -110,7 +116,7 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight }: {
         <strong>{botName}'s turn</strong>
         <span className="muted">
           Step {Math.min(index, last) + 1} of {steps.length}{turn!.finished ? "" : "+"}
-          {atEnd && turn!.finished && " · turn over"}
+          {atEnd && turn!.finished && " · turn over: press Done to start your turn"}
         </span>
       </header>
       <div className="bot-playback-controls">
@@ -123,7 +129,8 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight }: {
         </button>
         <button className="secondary" disabled={atEnd} onClick={() => { setAuto(false); setIndex(last); }}>Skip to end</button>
         <button disabled={!turn!.finished} title={turn!.finished ? undefined : "The Bot's turn is not over yet"}
-          onClick={() => setClosed(true)}>Done</button>
+          className={atEnd && turn!.finished ? "attention" : undefined}
+          onClick={() => { setClosed(true); onDone(turn!.start); }}>Done</button>
       </div>
       <div className="bot-playback-body">
         <div className="bot-playback-card-slot">

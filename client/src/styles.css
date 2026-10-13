@@ -492,3 +492,7 @@ label.challenge { align-items: flex-start; }
 .gcard.mini img { border-radius: 3px; }
 .gcard.mini:hover, .gcard.mini:focus-visible { z-index: 3; scale: 1.12; }
 .modal .beamed-strip { background: #0000000f; border-color: var(--border); }
+
+/* The Bot's turn is over: Done starts the player's turn (REQ-SOLO-56) */
+.bot-playback button.attention { box-shadow: 0 0 0 3px #5ee08a, 0 0 14px 3px #5ee08a99; animation: target-pulse 1.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .bot-playback button.attention { animation: none; } }

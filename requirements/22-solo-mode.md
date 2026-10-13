@@ -70,6 +70,7 @@ The human plays as normal. The Bot resolves each step as follows.
 - **REQ-SOLO-54** Flip the first card face up and resolve it with the Automated Command cards. Repeat one card at a time until every card is face up and resolved.
 - **REQ-SOLO-55** If an effect makes the Bot resolve another card (§7), resolve that card fully, then return to the card that triggered it.
 - **REQ-SOLO-56** The client animates each Bot card being flipped and resolved, with a short pause or a "next" button, so the player can follow it.
+  - When the Bot's turn is over, the player must press **Done** on the Bot's turn panel before their own turn begins. Until then the next question, such as which secured Location to take control of, is not shown and no card can be played. A question the Bot's turn itself puts to the player is never held back. The Done button is highlighted and a note says what to do.
 
 ### Clean-up Step
 
