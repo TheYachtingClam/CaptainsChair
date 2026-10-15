@@ -148,6 +148,18 @@ def one_bug(bug_id: str, db: Session = Depends(get_db)) -> dict:
     return {**_bug_summary(report), "bundle": report.bundle}
 
 
+@router.get("/bugs/{bug_id}/download", dependencies=[Depends(require_admin)])
+def download_bug(bug_id: str, db: Session = Depends(get_db)) -> Response:
+    """The report as a JSON file, written by the server so that no number passes through the browser: a seed above
+    2**53 would be rounded by JavaScript and the game would no longer replay (REQ-BUG-06)."""
+    import json
+
+    report = _bug(db, bug_id)
+    body = json.dumps({**_bug_summary(report), "bundle": report.bundle}, indent=1)
+    return Response(body, media_type="application/json",
+                    headers={"Content-Disposition": f'attachment; filename="bug-{report.id[:8]}.json"'})
+
+
 @router.post("/bugs/{bug_id}/status", dependencies=[Depends(require_admin)])
 def set_bug_status(bug_id: str, body: BugStatus, db: Session = Depends(get_db)) -> dict:
     report = _bug(db, bug_id)

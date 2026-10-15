@@ -137,9 +137,32 @@ def test_replay_script_reads_a_downloaded_report(admin, tmp_path):
     play_some(authed, game_id, headers)
     bug_id = report(authed, game_id, headers).json()["id"]
     path = tmp_path / "report.json"
-    path.write_text(json.dumps(authed.get(f"/api/admin/bugs/{bug_id}").json()))
+    download = authed.get(f"/api/admin/bugs/{bug_id}/download")
+    assert download.status_code == 200 and "attachment" in download.headers["content-disposition"]
+    path.write_bytes(download.content)
     out = subprocess.run([sys.executable, str(ROOT / "scripts" / "replay_bug.py"), str(path), "--back", "2",
                           "--state", str(tmp_path / "state.json")], capture_output=True, text=True, cwd=ROOT)
     assert out.returncode == 0, out.stderr
     assert "Replayed 4 of 6 commands" in out.stdout and "The Glory did not arrive." in out.stdout
     assert "Waiting for seat 0" in out.stdout and json.loads((tmp_path / "state.json").read_text())["seed"]
+
+
+def test_the_seed_survives_the_download_exactly(admin):
+    """A 63-bit seed rounded by JavaScript made a downloaded report replay a different game (bug e5ee84fa)."""
+    from app.db import get_db
+    from app.main import app
+    from app.models import Game
+
+    authed = admin
+    game_id, headers = solo_game(authed)
+    db = next(app.dependency_overrides.get(get_db, get_db)())
+    game = db.get(Game, game_id)
+    game.seed = 6233931749992975690  # above 2**53: a JavaScript number would round it to ...975000
+    db.commit()
+    play_some(authed, game_id, headers)
+    bug_id = report(authed, game_id, headers).json()["id"]
+    raw = authed.get(f"/api/admin/bugs/{bug_id}/download").content.decode()
+    assert '"6233931749992975690"' in raw  # written as text, so no client can round it
+    data = json.loads(raw)["bundle"]
+    assert bugs.as_game(data).seed == 6233931749992975690
+    assert bugs.rebuild(data).log[-1].text.startswith("The rules engine changed") is False

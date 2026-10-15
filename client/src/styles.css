@@ -75,7 +75,8 @@ button.option:hover:not(:disabled) { border-color: var(--accent); }
 button.danger { background: #c0392b; color: #fff; }
 button.danger:hover:not(:disabled) { background: #a93226; }
 .confirm-delete { flex-wrap: wrap; gap: 0.5rem; }
-button.secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+button.secondary, .button.secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+a.button { text-decoration: none; display: inline-block; }
 .modal-backdrop { position: fixed; inset: 0; background: rgb(0 0 0 / 0.5); display: grid; place-items: center; padding: 16px; z-index: 10; }
 .modal { max-width: 420px; width: 100%; color: var(--text); } /* popups opened inside the dark mats keep readable text */
 @media (max-width: 640px) { .zone { grid-template-columns: 1fr; } }

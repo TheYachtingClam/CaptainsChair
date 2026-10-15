@@ -28,7 +28,8 @@ def bundle(game: Game, seat: int) -> dict:
             "expansions": list(game.expansions or []),
             "promos": bool(game.promos),
             "promo_sets": None if game.promo_sets is None else list(game.promo_sets),
-            "seed": game.seed,
+            # As text: a 63-bit seed does not survive a JavaScript number (it rounds above 2**53).
+            "seed": str(game.seed),
             "bot": game.bot,
             "campaign": game.campaign,
             "status": game.status,
@@ -54,7 +55,7 @@ def as_game(data: dict, *, moves: int | None = None) -> Game:
     g = data["game"]
     commands = [dict(c) for c in data["commands"]]
     game = Game(id=str(uuid.uuid4()), mode=g["mode"], box=g.get("box", "to_boldly_go"), expansions=g["expansions"],
-                promos=g["promos"], promo_sets=g.get("promo_sets"), seed=g["seed"], bot=g.get("bot"),
+                promos=g["promos"], promo_sets=g.get("promo_sets"), seed=int(g["seed"]), bot=g.get("bot"),
                 campaign=g.get("campaign"), status=g.get("status", "active"),
                 commands=commands if moves is None else commands[:moves])
     for s in g["seats"]:

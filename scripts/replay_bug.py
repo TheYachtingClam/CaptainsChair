@@ -19,6 +19,14 @@ import sys
 from pathlib import Path
 
 SERVER = Path(__file__).resolve().parent.parent / "server"
+VENV_PYTHON = SERVER / ".venv" / "bin" / "python"
+try:
+    import sqlalchemy  # noqa: F401  the server's packages
+except ModuleNotFoundError:
+    # Run with the server's own environment, as scripts/start.sh sets it up.
+    if VENV_PYTHON.exists() and Path(sys.executable).resolve() != VENV_PYTHON.resolve():
+        os.execv(str(VENV_PYTHON), [str(VENV_PYTHON), *sys.argv])
+    sys.exit("The server's Python environment is missing: run scripts/start.sh --test once, then try again.")
 sys.path.insert(0, str(SERVER))
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
 

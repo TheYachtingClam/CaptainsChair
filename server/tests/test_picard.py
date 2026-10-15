@@ -386,3 +386,10 @@ def test_arbiter_of_succession_and_seek_out_new_life():
     me(few).staging.extend(few.new_inst(c) for c in ("2PER10", "2PER17", "2ALL06", "2CAR08"))
     refresh(few)
     assert not offered(few, "seek-out-new-life")
+
+
+def test_enterprise_d_names_itself_when_deployed():
+    """Bug e5ee84fa: the Enterprise-D shares the Shenzhou's PLAY, and its question named the Shenzhou."""
+    s = picard(hand=["1PIC02"], empty_hand=True)
+    play(s, card(s, "1PIC02", zone="hand"), 0)
+    assert s.decision.prompt == "Warp U.S.S. Enterprise-D or beam a card to it?"

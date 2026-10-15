@@ -15,7 +15,7 @@ def deploy(ctx, actions):
     ship = ctx.this_card
     yield from actions.deploy(ship)
     options = [("warp", "Warp this ship")] + ([("beam", "Beam a card here")] if ctx.me.hand else [])
-    choice = yield from actions.choose("Warp the Shenzhou or beam a card to it?", options)
+    choice = yield from actions.choose(f"Warp {ctx.name(ship)} or beam a card to it?", options)
     if choice == "warp":
         yield from actions.warp(ship)
     else:

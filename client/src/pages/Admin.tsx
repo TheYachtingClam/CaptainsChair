@@ -92,21 +92,10 @@ function AdminBugs() {
       navigate(`/games/${copy.game_id}`);
     },
   });
-  const download = useMutation({
-    mutationFn: async (id: string) => {
-      const report = await adminApi.bug(id);
-      const url = URL.createObjectURL(new Blob([JSON.stringify(report, null, 1)], { type: "application/json" }));
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `bug-${id.slice(0, 8)}.json`;
-      link.click();
-      URL.revokeObjectURL(url);
-    },
-  });
   const [show, setShow] = useState<"open" | "all">("open");
   const [back, setBack] = useState(0);
   const shown = (bugs.data ?? []).filter((b) => show === "all" || b.status === "open");
-  const error = bugs.error ?? setStatus.error ?? remove.error ?? recreate.error ?? download.error;
+  const error = bugs.error ?? setStatus.error ?? remove.error ?? recreate.error;
   return (
     <section className="card">
       <div className="row between">
@@ -153,7 +142,8 @@ function AdminBugs() {
                 <td className="admin-actions">
                   <button className="secondary" disabled={recreate.isPending}
                     onClick={() => recreate.mutate({ bug: b, back })}>Recreate</button>{" "}
-                  <button className="secondary" disabled={download.isPending} onClick={() => download.mutate(b.id)}>Download</button>{" "}
+                  {/* The server writes the file: passing it through JavaScript would round the game's seed. */}
+                  <a className="button secondary" href={`/api/admin/bugs/${b.id}/download`} download>Download</a>{" "}
                   <button className="secondary" disabled={setStatus.isPending} onClick={() => setStatus.mutate(b)}>
                     {b.status === "open" ? "Resolve" : "Reopen"}
                   </button>{" "}
