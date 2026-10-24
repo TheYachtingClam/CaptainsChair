@@ -428,6 +428,8 @@ export interface AdminBug {
   seat: number;
   description: string;
   status: "open" | "resolved";
+  /** A bug report, or a request for a feature; both keep the game (REQ-BUG-09). */
+  kind: "bug" | "feature";
   mode: GameMode;
   box: Box;
   players: string[];
@@ -486,8 +488,8 @@ export const api = {
     request<GameStateView>(`/api/games/${id}/commands`, { method: "POST", body: JSON.stringify({ option }), headers: seatHeaders(id) }),
   undo: (id: string) => request<GameStateView>(`/api/games/${id}/undo`, { method: "POST", headers: seatHeaders(id) }),
   /** Report a bug: the server keeps the description with the game's setup, seed and moves (REQ-BUG-01). */
-  reportBug: (id: string, description: string) =>
-    request<{ id: string }>(`/api/games/${id}/bugs`, { method: "POST", body: JSON.stringify({ description }), headers: seatHeaders(id) }),
+  reportBug: (id: string, description: string, kind: "bug" | "feature" = "bug") =>
+    request<{ id: string }>(`/api/games/${id}/bugs`, { method: "POST", body: JSON.stringify({ description, kind }), headers: seatHeaders(id) }),
   dev: (id: string, body: DevCommand) =>
     request<GameStateView>(`/api/games/${id}/dev`, { method: "POST", body: JSON.stringify(body), headers: seatHeaders(id) }),
   deleteGame: (id: string) => request<null>(`/api/games/${id}`, { method: "DELETE", headers: seatHeaders(id) }),

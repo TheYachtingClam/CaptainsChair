@@ -211,7 +211,7 @@ def report_bug(game_id: str, body: BugReportRequest, db: Session = Depends(get_d
     if not description:
         raise HTTPException(422, "Describe what you saw")
     name = next(s.display_name for s in game.seats if s.index == seat)
-    report = BugReport(game_id=game.id, seat=seat, reporter=name, description=description,
+    report = BugReport(game_id=game.id, seat=seat, reporter=name, description=description, kind=body.kind,
                        bundle=bugs.bundle(game, seat))
     db.add(report)
     db.commit()

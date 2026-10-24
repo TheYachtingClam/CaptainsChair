@@ -166,3 +166,21 @@ def test_the_seed_survives_the_download_exactly(admin):
     data = json.loads(raw)["bundle"]
     assert bugs.as_game(data).seed == 6233931749992975690
     assert bugs.rebuild(data).log[-1].text.startswith("The rules engine changed") is False
+
+
+def test_a_feature_request_keeps_the_game_too(admin):
+    """REQ-BUG-09."""
+    authed = admin
+    game_id, headers = solo_game(authed)
+    play_some(authed, game_id, headers, moves=3)
+    r = authed.post(f"/api/games/{game_id}/bugs", json={"description": "Show the Bot's hand size.", "kind": "feature"},
+                    headers=headers)
+    assert r.status_code == 201
+    assert report(authed, game_id, headers).status_code == 201  # a bug, by default
+    assert authed.post(f"/api/games/{game_id}/bugs", json={"description": "x", "kind": "wish"},
+                       headers=headers).status_code == 422
+    listed = {b["description"]: b for b in authed.get("/api/admin/bugs").json()}
+    feature = listed["Show the Bot's hand size."]
+    assert feature["kind"] == "feature" and feature["moves"] == 3 and listed["The Glory did not arrive."]["kind"] == "bug"
+    data = authed.get(f"/api/admin/bugs/{feature['id']}").json()["bundle"]
+    assert bugs.rebuild(data).turn == data["turn"]

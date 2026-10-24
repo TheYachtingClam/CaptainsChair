@@ -144,6 +144,7 @@ def _bug_summary(r: BugReport) -> dict:
         "seat": r.seat,
         "description": r.description,
         "status": r.status,
+        "kind": r.kind or "bug",
         "mode": game.get("mode"),
         "box": game.get("box"),
         "players": [f"{s['display_name']} ({s['deck_id']})" for s in game.get("seats", [])],

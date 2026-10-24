@@ -93,5 +93,7 @@ class BugReport(Base):
     reporter: Mapped[str] = mapped_column(String(40))
     description: Mapped[str] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(20), default="open")  # open or resolved
+    # "bug" (something went wrong) or "feature" (a request for something new). Both keep the game (REQ-BUG-09).
+    kind: Mapped[str] = mapped_column(String(10), default="bug", server_default=text("'bug'"))
     # The setup, the seed and every command so far (REQ-BUG-03), plus what the reporter saw.
     bundle: Mapped[dict] = mapped_column(JSON)

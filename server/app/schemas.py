@@ -44,6 +44,7 @@ class BugReportRequest(BaseModel):
     """What the player saw go wrong (REQ-BUG-02)."""
 
     description: str = Field(min_length=1, max_length=4000)
+    kind: Literal["bug", "feature"] = "bug"
 
 
 class BugStatus(BaseModel):

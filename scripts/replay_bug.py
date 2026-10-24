@@ -49,7 +49,8 @@ def main() -> None:
     state = bugs.rebuild(data, moves=moves)
 
     game = data["game"]
-    print(f"Bug report {report.get('id', '(bundle only)')}  {report.get('created_at', '')}")
+    kind = "Feature request" if report.get("kind") == "feature" else "Bug report"
+    print(f"{kind} {report.get('id', '(bundle only)')}  {report.get('created_at', '')}")
     if report.get("description"):
         print(f"  {report.get('reporter', '?')} (seat {report.get('seat', '?')}): {report['description']}")
     seats = ", ".join(f"{s['display_name']} ({s['deck_id']}, {s['board_side']})" for s in game["seats"])

@@ -93,13 +93,14 @@ function AdminBugs() {
     },
   });
   const [show, setShow] = useState<"open" | "all">("open");
+  const [kind, setKind] = useState<"all" | "bug" | "feature">("all");
   const [back, setBack] = useState(0);
-  const shown = (bugs.data ?? []).filter((b) => show === "all" || b.status === "open");
+  const shown = (bugs.data ?? []).filter((b) => (show === "all" || b.status === "open") && (kind === "all" || b.kind === kind));
   const error = bugs.error ?? setStatus.error ?? remove.error ?? recreate.error;
   return (
     <section className="card">
       <div className="row between">
-        <h2>Bug reports ({(bugs.data ?? []).filter((b) => b.status === "open").length} open)</h2>
+        <h2>Bug reports and feature requests ({(bugs.data ?? []).filter((b) => b.status === "open").length} open)</h2>
         <div className="row">
           <label className="inline">
             Recreate
@@ -109,6 +110,14 @@ function AdminBugs() {
               <option value={3}>3 moves earlier</option>
               <option value={5}>5 moves earlier</option>
               <option value={10}>10 moves earlier</option>
+            </select>
+          </label>
+          <label className="inline">
+            Kind
+            <select value={kind} onChange={(e) => setKind(e.target.value as typeof kind)}>
+              <option value="all">Both</option>
+              <option value="bug">Bugs</option>
+              <option value="feature">Feature requests</option>
             </select>
           </label>
           <label className="inline">
@@ -124,15 +133,16 @@ function AdminBugs() {
         where the reporter sat. The original game is not touched. Download gives the file
         for <code>scripts/replay_bug.py</code>.</p>
       {error && <p className="error">{error.message}</p>}
-      {shown.length === 0 ? <p className="muted">No bug reports.</p> : (
+      {shown.length === 0 ? <p className="muted">Nothing to show.</p> : (
         <table className="admin-table bug-table">
           <thead>
-            <tr><th>Reported</th><th>By</th><th>Game</th><th>What they saw</th><th /></tr>
+            <tr><th>Reported</th><th>Kind</th><th>By</th><th>Game</th><th>What they said</th><th /></tr>
           </thead>
           <tbody>
             {shown.map((b) => (
               <tr key={b.id} className={b.status === "resolved" ? "resolved" : undefined}>
                 <td>{when(b.created_at)}</td>
+                <td>{b.kind === "feature" ? <span className="pill feature-pill">Feature</span> : <span className="pill">Bug</span>}</td>
                 <td>{b.reporter}</td>
                 <td>
                   {MODE_LABELS[b.mode] ?? b.mode}{b.bot && ` (${b.bot} Bot)`}<br />
