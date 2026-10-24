@@ -790,10 +790,28 @@ def test_moopsy_draws_when_the_opponent_logs_a_person():
     run_to_action_for(s, 1)
     play(s, card(s, "2PER25", seat=1, zone="hand"), 0)  # no Starfleet in hand, so no scan question
     answer(s, "Stel")  # the opponent logs a Person
-    assert s.decision.kind == "trigger" and s.decision.seat == 0 and "Moopsy" in options(s)[0]
+    # House rule (REQ-AS-34): Moopsy does not interrupt; it is offered at the start of your next turn.
+    assert not (s.decision.kind == "trigger" and s.decision.seat == 0)
+    assert [r.uid for r in me(s).held] == [card(s, "3CAR02", zone="fleet").uid]
+    to_held_offer(s, 0)
+    assert "Reactions from your opponent's turn" in s.decision.prompt and "Moopsy" in options(s)[0]
+    hand = len(me(s).hand)
     answer(s, "Use")
-    assert len(me(s).hand) == hand + 1
+    assert len(me(s).hand) == hand + 1 and not me(s).held
     _ = dev
+
+
+def to_held_offer(s, seat):
+    """Play on until `seat` is offered the Reactions held from the opponent's turn."""
+    from engine.game import choose
+
+    for _ in range(200):
+        d = s.decision
+        if d.kind == "trigger" and d.seat == seat:
+            return
+        choose(s, d.seat, {"discard": "done", "action": "end", "control": "skip", "trigger": "pass"}.get(
+            d.kind, d.options[0].id), flag_irreversible=False)
+    raise AssertionError("no held Reaction was offered")
 
 
 def run_to_action_for(s, seat):
@@ -924,7 +942,10 @@ def test_jarok_gains_glory_after_being_attacked():
     s = given(hand=["2PER12", "2CAR14"], opp={"duty": ["2PER01"], "glory": 2})
     their = opp(s).glory
     play(s, card(s, "2PER12", zone="hand"), 0)
-    assert s.decision.kind == "trigger" and s.decision.seat == 1
+    # House rule (REQ-AS-34): Jarok does not interrupt your turn; it waits for the start of the opponent's turn.
+    assert s.decision.kind == "action" and s.decision.seat == 0 and opp(s).glory == their - 1
+    to_held_offer(s, 1)
+    assert "Jarok" in options(s)[0] and s.step == "resupply"  # before Resupply and Control
     answer(s, "Use")
     answer(s, "No")
     assert opp(s).glory == their - 1 + 1
@@ -1384,3 +1405,35 @@ def test_universal_translator_keeps_a_wildcard_it_did_not_need():
     s, wildcard = _translator_with_beamed_wildcard(["2ALL03", "2ALL12"])  # Bynars and Suliban: three Aliens
     assert [i.uid for i in card(s, "2SHI01", zone="fleet").beamed] == [wildcard.uid]
     assert card(s, "2SHI07").uid in [i.uid for i in me(s).discard]
+
+
+
+# ------------------------------------------------------------------ held Reactions (house rule, REQ-AS-34)
+
+def test_an_interrupting_reaction_still_pauses_your_turn():
+    """Riva interrupts: the opponent is asked at once, on your turn."""
+    s = given(hand=["2PER12", "2CAR14"], opp={"duty": ["2PER16"], "hand": ["2PER15"], "glory": 2})
+    play(s, card(s, "2PER12", zone="hand"), 0)
+    assert s.decision.seat == 1 and any("Riva" in o for o in options(s))
+    assert not opp(s).held
+
+
+def test_a_held_reaction_that_no_longer_applies_is_not_offered():
+    s = given(hand=["2PER12", "2CAR14"], opp={"duty": ["2PER01"], "glory": 2})
+    play(s, card(s, "2PER12", zone="hand"), 0)
+    jarok = card(s, "2PER01", seat=1, zone="duty")
+    assert [r.uid for r in opp(s).held] == [jarok.uid]
+    jarok.exhausted = True  # used up before the opponent's turn: the held Reaction lapses
+    run_to_action_for(s, 1)
+    assert not opp(s).held and not any("Jarok" in e.text and "uses" in e.text for e in s.log)
+
+
+def test_a_reaction_on_your_own_turn_is_offered_at_once():
+    s = given(duty=["2GEO21"], dilithium=2)  # Lt. Detmer: after warping a Ship, draw a card
+    ship = card(s, "2GEO02", zone="fleet")  # the Shenzhou: spend 1 Dilithium to warp this ship
+    from tests.scenario import activate
+
+    activate(s, ship, 1)
+    while s.decision.kind not in ("trigger", "action"):
+        answer(s, options(s)[0])
+    assert s.decision.kind == "trigger" and "Detmer" in options(s)[0] and not me(s).held

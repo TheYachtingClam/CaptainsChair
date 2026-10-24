@@ -33,7 +33,7 @@ def provoke(ctx, actions):
         yield from actions.promote(person)
 
 
-@operation("2PER02", 2, uses=[A.ATTACK, A.GIVE],
+@operation("2PER02", 2, interrupt=True, uses=[A.ATTACK, A.GIVE],
            trigger=lambda ctx, ev: ev["kind"] == "would_return_incident" and ev["seat"] == ctx.me.seat)
 def protest(ctx, actions):
     """ATTACK REACTION: When you would return an Incident, give it to your opponent instead.

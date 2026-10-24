@@ -34,6 +34,9 @@ class OpImpl:
     costs: tuple[Any, ...] = ()
     requires: Callable | None = None  # (ctx) -> bool; "Requires ..." preconditions (KW-REQ)
     trigger: Callable | None = None  # (ctx, event) -> bool; for REACTION and triggered PASSIVE operations
+    # An interrupting REACTION: offered at once, even on the opponent's turn. Any other REACTION that triggers on the
+    # opponent's turn is held until the start of its owner's next turn (house rule, REQ-AS-34).
+    interrupt: bool = False
 
 
 OPS: dict[tuple[str, int], OpImpl] = {}
@@ -138,10 +141,10 @@ CANNOT_WARP: set[str] = set()
 DISMISS_REWARDS: dict[str, Callable[["GameState", "Player", "Inst"], dict[str, int]]] = {}
 
 
-def operation(card_ids, index: int, *, uses=(), cost=(), requires=None, trigger=None):
+def operation(card_ids, index: int, *, uses=(), cost=(), requires=None, trigger=None, interrupt=False):
     def register(fn):
         for cid in _ids(card_ids):
-            OPS[(cid, index)] = OpImpl(cid, index, fn, frozenset(uses), tuple(cost), requires, trigger)
+            OPS[(cid, index)] = OpImpl(cid, index, fn, frozenset(uses), tuple(cost), requires, trigger, interrupt)
         return fn
 
     return register
@@ -331,7 +334,7 @@ def link_copies() -> None:
         for (cid, index), impl in list(OPS.items()):
             if cid == twin and index < 100:
                 OPS.setdefault((card.id, index), OpImpl(card.id, index, impl.fn, impl.uses, impl.costs, impl.requires,
-                                                        impl.trigger))
+                                                        impl.trigger, impl.interrupt))
         for reg in registries:
             if twin in reg and card.id not in reg:
                 reg.add(card.id) if isinstance(reg, set) else reg.__setitem__(card.id, reg[twin])

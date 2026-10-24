@@ -64,6 +64,10 @@ This section decides how the engine orders triggered operations. It applies to t
 - **REQ-AS-31 Restrictions still apply.** Effects that stop Reactions, such as Vice Admiral Pasalk, remove those triggers from the queue.
 - **REQ-AS-32 Solo.** The Bot has no Passives or Reactions, since it ignores card text (REQ-SOLO-80). Only the human's triggers are queued, apart from Bot rules the solo rules define.
 - **REQ-AS-33 Client.** When a player has triggers to order or choose, the client shows one prompt listing them. Mandatory triggers are marked. Each choice to use a trigger goes through the can't-be-undone warning when it applies ([20-undo.md](20-undo.md)).
+- **REQ-AS-34 Held Reactions (house rule, decided 2026-10-23).** Only a Reaction that **interrupts** may pause the opponent's turn. Any other Reaction that triggers during the opponent's turn is **held**: it is not offered then, and the opponent's turn carries on. At the start of its owner's next turn, before Resupply and Control, every held Reaction is offered once, in one prompt. Each is checked again at that moment (REQ-AS-30): its card must still be ready and in a table position, its trigger must still apply (for example the Incident just taken is still in hand) and its cost must be payable; if not, it lapses. Reactions on the owner's own turn are offered at once, as before.
+  - The interrupting Reactions are the ones that hurt the opponent or cancel their attack: *Captain Dorg* (removes opponent Away Teams), *Augmentation Plague* (forces a discard), *Khitomer* (gives an Incident), *Ambassador Gral* (gives an Incident instead of returning it), *Riva*, *Worf, Son of Mogh* and *Hikaru Sulu* (ignore an attack), *Phasers* (both printings) and *Book's Ship*. In card code they are `@operation(..., interrupt=True)`.
+  - "When … would" Reactions (REQ-AS-27) replace an event as it happens, so they are never held.
+  - In solo games this also applies to the Bot's turn: the human's Reactions to it wait for the start of their turn.
 
 ## 4. Completing goals (missions)
 

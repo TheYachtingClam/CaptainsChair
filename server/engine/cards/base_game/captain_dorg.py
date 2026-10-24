@@ -39,7 +39,7 @@ def mutiny(ctx, actions):
     yield from actions.gain_action(1)
 
 
-@operation("1PER07", 2, uses=[A.ATTACK, A.REMOVE_AWAY_TEAM, A.GAIN_RESOURCE],
+@operation("1PER07", 2, interrupt=True, uses=[A.ATTACK, A.REMOVE_AWAY_TEAM, A.GAIN_RESOURCE],
            trigger=lambda ctx, ev: ev["kind"] == "put_into_play" and ev["seat"] == ctx.me.seat
            and ctx.event_card is not None and (ctx.has(ctx.event_card, "Klingon") or ctx.has(ctx.event_card, "Pakled")))
 def raid(ctx, actions):

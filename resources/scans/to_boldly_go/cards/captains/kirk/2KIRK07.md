@@ -50,6 +50,7 @@ scan: 2KIRK07.jpg
 - **Trigger:** An opponent's attack is about to affect you (REQ-AS-27).
 - **Effect:**
   1. Ignore the attack's negative effect.
+- **Timing:** interrupts. It is offered at once, also on the opponent's turn (REQ-AS-34).
 - **Actions used:** `EXHAUST`
 - **Undoable:** yes
 

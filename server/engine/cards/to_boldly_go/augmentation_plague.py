@@ -25,7 +25,7 @@ def klingon_glory(ctx, actions):
     yield from actions.gain_resource("glory", 1)
 
 
-@operation("2CAR01", 1, uses=[A.ATTACK, A.FORCE, A.DISCARD],
+@operation("2CAR01", 1, interrupt=True, uses=[A.ATTACK, A.FORCE, A.DISCARD],
            trigger=lambda ctx, ev: ev["kind"] == "put_into_play" and ev["seat"] != ctx.me.seat
            and ctx.event_card is not None and has_trait(ctx.event_card, "Klingon"))
 def infect(ctx, actions):

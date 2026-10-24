@@ -31,7 +31,7 @@ def _dismiss_beamed(ctx, actions):
     yield from actions.dismiss(card)
 
 
-@operation("1BUR15", 3, uses=[A.DISMISS],
+@operation("1BUR15", 3, interrupt=True, uses=[A.DISMISS],
            cost=[EffectCost(lambda ctx: bool(beamed_here(ctx)), _dismiss_beamed, (A.DISMISS,),
                             "dismiss a card beamed here")],
            trigger=lambda ctx, ev: ev["kind"] == "would_dismiss_duty_officer" and ev["seat"] == ctx.me.seat)

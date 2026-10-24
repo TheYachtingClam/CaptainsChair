@@ -23,7 +23,7 @@ def ready(ctx, actions):
     yield from actions.deploy(ctx.this_card)
 
 
-@operation("2CAR14", 2, uses=[A.DISMISS],
+@operation("2CAR14", 2, interrupt=True, uses=[A.DISMISS],
            trigger=lambda ctx, ev: ev["kind"] == "would_attack" and ev["seat"] == ctx.me.seat
            and ev.get("removes_away_teams"))
 def stun(ctx, actions):

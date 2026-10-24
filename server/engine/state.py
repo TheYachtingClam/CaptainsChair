@@ -81,6 +81,7 @@ class Offer(BaseModel):
 
     seat: int
     refs: list[OpRef]
+    held: bool = False  # Reactions held from the opponent's turn, offered at the start of this turn (REQ-AS-34)
 
 
 class BotState(BaseModel):
@@ -136,6 +137,8 @@ class Player(BaseModel):
     missions_completed: list[str] = Field(default_factory=list)
     enlisted: list[str] = Field(default_factory=list)  # card ids of Developments enlisted this game
     controls_this_turn: int = 0
+    # Reactions that triggered on the opponent's turn, held until the start of this player's turn (REQ-AS-34).
+    held: list[OpRef] = Field(default_factory=list)
     marks: list[Mark] = Field(default_factory=list)  # Khan: trait slots marked on the Crew board (REQ-CD-KHN-06)
     # Cadet Training: the random other Captain whose traits set Khan's two opponent entries (REQ-CD-KHN-10).
     rival_captain: str | None = None

@@ -15,7 +15,7 @@ def accords(ctx, actions):
         yield from actions.free_play(card)
 
 
-@operation("2LOC14", 1, uses=[A.TAKE_INCIDENT],
+@operation("2LOC14", 1, interrupt=True, uses=[A.TAKE_INCIDENT],
            trigger=lambda ctx, ev: ev["kind"] == "put_into_play" and ev["seat"] != ctx.me.seat
            and ctx.event_card is not None and "Attack" in ctx.traits(ctx.event_card))
 def treaty_violation(ctx, actions):

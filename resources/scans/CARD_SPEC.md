@@ -51,6 +51,7 @@ One subsection per printed operation, in printed order.
 - **Requires:** Specialty or other precondition, or none.
 - **Cost:** everything that must be paid or done before the effect ("A" in "do A to do B"), or none.
 - **Trigger:** for REACTION, SUPPORT and triggered PASSIVE operations, the exact event; otherwise omit.
+- **Timing:** for a REACTION that hurts the opponent or cancels their attack, "interrupts" (`interrupt=True` in code). Omit it otherwise: such a REACTION triggered on the opponent's turn is held until its owner's next turn (REQ-AS-34).
 - **Effect:** numbered steps, in order.
 - **Choices:** every decision, and which player makes it.
 - **Actions used:** the action names from `CLAUDE.md`, e.g. `DISMISS`, `DRAW`.

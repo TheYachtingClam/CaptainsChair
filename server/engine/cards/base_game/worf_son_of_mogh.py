@@ -19,7 +19,7 @@ def strategic_operations(ctx, actions):
     yield from actions.send_away_team(2, same_location=True)
 
 
-@operation("1SIS10", 1, uses=[A.DISMISS],
+@operation("1SIS10", 1, interrupt=True, uses=[A.DISMISS],
            trigger=lambda ctx, ev: ev["kind"] == "would_attack" and ev["seat"] == ctx.me.seat)
 def stand_guard(ctx, actions):
     """REACTION: When you would be attacked, dismiss this card to ignore the negative effect."""

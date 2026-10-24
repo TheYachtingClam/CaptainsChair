@@ -136,7 +136,12 @@ def _collect_triggers(state: GameState, seat: int, trigger_event: dict) -> None:
                 mandatory.append(ref)
             elif (not inst.exhausted and all(c.can_pay(ctx) for c in impl.costs)
                   and not ops.reactions_blocked(state, seat)):
-                optional.append(ref)
+                if holds_reaction(state, seat, impl):
+                    player.held.append(ref)
+                    state.emit(f"{player.name}'s {name(inst)} can react; it is offered at the start of their turn.",
+                               seat=seat)
+                else:
+                    optional.append(ref)
     # SPECIAL operations with a trigger that work "while this card is in your Staging Area" (Anomaly Consolidation
     # Day). Their code asks any "may" itself.
     for inst in player.staging:
@@ -176,6 +181,22 @@ def _collect_triggers(state: GameState, seat: int, trigger_event: dict) -> None:
         state.offer = ops_offer(seat, optional)
 
 
+def holds_reaction(state: GameState, seat: int, impl) -> bool:
+    """House rule (REQ-AS-34): a REACTION that triggers on the opponent's turn waits for the start of its owner's next
+    turn, unless it interrupts (`@operation(..., interrupt=True)`). It does not pause the opponent's turn."""
+    return state.active != seat and not impl.interrupt and state.step not in ("setup", "final", "over")
+
+
+def _offer_held(state: GameState, player: Player) -> None:
+    """At the start of a player's turn, before Resupply and Control, offer the Reactions held from the opponent's
+    turn (REQ-AS-34). Each is checked again: its card must still be ready, its trigger must still apply and its cost
+    must still be payable."""
+    if player.held:
+        state.offer = ops_offer(player.seat, player.held)
+        state.offer.held = True
+        player.held = []
+
+
 def ops_offer(seat, refs):
     from engine.state import Offer
 
@@ -193,7 +214,13 @@ def _ask_offer(state: GameState) -> None:
         if card(inst).operations[ref.index].kind == "SUPPORT":
             if inst in player.hand:  # SUPPORT is used from hand only (REQ-EXP-34)
                 valid.append(ref)
-        elif not inst.exhausted and inst in table_cards(player):
+        elif not inst.exhausted and (inst in table_cards(player) or inst in ops.staged_people(player)):
+            if offer.held:  # held from the opponent's turn: is it still usable now?
+                impl = card_code.OPS.get((inst.card, ref.index))
+                ctx = ops.Ctx(state, ref)
+                if impl is None or not impl.trigger(ctx, ref.event or {}) or \
+                        not all(c.can_pay(ctx) for c in impl.costs):
+                    continue
             valid.append(ref)
     if not valid:
         state.offer = None
@@ -205,7 +232,9 @@ def _ask_offer(state: GameState) -> None:
         op = card(inst).operations[r.index]
         return f"Use {name(inst)}{' (SUPPORT, from hand)' if op.kind == 'SUPPORT' else ''}: {op.text}"
 
-    ask(state, offer.seat, "trigger", "Use a Reaction or SUPPORT card?",
+    prompt = ("Reactions from your opponent's turn: use one now?" if offer.held
+              else "Use a Reaction or SUPPORT card?")
+    ask(state, offer.seat, "trigger", prompt,
         [(f"use:{i}", label(r)) for i, r in enumerate(valid)] + [("pass", "Do not use")])
 
 
@@ -506,6 +535,7 @@ def step_start(state: GameState) -> None:
     player = state.player(state.active)
     player.controls_this_turn = 0
     state.emit(f"Turn {state.turn + 1}: {player.name}.", seat=player.seat, tag="turn")
+    _offer_held(state, player)
     if player.bot is not None:  # the Bot has no Resupply Step; its turn is run by engine/bot (REQ-SOLO-50)
         state.step = "bot"
         state.substep = "control"

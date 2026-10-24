@@ -30,7 +30,7 @@ def helmsman(ctx, actions):
     yield from actions.send_away_team(2, where=lambda loc: bool(ctx.ships_at(loc)), same_location=True)
 
 
-@operation("2KIRK07", 1, uses=[A.EXHAUST], cost=[ExhaustAShip()],
+@operation("2KIRK07", 1, interrupt=True, uses=[A.EXHAUST], cost=[ExhaustAShip()],
            trigger=lambda ctx, ev: ev["kind"] == "would_attack" and ev["seat"] == ctx.me.seat)
 def evasive_action(ctx, actions):
     """REACTION: When you would be attacked, exhaust a Ship to ignore the negative effect."""

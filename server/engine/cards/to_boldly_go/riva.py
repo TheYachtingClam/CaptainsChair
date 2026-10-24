@@ -18,7 +18,7 @@ def mediate(ctx, actions):
         yield from actions.gain_resource("glory", 1)
 
 
-@operation("2PER16", 1, uses=[A.DISCARD, A.GAIN_RESOURCE], cost=[DiscardFromHand(1)],
+@operation("2PER16", 1, interrupt=True, uses=[A.DISCARD, A.GAIN_RESOURCE], cost=[DiscardFromHand(1)],
            trigger=lambda ctx, ev: ev["kind"] == "would_attack" and ev["seat"] == ctx.me.seat)
 def mediate_conflict(ctx, actions):
     """REACTION: When you would be attacked, discard a card to ignore the negative effect. Gain 1 [Glory] for each
