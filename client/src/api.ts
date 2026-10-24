@@ -356,6 +356,8 @@ export interface GameStateView {
   decision: { seat: number; kind: string; prompt: string; options?: OptionView[]; cards?: CardView[] } | null;
   log: string[];
   bot_turn: BotTurnView | null;
+  /** Two-player games: the other player's latest turn, played back like a Bot turn (REQ-CLI-19). */
+  opponent_turn?: BotTurnView | null;
   result: { reason: string; winners: number[]; rating?: string; scores?: { seat: number; name: string; total: number; parts: Record<string, number> }[] } | null;
   can_undo: boolean;
   dev_tools?: boolean;

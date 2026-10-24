@@ -60,7 +60,7 @@ function context(steps: BotStep[], index: number): { card?: BotStep["card"]; row
  * (highlighted on its command card through `onHighlight`), and each thing it did. Previous, Next, Auto-play and Skip.
  * Playback stops on the last step so the player can step back through the turn; Done closes the panel.
  */
-export function BotPlayback({ gameId, turn, botName, rowText, onHighlight, onDone }: {
+export function BotPlayback({ gameId, turn, botName, rowText, onHighlight, onDone, holdsTurn = true }: {
   gameId: string;
   turn: BotTurnView | null;
   botName: string;
@@ -68,6 +68,8 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight, onDon
   onHighlight: (row: RowRef | null) => void;
   /** The player pressed Done on the turn that started at this log position. */
   onDone: (start: number) => void;
+  /** Whether the player's own turn waits for Done (a Bot turn); not for a human opponent's turn (REQ-CLI-19). */
+  holdsTurn?: boolean;
 }) {
   const steps = turn?.steps ?? [];
   const last = Math.max(steps.length - 1, 0);
@@ -116,7 +118,7 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight, onDon
         <strong>{botName}'s turn</strong>
         <span className="muted">
           Step {Math.min(index, last) + 1} of {steps.length}{turn!.finished ? "" : "+"}
-          {atEnd && turn!.finished && " · turn over: press Done to start your turn"}
+          {atEnd && turn!.finished && (holdsTurn ? " · turn over: press Done to start your turn" : " · turn over")}
         </span>
       </header>
       <div className="bot-playback-controls">
@@ -129,7 +131,7 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight, onDon
         </button>
         <button className="secondary" disabled={atEnd} onClick={() => { setAuto(false); setIndex(last); }}>Skip to end</button>
         <button disabled={!turn!.finished} title={turn!.finished ? undefined : "The Bot's turn is not over yet"}
-          className={atEnd && turn!.finished ? "attention" : undefined}
+          className={atEnd && turn!.finished && holdsTurn ? "attention" : undefined}
           onClick={() => { setClosed(true); onDone(turn!.start); }}>Done</button>
       </div>
       <div className="bot-playback-body">

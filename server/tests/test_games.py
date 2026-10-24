@@ -275,3 +275,29 @@ def test_conspiracy_needs_core_box_content(authed):
     assert r.status_code == 201 and r.json()["game"]["bot"]["conspiracy"]
     view = authed.get(f"/api/games/{r.json()['game']['id']}", headers={"X-Seat-Token": r.json()["seat_token"]})
     assert view.status_code == 200
+
+
+def test_the_other_players_turn_can_be_stepped_through():
+    """REQ-CLI-19: in a two-player game each player gets the other's latest turn as steps, like a Bot turn."""
+    from engine.game import choose
+    from engine.views import game_view
+    from tests.scenario import card, given, play
+
+    s = given(hand=["2GEO15"], empty_hand=True)  # Analyze: take an Incident to gain a Ship
+    play(s, card(s, "2GEO15", zone="hand"), 0)
+    while s.decision.kind != "action":
+        choose(s, 0, s.decision.options[0].id, flag_irreversible=False)
+    theirs = game_view(s, 1)["opponent_turn"]
+    assert theirs is not None and not theirs["finished"]
+    assert any(st.get("card", {}).get("id") == "2GEO15" for st in theirs["steps"])  # "plays Analyze", with its card
+    assert game_view(s, 0)["opponent_turn"] is None or game_view(s, 0)["opponent_turn"]["start"] != theirs["start"]
+    choose(s, 0, "end", flag_irreversible=False)
+    while not (s.decision.kind == "action" and s.decision.seat == 1):
+        d = s.decision
+        choose(s, d.seat, {"discard": "done", "control": "skip", "trigger": "pass"}.get(d.kind, d.options[0].id),
+               flag_irreversible=False)
+    done = game_view(s, 1)["opponent_turn"]
+    assert done["finished"] and done["start"] == theirs["start"]
+    # Lines only the other player may see are left out.
+    assert all(e.private_to in (None, 1) for e in s.log[done["start"]:] if any(st["text"] == e.text for st in done["steps"]))
+    assert game_view(s, None)["opponent_turn"] is None  # a spectator has no "other player"

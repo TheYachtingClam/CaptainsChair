@@ -141,10 +141,21 @@ def _bot_turn(state: GameState, viewer: int | None) -> dict | None:
     start of that turn, with the card it is about and the Automated Command row it matched. `start` is the turn's
     position in the whole log, so the client knows which turn it has already watched."""
     bot = next((p for p in state.players if p.bot is not None), None)
-    if bot is None:
+    return None if bot is None else _turn_steps(state, bot.seat, viewer)
+
+
+def _opponent_turn(state: GameState, viewer: int | None) -> dict | None:
+    """In a two-player game, the other player's latest turn as steps, for the same playback as a Bot turn
+    (REQ-CLI-19). Only what the viewer may see: lines private to the other player are left out."""
+    if state.mode != "two_player" or viewer is None:
         return None
+    other = next((p for p in state.players if p.seat != viewer), None)
+    return None if other is None else _turn_steps(state, other.seat, viewer)
+
+
+def _turn_steps(state: GameState, seat: int, viewer: int | None) -> dict | None:
     start = next((i for i in range(len(state.log) - 1, -1, -1)
-                  if state.log[i].tag == "turn" and state.log[i].seat == bot.seat), None)
+                  if state.log[i].tag == "turn" and state.log[i].seat == seat), None)
     if start is None:
         return None
     end = next((i for i in range(start + 1, len(state.log)) if state.log[i].tag == "turn"), len(state.log))
@@ -198,5 +209,6 @@ def game_view(state: GameState, viewer: int | None) -> dict:
         "decision": decision,
         "log": [e.text for e in state.log[-60:] if e.private_to in (None, viewer)],
         "bot_turn": _bot_turn(state, viewer),
+        "opponent_turn": _opponent_turn(state, viewer),
         "result": state.result,
     }

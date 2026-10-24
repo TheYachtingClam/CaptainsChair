@@ -167,6 +167,7 @@ All endpoints except login and health require a valid session (see §5).
 - **REQ-CLI-16** An action log lists every public event in plain words.
 - **REQ-CLI-17** A turn indicator shows whose turn it is, the current step, and whether a Resolution has been triggered with how many turns remain.
 - **REQ-CLI-18** The table works on a laptop screen. Tablet support is desirable. Phone support is not required.
+- **REQ-CLI-19** In a two-player game each player can step through the other player's latest turn, as with a Bot's turn (REQ-SOLO-56): the same panel with Previous, Next, Auto-play, Skip to end and Done, showing each log line of that turn and, where a line is about a card (played, used, deployed, gained, logged, taken control of and so on), that card. Only lines the viewer may see are shown. It follows the other player's turn live as it happens. Unlike a Bot's turn, the player's own turn does not wait for Done.
 
 ## 5. Access control: shared password
 

@@ -1063,7 +1063,7 @@ class Actions:
             return
         take_out(self.state, inst)
         owner.discard.append(inst)
-        self.emit(f"{owner.name} discards {name(inst)}.")
+        self.emit(f"{owner.name} discards {name(inst)}.", card=inst.card)
         raise_event(self.state, "discard", owner.seat, inst.uid, step=self.state.step)
 
     def discard_top(self) -> Gen:
@@ -1162,7 +1162,7 @@ class Actions:
         beamed = flatten_beamed(inst)
         owner.log.extend(beamed)
         owner.log.append(inst)
-        self.state.emit(f"{owner.name} logs {name(inst)}.", seat=owner.seat)
+        self.state.emit(f"{owner.name} logs {name(inst)}.", seat=owner.seat, card=inst.card)
         for logged in [inst, *beamed]:
             raise_event(self.state, "log", owner.seat, logged.uid, by=self.ctx.me.seat)
 
@@ -1173,7 +1173,7 @@ class Actions:
             return
         where = take_out(self.state, inst)
         onto.beamed.append(inst)
-        self.emit(f"{self.ctx.me.name} beams {name(inst)} to {name(onto)}.")
+        self.emit(f"{self.ctx.me.name} beams {name(inst)} to {name(onto)}.", card=inst.card)
         if where.zone in ("hand", "discard"):
             put_into_play(self.state, self.ctx.me, inst, beamed=True)
         return
@@ -1193,7 +1193,7 @@ class Actions:
             return
         where = take_out(self.state, inst)
         self.ctx.me.duty.append(inst)
-        self.emit(f"{self.ctx.me.name} promotes {name(inst)} to Duty Officer.")
+        self.emit(f"{self.ctx.me.name} promotes {name(inst)} to Duty Officer.", card=inst.card)
         if where.zone in ("hand", "discard"):
             put_into_play(self.state, self.ctx.me, inst)
         raise_event(self.state, "promote", self.ctx.me.seat, inst.uid)
@@ -1215,7 +1215,7 @@ class Actions:
         take_out(self.state, inst)
         inst.at = None
         self.ctx.me.fleet.append(inst)
-        self.emit(f"{self.ctx.me.name} deploys {name(inst)}.")
+        self.emit(f"{self.ctx.me.name} deploys {name(inst)}.", card=inst.card)
         raise_event(self.state, "deploy", self.ctx.me.seat, inst.uid)
         return
         yield  # pragma: no cover
@@ -1476,7 +1476,7 @@ class Actions:
                                             show=[inst])
             (self.ctx.me.draw.insert(0, inst) if answer == "top" else self.ctx.me.discard.append(inst))
             where = "on top of their deck" if answer == "top" else "into their Discard pile"
-        self.emit(f"{self.ctx.me.name} gains {name(inst)} {where}.")
+        self.emit(f"{self.ctx.me.name} gains {name(inst)} {where}.", card=inst.card)
         to = "hand" if to_hand else ("top" if answer == "top" else "discard")
         raise_event(self.state, "gain", self.ctx.me.seat, inst.uid, to=to)
         yield from self._offer_mark(inst)  # Khan's board: "after gaining a card ... you may mark one" (REQ-CD-KHN-06)
@@ -1633,7 +1633,7 @@ class Actions:
         self.ctx.me.development.remove(inst)
         self.ctx.me.draw.insert(0, inst)
         self.ctx.me.enlisted.append(inst.card)
-        self.emit(f"{self.ctx.me.name} enlists {name(inst)}{' for free' if free else ''}.")
+        self.emit(f"{self.ctx.me.name} enlists {name(inst)}{' for free' if free else ''}.", card=inst.card)
         raise_event(self.state, "enlist", self.ctx.me.seat, inst.uid)
         return inst
 
@@ -2024,7 +2024,8 @@ class Actions:
             self.state.location_deck.remove(loc)
             self.ctx.me.locations.append(loc)
             self.ctx.me.controls_this_turn += 1
-            self.state.emit(f"{self.ctx.me.name} takes control of {name(loc)} from the Location deck.", irreversible=True)
+            self.state.emit(f"{self.ctx.me.name} takes control of {name(loc)} from the Location deck.", irreversible=True,
+                            card=loc.card)
             put_into_play(self.state, self.ctx.me, loc)
             raise_event(self.state, "take_control", self.ctx.me.seat, loc.uid)
         elif loc in self.state.neutral:
@@ -2035,7 +2036,7 @@ class Actions:
             # control too (KW-TC-02), also for a card "considered a Location" (Sha Ka Ree).
             take_out(self.state, loc)
             self.ctx.me.locations.append(loc)
-            self.emit(f"{self.ctx.me.name} takes control of {name(loc)}.")
+            self.emit(f"{self.ctx.me.name} takes control of {name(loc)}.", card=loc.card)
             raise_event(self.state, "take_control", self.ctx.me.seat, loc.uid)
         yield from self._offer_mark(loc)  # Khan marks before the CONTROL operation resolves (REQ-CD-KHN-08)
         yield from run_inline(self.ctx, loc, "CONTROL")
@@ -2256,7 +2257,7 @@ class Actions:
                 _support_to_staging(sub, inst)
             else:
                 inst.exhausted = True
-                self.state.emit(f"{player.name} uses {name(inst)}.", seat=seat)
+                self.state.emit(f"{player.name} uses {name(inst)}.", seat=seat, card=inst.card)
                 raise_event(self.state, "exhaust", seat, inst.uid)
             acts = Actions(sub, impl.uses)
             for cost in impl.costs:
@@ -2423,7 +2424,7 @@ def _support_to_staging(ctx: Ctx, inst: Inst) -> None:
     """Play a SUPPORT card from hand into the Staging Area; it counts as put into play (REQ-EXP-32, -35)."""
     take_out(ctx.state, inst)
     ctx.me.staging.append(inst)
-    ctx.state.emit(f"{ctx.me.name} uses {name(inst)}'s SUPPORT from their hand.", seat=ctx.me.seat)
+    ctx.state.emit(f"{ctx.me.name} uses {name(inst)}'s SUPPORT from their hand.", seat=ctx.me.seat, card=inst.card)
     put_into_play(ctx.state, ctx.me, inst)
 
 
@@ -2694,7 +2695,7 @@ def play_inline(ctx: Ctx, inst: Inst, *, free: bool, parent: Actions | None = No
     op = op_at(inst, index)
     take_out(state, inst)
     ctx.me.staging.append(inst)
-    state.emit(f"{ctx.me.name} {'free ' if free else ''}plays {name(inst)}.", seat=ctx.me.seat)
+    state.emit(f"{ctx.me.name} {'free ' if free else ''}plays {name(inst)}.", seat=ctx.me.seat, card=inst.card)
     if op.action_cost and not free:
         ctx.me.actions -= 1
     impl = impl_for(inst, index)
@@ -2833,7 +2834,7 @@ def _execute(ctx: Ctx) -> Gen:
     impl = impl_for(inst, ref.index)
     if ref.mode == "activate" or (ref.mode == "trigger" and op.kind == "REACTION"):
         inst.exhausted = True
-        state.emit(f"{ctx.me.name} uses {name(inst)}.", seat=ctx.me.seat)
+        state.emit(f"{ctx.me.name} uses {name(inst)}.", seat=ctx.me.seat, card=inst.card)
         raise_event(state, "exhaust", ctx.me.seat, inst.uid)
     if ref.mode == "trigger" and op.kind == "SUPPORT":
         _support_to_staging(ctx, inst)

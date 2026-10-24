@@ -317,6 +317,11 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
         <BotPlayback gameId={gameId} turn={view.bot_turn} botName={bot.name} rowText={rowText} onHighlight={setBotRow}
           onDone={setBotDone} />
       )}
+      {/* Two-player games: step through the other player's turn the same way (REQ-CLI-19). */}
+      {!bot && view.opponent_turn && others[0] && (
+        <BotPlayback gameId={gameId} turn={view.opponent_turn} botName={others[0].name} rowText={() => undefined}
+          onHighlight={() => {}} onDone={() => {}} holdsTurn={false} />
+      )}
 
       {others.map((p) => (
         <PlayerMat key={p.seat} p={p} you={false} active={view.active === p.seat} locationNames={locationNames}

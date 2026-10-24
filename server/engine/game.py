@@ -431,7 +431,7 @@ def take_control(state: GameState, player: Player, location: Inst, *, run_contro
     state.neutral.remove(location)
     player.locations.append(location)
     player.controls_this_turn += 1
-    state.emit(f"{player.name} takes control of {name(location)}.")
+    state.emit(f"{player.name} takes control of {name(location)}.", card=location.card)
     ops.raise_event(state, "take_control", player.seat, location.uid)
     if run_control:
         ops.put_into_play(state, player, location)
