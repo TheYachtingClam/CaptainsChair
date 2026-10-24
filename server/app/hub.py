@@ -27,6 +27,16 @@ class GameHub:
                     del self._connections[game_id]
         await self.broadcast_presence(game_id)
 
+    async def close_seat(self, game_id: str, seat: int, reason: str) -> None:
+        """Disconnect everyone connected as this seat, e.g. after the admin took it over (REQ-ADMIN-06)."""
+        async with self._lock:
+            sockets = list(self._connections.get(game_id, {}).get(seat, set()))
+        for ws in sockets:
+            try:
+                await ws.close(code=4001, reason=reason)
+            except Exception:  # already closed
+                pass
+
     def connected_seats(self, game_id: str) -> list[int]:
         return sorted(self._connections.get(game_id, {}).keys())
 

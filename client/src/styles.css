@@ -497,3 +497,4 @@ label.challenge { align-items: flex-start; }
 /* The Bot's turn is over: Done starts the player's turn (REQ-SOLO-56) */
 .bot-playback button.attention { box-shadow: 0 0 0 3px #5ee08a, 0 0 14px 3px #5ee08a99; animation: target-pulse 1.4s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .bot-playback button.attention { animation: none; } }
+.take-seat { gap: 0.3rem; flex-wrap: wrap; justify-content: flex-end; display: inline-flex; }

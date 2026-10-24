@@ -158,6 +158,39 @@ function AdminBugs() {
   );
 }
 
+/** Take over a seat in a real game (REQ-ADMIN-06). Asks first: the player is locked out of their seat. */
+function TakeSeat({ game }: { game: AdminGame }) {
+  const navigate = useNavigate();
+  const [asking, setAsking] = useState<number | null>(null);
+  const take = useMutation({
+    mutationFn: (seat: number) => adminApi.takeSeat(game.id, seat),
+    onSuccess: (grant) => {
+      saveSeatToken(grant.game_id, grant.seat_token);
+      navigate(`/games/${grant.game_id}`);
+    },
+  });
+  if (game.players.length === 0) return null;
+  if (asking === null) {
+    return (
+      <span className="row take-seat">
+        {game.players.map((name, seat) => (
+          <button key={seat} className="secondary" onClick={() => setAsking(seat)} title={`Play as ${name} from now on`}>
+            Take {game.players.length > 1 ? name : "seat"}
+          </button>
+        ))}
+      </span>
+    );
+  }
+  return (
+    <span className="row confirm-delete">
+      <span>Take over {game.players[asking]}&apos;s seat? They are locked out of it and cannot get back in.</span>
+      <button className="secondary" onClick={() => setAsking(null)} disabled={take.isPending}>Cancel</button>
+      <button className="danger" onClick={() => take.mutate(asking)} disabled={take.isPending}>Take seat</button>
+      {take.error && <span className="error">{take.error.message}</span>}
+    </span>
+  );
+}
+
 function AdminGames() {
   const queryClient = useQueryClient();
   const games = useQuery({ queryKey: ["admin-games"], queryFn: adminApi.games, refetchInterval: 10000 });
@@ -200,6 +233,7 @@ function AdminGames() {
                 <td>{g.players.join(", ") || "—"}</td>
                 <td>{g.moves}</td>
                 <td className="admin-actions">
+                  <TakeSeat game={g} />{" "}
                   <ConfirmDelete what="this game for everyone" busy={remove.isPending} onDelete={() => remove.mutate(g.id)} />
                 </td>
               </tr>

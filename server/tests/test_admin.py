@@ -73,3 +73,35 @@ def test_admin_sign_out(authed, admin_on):
     authed.post("/api/admin/login", json={"password": "admin-secret"})
     assert authed.post("/api/admin/logout").status_code == 204
     assert not authed.get("/api/admin/status").json()["admin"]
+
+
+def test_the_admin_takes_over_a_seat(authed, admin_on):
+    """REQ-ADMIN-06: a new seat token for the admin; the player's old one stops working."""
+    r = authed.post("/api/games", json={"display_name": "Ann", "deck_id": "kirk", "mode": "solo",
+                                        "bot": {"deck_id": "soval", "difficulty": "ensign"}})
+    game_id, ann = r.json()["game"]["id"], {"X-Seat-Token": r.json()["seat_token"]}
+    assert authed.post(f"/api/admin/games/{game_id}/seats/0/take").status_code == 403  # not the admin yet
+    assert authed.post("/api/admin/login", json={"password": "admin-secret"}).status_code == 204
+    assert authed.post(f"/api/admin/games/{game_id}/seats/1/take").status_code == 404  # no such seat
+    assert authed.post("/api/admin/games/nope/seats/0/take").status_code == 404
+    took = authed.post(f"/api/admin/games/{game_id}/seats/0/take")
+    assert took.status_code == 200 and took.json()["display_name"] == "Ann"
+    admin = {"X-Seat-Token": took.json()["seat_token"]}
+    assert authed.get(f"/api/games/{game_id}", headers=ann).json()["your_seat"] is None
+    state = authed.get(f"/api/games/{game_id}/state", headers=admin).json()
+    assert state["you"] == 0
+    option = state["decision"]["options"][0]["id"]
+    assert authed.post(f"/api/games/{game_id}/commands", json={"option": option}, headers=ann).status_code == 403
+    assert authed.post(f"/api/games/{game_id}/commands", json={"option": option}, headers=admin).status_code == 200
+
+
+def test_the_player_whose_seat_is_taken_is_told_and_disconnected(authed, admin_on):
+    r = authed.post("/api/games", json={"display_name": "Ann", "deck_id": "kirk", "mode": "solo",
+                                        "bot": {"deck_id": "soval", "difficulty": "ensign"}})
+    game_id, token = r.json()["game"]["id"], r.json()["seat_token"]
+    assert authed.post("/api/admin/login", json={"password": "admin-secret"}).status_code == 204
+    with authed.websocket_connect(f"/api/games/{game_id}/ws?seat={token}") as ws:
+        assert ws.receive_json()["type"] == "hello"
+        assert ws.receive_json()["type"] == "presence"
+        assert authed.post(f"/api/admin/games/{game_id}/seats/0/take").status_code == 200
+        assert ws.receive_json() == {"type": "seat_taken", "seat": 0}

@@ -98,6 +98,7 @@ All endpoints except login and health require a valid session (see §5).
 | `POST /api/admin/login` | Check the admin password and start an admin session (§5.4) |
 | `GET /api/admin/games` | Admin: every game, in any state, with its players |
 | `DELETE /api/admin/games/{id}` | Admin: delete any game; connected players get `game_deleted` |
+| `POST /api/admin/games/{id}/seats/{index}/take` | Admin: take over a seat; returns its new seat token (REQ-ADMIN-06) |
 | `GET /api/admin/campaigns`, `DELETE /api/admin/campaigns/{id}` | Admin: list or delete Five-Year Mission campaigns |
 | `GET /api/games/{id}` | Current view of the game for this player |
 | `POST /api/games/{id}/commands` | Submit a command |
@@ -201,6 +202,7 @@ The site has one optional admin, who can clean up games and campaigns that their
 - **REQ-ADMIN-03** The Admin page lists every game, in any state, with its mode, status, players and creation date, and can delete any game after a confirmation. Players connected to a deleted game get the `game_deleted` message.
 - **REQ-ADMIN-04** The Admin page lists every Five-Year Mission campaign and can delete one after a confirmation. Its games are not deleted.
 - **REQ-ADMIN-05** Apart from the admin, only a player seated in a game can delete it. A game still waiting for an opponent therefore can be deleted only by the player who created it.
+- **REQ-ADMIN-06** The admin can take over any seat of any game from the Admin page, after a confirmation. The seat gets a new seat token that only the admin receives, and the admin is taken to the game in that seat. The player who held it is locked out for good: their token no longer works, any page they have open is told and disconnected, and they can still watch. The game itself is unchanged and carries on from where it was.
 
 ### 5.4 Limits of this approach
 

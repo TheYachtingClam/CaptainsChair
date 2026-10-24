@@ -80,6 +80,26 @@ async def delete_any_game(game_id: str, db: Session = Depends(get_db)) -> None:
     await hub.broadcast(game_id, {"type": "game_deleted"})
 
 
+@router.post("/games/{game_id}/seats/{seat_index}/take", dependencies=[Depends(require_admin)])
+async def take_seat(game_id: str, seat_index: int, db: Session = Depends(get_db)) -> dict:
+    """The admin takes over a seat in a real game (REQ-ADMIN-06): the seat gets a new token, which only the admin
+    receives, so the player who held it is locked out. Their open pages are told and disconnected."""
+    from app.auth import hash_seat_token, new_seat_token
+
+    game = db.get(Game, game_id)
+    if game is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Game not found")
+    seat = next((s for s in game.seats if s.index == seat_index), None)
+    if seat is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "That seat is not taken")
+    token = new_seat_token()
+    seat.token_hash = hash_seat_token(token)
+    db.commit()
+    await hub.broadcast(game_id, {"type": "seat_taken", "seat": seat_index})
+    await hub.close_seat(game_id, seat_index, "The admin took over this seat")
+    return {"game_id": game_id, "seat_index": seat_index, "seat_token": token, "display_name": seat.display_name}
+
+
 @router.get("/campaigns", dependencies=[Depends(require_admin)])
 def all_campaigns(db: Session = Depends(get_db)) -> list[dict]:
     """Every Five-Year Mission campaign, newest first (REQ-ADMIN-04)."""

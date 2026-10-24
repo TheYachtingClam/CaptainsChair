@@ -455,6 +455,10 @@ export const adminApi = {
   logout: () => request<null>("/api/admin/logout", { method: "POST" }),
   games: () => request<AdminGame[]>("/api/admin/games"),
   deleteGame: (id: string) => request<null>(`/api/admin/games/${id}`, { method: "DELETE" }),
+  /** Take over a seat in a real game: its player is locked out (REQ-ADMIN-06). */
+  takeSeat: (id: string, seat: number) =>
+    request<{ game_id: string; seat_index: number; seat_token: string; display_name: string }>(
+      `/api/admin/games/${id}/seats/${seat}/take`, { method: "POST" }),
   campaigns: () => request<AdminCampaign[]>("/api/admin/campaigns"),
   deleteCampaign: (id: string) => request<null>(`/api/admin/campaigns/${id}`, { method: "DELETE" }),
 };

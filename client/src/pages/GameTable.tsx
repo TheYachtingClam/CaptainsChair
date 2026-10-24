@@ -25,7 +25,8 @@ export function GameTable() {
   const [socket, setSocket] = useState<SocketState>("connecting");
   const [exiting, setExiting] = useState(false);
   const [reporting, setReporting] = useState(false);
-  const quitting = useRef(false); // we deleted the game ourselves: the page moves on, not the socket handler
+  const quitting = useRef(false);
+  const hello = useRef<number | null>(null); // the seat this page's socket connected as // we deleted the game ourselves: the page moves on, not the socket handler
   const quit = useMutation({
     mutationFn: () => {
       quitting.current = true;
@@ -40,6 +41,7 @@ export function GameTable() {
     onError: () => { quitting.current = false; },
   });
   const [online, setOnline] = useState<number[]>([]);
+  const [seatTaken, setSeatTaken] = useState(false);
   const [log, setLog] = useState<string[]>([]);
 
   useEffect(() => {
@@ -60,6 +62,16 @@ export function GameTable() {
       ws.onmessage = (ev) => {
         const msg = JSON.parse(ev.data);
         if (msg.type === "presence") setOnline(msg.connected);
+        if (msg.type === "seat_taken" && msg.seat === hello.current) {
+          // The admin took over this seat (REQ-ADMIN-06): this page can only watch from now on. Only forget the token
+          // this page connected with, in case the admin took the seat in this same browser.
+          stopped = true;
+          if (loadSeatToken(gameId) === token) forgetSeatToken(gameId);
+          setSeatTaken(true);
+          queryClient.invalidateQueries({ queryKey: ["game", gameId] });
+          queryClient.invalidateQueries({ queryKey: ["state", gameId] });
+        }
+        if (msg.type === "hello") hello.current = msg.your_seat;
         if (msg.type === "game_deleted") {
           stopped = true;
           if (quitting.current) return;
@@ -106,6 +118,10 @@ export function GameTable() {
           busy={quit.isPending} error={quit.error?.message}
           onLeave={() => navigate(g.campaign_id ? `/campaigns/${g.campaign_id}` : "/")}
           onQuit={() => quit.mutate()} onCancel={() => setExiting(false)} />
+      )}
+      {seatTaken && (
+        <p className="error" role="alert">The admin has taken over your seat in this game. You can still watch it, but
+          not play.</p>
       )}
       {g.campaign_id && (
         <p><Link to={`/campaigns/${g.campaign_id}`}>Back to the Five-Year Mission</Link> (the result is recorded there when
