@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { BotStep, BotTurnView, RowRef } from "../api";
 import { imageUrl } from "./Cards";
+import { Sheet } from "./Sheet";
 
 const AUTO_DELAY_MS = 1100;
 
@@ -113,7 +114,8 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight, onDon
   const step = steps[Math.min(index, last)];
   const rowLabel = shown.row ? rowText(shown.row) : undefined;
   return (
-    <div className="bot-playback card" role="region" aria-label={`${botName}'s turn`} aria-live="polite">
+    <Sheet className="bot-playback card" role="region" label={`${botName}'s turn`} live openOn={turn!.start}
+      summary={`${botName}'s turn · step ${Math.min(index, last) + 1} of ${steps.length}${turn!.finished ? "" : "+"}`}>
       <header className="row">
         <strong>{botName}'s turn</strong>
         <span className="muted">
@@ -143,6 +145,6 @@ export function BotPlayback({ gameId, turn, botName, rowText, onHighlight, onDon
           {rowLabel && <p className="bot-row"><span className="muted">Matched row:</span> {rowLabel}</p>}
         </div>
       </div>
-    </div>
+    </Sheet>
   );
 }

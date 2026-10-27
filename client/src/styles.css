@@ -529,3 +529,51 @@ label.challenge { align-items: flex-start; }
 .viewer-hint { color: #ffffffaa; margin: 0; font-size: 0.85rem; }
 .hold-hint { display: flex; gap: 0.75rem; align-items: center; justify-content: space-between; margin: 0;
   background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; padding: 0.5rem 0.75rem; }
+
+/* ---------------------------------------------------------------- the bottom sheet on a phone (REQ-CLI-34) */
+/* On a laptop the container is invisible and each panel floats where it always has. */
+.sheet-stack { display: contents; }
+.sheet-handle { display: none; }
+@media (max-width: 700px) {
+  .sheet-stack {
+    display: flex; flex-direction: column; position: fixed; left: 0; right: 0; bottom: 0; z-index: 35;
+    max-height: 70vh; pointer-events: none;
+  }
+  .sheet-stack:empty { display: none; }
+  .sheet-stack > * {
+    pointer-events: auto; position: static; transform: none; inset: auto;
+    width: auto; max-width: none; max-height: none; margin: 0; min-height: 0;
+    border-radius: 14px 14px 0 0; box-shadow: 0 -6px 24px rgb(0 0 0 / 0.35);
+    display: flex; flex-direction: column; padding: 0 12px 12px;
+  }
+  .sheet-stack > * + * { border-top-left-radius: 0; border-top-right-radius: 0; }
+  .sheet-stack > .sheet.collapsed { padding-bottom: 0; flex: 0 0 auto; }
+  .sheet-body { overflow: auto; min-height: 0; flex: 1 1 auto; }
+  .sheet-handle {
+    display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; width: 100%; min-height: 44px;
+    background: none; color: inherit; border: 0; border-radius: 0; padding: 6px 0; font: inherit; text-align: left;
+    flex: 0 0 auto;
+  }
+  .sheet-summary { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .sheet-toggle { color: var(--accent); font-size: 0.85rem; flex: 0 0 auto; }
+  /* The panels inside, made compact. */
+  .sheet-stack .decision-dock .options { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .sheet-stack .dock-cards .gcard { width: 84px; }
+  .sheet-stack .card-panel .sheet-body { display: flex; gap: 10px; align-items: flex-start; }
+  .sheet-stack .card-panel-image { width: 84px; flex: 0 0 84px; }
+  .sheet-stack .card-panel-menu { width: auto; flex: 1 1 auto; max-height: none; overflow: visible; }
+  .sheet-stack .card-panel-menu > .row:first-child h2 { visibility: hidden; } /* the handle names the card; ✕ stays */
+  .sheet-stack .bot-playback { border-width: 2px 0 0; }
+  .sheet-stack .bot-playback header { display: none; } /* the handle says whose turn and which step */
+  .sheet-stack .bot-playback-controls { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .sheet-stack .bot-playback-controls button { padding: 0.5rem 0.2rem; font-size: 0.8rem; min-height: 44px; }
+  .sheet-stack .bot-playback-body { min-height: 0; }
+  .sheet-stack .bot-playback-card-slot { flex-basis: 4.5rem; }
+  .sheet-stack .bot-playback-card { width: 4.5rem; }
+  .sheet-stack > .waiting-note {
+    display: block; width: auto; max-width: none; border-radius: 0; border-width: 1px 0 0; padding: 0.6rem 12px;
+  }
+  .sheet-stack > .waiting-note:first-child { border-radius: 14px 14px 0 0; }
+  /* The handle already says what is asked. */
+  .sheet-stack .decision-dock .sheet-body > .stack > p:first-child { display: none; }
+}

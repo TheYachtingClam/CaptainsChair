@@ -50,13 +50,17 @@ Found on the way: on every narrow screen the table was wider than the window, be
 
 Checked with Playwright on an emulated iPhone 13: holding a Market card opens the viewer and does not select it; a tap closes it; a short tap on a hand card still opens its actions; holding a Crew board opens it wide; no element is wider than the screen.
 
-### Step 3: Questions and panels as one bottom sheet (REQ-CLI-34)
+### Step 3: Questions and panels as one bottom sheet (REQ-CLI-34) (done)
 
 - Under 700 pixels, the question box, the card action panel and the turn playback panel open as a sheet from the bottom instead of floating.
 - The sheet collapses to one line that still says what is asked ("Choose a Ship to warp") and opens again with a tap.
 - Only one sheet at a time; the playback panel waits behind a pending question as it does today.
 
 **You test:** play a solo game: answer questions, use a card's actions, step through the Bot's turn, all without anything covering the cards you need.
+
+What was done: `components/Sheet.tsx` has `usePhone()` (under 700 pixels) and `Sheet`, which on a laptop is the panel's own floating box and on a phone a block with a 44-pixel handle: the summary (the question, the card's name, or "Soval Bot's turn · step 3 of 20") and Hide or Show. A collapsed block opens again on a new question, a new card or a new turn (`openOn`), not on every step. `Board.tsx` puts the turn playback, the question box, the waiting notes and the card panel in one `.sheet-stack`, which on a phone is fixed to the bottom (at most 70% of the screen, each block scrolling inside) and on a laptop is `display: contents`, so nothing moves there. The table gets bottom padding equal to the sheet's height (a `ResizeObserver`), so the hand can always be scrolled into view above it. Inside the sheet: the question is not repeated under the handle, dock cards and the card image are 84 pixels, the card panel keeps its ✕, and the playback buttons are 44 pixels high.
+
+Checked with Playwright on an emulated iPhone 13: a hand card's panel opens at the bottom, collapses to 46 pixels and closes with ✕; a question and the Bot's turn sit at the bottom with the "press Done" note under them; nothing is wider than the screen. At 1280 pixels the panels float as before and no handles appear.
 
 ### Step 4: One area at a time (REQ-CLI-32, -33)
 

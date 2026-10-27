@@ -7,6 +7,7 @@ import {
   PlayersContext,
 } from "./Cards";
 import { CardPanel } from "./CardPanel";
+import { Sheet, usePhone } from "./Sheet";
 import { PlayerMat } from "./PlayerMat";
 import { CenterMat } from "./CenterMat";
 
@@ -134,6 +135,17 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
   const [preview, setPreview] = useState<Preview>(null);
   const [inspected, setInspected] = useState<Inspect>(null);
   const [holdHint, setHoldHint] = useState(showHoldHint);
+  // On a phone the table leaves room at the bottom for the sheet, so nothing is hidden behind it (REQ-CLI-34).
+  const phone = usePhone();
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const [sheetHeight, setSheetHeight] = useState(0);
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el || !phone) return;
+    const observer = new ResizeObserver(() => setSheetHeight(el.getBoundingClientRect().height));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [phone]);
   // Android opens its image menu through a contextmenu event; on a touch screen there is no other use for one on the
   // table or the card viewer (REQ-CLI-31). A mouse's right-click is left alone.
   useEffect(() => {
@@ -304,7 +316,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
     <PlayableContext.Provider value={playable}>
     <SelectContext.Provider value={{ selected: selectedUid, toggle }}>
     <TargetContext.Provider value={{ targets, answer: pick }}>
-    <div className="stack board-root">
+    <div className="stack board-root" style={phone ? { paddingBottom: sheetHeight + 16 } : undefined}>
       {holdHint && (
         <p className="hold-hint" role="note">
           <span>Press and hold any card to see it full size, with the cards beamed to it.</span>
@@ -343,16 +355,6 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
         </section>
       )}
 
-      {bot && (
-        <BotPlayback gameId={gameId} turn={view.bot_turn} botName={bot.name} rowText={rowText} onHighlight={setBotRow}
-          onDone={setBotDone} />
-      )}
-      {/* Two-player games: step through the other player's turn the same way (REQ-CLI-19). */}
-      {!bot && view.opponent_turn && others[0] && (
-        <BotPlayback gameId={gameId} turn={view.opponent_turn} botName={others[0].name} rowText={() => undefined}
-          onHighlight={() => {}} onDone={() => {}} holdsTurn={false} />
-      )}
-
       {others.map((p) => (
         <PlayerMat key={p.seat} p={p} you={false} active={view.active === p.seat} locationNames={locationNames}
           highlight={p.bot ? botRow : undefined} onSoloRules={p.bot ? () => setAid(true) : undefined} />
@@ -376,15 +378,27 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
       {pending && (
         <Confirm option={pending} solo={view.mode === "solo"} onBack={() => setPending(null)} onContinue={() => { onChoose(pending.id); setPending(null); }} />
       )}
+      {/* The floating panels. On a laptop each floats on its own; on a phone they share one sheet at the bottom of
+          the screen (REQ-CLI-34), and the table leaves room for it. */}
+      <div className="sheet-stack" ref={sheetRef}>
+      {bot && (
+        <BotPlayback gameId={gameId} turn={view.bot_turn} botName={bot.name} rowText={rowText} onHighlight={setBotRow}
+          onDone={setBotDone} />
+      )}
+      {/* Two-player games: step through the other player's turn the same way (REQ-CLI-19). */}
+      {!bot && view.opponent_turn && others[0] && (
+        <BotPlayback gameId={gameId} turn={view.opponent_turn} botName={others[0].name} rowText={() => undefined}
+          onHighlight={() => {}} onDone={() => {}} holdsTurn={false} />
+      )}
       {/* A question asked mid-operation (e.g. where to warp) stays in sight while the top box is scrolled away.
           The Action Step menu is left out: its choices are made from the cards and the End Turn button. */}
       {showDock && (
-        <div className="decision-dock card" role="dialog" aria-label="Your decision">
+        <Sheet className="decision-dock card" role="dialog" label="Your decision" summary={d!.prompt}>
           <DecisionOptions prompt={d!.prompt} options={dockOptions} busy={busy} canUndo={view.can_undo}
             onPick={pick} onUndo={onUndo} groupOf={locationGroup}
             cards={dockCards.slice().sort((a, b) => rank(a) - rank(b))}
             hint={targets.size ? "Or click a highlighted card." : undefined} />
-        </div>
+        </Sheet>
       )}
       {waiting && <div className="decision-dock waiting-note card" role="status">{waiting}</div>}
       {botHold && (
@@ -392,13 +406,14 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
           The Bot's turn is over. Press <strong>Done</strong> on its turn panel to start your turn.
         </div>
       )}
-      {aid && <SoloAid onClose={() => setAid(false)} />}
-      <CardPreview preview={preview} />
-      <CardViewer shown={inspected} onShow={inspect} />
       {selection && (
         <CardPanel selection={selection} view={botHold ? { ...view, decision: null } : view} onClose={deselect}
           onChoose={(o) => { setSelection(null); pick(o); }} />
       )}
+      </div>
+      {aid && <SoloAid onClose={() => setAid(false)} />}
+      <CardPreview preview={preview} />
+      <CardViewer shown={inspected} onShow={inspect} />
     </div>
     </TargetContext.Provider>
     </SelectContext.Provider>

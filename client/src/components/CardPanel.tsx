@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { GameStateView, OptionView, api } from "../api";
 import { Selection, imageUrl } from "./Cards";
+import { Sheet } from "./Sheet";
 
 const GAP = 14;
 const MARGIN = 8;
@@ -73,11 +74,13 @@ export function CardPanel({ selection, view, onChoose, onClose }: {
   });
 
   return (
-    <div
-      ref={ref}
+    <Sheet
+      innerRef={ref}
       className="card-panel"
       role="dialog"
-      aria-label={card.name}
+      label={card.name}
+      summary={card.name}
+      openOn={card.uid}
       style={pos ? { left: pos.left, top: pos.top } : { left: -9999, top: 0 }}
     >
       <img className="card-panel-image" src={imageUrl(card.image)} alt={card.name} />
@@ -109,6 +112,6 @@ export function CardPanel({ selection, view, onChoose, onClose }: {
           ))}
         </ul>
       </div>
-    </div>
+    </Sheet>
   );
 }
