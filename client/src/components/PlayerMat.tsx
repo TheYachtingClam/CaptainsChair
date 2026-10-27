@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { BotView, CardView, OptionView, PlayerView, RowRef } from "../api";
+import { usePhone } from "./Sheet";
 import { awayTokenImage, Card, CardBack, imageUrl, InspectContext, PileViewer, Slot, usePreviewHandlers } from "./Cards";
 
 // Crew board track geometry, as fractions of the board image (measured from the scans).
@@ -155,8 +156,41 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
   } as const;
   const topDiscard = p.discard[p.discard.length - 1];
 
+  // Hand (item 14). The Bot has none (REQ-SOLO-34). On a phone it sits under the mat, outside its border, still fanned
+  // so it reads as a hand; the cards overlap more as the hand grows so it always fits the screen's width.
+  const phone = usePhone();
+  const handCount = p.hand?.length ?? 0;
+  const fanStep = phone && handCount > 1
+    ? Math.min(PHONE_HAND_CARD - 6, (Math.min(window.innerWidth - 72, 440) - PHONE_HAND_CARD) / (handCount - 1))
+    : null;
+  const turnButtons = you && (
+    <>
+      <button type="button" className="end-turn" disabled={!onEndTurn} onClick={() => onEndTurn?.()}
+        title={onEndTurn ? "End your Action Step and go to Clean-up" : "Available during your Action Step"}>
+        End Turn
+      </button>
+      {onUndo && <button type="button" className="secondary undo-move" onClick={onUndo} title="Undo your last move">Undo</button>}
+    </>
+  );
+  const hand = !p.bot && (
+    <div className={`hand ${phone ? "under-mat" : ""}`} aria-label={you ? "Your hand" : `${p.name}'s hand`}>
+      {p.hand
+        ? p.hand.map((c, i) => {
+            const mid = (p.hand!.length - 1) / 2;
+            const overlap = fanStep == null ? undefined : (fanStep - PHONE_HAND_CARD) / 2;
+            return <Card key={c.uid} card={c} style={{
+              transform: `rotate(${(i - mid) * 4}deg) translateY(${Math.abs(i - mid) * 4}px)`,
+              ...(overlap == null ? {} : { marginLeft: overlap, marginRight: overlap }),
+            }} />;
+          })
+        : Array.from({ length: p.hand_count }, (_, i) => <div key={i} className="card-back small" aria-hidden />)}
+      <span className="muted hand-size">Hand {p.hand_count} / {p.hand_size}</span>
+    </div>
+  );
+
   return (
-    <section className={`mat ${active ? "active" : ""}`} aria-label={`${p.name}'s play area`}>
+    <>
+    <section className={`mat ${active ? "active" : ""} ${you ? "mine" : ""}`} aria-label={`${p.name}'s play area`}>
       <header className="mat-header">
         <h2>{p.name}{you && " (you)"}</h2>
         {p.bot && <span className="pill bot-pill">Bot · {p.bot.difficulty[0].toUpperCase() + p.bot.difficulty.slice(1)}</span>}
@@ -238,13 +272,20 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
           ) : <CardBack label={p.bot ? "Bot deck" : "Draw deck"} count={p.draw_count} />}
         </div>
         <div className="cell staging">
+          {/* On a phone the title sits above the staged cards, with End Turn beside it. */}
+          {phone && (
+            <div className="staging-header">
+              <span className="staging-label">Staging Area</span>
+              {turnButtons && <div className="turn-buttons">{turnButtons}</div>}
+            </div>
+          )}
           {p.staging.length ? (
             <div className="lane">
               {p.staging.map((c) => (c.facedown
                 ? <div key={c.uid} className="card-back" aria-label="A facedown Bot card" title="Not resolved yet" />
                 : <Card key={c.uid} card={c} />))}
             </div>
-          ) : <span className="staging-label">Staging Area</span>}
+          ) : !phone && <span className="staging-label">Staging Area</span>}
         </div>
         <div className="cell discard">
           {topDiscard ? (
@@ -253,33 +294,21 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
               <span className="badge">{p.discard.length}</span>
             </button>
           ) : <Slot label="Discard pile" tone="discard" />}
-          {you && (
-            <button type="button" className="end-turn" disabled={!onEndTurn} onClick={() => onEndTurn?.()}
-              title={onEndTurn ? "End your Action Step and go to Clean-up" : "Available during your Action Step"}>
-              End Turn
-            </button>
-          )}
-          {you && onUndo && (
-            <button type="button" className="secondary undo-move" onClick={onUndo} title="Undo your last move">Undo</button>
-          )}
+          {!phone && turnButtons}
         </div>
       </div>
 
-      {/* Hand (item 14). The Bot has none (REQ-SOLO-34). */}
-      {!p.bot && <div className="hand" aria-label={you ? "Your hand" : `${p.name}'s hand`}>
-        {p.hand
-          ? p.hand.map((c, i) => {
-              const mid = (p.hand!.length - 1) / 2;
-              return <Card key={c.uid} card={c} style={{ transform: `rotate(${(i - mid) * 4}deg) translateY(${Math.abs(i - mid) * 4}px)` }} />;
-            })
-          : Array.from({ length: p.hand_count }, (_, i) => <div key={i} className="card-back small" aria-hidden />)}
-        <span className="muted hand-size">Hand {p.hand_count} / {p.hand_size}</span>
-      </div>}
+      {!phone && hand}
 
       {viewing && <PileViewer title={piles[viewing][0]} cards={[...piles[viewing][1]]} onClose={() => setViewing(null)}
         note={viewing === "reserve"
           ? "These are the cards in your Reserve deck, sorted by name. This is not the order they are in: the deck's order stays hidden, even from you."
           : undefined} />}
     </section>
+    {phone && hand}
+    </>
   );
 }
+
+/** A hand card's width on a phone, in pixels; matches `.hand.under-mat .gcard` in the CSS. */
+const PHONE_HAND_CARD = 92;

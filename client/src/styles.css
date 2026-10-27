@@ -303,8 +303,17 @@ a.button { text-decoration: none; display: inline-block; }
 @media (max-width: 760px) {
   .market-row { grid-template-columns: 1fr 1fr; }
   .market { grid-column: 1 / -1; grid-row: 1; grid-template-columns: repeat(2, var(--cw)); }
-  .neutral-zone { grid-template-columns: 1fr; }
+  .neutral-zone:not(.compact) { grid-template-columns: 1fr; }
 }
+/* The phone's Neutral Zone: three across, small (REQ-CLI-32). */
+.neutral-zone.compact { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; width: 100%; }
+.neutral-zone.compact .nz-slot { padding: 4px; gap: 3px; border-radius: 8px; min-width: 0; }
+.neutral-zone.compact .nz-label { font-size: 0.62rem; }
+.neutral-zone.compact .gcard { width: 100%; max-width: 92px; }
+.neutral-zone.compact .nz-tokens { font-size: 0.7rem; }
+.neutral-zone.compact .nz-tokens li { justify-content: center; min-height: 22px; padding: 1px 2px; }
+.neutral-zone.compact .tokens.compact img { height: 18px; }
+.nz-mat { padding: 8px; }
 /* Cards the player can play or activate now */
 .gcard.playable img { box-shadow: 0 0 0 2px #7fd1ff, 0 0 12px 2px #7fd1ff99; }
 
@@ -576,4 +585,55 @@ label.challenge { align-items: flex-start; }
   .sheet-stack > .waiting-note:first-child { border-radius: 14px 14px 0 0; }
   /* The handle already says what is asked. */
   .sheet-stack .decision-dock .sheet-body > .stack > p:first-child { display: none; }
+}
+
+/* ---------------------------------------------------------------- one area at a time on a phone (REQ-CLI-32, -33) */
+@media (max-width: 700px) {
+  .sheet-stack > .area-tabs {
+    display: grid; padding: 0 0 env(safe-area-inset-bottom); border-radius: 0; background: var(--surface);
+    border-top: 1px solid var(--border); box-shadow: 0 -2px 10px rgb(0 0 0 / 0.2);
+  }
+  .sheet-stack > .area-tabs:first-child { border-radius: 0; }
+  .area-tabs button {
+    min-height: 48px; border: 0; border-radius: 0; background: none; color: var(--muted); font-weight: 700;
+    position: relative; padding: 0 4px; border-top: 3px solid transparent;
+  }
+  .area-tabs button.active { color: var(--text); border-top-color: var(--accent); }
+  .area-tabs button:hover, .area-tabs button:active, .area-tabs button:focus { background: none; }
+  .area-tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+  .area-tabs button { -webkit-tap-highlight-color: transparent; }
+  .tab-mark {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e0453a; margin-left: 5px;
+    vertical-align: middle;
+  }
+  /* Your hand sits under your mat, outside its border, fanned (REQ-CLI-33). */
+  .hand.under-mat { flex-wrap: nowrap; justify-content: center; margin: 4px 0 0; padding: 14px 0 4px; position: relative; }
+  .hand.under-mat .gcard { flex: 0 0 auto; width: 92px; }
+  .hand.under-mat .card-back.small { flex: 0 0 auto; }
+  .hand.under-mat .hand-size { position: absolute; right: 4px; top: -6px; margin: 0; font-size: 0.8rem; }
+}
+
+/* ---------------------------------------------------------------- a phone's mat (REQ-CLI-32) */
+/* The Discard pile under the Draw deck on the left, the Staging Area beside both with its title and End Turn on top
+   and room for staged cards below. */
+@media (max-width: 700px) {
+  .mat-grid {
+    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-areas:
+      "left left"
+      "duty locations"
+      "captain fleet"
+      "draw staging"
+      "discard staging";
+    column-gap: 10px;
+  }
+  .cell.staging { flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 6px; min-height: var(--ch); align-self: stretch; }
+  .staging-header { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .staging-header .staging-label { font-size: 0.66rem; line-height: 1.2; min-width: 0; }
+  .turn-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; flex: 0 1 auto; }
+  .staging-header .end-turn, .staging-header .undo-move {
+    width: auto; flex: 0 0 auto; padding: 0.35rem 0.55rem; min-height: 40px; font-size: 0.72rem;
+  }
+  .cell.staging .lane { flex-wrap: wrap; }
+  .cell.discard { justify-items: start; }
 }

@@ -187,11 +187,12 @@ A phone is a screen narrower than 700 pixels, or one without a mouse (no hover).
 
 - **REQ-CLI-30** Nothing needs hover. Anything shown on hover with a mouse, such as the enlarged card, the cards beamed to it, and the name of a Ship or Away Team token, can be reached by touch too.
 - **REQ-CLI-31** **Inspecting a card.** Pressing and holding any visible card, including the opponent's, the Market's and a Location's, opens a full-screen viewer: the card, the cards beamed to it, and its tokens. A tap anywhere closes it. A short tap keeps its usual meaning: select the card, or answer a question with it. The first time a player opens a game on a phone, a one-line hint says that pressing and holding shows a card.
-- **REQ-CLI-32** **One area at a time.** On a phone, the table shows one area at a time, chosen from a bar at the bottom of the screen: **You** (your mat and hand), **Centre** (Market, Junk, decks, Stardate, Neutral Zone), **Opponent** (their mat, or the Bot's) and **Log**. A tab shows a mark when something changed there since it was last shown. When a question asks for cards in one area, that area is shown.
-- **REQ-CLI-33** **Your hand** is one row that scrolls sideways, with cards large enough to tap.
+- **REQ-CLI-32** **One area at a time.** On a phone, the table shows one area at a time, chosen from a bar at the bottom of the screen: **You** (the Neutral Zone, for planning your turn, then your mat and hand), **Centre** (Market, Junk, decks, Stardate, Neutral Zone), **Opponent** (their mat, or the Bot's) and **System** (Exit game, Report a bug and Suggest a feature, the game's details, the Players list, the connection and its events, then the log; on a phone these are shown only there). A tab shows a mark when something changed there since it was last shown. When a question asks for cards in one area, that area is shown.
+- **REQ-CLI-33** **Your hand** is shown under your mat, outside its border, fanned as on a laptop, with cards large enough to tap; the cards overlap more as the hand grows, so it always fits the width of the screen.
 - **REQ-CLI-34** **Questions and panels.** On a phone the question box, the card's action panel and the turn playback panel (REQ-SOLO-56, REQ-CLI-19) open as one sheet from the bottom of the screen. It can be collapsed to a single line that still says what is asked, so the table behind it can be seen, and expanded again with a tap.
 - **REQ-CLI-35** Buttons and other tap targets are at least 44 by 44 pixels on a phone. The page never scrolls sideways, except a row of cards that is meant to.
 - **REQ-CLI-36** The lobby, new game, campaign, account, sign-in and Admin pages work at 375 pixels wide.
+- **REQ-CLI-37** On a phone the Neutral Zone is compact: its three Locations side by side, small, each with every player's tokens as icons and a mark where a player has secured it.
 
 ## 5. Access control: user accounts
 

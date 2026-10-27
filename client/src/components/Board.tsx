@@ -9,7 +9,7 @@ import {
 import { CardPanel } from "./CardPanel";
 import { Sheet, usePhone } from "./Sheet";
 import { PlayerMat } from "./PlayerMat";
-import { CenterMat } from "./CenterMat";
+import { CenterMat, NeutralZone } from "./CenterMat";
 
 function Confirm({ option, onContinue, onBack, solo }: {
   option: OptionView;
@@ -124,17 +124,21 @@ const SCORE_PART: Record<string, string> = {
   traits: "Marked traits (3 each)",
 };
 
-export function Board({ gameId, view, onChoose, onUndo, busy }: {
+export function Board({ gameId, view, onChoose, onUndo, busy, system }: {
   gameId: string;
   view: GameStateView;
   onChoose: (option: string) => void;
   onUndo: () => void;
   busy: boolean;
+  /** Exit game, Report a bug, Suggest a feature, the game's details and its players: on a phone they are on the System
+   *  tab, above the log. */
+  system?: React.ReactNode;
 }) {
   const [pending, setPending] = useState<OptionView | null>(null);
   const [preview, setPreview] = useState<Preview>(null);
   const [inspected, setInspected] = useState<Inspect>(null);
   const [holdHint, setHoldHint] = useState(showHoldHint);
+  const [tab, setTab] = useState<Area>(() => (view.you != null ? "you" : "centre"));
   // On a phone the table leaves room at the bottom for the sheet, so nothing is hidden behind it (REQ-CLI-34).
   const phone = usePhone();
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -254,6 +258,46 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
     return out;
   })();
   const targetKey = [...targets.keys()].join(",");
+
+  // On a phone the table shows one area at a time (REQ-CLI-32). A tab is marked when its area changed since it was
+  // last shown, and a question that asks for cards shows the area that holds them.
+  const areaCards = (p: typeof mine) =>
+    new Set(p ? withBeamed([p.captain, ...p.status, ...p.fleet, ...p.locations, ...p.duty, ...p.staging, ...(p.hand ?? [])]).map((c) => c.uid) : []);
+  const areaOf = (uid: string): Area | null =>
+    areaCards(mine).has(uid) ? "you" : others.some((p) => areaCards(p).has(uid)) ? "opponent" : visibleUids.has(uid) ? "centre" : null;
+  const areas: { id: Area; label: string; signature: string }[] = [
+    ...(mine ? [{ id: "you" as Area, label: "You", signature: JSON.stringify(mine) }] : []),
+    { id: "centre", label: "Centre", signature: JSON.stringify([view.market, view.neutral_zone, view.junk.length, view.stardate,
+      view.market_deck_counts, view.location_deck_count, view.encounter_count, view.incident_count]) },
+    ...(others.length ? [{ id: "opponent" as Area, label: others[0].bot ? "Bot" : "Opponent", signature: JSON.stringify(others) }] : []),
+    { id: "log", label: "System", signature: String(view.log.length) },
+  ];
+  const seen = useRef<Partial<Record<Area, string>>>({});
+  for (const a of areas) if (a.id === tab || !phone || seen.current[a.id] === undefined) seen.current[a.id] = a.signature;
+  const shownTab: Area = areas.some((a) => a.id === tab) ? tab : areas[0].id;
+  // A question's answers name the cards they are about: a Market slot by its suit ("market:Ship", "glory:Ship"), any
+  // other card by its uid at the end.
+  // The Action Step is left alone: its answers are the cards in your hand and play area.
+  const questionKey = d?.options && d.seat === me && d.kind !== "action" ? `${d.prompt}|${d.options.map((o) => o.id).join(",")}` : "";
+  useEffect(() => {
+    if (!phone || !questionKey) return;
+    const held = d!.options!
+      .map((o) => {
+        const tail = o.id.split(":").pop() ?? "";
+        return o.id.includes(":") && tail in view.market ? "centre" : areaOf(tail);
+      })
+      .filter((a): a is Area => !!a);
+    if (held.length && !held.includes(shownTab)) setTab(held[0]);
+  }, [questionKey, phone]); // eslint-disable-line react-hooks/exhaustive-deps
+  // A new tab starts at the top of the table, below the game's title and buttons.
+  const boardRef = useRef<HTMLDivElement>(null);
+  const chooseTab = (a: Area) => {
+    setTab(a);
+    const top = boardRef.current ? boardRef.current.getBoundingClientRect().top + window.scrollY - 8 : 0;
+    window.scrollTo({ top });
+  };
+  const showArea = (a: Area) => !phone || shownTab === a;
+
   useEffect(() => {
     if (!targetKey) return;
     // Bring the highlighted cards into view unless one is fully visible above the floating box.
@@ -268,7 +312,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
       // Centre the card in the space above the floating box.
       window.scrollBy({ top: r.top + r.height / 2 - limit / 2, behavior: "smooth" });
     }
-  }, [targetKey]);
+  }, [targetKey, shownTab]);
   // List the answers in the order their cards sit on screen (top to bottom, then left to right), so the menu reads
   // like the table. Answers without a card on the board, e.g. "None", keep their place after them. It is measured
   // after layout, before the screen is painted, because the cards must be on the page first.
@@ -316,7 +360,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
     <PlayableContext.Provider value={playable}>
     <SelectContext.Provider value={{ selected: selectedUid, toggle }}>
     <TargetContext.Provider value={{ targets, answer: pick }}>
-    <div className="stack board-root" style={phone ? { paddingBottom: sheetHeight + 16 } : undefined}>
+    <div ref={boardRef} className="stack board-root" style={phone ? { paddingBottom: sheetHeight + 16 } : undefined}>
       {holdHint && (
         <p className="hold-hint" role="note">
           <span>Press and hold any card to see it full size, with the cards beamed to it.</span>
@@ -355,14 +399,20 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
         </section>
       )}
 
-      {others.map((p) => (
+      {showArea("opponent") && others.map((p) => (
         <PlayerMat key={p.seat} p={p} you={false} active={view.active === p.seat} locationNames={locationNames}
           highlight={p.bot ? botRow : undefined} onSoloRules={p.bot ? () => setAid(true) : undefined} />
       ))}
 
-      <CenterMat view={view} />
+      {showArea("centre") && <CenterMat view={view} />}
 
-      {mine && (
+      {/* The Neutral Zone is on the You tab too, for planning your turn. */}
+      {phone && shownTab === "you" && view.neutral_zone.length > 0 && (
+        <section className="mat nz-mat" aria-label="Neutral Zone">
+          <NeutralZone view={view} compact />
+        </section>
+      )}
+      {mine && showArea("you") && (
         <PlayerMat p={mine} you active={view.active === mine.seat} locationNames={locationNames}
           onEndTurn={endOption && !busy ? () => pick(endOption) : null}
           onUndo={view.can_undo && !busy && !showDock ? onUndo : null}
@@ -370,10 +420,11 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
           onMission={busy ? undefined : pick} />
       )}
 
-      <section className="card">
+      {phone && shownTab === "log" && system && <div className="stack system-actions">{system}</div>}
+      {showArea("log") && <section className="card">
         <h2>Log</h2>
         <ul className="list plain mono">{[...view.log].reverse().map((line, i) => <li key={i}>{line}</li>)}</ul>
-      </section>
+      </section>}
 
       {pending && (
         <Confirm option={pending} solo={view.mode === "solo"} onBack={() => setPending(null)} onContinue={() => { onChoose(pending.id); setPending(null); }} />
@@ -410,6 +461,19 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
         <CardPanel selection={selection} view={botHold ? { ...view, decision: null } : view} onClose={deselect}
           onChoose={(o) => { setSelection(null); pick(o); }} />
       )}
+      {phone && (
+        <nav className="area-tabs" aria-label="Table areas" style={{ gridTemplateColumns: `repeat(${areas.length}, 1fr)` }}>
+          {areas.map((a) => {
+            const changed = a.id !== shownTab && seen.current[a.id] !== a.signature;
+            return (
+              <button key={a.id} type="button" className={a.id === shownTab ? "active" : ""} aria-current={a.id === shownTab}
+                onClick={() => chooseTab(a.id)}>
+                {a.label}{changed && <span className="tab-mark" aria-label="(changed)" />}
+              </button>
+            );
+          })}
+        </nav>
+      )}
       </div>
       {aid && <SoloAid onClose={() => setAid(false)} />}
       <CardPreview preview={preview} />
@@ -423,6 +487,9 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
     </PreviewContext.Provider>
   );
 }
+
+/** The areas of the table a phone shows one at a time (REQ-CLI-32). */
+type Area = "you" | "centre" | "opponent" | "log";
 
 const HOLD_HINT_KEY = "cc.hint.hold";
 

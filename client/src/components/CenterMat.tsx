@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CardView, GameStateView } from "../api";
 import { Card, CardBack, LocationTokens, PileViewer, imageUrl } from "./Cards";
+import { usePhone } from "./Sheet";
 
 const SUITS = ["Person", "Cargo", "Ship", "Ally"] as const;
 
@@ -9,8 +10,7 @@ export function CenterMat({ view }: { view: GameStateView }) {
   const [viewingJunk, setViewingJunk] = useState(false);
   const topJunk = view.junk[view.junk.length - 1];
 
-  const shipsAt = (uid: string, seat: number) =>
-    view.players[seat].fleet.filter((s) => s.at === uid).length;
+  const phone = usePhone();
 
   return (
     <section className="mat center-mat" aria-label="Central play area">
@@ -73,29 +73,41 @@ export function CenterMat({ view }: { view: GameStateView }) {
       </div>
 
       {/* Neutral Zone 1-3 (item 10) */}
-      <div className="neutral-zone">
-        {view.neutral_zone.map((loc, i) => (
-          <div key={loc.uid} className="nz-slot">
-            <span className="nz-label">Neutral Zone {i + 1}</span>
-            <Card card={loc} tokens={false} />
-            <ul className="nz-tokens">
-              {view.players.map((p) => {
-                const teams = loc.away_teams?.[String(p.seat)] ?? 0;
-                const ships = shipsAt(loc.uid, p.seat);
-                return (
-                  <li key={p.seat} className={loc.secured_by?.includes(p.seat) ? "secured" : ""}>
-                    <strong>{p.name}</strong>{" "}
-                    {teams || ships ? <LocationTokens loc={loc} seat={p.seat} /> : <span className="muted">no tokens</span>}
-                    {loc.secured_by?.includes(p.seat) && <span className="secured-tag">secured</span>}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
-      </div>
+      <NeutralZone view={view} compact={phone} />
 
       {viewingJunk && <PileViewer title="Junk pile" cards={view.junk} onClose={() => setViewingJunk(false)} />}
     </section>
+  );
+}
+
+/** The three neutral Locations with each player's tokens there. `compact` is the phone's form (REQ-CLI-32): the three
+ *  side by side, each player's tokens as icons without their name, and a secured Location's line in green. It is
+ *  shown on the You tab too, for planning your turn. */
+export function NeutralZone({ view, compact = false }: { view: GameStateView; compact?: boolean }) {
+  const shipsAt = (uid: string, seat: number) => view.players[seat].fleet.filter((s) => s.at === uid).length;
+  return (
+    <div className={`neutral-zone ${compact ? "compact" : ""}`}>
+      {view.neutral_zone.map((loc, i) => (
+        <div key={loc.uid} className="nz-slot">
+          <span className="nz-label">{compact ? `NZ ${i + 1}` : `Neutral Zone ${i + 1}`}</span>
+          <Card card={loc} tokens={false} />
+          <ul className="nz-tokens">
+            {view.players.map((p) => {
+              const teams = loc.away_teams?.[String(p.seat)] ?? 0;
+              const ships = shipsAt(loc.uid, p.seat);
+              const secured = loc.secured_by?.includes(p.seat);
+              return (
+                <li key={p.seat} className={secured ? "secured" : ""} title={`${p.name}${secured ? ": secured" : ""}`}>
+                  {!compact && <><strong>{p.name}</strong>{" "}</>}
+                  {teams || ships ? <LocationTokens loc={loc} seat={p.seat} compact={compact} />
+                    : <span className="muted">{compact ? "–" : "no tokens"}</span>}
+                  {secured && <span className="secured-tag">{compact ? "✓" : "secured"}</span>}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </div>
   );
 }

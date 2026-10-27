@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AuthError, MODE_LABELS, api } from "../api";
 import { Board } from "../components/Board";
+import { usePhone } from "../components/Sheet";
 import { DevPanel } from "../components/DevPanel";
 
 type SocketState = "connecting" | "open" | "closed" | "no-seat";
@@ -25,6 +26,7 @@ export function GameTable() {
   const [socket, setSocket] = useState<SocketState>("connecting");
   const [exiting, setExiting] = useState(false);
   const [reporting, setReporting] = useState<"bug" | "feature" | null>(null);
+  const phone = usePhone();
   const quitting = useRef(false);
   const hello = useRef<number | null>(null); // the seat this page's socket connected as
   const quit = useMutation({
@@ -112,35 +114,20 @@ export function GameTable() {
   if (game.isError) return <main className="page error">{game.error.message}</main>;
 
   const g = game.data;
-  return (
-    <main className="page">
-      <div className="row between game-title">
-        <h1>{MODE_LABELS[g.mode]}</h1>
-        <div className="row">
-          {started && g.your_seat != null && (
-            <>
-              <button className="secondary" onClick={() => setReporting("feature")}>Suggest a feature</button>
-              <button className="secondary" onClick={() => setReporting("bug")}>Report a bug</button>
-            </>
-          )}
-          <button className="secondary" onClick={() => setExiting(true)}>Exit game</button>
-        </div>
-      </div>
-      {reporting && <BugDialog gameId={gameId} kind={reporting} onClose={() => setReporting(null)} />}
-      {exiting && (
-        <ExitDialog mode={g.mode} campaign={!!g.campaign_id} seated={g.your_seat != null} over={g.status === "finished"}
-          busy={quit.isPending} error={quit.error?.message}
-          onLeave={() => navigate(g.campaign_id ? `/campaigns/${g.campaign_id}` : "/")}
-          onQuit={() => quit.mutate()} onCancel={() => setExiting(false)} />
+  const systemButtons = (
+    <div className="row">
+      {started && g.your_seat != null && (
+        <>
+          <button className="secondary" onClick={() => setReporting("feature")}>Suggest a feature</button>
+          <button className="secondary" onClick={() => setReporting("bug")}>Report a bug</button>
+        </>
       )}
-      {seatTaken && (
-        <p className="error" role="alert">The admin has taken over your seat in this game. You can still watch it, but
-          not play.</p>
-      )}
-      {g.campaign_id && (
-        <p><Link to={`/campaigns/${g.campaign_id}`}>Back to the Five-Year Mission</Link> (the result is recorded there when
-          the game ends)</p>
-      )}
+      <button className="secondary" onClick={() => setExiting(true)}>Exit game</button>
+    </div>
+  );
+  // The game's details and its players.
+  const gameInfo = (
+    <>
       <p className="muted">
         Game {g.id.slice(0, 8)} · {g.status === "waiting" ? "waiting for players" : g.status}
         {g.box === "core" && " · Core Box"}
@@ -163,17 +150,11 @@ export function GameTable() {
           {g.open_seats > 0 && <li className="muted">Open seat. Share this page's link with your opponent.</li>}
         </ul>
       </section>
-
-      {started && state.data ? (
-        <Board gameId={gameId} view={state.data} busy={command.isPending || undo.isPending}
-          onChoose={(o) => command.mutate(o)} onUndo={() => undo.mutate()} />
-      ) : (
-        <section className="card">
-          <p className="muted">The game starts when every seat is filled.</p>
-        </section>
-      )}
-      {state.data?.dev_tools && g.your_seat != null && g.status === "active" && <DevPanel gameId={gameId} />}
-      {(command.error || undo.error) && <p className="error" role="alert">{(command.error || undo.error)!.message}</p>}
+    </>
+  );
+  // The live connection and its events.
+  const connection = (
+    <>
       <p className="muted">Connection: {socket === "no-seat" ? "you have no seat in this game" : socket}</p>
 
       <section className="card">
@@ -182,6 +163,47 @@ export function GameTable() {
           <ul className="list plain mono">{log.map((line, i) => <li key={i}>{line}</li>)}</ul>
         )}
       </section>
+    </>
+  );
+  // On a phone, once the table is showing, the buttons, the game's details, the players and the connection live on
+  // its System tab
+  // instead (REQ-CLI-32).
+  const onTable = started && !!state.data;
+  return (
+    <main className="page">
+      <div className="row between game-title">
+        <h1>{MODE_LABELS[g.mode]}</h1>
+        {!(phone && onTable) && systemButtons}
+      </div>
+      {reporting && <BugDialog gameId={gameId} kind={reporting} onClose={() => setReporting(null)} />}
+      {exiting && (
+        <ExitDialog mode={g.mode} campaign={!!g.campaign_id} seated={g.your_seat != null} over={g.status === "finished"}
+          busy={quit.isPending} error={quit.error?.message}
+          onLeave={() => navigate(g.campaign_id ? `/campaigns/${g.campaign_id}` : "/")}
+          onQuit={() => quit.mutate()} onCancel={() => setExiting(false)} />
+      )}
+      {seatTaken && (
+        <p className="error" role="alert">The admin has taken over your seat in this game. You can still watch it, but
+          not play.</p>
+      )}
+      {g.campaign_id && (
+        <p><Link to={`/campaigns/${g.campaign_id}`}>Back to the Five-Year Mission</Link> (the result is recorded there when
+          the game ends)</p>
+      )}
+      {!(phone && onTable) && gameInfo}
+
+      {started && state.data ? (
+        <Board gameId={gameId} view={state.data} busy={command.isPending || undo.isPending}
+          onChoose={(o) => command.mutate(o)} onUndo={() => undo.mutate()}
+          system={<><section className="card">{systemButtons}</section>{gameInfo}{connection}</>} />
+      ) : (
+        <section className="card">
+          <p className="muted">The game starts when every seat is filled.</p>
+        </section>
+      )}
+      {state.data?.dev_tools && g.your_seat != null && g.status === "active" && <DevPanel gameId={gameId} />}
+      {(command.error || undo.error) && <p className="error" role="alert">{(command.error || undo.error)!.message}</p>}
+      {!(phone && onTable) && connection}
     </main>
   );
 }

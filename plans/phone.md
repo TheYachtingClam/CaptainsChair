@@ -62,7 +62,7 @@ What was done: `components/Sheet.tsx` has `usePhone()` (under 700 pixels) and `S
 
 Checked with Playwright on an emulated iPhone 13: a hand card's panel opens at the bottom, collapses to 46 pixels and closes with ✕; a question and the Bot's turn sit at the bottom with the "press Done" note under them; nothing is wider than the screen. At 1280 pixels the panels float as before and no handles appear.
 
-### Step 4: One area at a time (REQ-CLI-32, -33)
+### Step 4: One area at a time (REQ-CLI-32, -33) (done)
 
 - Under 700 pixels, `Board.tsx` shows one of You, Centre, Opponent and Log, chosen from a bar at the bottom (above the collapsed sheet).
 - A tab gets a mark when something there changed since it was last shown.
@@ -72,7 +72,13 @@ Checked with Playwright on an emulated iPhone 13: a hand card's panel opens at t
 
 **You test:** a two-player game against yourself in two browsers, one of them the phone: follow the opponent's turn from the tabs, then play yours.
 
+What was done: on a phone `Board.tsx` shows one area, chosen from a tab bar at the very bottom of the sheet (`.area-tabs`, the last block of `.sheet-stack`): **You**, **Centre**, **Opponent** (or **Bot**) and **System** (Exit game, Report a bug and Suggest a feature, moved there from the top of the page at your request on 2026-10-27, then the log); Cadet Training has no opponent tab and a watcher no You tab. A tab gets a red dot when its area changed since it was last shown (each area has a signature: its player's view, the centre's piles, the log's length). A question for you switches to the area its answers are about: a Market slot (`market:<suit>`, `glory:<suit>`) is the Centre, any other answer ending in a card's uid is the area holding that card; the Action Step does not switch. Choosing a tab scrolls to the start of the table. Your hand sits under your mat, outside its border, and stays fanned so it reads as a hand (your choice, 2026-10-27; a first version put it at the top of the mat as a sideways-scrolling row): 92-pixel cards whose overlap grows with the hand so it always fits the screen's width. On a laptop every area shows as before.
+
+Checked with Playwright on an emulated iPhone 13: the tabs are You, Centre, Bot, Log; the hand scrolls sideways; ending the turn switches to Centre for "Place 1 Glory on a Market card" and back to You for the discard; during the Bot's turn Centre, Bot and Log are marked and opening Bot clears its mark; nothing is wider than the screen. At 1280 pixels there are no tabs and all three mats and the log show.
+
 ### Step 5: Touch polish (REQ-CLI-35, -36)
+
+Done so far, at your requests on 2026-10-27: the game's buttons, details, Players, Connection and Events moved to the System tab; the Neutral Zone shown compact (three across) on the You tab and in Centre; your mat ends with the Draw deck and, under it, the Discard pile on the left, and the Staging Area beside both, with End Turn (and Undo) beside the Staging Area's title and room for staged cards below, instead of a tall column of Discard pile and End Turn.
 
 - Tap targets of at least 44 pixels on a phone; no sideways page scroll.
 - The top bar, lobby, new game, campaign, account, sign-in and Admin pages checked at 375 pixels and fixed where needed.
