@@ -301,9 +301,9 @@ def reset_user(user_id: str, db: Session = Depends(get_db)) -> dict:
     user = db.get(User, user_id)
     if user is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No such account")
-    link = users.start_reset(db, user)
+    link, outcome = users.start_reset(db, user)
     db.commit()
-    return {"link": link}
+    return {"link": link, "mail": outcome}
 
 
 @router.get("/invites", dependencies=[Depends(require_admin)])
@@ -319,11 +319,11 @@ def invite(body: InviteRequest, request: Request, db: Session = Depends(get_db))
     from app import users
 
     try:
-        row, code = users.create_invite(db, body.email, session_user(request.cookies, db), admin=body.admin)
+        row, code, outcome = users.create_invite(db, body.email, session_user(request.cookies, db), admin=body.admin)
     except users.UserError as err:
         raise HTTPException(422, str(err)) from err
     db.commit()
-    return {**_invite_row(row), "link": users.invite_link(code)}
+    return {**_invite_row(row), "link": users.invite_link(code), "mail": outcome}
 
 
 @router.delete("/invites/{invite_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_admin)])

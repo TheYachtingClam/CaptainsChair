@@ -101,13 +101,15 @@ What was done: tables `users`, `invites` and `password_resets` (`app/models.py`)
 
 What was done: the first admin comes from an **admin invitation** (`python -m app.create_admin`, address from `ADMIN_EMAIL`, set to nmayne@gmail.com in the local `.env`), so no password is typed on the server. Admin endpoints accept an admin account (and, until Step 8, the admin password). New admin endpoints for accounts and invitations, and the Admin page's Invitations and Accounts sections. Pulled forward from Step 7 so the invitation can be used: the sign-in page takes an email and password (with "Forgot password?" and a switch back to the shared password), and the sign-up and reset-password pages that email links open. The top bar shows the account's name and, for an admin, a link to the Admin page. Tests: `tests/test_users.py`, 17 tests.
 
-### Step 4: Sending email
+### Step 4: Sending email (done)
 
 - `app/mail.py` with SMTP settings (decision 6), and the three emails.
 - You: turn on 2-Step Verification on the Google account if it isn't already, then create an app password for the site.
 - On Fly: set the SMTP secrets and `PUBLIC_URL`. You set the app password yourself with `fly secrets set`, so it never passes through this chat or the code.
 
 **You test:** invite yourself at a second address and receive the email; use "Forgot password?" and receive the link.
+
+What was done: `app/mail.py` sends over SMTP with Python's `smtplib` (STARTTLS on 587, TLS on 465) when `SMTP_HOST` and `SMTP_PASSWORD` are set, and otherwise writes to the log as before. A failed email is logged (without its text, which holds the link) and never fails the request; invitations and resets report "sent", "logged" or "failed", and the Admin page says what to do. The local `.env` has the Gmail settings for nmayne@gmail.com except the app password, which you add yourself; `.env.example` documents them. Tests: a fake SMTP server checks the Gmail conversation, the sender and the link, and that a failure is handled.
 
 ### Step 5: Seats and campaigns belong to accounts
 

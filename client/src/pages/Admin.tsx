@@ -1,7 +1,14 @@
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { AdminBug, AdminCampaign, AdminGame, AdminInvite, AdminUser, MODE_LABELS, adminApi, saveSeatToken } from "../api";
+import { AdminBug, AdminCampaign, AdminGame, AdminInvite, AdminUser, MODE_LABELS, MailOutcome, adminApi, saveSeatToken } from "../api";
+
+/** What happened to an email the admin just caused, and what to do about it. */
+function mailNote(outcome: MailOutcome | undefined, email: string): string {
+  if (outcome === "sent") return `Emailed to ${email}. If it does not arrive, send them this link:`;
+  if (outcome === "failed") return `The email to ${email} could not be sent (see the server log). Send them this link yourself:`;
+  return `Email is not set up on this server, so send ${email} this link yourself:`;
+}
 
 const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "—");
 
@@ -95,8 +102,8 @@ function AdminInvites() {
         <button type="submit" disabled={!email.trim() || invite.isPending}>Invite</button>
       </form>
       {made?.link && (
-        <p role="status">Invitation sent to {made.email}. If it does not arrive, send them this link (it works once,
-          for 7 days): <code className="invite-link">{made.link}</code></p>
+        <p role="status">{mailNote(made.mail, made.email)} <code className="invite-link">{made.link}</code>
+          <span className="muted"> (works once, for 7 days)</span></p>
       )}
       {error && <p className="error">{error.message}</p>}
       {(invites.data ?? []).length > 0 && (
@@ -129,14 +136,16 @@ function AdminUsers() {
     mutationFn: ({ id, ...c }: { id: string; disabled?: boolean; is_admin?: boolean }) => adminApi.changeUser(id, c),
     onSuccess: refresh,
   });
-  const reset = useMutation({ mutationFn: (u: AdminUser) => adminApi.resetUser(u.id).then((r) => ({ ...r, email: u.email })) });
+  const reset = useMutation({
+    mutationFn: (u: AdminUser) => adminApi.resetUser(u.id).then((r) => ({ link: r.link, outcome: r.mail, address: u.email })),
+  });
   const error = users.error ?? change.error ?? reset.error;
   return (
     <section className="card stack">
       <h2>Accounts ({users.data?.length ?? 0})</h2>
       {reset.data && (
-        <p role="status">Password reset sent to {reset.data.email}. If it does not arrive, send them this link (it works
-          once, for 1 hour): <code className="invite-link">{reset.data.link}</code></p>
+        <p role="status">{mailNote(reset.data.outcome, reset.data.address)} <code className="invite-link">{reset.data.link}</code>
+          <span className="muted"> (works once, for 1 hour)</span></p>
       )}
       {error && <p className="error">{error.message}</p>}
       <table className="admin-table">

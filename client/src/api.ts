@@ -432,7 +432,12 @@ export interface AdminInvite {
   created_at: string | null;
   expires_at: string | null;
   link?: string;
+  /** How the invitation email went, right after it is made. */
+  mail?: MailOutcome;
 }
+
+/** "sent"; "logged": email is not set up on the server; "failed": the email could not be sent. */
+export type MailOutcome = "sent" | "logged" | "failed";
 
 export interface AdminCampaign {
   id: string;
@@ -483,7 +488,7 @@ export const adminApi = {
   users: () => request<AdminUser[]>("/api/admin/users"),
   changeUser: (id: string, change: { disabled?: boolean; is_admin?: boolean }) =>
     request<AdminUser>(`/api/admin/users/${id}`, { method: "PATCH", body: JSON.stringify(change) }),
-  resetUser: (id: string) => request<{ link: string }>(`/api/admin/users/${id}/reset`, { method: "POST" }),
+  resetUser: (id: string) => request<{ link: string; mail: MailOutcome }>(`/api/admin/users/${id}/reset`, { method: "POST" }),
   invites: () => request<AdminInvite[]>("/api/admin/invites"),
   invite: (email: string, admin = false) =>
     request<AdminInvite>("/api/admin/invites", { method: "POST", body: JSON.stringify({ email, admin }) }),

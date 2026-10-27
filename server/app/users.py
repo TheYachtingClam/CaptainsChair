@@ -129,9 +129,10 @@ def change_password(db: Session, user: User, current: str, new: str) -> None:
 
 # ------------------------------------------------------------------ invitations (REQ-USER-02, -30)
 
-def create_invite(db: Session, email: str, created_by: User | None, *, admin: bool = False) -> tuple[Invite, str]:
-    """A new invitation and its code (only its hash is stored). Sends the invitation email. An admin invitation makes
-    the new account an admin (REQ-USER-04)."""
+def create_invite(db: Session, email: str, created_by: User | None, *,
+                  admin: bool = False) -> tuple[Invite, str, mail.Outcome]:
+    """A new invitation, its code (only its hash is stored) and how its email went. An admin invitation makes the new
+    account an admin (REQ-USER-04)."""
     email = normal_email(email)
     if find_by_email(db, email) is not None:
         raise UserError("There is already an account for that email address.")
@@ -142,11 +143,11 @@ def create_invite(db: Session, email: str, created_by: User | None, *, admin: bo
     db.flush()
     who = created_by.display_name if created_by else "The admin"
     role = " as its admin" if admin else ""
-    mail.send(email, f"{who} invited you to Captain's Chair Online",
-              f"Hello,\n\n{who} invited you to play Star Trek: Captain's Chair online{role}.\n\n"
-              f"Create your account here (the link works once, for {INVITE_DAYS} days):\n"
-              f"{invite_link(code)}\n")
-    return invite, code
+    outcome = mail.send(email, f"{who} invited you to Captain's Chair Online",
+                        f"Hello,\n\n{who} invited you to play Star Trek: Captain's Chair online{role}.\n\n"
+                        f"Create your account here (the link works once, for {INVITE_DAYS} days):\n"
+                        f"{invite_link(code)}\n")
+    return invite, code, outcome
 
 
 def invite_link(code: str) -> str:
@@ -171,16 +172,16 @@ def sign_up(db: Session, code: str, display_name: str, password: str) -> User:
 
 # ------------------------------------------------------------------ forgotten passwords (REQ-USER-20 to -22)
 
-def start_reset(db: Session, user: User) -> str:
-    """A one-time reset code for the user, sent by email. Returns the link."""
+def start_reset(db: Session, user: User) -> tuple[str, mail.Outcome]:
+    """A one-time reset code for the user, sent by email. Returns the link and how the email went."""
     code = secrets.token_urlsafe(24)
     db.add(PasswordReset(user_id=user.id, code_hash=_code_hash(code), expires_at=now() + timedelta(hours=RESET_HOURS)))
     db.flush()
     url = mail.link(f"/reset?code={code}")
-    mail.send(user.email, "Reset your Captain's Chair password",
-              f"Hello {user.display_name},\n\nUse this link to choose a new password (it works once, for "
-              f"{RESET_HOURS} hour):\n{url}\n\nIf you did not ask for this, you can ignore this email.\n")
-    return url
+    outcome = mail.send(user.email, "Reset your Captain's Chair password",
+                        f"Hello {user.display_name},\n\nUse this link to choose a new password (it works once, for "
+                        f"{RESET_HOURS} hour):\n{url}\n\nIf you did not ask for this, you can ignore this email.\n")
+    return url, outcome
 
 
 def forgot(db: Session, email: str) -> None:

@@ -36,12 +36,13 @@ def main(argv: list[str]) -> int:
             print(f"{existing.email} already has an account; it is now an admin.")
             return 0
         try:
-            _, code = users.create_invite(db, email, None, admin=True)
+            _, code, outcome = users.create_invite(db, email, None, admin=True)
         except users.UserError as err:
             print(err, file=sys.stderr)
             return 1
         db.commit()
-    print(f"Admin invitation for {users.normal_email(email)} (works once, for {users.INVITE_DAYS} days):")
+    note = {"sent": "emailed", "logged": "not emailed: email is not set up", "failed": "the email could not be sent"}
+    print(f"Admin invitation for {users.normal_email(email)} ({note[outcome]}; works once, for {users.INVITE_DAYS} days):")
     print(users.invite_link(code))
     return 0
 

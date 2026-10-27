@@ -13,7 +13,7 @@ from app.models import Invite, PasswordReset, User
 
 def invite(email="ann@example.com"):
     with open_session() as db:
-        _, code = users.create_invite(db, email, None)
+        _, code, _ = users.create_invite(db, email, None)
         db.commit()
     return code
 
@@ -254,3 +254,88 @@ def test_the_admin_invites_and_manages_accounts(client):
     # An admin cannot lock themselves out (REQ-USER-31).
     assert client.patch(f"/api/admin/users/{admin['id']}", json={"is_admin": False}).status_code == 409
     assert client.patch(f"/api/admin/users/{admin['id']}", json={"disabled": True}).status_code == 409
+
+
+
+# ------------------------------------------------------------------ sending email (plans/users.md Step 4)
+
+class FakeSMTP:
+    sent: list = []
+    fail = False
+
+    def __init__(self, host, port, timeout=None, context=None):
+        self.calls = [("connect", host, port)]
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def starttls(self, context=None):
+        self.calls.append(("starttls",))
+
+    def login(self, user, password):
+        if FakeSMTP.fail:
+            import smtplib
+
+            raise smtplib.SMTPAuthenticationError(535, b"Username and Password not accepted")
+        self.calls.append(("login", user, password))
+
+    def send_message(self, message):
+        FakeSMTP.sent.append((self.calls, message))
+
+
+@pytest.fixture
+def gmail(monkeypatch):
+    from app.config import get_settings
+
+    settings = get_settings()
+    for key, value in {"smtp_host": "smtp.gmail.com", "smtp_port": 587, "smtp_user": "nick@example.com",
+                       "smtp_password": "app-password", "mail_from": "",
+                       "public_url": "https://example.fly.dev"}.items():
+        monkeypatch.setattr(settings, key, value)
+    import smtplib
+
+    monkeypatch.setattr(smtplib, "SMTP", FakeSMTP)
+    FakeSMTP.sent = []
+    FakeSMTP.fail = False
+    return FakeSMTP
+
+
+def test_emails_go_out_through_gmail(client, gmail):
+    mail.OUTBOX.clear()
+    with open_session() as db:
+        _, code, outcome = users.create_invite(db, "ann@example.com", None)
+        db.commit()
+    assert outcome == "sent" and not mail.OUTBOX
+    calls, message = gmail.sent[-1]
+    assert calls == [("connect", "smtp.gmail.com", 587), ("starttls",), ("login", "nick@example.com", "app-password")]
+    assert message["To"] == "ann@example.com" and message["From"] == "Captain's Chair Online <nick@example.com>"
+    assert f"https://example.fly.dev/signup?code={code}" in message.get_content()
+
+
+def test_a_failed_email_never_breaks_the_request(client, gmail, caplog):
+    admin = make_admin_without_mail(client)
+    gmail.fail = True
+    r = client.post("/api/admin/invites", json={"email": "bob@example.com"})
+    assert r.status_code == 201 and r.json()["mail"] == "failed" and "/signup?code=" in r.json()["link"]
+    assert client.post("/api/auth/forgot", json={"email": "nick@example.com"}).status_code == 202
+    assert "Could not send the email" in caplog.text and "code=" not in caplog.text  # the link is never logged
+    _ = admin
+
+
+def make_admin_without_mail(client):
+    with open_session() as db:
+        user = users.create_user(db, "nick@example.com", "Nick", "correct horse", is_admin=True)
+        db.commit()
+    assert client.post("/api/auth/login", json={"email": "nick@example.com", "password": "correct horse"}).status_code == 204
+    return user
+
+
+def test_without_a_password_email_is_only_logged(client, monkeypatch):
+    from app.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "smtp_host", "smtp.gmail.com")
+    monkeypatch.setattr(get_settings(), "smtp_password", "")
+    assert mail.send("ann@example.com", "Hello", "Body") == "logged"
