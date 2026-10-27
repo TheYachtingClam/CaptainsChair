@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { BotView, CardView, OptionView, PlayerView, RowRef } from "../api";
-import { awayTokenImage, Card, CardBack, imageUrl, PileViewer, Slot, usePreviewHandlers } from "./Cards";
+import { awayTokenImage, Card, CardBack, imageUrl, InspectContext, PileViewer, Slot, usePreviewHandlers } from "./Cards";
 
 // Crew board track geometry, as fractions of the board image (measured from the scans).
 const TRACK_X0 = 0.073; // centre of space 0
@@ -17,17 +17,13 @@ function CrewBoard({ p }: { p: PlayerView }) {
   const traits = p.traits ?? null; // Khan marks traits instead of moving along tracks (REQ-CD-KHN-04, -06)
   const hasTracks = !traits;
   const marked = traits?.filter((t) => t.marked).length ?? 0;
-  const preview = usePreviewHandlers(p.board, true);
+  const preview = usePreviewHandlers(p.board, true, `${p.name}'s Crew board`);
   // On a narrow screen the board is drawn small; a tap shows it full size, since a phone has no hover (REQ-CLI-30).
-  const [enlarged, setEnlarged] = useState(false);
+  const inspect = useContext(InspectContext);
+  const enlarge = () => inspect({ image: p.board, name: `${p.name}'s Crew board`, wide: true });
   return (
-    <div className="crew-board" {...preview} title={`${p.name}'s Crew board`} role="button" tabIndex={0}
-      onClick={() => setEnlarged(true)} onKeyDown={(e) => e.key === "Enter" && setEnlarged(true)}>
-      {enlarged && (
-        <div className="modal-backdrop board-viewer" onClick={(e) => { e.stopPropagation(); setEnlarged(false); }}>
-          <img src={imageUrl(p.board)} alt={`${p.name}'s Crew board`} />
-        </div>
-      )}
+    <div className="crew-board" {...preview} title={`${p.name}'s Crew board`} role="button"
+      onClick={enlarge} onKeyDown={(e) => e.key === "Enter" && enlarge()}>
       <img src={imageUrl(p.board)} alt={`${p.name}'s Crew board`} />
       {traits?.map((t, i) => (
         <img
@@ -79,7 +75,7 @@ const SIDE_LABEL: Record<string, string> = {
 
 /** One side of an Automated Command card: hover to enlarge; the rows are also listed for reading. */
 function CommandSide({ side, highlight }: { side: BotView["command"][number]; highlight?: number }) {
-  const preview = usePreviewHandlers(side.image ?? "", false);
+  const preview = usePreviewHandlers(side.image ?? "", false, SIDE_LABEL[side.side]);
   return (
     <figure className={`command-side ${highlight ? "matched-side" : ""}`}>
       {side.image && <img src={imageUrl(side.image)} alt={SIDE_LABEL[side.side]} {...preview} />}

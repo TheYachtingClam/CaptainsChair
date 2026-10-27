@@ -34,7 +34,7 @@ Taken as the defaults on 2026-10-27; say if you want any of them changed.
 
 Done ahead of Step 2, because it was the most distracting thing on a phone: under 900 pixels the Crew board was drawn the full width of the mat. It is now at most 240 pixels wide (46% of the mat), beside the tokens, and a tap shows it full size (`CrewBoard` in `PlayerMat.tsx`).
 
-### Step 2: Inspect any card by touch (REQ-CLI-30, -31)
+### Step 2: Inspect any card by touch (REQ-CLI-30, -31) (done)
 
 - A shared `useLongPress` hook: about 450 milliseconds of holding without moving opens the viewer, and the tap that follows the release is swallowed so it does not also select the card.
 - A full-screen card viewer: the card as large as fits, the cards beamed to it, and its tokens. Reuses what the hover preview shows (`Cards.tsx`). Tap anywhere to close.
@@ -43,6 +43,12 @@ Done ahead of Step 2, because it was the most distracting thing on a phone: unde
 - Hand cards stop lifting on hover where there is no hover.
 
 **You test:** in a game on the phone, read an opponent's card, a Market card and a Location, and see the cards beamed to a Ship. A tap on your own card still opens its actions.
+
+What was done: `useLongPress` and `CardViewer` in `Cards.tsx`, opened through `InspectContext` (provided by `Board.tsx`). Every `Card` (including beamed ones), Ship tokens at Locations, Crew boards and the Bot's command cards open the viewer on a 450 ms press; a mouse is ignored, since it has hover. The viewer shows the card, its resources and Ship token, and the cards beamed to it, each of which opens in turn. The press's own click is swallowed, and the viewer ignores taps in its first 400 ms, so the finger lifting does not close it. A tap on a Crew board opens it too. The phone's own long-press menu is turned off on cards (`-webkit-touch-callout: none`). The hint is shown once (`cc.hint.hold` in local storage). Hand cards lift on hover only where there is hover.
+
+Found on the way: on every narrow screen the table was wider than the window, because a later `.mat-grid` rule overrode the narrow layout, so on a phone everything was cut off on the right and the boards looked huge. Fixed; the page now fits a 390-pixel screen exactly.
+
+Checked with Playwright on an emulated iPhone 13: holding a Market card opens the viewer and does not select it; a tap closes it; a short tap on a hand card still opens its actions; holding a Crew board opens it wide; no element is wider than the screen.
 
 ### Step 3: Questions and panels as one bottom sheet (REQ-CLI-34)
 

@@ -121,7 +121,7 @@ a.button { text-decoration: none; display: inline-block; }
 
 .mat-grid {
   display: grid;
-  grid-template-columns: minmax(260px, 340px) var(--cw) 1fr var(--cw);
+  grid-template-columns: minmax(260px, 340px) max-content 1fr var(--cw);
   grid-template-areas:
     "left duty      locations locations"
     "left captain   fleet     fleet"
@@ -208,7 +208,8 @@ a.button { text-decoration: none; display: inline-block; }
 
 .hand { display: flex; align-items: flex-end; justify-content: center; gap: 0; margin-top: 14px; min-height: 40px; flex-wrap: wrap; }
 .hand .gcard { width: calc(var(--cw) * 1.15); margin: 0 -8px; transform-origin: 50% 120%; }
-.hand .gcard:hover, .hand .gcard:focus-visible { z-index: 2; translate: 0 -10px; }
+@media (hover: hover) { .hand .gcard:hover { z-index: 2; translate: 0 -10px; } }
+.hand .gcard:focus-visible { z-index: 2; translate: 0 -10px; }
 .hand .card-back.small { margin: 0 -6px; }
 .hand-size { margin-left: 1.5rem; align-self: center; }
 
@@ -233,8 +234,7 @@ a.button { text-decoration: none; display: inline-block; }
   .mat-left .crew-board { flex: 0 0 auto; width: min(240px, 46%); order: -1; }
   .mat-left .tokens { flex: 1 1 140px; }
 }
-.board-viewer { cursor: zoom-out; }
-.board-viewer img { width: min(1000px, 96vw); max-height: 90vh; object-fit: contain; border-radius: 12px; }
+
 /* Reserve card space before images load, so lazy-loaded cards never collapse. */
 .gcard img { aspect-ratio: 63 / 88; object-fit: cover; }
 .hand { padding-top: 12px; }
@@ -248,7 +248,6 @@ a.button { text-decoration: none; display: inline-block; }
   text-transform: uppercase; letter-spacing: 0.04em; color: #8fb8ee;
 }
 .cell.duty .section { min-width: calc(var(--cw) + 22px); }
-.mat-grid { grid-template-columns: minmax(260px, 340px) max-content 1fr var(--cw); }
 .crew-board { cursor: zoom-in; }
 .crew-board:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 10px; }
 .card-preview.wide > img { width: min(760px, 62vw); max-height: 80vh; aspect-ratio: auto; }
@@ -510,3 +509,23 @@ label.challenge { align-items: flex-start; }
 .feature-pill { background: #2e7d5b; color: #fff; }
 .invite-link { word-break: break-all; user-select: all; }
 .topbar .row { gap: 0.75rem; align-items: center; }
+
+/* ---------------------------------------------------------------- press and hold (REQ-CLI-30, -31) */
+/* The phone's own long-press menu and text selection would fight the card viewer. */
+/* On a touch screen the menu would open on whatever image is under the finger when the press ends, which is the
+   viewer's own image once it has opened, so it is off for every image on the table and in its popups. */
+.board-root img, .card-viewer, .card-viewer img, .modal img, .gcard, .crew-board, .ship-token {
+  -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-user-drag: none;
+}
+.card-viewer { flex-direction: column; gap: 12px; padding: 12px; z-index: 60; cursor: zoom-out; display: flex; align-items: center; justify-content: center; background: rgb(0 0 0 / 0.85); }
+.card-viewer figure { margin: 0; display: grid; gap: 8px; justify-items: center; }
+.card-viewer figure > img { max-width: min(92vw, 520px); max-height: 72vh; object-fit: contain; border-radius: 14px; display: block; }
+.card-viewer figure.wide > img { max-width: min(96vw, 1000px); }
+.card-viewer figcaption { color: #fff; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.viewer-token { height: 40px; }
+.viewer-beamed { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; color: #fff; }
+.viewer-beamed button { padding: 0; border: 0; background: none; cursor: zoom-in; }
+.viewer-beamed img { width: 64px; border-radius: 5px; display: block; }
+.viewer-hint { color: #ffffffaa; margin: 0; font-size: 0.85rem; }
+.hold-hint { display: flex; gap: 0.75rem; align-items: center; justify-content: space-between; margin: 0;
+  background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; padding: 0.5rem 0.75rem; }

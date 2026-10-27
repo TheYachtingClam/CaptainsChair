@@ -2,7 +2,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { CardView, GameStateView, OptionView, RowRef } from "../api";
 import { BotPlayback, botTurnClosed } from "./BotPlayback";
 import { SoloAid } from "./SoloAid";
-import { Card, CardPreview, PlayableContext, Preview, PreviewContext, SelectContext, Selection, TargetContext, PlayersContext } from "./Cards";
+import {
+  Card, CardPreview, CardViewer, Inspect, InspectContext, PlayableContext, Preview, PreviewContext, SelectContext, Selection, TargetContext,
+  PlayersContext,
+} from "./Cards";
 import { CardPanel } from "./CardPanel";
 import { PlayerMat } from "./PlayerMat";
 import { CenterMat } from "./CenterMat";
@@ -129,6 +132,26 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
 }) {
   const [pending, setPending] = useState<OptionView | null>(null);
   const [preview, setPreview] = useState<Preview>(null);
+  const [inspected, setInspected] = useState<Inspect>(null);
+  const [holdHint, setHoldHint] = useState(showHoldHint);
+  // Android opens its image menu through a contextmenu event; on a touch screen there is no other use for one on the
+  // table or the card viewer (REQ-CLI-31). A mouse's right-click is left alone.
+  useEffect(() => {
+    const touch = window.matchMedia("(hover: none)");
+    const block = (e: Event) => {
+      const el = e.target as Element | null;
+      if (touch.matches && el?.closest?.(".board-root, .card-viewer, .modal-backdrop")) e.preventDefault();
+    };
+    document.addEventListener("contextmenu", block);
+    return () => document.removeEventListener("contextmenu", block);
+  }, []);
+  const inspect = useCallback((i: Inspect) => {
+    setInspected(i);
+    if (i) {
+      setHoldHint(false);
+      rememberHoldHint();
+    }
+  }, []);
   const [selection, setSelection] = useState<Selection>(null);
   const [botRow, setBotRow] = useState<RowRef | null>(null);
   const [aid, setAid] = useState(false);
@@ -276,11 +299,18 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
 
   return (
     <PreviewContext.Provider value={setPreview}>
+    <InspectContext.Provider value={inspect}>
     <PlayersContext.Provider value={view.players}>
     <PlayableContext.Provider value={playable}>
     <SelectContext.Provider value={{ selected: selectedUid, toggle }}>
     <TargetContext.Provider value={{ targets, answer: pick }}>
-    <div className="stack">
+    <div className="stack board-root">
+      {holdHint && (
+        <p className="hold-hint" role="note">
+          <span>Press and hold any card to see it full size, with the cards beamed to it.</span>
+          <button className="link" onClick={() => { setHoldHint(false); rememberHoldHint(); }}>Got it</button>
+        </p>
+      )}
       {/* The game's state is shown on the mats and its choices on the cards, the End Turn button and the floating
           box, so there is no separate status box; only the result appears up here, once the game is over. */}
       {view.result && (
@@ -364,6 +394,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
       )}
       {aid && <SoloAid onClose={() => setAid(false)} />}
       <CardPreview preview={preview} />
+      <CardViewer shown={inspected} onShow={inspect} />
       {selection && (
         <CardPanel selection={selection} view={botHold ? { ...view, decision: null } : view} onClose={deselect}
           onChoose={(o) => { setSelection(null); pick(o); }} />
@@ -373,6 +404,26 @@ export function Board({ gameId, view, onChoose, onUndo, busy }: {
     </SelectContext.Provider>
     </PlayableContext.Provider>
     </PlayersContext.Provider>
+    </InspectContext.Provider>
     </PreviewContext.Provider>
   );
+}
+
+const HOLD_HINT_KEY = "cc.hint.hold";
+
+/** The press-and-hold hint is shown once, on a touch screen, until the player opens a card or dismisses it. */
+function showHoldHint(): boolean {
+  try {
+    return window.matchMedia("(hover: none)").matches && !localStorage.getItem(HOLD_HINT_KEY);
+  } catch {
+    return false;
+  }
+}
+
+function rememberHoldHint() {
+  try {
+    localStorage.setItem(HOLD_HINT_KEY, "1");
+  } catch {
+    /* storage unavailable: the hint comes back next time */
+  }
 }

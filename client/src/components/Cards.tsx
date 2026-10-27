@@ -1,4 +1,4 @@
-import { createContext, useContext, useLayoutEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CardView, OptionView, PlayerView } from "../api";
 
 export type Preview = {
@@ -14,6 +14,117 @@ export type Preview = {
   y: number;
 } | null;
 export const PreviewContext = createContext<(p: Preview) => void>(() => {});
+
+/** A card or image opened full screen by pressing and holding it, for touch screens (REQ-CLI-31). */
+export type Inspect = {
+  image: string;
+  name: string;
+  beamed?: CardView[];
+  /** A Ship's token, shown with its name. */
+  token?: string;
+  /** Resource tokens on the card, e.g. "2 Glory". */
+  resources?: string;
+  /** A Crew board or other landscape image. */
+  wide?: boolean;
+} | null;
+export const InspectContext = createContext<(i: Inspect) => void>(() => {});
+
+const HOLD_MS = 450; // how long a press must last to open the viewer
+const MOVE_PX = 10; // moving further than this is a scroll, not a press
+
+/** Press-and-hold handlers for touch and pen (REQ-CLI-31). A mouse has hover instead, so it is ignored. The click
+ *  that follows a press that opened the viewer is swallowed, so the press does not also select or answer. */
+export function useLongPress(onLong: () => void) {
+  const timer = useRef<number | undefined>(undefined);
+  const start = useRef<{ x: number; y: number } | null>(null);
+  const fired = useRef(false);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  const cancel = () => {
+    window.clearTimeout(timer.current);
+    start.current = null;
+  };
+  return {
+    onPointerDown: (e: React.PointerEvent) => {
+      if (e.pointerType === "mouse") return;
+      fired.current = false;
+      start.current = { x: e.clientX, y: e.clientY };
+      window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => {
+        fired.current = true;
+        start.current = null;
+        onLong();
+      }, HOLD_MS);
+    },
+    onPointerMove: (e: React.PointerEvent) => {
+      const s = start.current;
+      if (s && Math.hypot(e.clientX - s.x, e.clientY - s.y) > MOVE_PX) cancel();
+    },
+    onPointerUp: cancel,
+    onPointerCancel: cancel,
+    // The phone's own long-press menu (save image, share) would open over the viewer.
+    onContextMenu: (e: React.MouseEvent) => {
+      if (fired.current || start.current) e.preventDefault();
+    },
+    onClickCapture: (e: React.MouseEvent) => {
+      if (!fired.current) return;
+      fired.current = false;
+      e.preventDefault();
+      e.stopPropagation();
+    },
+  };
+}
+
+/** Full-screen view of a pressed card: the card, its tokens and resources, and the cards beamed to it, each of which
+ *  can be opened in turn. A tap anywhere else closes it. */
+export function CardViewer({ shown, onShow }: { shown: Inspect; onShow: (i: Inspect) => void }) {
+  const opened = useRef(0);
+  useEffect(() => {
+    opened.current = Date.now();
+  }, [shown]);
+  if (!shown) return null;
+  // The tap that ends the press can land on the viewer itself; it must not close it at once.
+  const close = () => Date.now() - opened.current > 400 && onShow(null);
+  return (
+    <div className="modal-backdrop card-viewer" role="dialog" aria-label={shown.name} onClick={close}
+      onContextMenu={(e) => e.preventDefault()}
+      onKeyDown={(e) => e.key === "Escape" && onShow(null)}>
+      <figure className={shown.wide ? "wide" : ""}>
+        <img src={imageUrl(shown.image)} alt={shown.name} draggable={false} />
+        {(shown.resources || shown.token) && (
+          <figcaption>
+            {shown.token && <img className="viewer-token" src={imageUrl(shown.token)} alt="" />}
+            {shown.resources}
+          </figcaption>
+        )}
+      </figure>
+      {shown.beamed && shown.beamed.length > 0 && (
+        <div className="viewer-beamed">
+          <span>Beamed here:</span>
+          {shown.beamed.map((b) => (
+            <button key={b.uid} type="button" onClick={(e) => { e.stopPropagation(); onShow(inspectOf(b)); }}
+              aria-label={`Show ${b.name}`}>
+              <img src={imageUrl(b.image)} alt={b.name} />
+            </button>
+          ))}
+        </div>
+      )}
+      <p className="viewer-hint">Tap anywhere to close</p>
+    </div>
+  );
+}
+
+/** Resource tokens on a card as text: Glory on Market cards, Dilithium on Kaelon II or the Talvath, and so on. */
+function resourcesOf(card: CardView): string {
+  return Object.entries(card.resources ?? {})
+    .filter(([, n]) => n > 0)
+    .map(([kind, n]) => `${n} ${kind[0].toUpperCase()}${kind.slice(1)}`)
+    .join(" · ");
+}
+
+export function inspectOf(card: CardView): Inspect {
+  return { image: card.image, name: card.name, beamed: card.beamed, token: card.token, resources: resourcesOf(card) || undefined };
+}
+
 /** Every player, so a Location can show the Ship tokens warped to it. */
 export const PlayersContext = createContext<PlayerView[]>([]);
 
@@ -23,7 +134,6 @@ export const awayTokenImage = (seat: number) => (seat === 0 ? "away-team-p1" : "
 /** The tokens at a Location, by player: Away Teams (token and count) and each Ship warped there. */
 export function LocationTokens({ loc, seat, compact = false }: { loc: CardView; seat?: number; compact?: boolean }) {
   const players = useContext(PlayersContext);
-  const setPreview = useContext(PreviewContext);
   const groups = players
     .filter((p) => seat === undefined || p.seat === seat)
     .map((p) => ({
@@ -43,17 +153,27 @@ export function LocationTokens({ loc, seat, compact = false }: { loc: CardView; 
               {teams > 1 && <span className="token-count">×{teams}</span>}
             </span>
           )}
-          {ships.map((s) => (
-            <img key={s.uid} className="ship-token" src={imageUrl(s.token ?? s.image)} alt={s.name}
-              onMouseEnter={(e) => s.token && setPreview({ image: s.token, token: s.token, tokenName: s.name, tokenOnly: true, x: e.clientX, y: e.clientY })}
-              onMouseMove={(e) => s.token && setPreview({ image: s.token, token: s.token, tokenName: s.name, tokenOnly: true, x: e.clientX, y: e.clientY })}
-              onMouseLeave={() => setPreview(null)} />
-          ))}
+          {ships.map((s) => <ShipToken key={s.uid} ship={s} />)}
         </span>
       ))}
     </span>
   );
 }
+/** A Ship's token at a Location: hover shows it large; pressing and holding opens the Ship (REQ-CLI-30, -31). */
+function ShipToken({ ship }: { ship: CardView }) {
+  const setPreview = useContext(PreviewContext);
+  const inspect = useContext(InspectContext);
+  const held = useLongPress(() => inspect(inspectOf(ship)));
+  // A press on the token opens the Ship, not the Location card it sits on.
+  const press = { ...held, onPointerDown: (e: React.PointerEvent) => { e.stopPropagation(); held.onPointerDown(e); } };
+  const hover = (e: React.MouseEvent) =>
+    ship.token && setPreview({ image: ship.token, token: ship.token, tokenName: ship.name, tokenOnly: true, x: e.clientX, y: e.clientY });
+  return (
+    <img className="ship-token" src={imageUrl(ship.token ?? ship.image)} alt={ship.name} {...press}
+      onMouseEnter={hover} onMouseMove={hover} onMouseLeave={() => setPreview(null)} />
+  );
+}
+
 /** The selected card, and a toggle to select or deselect a card at a position on screen. */
 export type Selection = { card: CardView; rect: { left: number; right: number; top: number; bottom: number } } | null;
 export const SelectContext = createContext<{ selected: string | null; toggle: (s: Selection) => void }>({
@@ -125,6 +245,11 @@ export function Card({ card, badges, style, tokens = true, mini = false }: {
   mini?: boolean;
 }) {
   const setPreview = useContext(PreviewContext);
+  const inspect = useContext(InspectContext);
+  const press = useLongPress(() => {
+    setPreview(null);
+    inspect(inspectOf(card));
+  });
   const playable = useContext(PlayableContext).has(card.uid);
   const { selected, toggle } = useContext(SelectContext);
   const { targets, answer } = useContext(TargetContext);
@@ -140,11 +265,7 @@ export function Card({ card, badges, style, tokens = true, mini = false }: {
     setPreview(null);
     toggle({ card, rect: { left: r.left, right: r.right, top: r.top, bottom: r.bottom } });
   };
-  // Resource tokens on the card: Glory on Market cards, Dilithium on Kaelon II or the Talvath, and so on.
-  const resourceText = Object.entries(card.resources ?? {})
-    .filter(([, n]) => n > 0)
-    .map(([kind, n]) => `${n} ${kind[0].toUpperCase()}${kind.slice(1)}`)
-    .join(" · ");
+  const resourceText = resourcesOf(card);
   const show = (x: number, y: number) => {
     if (!isSelected) setPreview({ image: card.image, beamed: card.beamed, token: mini ? undefined : card.token, tokenName: card.name, x, y });
   };
@@ -155,6 +276,7 @@ export function Card({ card, badges, style, tokens = true, mini = false }: {
       role="button"
       data-uid={card.uid}
       aria-pressed={isSelected}
+      {...press}
       onClick={(e) => select(e.currentTarget)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -192,11 +314,17 @@ export function Card({ card, badges, style, tokens = true, mini = false }: {
   );
 }
 
-/** Hover and focus handlers that show any image in the large preview. */
-export function usePreviewHandlers(image: string, wide = false) {
+/** Hover and focus handlers that show any image in the large preview, and press and hold to open it full screen. */
+export function usePreviewHandlers(image: string, wide = false, name = "") {
   const setPreview = useContext(PreviewContext);
+  const inspect = useContext(InspectContext);
+  const press = useLongPress(() => {
+    setPreview(null);
+    inspect({ image, name, wide });
+  });
   const show = (x: number, y: number) => setPreview({ image, wide, x, y });
   return {
+    ...press,
     tabIndex: 0,
     onMouseEnter: (e: React.MouseEvent) => show(e.clientX, e.clientY),
     onMouseMove: (e: React.MouseEvent) => show(e.clientX, e.clientY),
