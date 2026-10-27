@@ -17,7 +17,7 @@ def embassy(ctx, actions):
 def coalition(ctx, actions):
     """PLAY: Take an Incident to scan 2 of Ally. You may free play the gained card. If you do, log this card.
     Ruling (spec): the gained card is free played from wherever it landed."""
-    ally = yield from actions.scan(2, ["Ally"])
+    ally = yield from actions.scan(2, ["Ally"], then="You may free play it next.")
     if ally and actions.free_play_candidates(lambda i: i is ally, cards=[ally]) and (
             yield from actions.may(f"Free play {ctx.name(ally)}?")):
         yield from actions.free_play(ally)

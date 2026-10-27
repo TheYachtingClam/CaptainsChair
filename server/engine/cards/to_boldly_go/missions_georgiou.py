@@ -29,7 +29,7 @@ def reinforcements_reward(ctx, actions):
     """Scan 1 of Ship and free play the gained card. Gain 3 [Dilithium]. If you have 1+ Klingon in play (excluding
     beamed cards), dismiss Cmdr. Burnham and gain 2 [Glory].
     Ruling: the Ship is free played from wherever it was gained to."""
-    ship = yield from actions.scan(1, ["Ship"])
+    ship = yield from actions.scan(1, ["Ship"], then="You free play it next.")
     if ship and actions.free_play_candidates(lambda i: i is ship, cards=[ship]):
         yield from actions.free_play(ship)
     yield from actions.gain_resource("dilithium", 3)

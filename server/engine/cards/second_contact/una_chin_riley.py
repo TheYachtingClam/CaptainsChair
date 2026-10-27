@@ -11,7 +11,8 @@ from ._util import count_traits, has_trait, is_suit
 def first_officer(ctx, actions):
     """PLAY: Discard a Starfleet to gain a Ship. You may discard a card to free play the gained card. Then, if you
     have no other Augment in play, take an Incident."""
-    ship = yield from actions.gain_card(["Ship"], label="a Ship")
+    ship = yield from actions.gain_card(["Ship"], label="a Ship",
+                                      then="Next you may discard a card to free play it.")
     if ship and ship in actions.free_play_candidates(lambda i: i.uid == ship.uid, ("hand", "discard", "draw"))             and [i for i in ctx.me.hand if i is not ship]             and (yield from actions.may(f"Discard a card to free play {ctx.name(ship)}?")):
         yield from actions.discard(1, pred=lambda i: i is not ship)
         yield from actions.free_play(ship)

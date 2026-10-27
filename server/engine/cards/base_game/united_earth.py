@@ -16,7 +16,7 @@ def envoy(ctx, actions):
 @operation("1SHR13", 1, uses=[A.TAKE_INCIDENT, A.SCAN, A.FREE_PLAY, A.LOG], cost=[TakeIncidentCost()])
 def coalition(ctx, actions):
     """PLAY: Take an Incident to scan 2 of Ally. You may free play the gained card. If you do, log this card."""
-    gained = yield from actions.scan(2, ["Ally"])
+    gained = yield from actions.scan(2, ["Ally"], then="You may free play it next.")
     if gained is not None and actions.free_play_candidates(lambda i: i.uid == gained.uid, cards=[gained]) and (
             yield from actions.may(f"Free play {ctx.name(gained)}?")):
         yield from actions.free_play(gained)

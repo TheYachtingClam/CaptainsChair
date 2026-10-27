@@ -1399,8 +1399,10 @@ class Actions:
     # ------------------------------------------------------------ gaining cards (KW-GAIN, KW-SCAN, KW-FIND)
     def gain_card(self, suits: Iterable[str] | None = None, pred: Callable[[Inst], bool] | None = None,
                   label: str = "a card", *, from_junk: bool = False, only_junk: bool = False,
-                  to_hand: bool = False, optional: bool = False, deck_only: bool = False) -> Gen:
+                  to_hand: bool = False, optional: bool = False, deck_only: bool = False, then: str = "") -> Gen:
         """Gain [suit] (faceup Market card or unseen top of its deck) or gain [trait] (faceup cards only).
+        `then` tells the player, when they choose where the card goes, what the effect offers next ("You may free
+        play it next.")
 
         `from_junk` adds the Junk as a source; `only_junk` is "gain ... from the Junk"."""
         self._use(A.GAIN_CARD)
@@ -1438,14 +1440,14 @@ class Actions:
             options.append(("none", "Gain nothing"))
         if len(options) == 1:
             inst = self._take_gained(options[0][0])  # nothing to decide
-            yield from self._place_gained(inst, to_hand)
+            yield from self._place_gained(inst, to_hand, then)
             return inst
         junk_cards = [i for i in self.state.junk if f"junk:{i.uid}" in {o for o, _ in options}]
         answer = yield from self.choose(f"Gain {label}.", options, show=junk_cards)
         if answer == "none":
             return None
         inst = self._take_gained(answer)
-        yield from self._place_gained(inst, to_hand)
+        yield from self._place_gained(inst, to_hand, then)
         return inst
 
     def _take_gained(self, answer: str) -> Inst:
@@ -1467,12 +1469,12 @@ class Actions:
             self.state.junk.remove(inst)
         return inst
 
-    def _place_gained(self, inst: Inst, to_hand: bool) -> Gen:
+    def _place_gained(self, inst: Inst, to_hand: bool, then: str = "") -> Gen:
         if to_hand:
             self.ctx.me.hand.append(inst)
             where = "into their hand"
         else:
-            answer = yield from self.choose(f"Put {name(inst)} where?", [("top", "On top of your deck"), ("discard", "In your Discard pile")],
+            answer = yield from self.choose(f"Put {name(inst)} where?{' ' + then if then else ''}", [("top", "On top of your deck"), ("discard", "In your Discard pile")],
                                             show=[inst])
             (self.ctx.me.draw.insert(0, inst) if answer == "top" else self.ctx.me.discard.append(inst))
             where = "on top of their deck" if answer == "top" else "into their Discard pile"
@@ -1484,8 +1486,8 @@ class Actions:
     def _scans_junk(self) -> bool:
         return any(i.card in registry.SCANS_INCLUDE_JUNK for i in table_cards(self.ctx.me))
 
-    def scan(self, n: int, suits: Iterable[str], *, include_junk: bool = False) -> Gen:
-        """Scan # of [suit] (KW-SCAN-01)."""
+    def scan(self, n: int, suits: Iterable[str], *, include_junk: bool = False, then: str = "") -> Gen:
+        """Scan # of [suit] (KW-SCAN-01). `then` as for `gain_card`."""
         self._use(A.SCAN)
         suits = [s for s in suits if self.state.market.get(s) is not None or self.state.market_decks.get(s)]
         if not suits:
@@ -1510,11 +1512,11 @@ class Actions:
             inst = self._take_gained(answer)
         deck.extend(looked)  # the rest go to the bottom
         if inst:
-            yield from self._place_gained(inst, False)
+            yield from self._place_gained(inst, False, then)
         return inst
 
-    def scan_for(self, pred: Callable[[Inst], bool], label: str, *, include_junk: bool = False) -> Gen:
-        """Scan for [trait / icon] (KW-SCAN-05)."""
+    def scan_for(self, pred: Callable[[Inst], bool], label: str, *, include_junk: bool = False, then: str = "") -> Gen:
+        """Scan for [trait / icon] (KW-SCAN-05). `then` as for `gain_card`."""
         self._use(A.SCAN_FOR)
         faceup = [(f"market:{s}", f"{name(i)} (faceup)") for s, i in self.state.market.items() if i is not None and pred(i)]
         junk = [(f"junk:{i.uid}", f"{name(i)} (from the Junk)") for i in self.state.junk if pred(i)] \
@@ -1522,7 +1524,7 @@ class Actions:
         if faceup or junk:
             answer = yield from self.choose(f"Gain {label}.", faceup + junk)
             inst = self._take_gained(answer)
-            yield from self._place_gained(inst, False)
+            yield from self._place_gained(inst, False, then)
             return inst
         remaining = [s for s in MARKET_SUITS if self.state.market_decks.get(s)]
         while remaining:
@@ -1543,7 +1545,7 @@ class Actions:
             deck.extend(revealed)
             self.state.shuffle(deck)
             if found:
-                yield from self._place_gained(found, False)
+                yield from self._place_gained(found, False, then)
                 return found
         self.ctx.me.glory += 2  # compensation (KW-SCAN-05)
         self.emit(f"No {label} anywhere: {self.ctx.me.name} gains 2 Glory as compensation.")

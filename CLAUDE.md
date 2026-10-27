@@ -222,7 +222,7 @@ These are the only actions card code may call. Each maps to a keyword in `requir
 | `TAKE_ENCOUNTER` | Take an Encounter into hand. Takes `from`: top of the Encounter deck by default, or `bottom` (Messages from Old Friends) | KW-TAKE | Yes |
 | `RETURN_INCIDENT` | Put an Incident on the bottom of the Incident deck. `player=opponent` is the opponent returning one of theirs by choice (Ambassador Thoris) | KW-RETI | No |
 | `JUNK` | Move a card to the Junk pile. Takes a `source`: the Market by default, which refills the slot, never takes a card with tokens, and can be limited to `suits` (Joseph M'Benga's "Junk a Person from the Market"); your hand or Discard pile (Starbase 80); your Development pile (Knowledge of a Terrible Fate); or the top of the Incident deck (Time Is Running Out). Only the Market source refills | KW-JUNK | Yes |
-| `GAIN_CARD` | Gain by suit or trait, including from the Junk | KW-GAIN | Yes |
+| `GAIN_CARD` | Gain by suit or trait, including from the Junk. `then="You may free play it next."` adds what the effect offers next to the "Put … where?" question (also on `scan` and `scan_for`: United Earth, Stone of Gol, Una Chin-Riley) | KW-GAIN | Yes |
 | `SCAN` | Scan a number of cards of a suit | KW-SCAN-01 | Yes |
 | `SCAN_FOR` | Scan for a trait or icon | KW-SCAN-05 | Yes |
 | `FIND` | Search hand, Draw, Discard and Reserve for a card. `player=opponent` makes the opponent find among their own cards (needs `FORCE`) | KW-FIND | Yes |

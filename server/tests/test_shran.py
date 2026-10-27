@@ -342,3 +342,18 @@ def test_andorian_mining_consortium():
         answer(s, "No" if "No" in opts else opts[0])
     assert me(s).latinum == latinum + 2 and me(s).glory == glory + 1
     assert score_player(s, me(s))["parts"]["missions"] == 3
+
+
+def test_united_earth_says_the_ally_can_be_free_played_next():
+    """Feature request cb1873b2: when choosing where the scanned Ally goes, the question says it can be free played
+    next, wherever it goes."""
+    s = shran(hand=["1SHR13"])
+    play(s, card(s, "1SHR13", zone="hand"), 1)
+    prompts = []
+    for _ in range(6):
+        if s.decision.kind == "action":
+            break
+        prompts.append(s.decision.prompt)
+        answer(s, options(s)[0])
+    where = next(p for p in prompts if "where?" in p)
+    assert where.endswith("where? You may free play it next.")

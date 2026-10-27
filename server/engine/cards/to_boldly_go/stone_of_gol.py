@@ -35,7 +35,9 @@ def ancient_power(ctx, actions):
     a Telepath in play, you may free play the gained card."""
     if (yield from actions.attack()):
         yield from actions.take_incident(opponent=True)
-    gained = yield from actions.gain_card(None, lambda i: has_trait(i, "Attack"), "an Attack", from_junk=True)
-    if gained and count_traits(ctx, "Telepath") and actions.free_play_candidates(lambda i: i is gained, cards=[gained]):
+    telepath = bool(count_traits(ctx, "Telepath"))
+    gained = yield from actions.gain_card(None, lambda i: has_trait(i, "Attack"), "an Attack", from_junk=True,
+                                          then="You may free play it next." if telepath else "")
+    if gained and telepath and actions.free_play_candidates(lambda i: i is gained, cards=[gained]):
         if (yield from actions.may(f"Free play {ctx.name(gained)}?")):
             yield from actions.free_play(gained)
