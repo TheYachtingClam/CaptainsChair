@@ -10,7 +10,7 @@ from ._util import is_suit, ships
 def pilot(ctx, actions):
     """PLAY: Beam this card to a deployed Ship to gain 2 [Dilithium]. You may recall another card beamed to that
     Ship. You may warp that Ship."""
-    ship = yield from actions.pick_card("Beam Jennifer Sh'reyan to which Ship?", ships(ctx))
+    ship = yield from actions.pick_card(f"Beam {ctx.name(ctx.this_card)} to which Ship?", ships(ctx))
     yield from actions.beam(ctx.this_card, ship)
     yield from actions.gain_resource("dilithium", 2)
     others = [b for b in ship.beamed if b is not ctx.this_card]

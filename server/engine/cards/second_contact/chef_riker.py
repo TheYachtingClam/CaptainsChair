@@ -20,7 +20,7 @@ def galley(ctx, actions):
     logged = [i for i in ctx.me.log if is_suit(i, "Person", "Directive")]
     if logged:
         yield from actions.duplicate(logged, label="a Person or Directive in your Log")
-    if ctx.this_card in ctx.me.staging and (yield from actions.may("Promote Chef Riker to Duty Officer?")):
+    if ctx.this_card in ctx.me.staging and (yield from actions.may(f"Promote {ctx.name(ctx.this_card)} to Duty Officer?")):
         yield from actions.promote(ctx.this_card)
 
 

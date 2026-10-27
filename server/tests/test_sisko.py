@@ -489,3 +489,24 @@ def test_quark_is_paid_for_latinum_spent_by_an_effect():
         opts = options(s)
         answer(s, "No" if "No" in opts else opts[0])
     assert me(s).glory == glory  # no Latinum spent, no Glory
+
+
+def test_odo_copying_joret_dal_asks_to_promote_odo():
+    """Bug 25096d88: Odo duplicated Joret Dal's PLAY from the Market, and its "promote this card" question named Joret
+    Dal. "This card" is Odo (KW-DUP-04), so the question names Odo, and Odo is promoted."""
+    s = sisko(hand=["1SIS14", "1SIS24", "1SIS22"], empty_hand=True)  # Odo, Quark, Jadzia Dax
+    s.market["Person"] = s.new_inst("1PER09")  # Joret Dal
+    odo = card(s, "1SIS14", zone="hand")
+    play(s, odo, 0)
+    asked = []
+    for _ in range(12):
+        if s.decision.kind == "action":
+            break
+        if "Promote" in s.decision.prompt:
+            asked.append(s.decision.prompt)
+            answer(s, "Yes")
+            continue
+        labels = options(s)
+        answer(s, next((l for l in labels if l not in ("No", "None")), labels[0]))
+    assert asked == ["Promote Odo to Duty Officer?"]
+    assert any(i.uid == odo.uid for i in s.players[0].duty)

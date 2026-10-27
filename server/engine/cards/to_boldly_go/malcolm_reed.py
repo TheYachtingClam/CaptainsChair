@@ -36,7 +36,7 @@ def engineering_support(ctx, actions):
 def armory(ctx, actions):
     """REACTION: After your opponent deploys a Ship, either find a Weapon OR send an [Away Team] to a Location where
     you have an [Away Team]."""
-    choice = yield from actions.choose("Malcolm Reed: find a Weapon, or send an Away Team?",
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: find a Weapon, or send an Away Team?",
                                        [("find", "Find a Weapon"),
                                         ("send", "Send an Away Team to a Location where you have one")])
     if choice == "find":

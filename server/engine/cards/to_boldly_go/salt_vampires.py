@@ -13,6 +13,6 @@ def draw_two(ctx, actions):
 @operation("2ALL11", 1, uses=[A.LOG])
 def feed(ctx, actions):
     """CLEAN-UP: Log a card from your Staging Area (can be this card). Mandatory."""
-    card = yield from actions.pick_card("Salt Vampires: log a card from your Staging Area.", list(ctx.me.staging))
+    card = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: log a card from your Staging Area.", list(ctx.me.staging))
     if card:
         yield from actions.log(card)

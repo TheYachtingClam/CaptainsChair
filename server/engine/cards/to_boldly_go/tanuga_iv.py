@@ -20,7 +20,7 @@ def output(ctx, actions):
     """CLEAN-UP: Gain 1 [Latinum] for each Weapon you have in play (max 3) OR gain 1 [Dilithium] for each Scientist you
     have in play (max 4)."""
     weapons, scientists = min(3, count_traits(ctx, "Weapon")), min(4, count_traits(ctx, "Scientist"))
-    choice = yield from actions.choose("Tanuga IV: choose one.",
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: choose one.",
                                        [("latinum", f"{weapons} Latinum (Weapons)"),
                                         ("dilithium", f"{scientists} Dilithium (Scientists)")])
     n = weapons if choice == "latinum" else scientists

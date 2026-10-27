@@ -26,7 +26,7 @@ def triage(ctx, actions):
 @operation("3FRE08", 2, uses=[A.BEAM], requires=lambda ctx: bool(others_in_hand(ctx)))
 def admit(ctx, actions):
     """ACTIVATION: Beam a card here."""
-    card = yield from actions.pick_card("Beam which card to The Farm?", others_in_hand(ctx))
+    card = yield from actions.pick_card(f"Beam which card to {ctx.name(ctx.this_card)}?", others_in_hand(ctx))
     yield from actions.beam(card, ctx.this_card)
 
 

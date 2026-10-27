@@ -16,7 +16,7 @@ def take_control(ctx, actions):
 def fortress(ctx, actions):
     """CONTROL: Draw a card. You may beam a card here from your hand or Discard pile."""
     yield from actions.draw(1)
-    card = yield from actions.pick_card("Beam a card to Rigel VII?", ctx.me.hand + ctx.me.discard, optional=True,
+    card = yield from actions.pick_card(f"Beam a card to {ctx.name(ctx.this_card)}?", ctx.me.hand + ctx.me.discard, optional=True,
                                         none_label="No")
     if card:
         yield from actions.beam(card, ctx.this_card)
@@ -26,7 +26,7 @@ def fortress(ctx, actions):
 def trade_post(ctx, actions):
     """CLEAN-UP: You may beam a card here from your hand or Staging Area. Gain 1 [Dilithium] for each card beamed
     here."""
-    card = yield from actions.pick_card("Beam a card to Rigel VII?", ctx.me.hand + ctx.me.staging, optional=True,
+    card = yield from actions.pick_card(f"Beam a card to {ctx.name(ctx.this_card)}?", ctx.me.hand + ctx.me.staging, optional=True,
                                         none_label="No")
     if card:
         yield from actions.beam(card, ctx.this_card)

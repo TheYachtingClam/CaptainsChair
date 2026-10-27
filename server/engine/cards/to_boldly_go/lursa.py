@@ -11,7 +11,7 @@ def duras_sister(ctx, actions):
     """PLAY: Gain 1 [Latinum]. You may beam this card to a Ship to send an [Away Team] to its Location. You may
     spend 1 [Dilithium] and take an Incident to gain a Ship."""
     yield from actions.gain_resource("latinum", 1)
-    ship = yield from actions.pick_card("Beam Lursa to a Ship to send an Away Team to its Location?", ships(ctx),
+    ship = yield from actions.pick_card(f"Beam {ctx.name(ctx.this_card)} to a Ship to send an Away Team to its Location?", ships(ctx),
                                         optional=True, none_label="No")
     if ship:
         yield from actions.beam(ctx.this_card, ship)

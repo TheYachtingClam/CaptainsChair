@@ -34,7 +34,7 @@ def mind_control(ctx, actions):
         yield from actions.send_away_team(2, where=lambda loc: _contested(ctx, loc), same_location=True,
                                           ignore_ships=True)
     yield from actions.put_in_development(ctx.this_card)
-    if opp is not None and (yield from actions.may("Draw 2 cards (Ceti Eel)?", seat=opp.seat)):
+    if opp is not None and (yield from actions.may(f"Draw 2 cards ({ctx.name(ctx.this_card)})?", seat=opp.seat)):
         yield from actions.draw(2, player=opp)
 
 

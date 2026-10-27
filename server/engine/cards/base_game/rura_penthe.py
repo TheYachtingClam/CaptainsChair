@@ -25,5 +25,5 @@ def forced_labour(ctx, actions):
 @operation("1KOL13", 3, uses=[A.BEAM], requires=lambda ctx: bool(people_in_hand(ctx)))
 def imprison(ctx, actions):
     """ACTIVATION: Beam a Person here."""
-    person = yield from actions.pick_card("Beam which Person to Rura Penthe?", people_in_hand(ctx))
+    person = yield from actions.pick_card(f"Beam which Person to {ctx.name(ctx.this_card)}?", people_in_hand(ctx))
     yield from actions.beam(person, ctx.this_card)

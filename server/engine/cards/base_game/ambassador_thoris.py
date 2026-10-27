@@ -20,7 +20,7 @@ def accord(ctx, actions):
         returned += 1
     opp = ctx.opponent
     if opp is not None and opp.bot is None:
-        theirs = yield from actions.pick_card("Ambassador Thoris: return an Incident from your hand or Discard pile?",
+        theirs = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: return an Incident from your hand or Discard pile?",
                                               [i for i in opp.hand + opp.discard if is_suit(i, "Incident")],
                                               optional=True, seat=opp.seat, none_label="No")
         if theirs:

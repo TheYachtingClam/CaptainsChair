@@ -28,7 +28,7 @@ operation("2ENC02", 1, uses=[A.WARP])(warp_this_ship)
 def tow(ctx, actions):
     """ATTACK ACTIVATION: You may beam a card here. You may warp an opponent Ship from this ship's Location to another
     neutral Location."""
-    card = yield from actions.pick_card("Beam a card to Gomtuu?", others_in_hand(ctx), optional=True, none_label="No")
+    card = yield from actions.pick_card(f"Beam a card to {ctx.name(ctx.this_card)}?", others_in_hand(ctx), optional=True, none_label="No")
     if card:
         yield from actions.beam(card, ctx.this_card)
     here = ctx.location_of(ctx.this_card)

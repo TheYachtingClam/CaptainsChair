@@ -25,7 +25,7 @@ def broadside(ctx, actions):
     yield from actions.draw(1)
     opp = ctx.opponent
     if (yield from actions.attack()) and opp is not None:
-        ship = yield from actions.pick_card("I.R.W. Valdore: dismiss one of your Ships.", opponent_ships(ctx),
+        ship = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: dismiss one of your Ships.", opponent_ships(ctx),
                                             seat=opp.seat)
         if ship:
             yield from actions.dismiss(ship)

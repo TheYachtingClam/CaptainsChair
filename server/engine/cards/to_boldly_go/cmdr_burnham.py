@@ -23,7 +23,7 @@ def attack_duty_officers(ctx, actions):
         # for you (REQ-CTM-12; ruling assumed, see OPEN_QUESTIONS.md).
         return
     choice = yield from actions.choose(
-        "Cmdr. Burnham attacks: log one of your Duty Officers, or dismiss one and your opponent gains 3 Glory?",
+        f"{ctx.name(ctx.this_card)} attacks: log one of your Duty Officers, or dismiss one and your opponent gains 3 Glory?",
         [("log", "Log a Duty Officer"), ("dismiss", "Dismiss a Duty Officer (opponent gains 3 Glory)")], seat=opp.seat)
     target = yield from actions.pick_card("Which Duty Officer?", list(opp.duty), seat=opp.seat)
     if choice == "log":

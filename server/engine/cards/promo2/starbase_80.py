@@ -17,7 +17,7 @@ class BeamPersonHere(Cost):
         return any(is_suit(i, "Person") for i in ctx.me.hand)
 
     def pay(self, actions):
-        person = yield from actions.pick_card("Beam which Person to Starbase 80 (cost)?",
+        person = yield from actions.pick_card(f"Beam which Person to {actions.ctx.name(actions.ctx.this_card)} (cost)?",
                                               [i for i in actions.ctx.me.hand if is_suit(i, "Person")])
         yield from actions.beam(person, actions.ctx.this_card)
 
@@ -30,7 +30,7 @@ class LogBeamedHere(Cost):
         return ctx.this_card is not None and bool(ctx.this_card.beamed)
 
     def pay(self, actions):
-        card = yield from actions.pick_card("Log which card beamed to Starbase 80 (cost)?",
+        card = yield from actions.pick_card(f"Log which card beamed to {actions.ctx.name(actions.ctx.this_card)} (cost)?",
                                             list(actions.ctx.this_card.beamed))
         actions._log(card)
 

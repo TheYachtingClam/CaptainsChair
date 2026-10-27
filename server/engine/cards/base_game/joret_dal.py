@@ -25,7 +25,7 @@ def defect(ctx, actions):
         logged = True
     if sent and logged:
         yield from actions.gain_resource("glory", 1)
-        if (yield from actions.may("Promote Joret Dal to Duty Officer?")):
+        if (yield from actions.may(f"Promote {ctx.name(ctx.this_card)} to Duty Officer?")):
             yield from actions.promote(this)
 
 

@@ -14,7 +14,7 @@ def link(ctx, actions):
     options = [("refresh", "Refresh that Ship"), ("draw", "Draw a card")]
     if actions.can_spend(dilithium=1):
         options.append(("both", "Spend 1 Dilithium to do both"))
-    choice = yield from actions.choose("Drones of Cube 90182: choose one.", options)
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: choose one.", options)
     if choice == "both":
         yield from actions.spend(dilithium=1)
     if choice in ("refresh", "both"):

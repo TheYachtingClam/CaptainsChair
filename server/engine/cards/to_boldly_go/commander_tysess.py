@@ -30,7 +30,7 @@ def recruit_officer(ctx, actions):
             yield from actions.spend(actions=1)
             yield from actions.duplicate([person], label=ctx.name(person), optional=False)
     if ships(ctx) and actions.can_spend(dilithium=1) and ctx.this_card in ctx.me.staging and (
-            yield from actions.may("Spend 1 Dilithium to beam Commander Tysess to a deployed Ship?")):
+            yield from actions.may(f"Spend 1 Dilithium to beam {ctx.name(ctx.this_card)} to a deployed Ship?")):
         ship = yield from actions.pick_card("Beam Tysess to which Ship?", ships(ctx))
         yield from actions.spend(dilithium=1)
         yield from actions.beam(ctx.this_card, ship)

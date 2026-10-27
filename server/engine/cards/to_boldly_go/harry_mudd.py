@@ -34,12 +34,12 @@ def con(ctx, actions):
             else:
                 yield from actions.take_incident(opponent=True)
         elif people:
-            person = yield from actions.pick_card("Harry Mudd: log a Person from your hand or Discard pile.", people,
+            person = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: log a Person from your hand or Discard pile.", people,
                                                   seat=opp.seat)
             yield from actions.log(person)
             if (yield from actions.may("Draw a card?", seat=opp.seat)):
                 yield from actions.draw(1, player=opp)
         else:
             yield from actions.take_incident(opponent=True)
-    if ctx.this_card in ctx.me.staging and (yield from actions.may("Promote Harry Mudd to Duty Officer?")):
+    if ctx.this_card in ctx.me.staging and (yield from actions.may(f"Promote {ctx.name(ctx.this_card)} to Duty Officer?")):
         yield from actions.promote(ctx.this_card)

@@ -20,7 +20,7 @@ def field_test(ctx, actions):
     opp = ctx.opponent
     if opp is None or len(opponent_ships(ctx)) < 2 or not (yield from actions.attack()):
         return
-    choice = yield from actions.choose("Prototype Cloak: dismiss one of your Ships, or take an Incident?",
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: dismiss one of your Ships, or take an Incident?",
                                        [("dismiss", "Dismiss a Ship"), ("incident", "Take an Incident")], opp.seat)
     if choice == "dismiss":
         theirs = yield from actions.pick_card("Dismiss which Ship?", opponent_ships(ctx), seat=opp.seat)

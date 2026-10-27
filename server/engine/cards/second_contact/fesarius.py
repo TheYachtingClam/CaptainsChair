@@ -12,7 +12,7 @@ operation("3SHI01", 1, uses=[A.WARP])(warp_this_ship)
 @operation("3SHI01", 2, uses=[A.BEAM], cost=[Spend(dilithium=1)], requires=lambda ctx: bool(others_in_hand(ctx)))
 def beam_aboard(ctx, actions):
     """ACTIVATION: Spend 1 [Dilithium] to beam a card here."""
-    card = yield from actions.pick_card("Beam which card to Fesarius?", others_in_hand(ctx))
+    card = yield from actions.pick_card(f"Beam which card to {ctx.name(ctx.this_card)}?", others_in_hand(ctx))
     yield from actions.beam(card, ctx.this_card)
 
 

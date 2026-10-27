@@ -10,7 +10,7 @@ from ._util import has_trait, is_suit
 def dock(ctx, actions):
     """CONTROL: You may discard a card to send an [Away Team] here. If the discarded card is Business, gain 2
     [Latinum]."""
-    if ctx.me.hand and (yield from actions.may("Discard a card to send an Away Team to Denaxi Depot?")):
+    if ctx.me.hand and (yield from actions.may(f"Discard a card to send an Away Team to {ctx.name(ctx.this_card)}?")):
         discarded = yield from actions.discard(1)
         yield from actions.send_away_team(1, target=ctx.this_card)
         if discarded and has_trait(discarded[0], "Business"):

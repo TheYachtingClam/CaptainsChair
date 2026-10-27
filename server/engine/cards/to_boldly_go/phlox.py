@@ -33,7 +33,7 @@ def sickbay(ctx, actions):
     if card:
         yield from actions.return_incident(card)
     if ships(ctx):
-        ship = yield from actions.pick_card("Beam Phlox to which Ship?", ships(ctx))
+        ship = yield from actions.pick_card(f"Beam {ctx.name(ctx.this_card)} to which Ship?", ships(ctx))
         yield from actions.beam(ctx.this_card, ship)
 
 

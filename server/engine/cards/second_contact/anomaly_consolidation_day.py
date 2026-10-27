@@ -24,7 +24,7 @@ def consolidate(ctx, actions):
 def bonus(ctx, actions):
     """SPECIAL: While this card is in your Staging Area, after resolving a support operation you may either: gain 2
     [Dilithium] OR draw a card and discard a card."""
-    choice = yield from actions.choose("Anomaly Consolidation Day: a SUPPORT was resolved.",
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: a SUPPORT was resolved.",
                                        [("dilithium", "Gain 2 Dilithium"), ("draw", "Draw a card, then discard a card"),
                                         ("none", "Neither")])
     if choice == "dilithium":

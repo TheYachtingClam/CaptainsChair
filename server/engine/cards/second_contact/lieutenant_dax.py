@@ -21,7 +21,7 @@ def symbiont(ctx, actions):
         yield from actions.gain_specialty((yield from actions.choose("Gain 1 on which track?", TRACKS)), 1)
     if any(has_trait(i, "Vulcan") for i in ctx.me.duty):
         yield from actions.gain_specialty((yield from actions.choose("Vulcan on duty: gain 1 on which track?", TRACKS)), 1)
-    if ctx.this_card in ctx.me.staging and (yield from actions.may("Promote Lieutenant Dax to Duty Officer?")):
+    if ctx.this_card in ctx.me.staging and (yield from actions.may(f"Promote {ctx.name(ctx.this_card)} to Duty Officer?")):
         yield from actions.promote(ctx.this_card)
 
 

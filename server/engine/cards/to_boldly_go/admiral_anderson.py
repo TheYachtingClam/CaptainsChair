@@ -25,5 +25,5 @@ def _starfleet_put_into_play(ctx, ev):
 @operation("2GEO09", 1, uses=[A.DRAW], trigger=_starfleet_put_into_play)
 def draw_on_starfleet(ctx, actions):
     """PASSIVE: After putting a Starfleet into play (including this card), you may draw a card."""
-    if (yield from actions.may("Admiral Anderson: draw a card?")):
+    if (yield from actions.may(f"{ctx.name(ctx.this_card)}: draw a card?")):
         yield from actions.draw(1)

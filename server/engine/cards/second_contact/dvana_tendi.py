@@ -35,5 +35,5 @@ def science_buddy(ctx, actions):
     to Duty Officer."""
     track = yield from actions.choose("Gain 2 on which track?", [(t, t.capitalize()) for t in TRACKS])
     yield from actions.gain_specialty(track, 2)
-    if ctx.this_card in ctx.me.staging and (yield from actions.may("Promote D'Vana Tendi to Duty Officer?")):
+    if ctx.this_card in ctx.me.staging and (yield from actions.may(f"Promote {ctx.name(ctx.this_card)} to Duty Officer?")):
         yield from actions.promote(ctx.this_card)

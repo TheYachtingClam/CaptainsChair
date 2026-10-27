@@ -29,7 +29,7 @@ def expose(ctx, actions):
         else:
             # In-play cards that can be dismissed; Locations cannot be (KW-DSM-05).
             targets = [i for i in [*opp.fleet, *opp.duty, *opp.status] if has_trait(i, "Romulan", "Andorian")]
-            card = yield from actions.pick_card("Stel: dismiss one of your Romulan or Andorian cards.", targets,
+            card = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: dismiss one of your Romulan or Andorian cards.", targets,
                                                 seat=opp.seat)
             if card:
                 yield from actions.dismiss(card)

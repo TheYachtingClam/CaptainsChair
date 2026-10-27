@@ -30,13 +30,13 @@ def interphase(ctx, actions):
             else:
                 wrecks = [i for i in opp.discard if is_suit(i, "Ship")]
                 if wrecks:
-                    ship = yield from actions.pick_card("Mirok: log a Ship from your Discard pile.", wrecks,
+                    ship = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: log a Ship from your Discard pile.", wrecks,
                                                         seat=opp.seat)
                     yield from actions.log(ship)
                     yield from actions.gain_resource("glory", 1)
                 else:
                     yield from actions.take_incident(opponent=True)
-    if (yield from actions.may("Promote Mirok to Duty Officer?")):
+    if (yield from actions.may(f"Promote {ctx.name(ctx.this_card)} to Duty Officer?")):
         yield from actions.promote(this)
 
 

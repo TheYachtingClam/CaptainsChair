@@ -13,7 +13,7 @@ operation("2SHI05", 1, uses=[A.DEPLOY, A.WARP],
 def dismiss_for_glory(ctx, actions):
     """CLEAN-UP: You may dismiss this ship to gain 2 [Glory]. It must be deployed: the Staging Area cannot be
     dismissed from (KW-DSM-04)."""
-    if ctx.this_card in ctx.me.fleet and (yield from actions.may("Dismiss the Holographic Drone Ship to gain 2 Glory?")):
+    if ctx.this_card in ctx.me.fleet and (yield from actions.may(f"Dismiss the {ctx.name(ctx.this_card)} to gain 2 Glory?")):
         yield from actions.dismiss(ctx.this_card)
         yield from actions.gain_resource("glory", 2)
 

@@ -17,7 +17,7 @@ def laboratory(ctx, actions):
     options = [("find", "Find a Scientist")] + \
         ([("scan", "Spend 3 Dilithium to scan for a Scientist")] if actions.can_spend(dilithium=3) else []) + \
         [("none", "Neither")]
-    choice = yield from actions.choose("Regula I: find a Scientist, or scan for one?", options)
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: find a Scientist, or scan for one?", options)
     if choice == "find":
         yield from actions.find(_scientist, "a Scientist")
     elif choice == "scan":

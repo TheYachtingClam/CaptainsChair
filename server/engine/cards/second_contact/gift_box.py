@@ -18,7 +18,7 @@ def wrap(ctx, actions):
 @operation("3CAR01", 1, uses=[A.RECALL])
 def unwrap(ctx, actions):
     """RESUPPLY: You may recall a card beamed here."""
-    card = yield from actions.pick_card("Recall a card beamed to Gift Box?", list(ctx.this_card.beamed),
+    card = yield from actions.pick_card(f"Recall a card beamed to {ctx.name(ctx.this_card)}?", list(ctx.this_card.beamed),
                                         optional=True, none_label="No")
     if card:
         yield from actions.recall(card)
@@ -31,7 +31,7 @@ def regift(ctx, actions):
                                          [i for i in ctx.me.discard if is_suit(i, "Cargo")])
     yield from actions.beam(cargo, ctx.this_card)
     opp = ctx.opponent
-    if opp is not None and (yield from actions.may("Gift Box: do you want to draw a card?", seat=opp.seat)):
+    if opp is not None and (yield from actions.may(f"{ctx.name(ctx.this_card)}: do you want to draw a card?", seat=opp.seat)):
         yield from actions.draw(1, player=opp)
 
 

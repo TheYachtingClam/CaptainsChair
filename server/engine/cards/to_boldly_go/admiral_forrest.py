@@ -19,7 +19,7 @@ def command(ctx, actions):
     card = yield from actions.pick_card("Free play an Incident or Directive?", cards, optional=True, none_label="No")
     if card:
         yield from actions.free_play(card)
-    if ctx.this_card in ctx.me.staging and (yield from actions.may("Promote Admiral Forrest?")):
+    if ctx.this_card in ctx.me.staging and (yield from actions.may(f"Promote {ctx.name(ctx.this_card)}?")):
         yield from actions.promote(ctx.this_card)
         for n in (1, 2):
             people = [i for i in ctx.me.hand + ctx.me.discard + ctx.me.staging if is_suit(i, "Person")]

@@ -13,7 +13,7 @@ def kal_if_fee(ctx, actions):
     (excluding this card, max 5). Ruling: the Vulcans are counted after the other steps."""
     opp = ctx.opponent
     if (yield from actions.attack()) and opp is not None and opp.duty:
-        officer = yield from actions.pick_card("Lirpa: dismiss one of your Duty Officers.", list(opp.duty),
+        officer = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: dismiss one of your Duty Officers.", list(opp.duty),
                                                seat=opp.seat)
         yield from actions.dismiss(officer)
         if (yield from actions.may("Draw a card?", seat=opp.seat)):

@@ -16,7 +16,7 @@ def infect(ctx, actions):
     opp = ctx.opponent
     beamed = [b for ship in opponent_ships(ctx) for b in ship.beamed]
     if beamed:
-        card = yield from actions.pick_card("Computer Virus: dismiss one of your cards beamed to a Ship.", beamed,
+        card = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: dismiss one of your cards beamed to a Ship.", beamed,
                                             seat=opp.seat)
         yield from actions.dismiss(card)
     else:

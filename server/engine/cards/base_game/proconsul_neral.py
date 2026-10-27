@@ -21,7 +21,7 @@ def decree(ctx, actions):
     incident = yield from actions.pick_card("Free play an Incident?", incidents, optional=True, none_label="No")
     if incident:
         yield from actions.free_play(incident)
-    if others_in_hand(ctx, _romulan) and (yield from actions.may("Discard a Romulan to promote Proconsul Neral?")):
+    if others_in_hand(ctx, _romulan) and (yield from actions.may(f"Discard a Romulan to promote {ctx.name(ctx.this_card)}?")):
         yield from actions.discard(1, pred=_romulan, label="a Romulan")
         yield from actions.promote(ctx.this_card)
 

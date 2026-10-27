@@ -36,7 +36,7 @@ def strike_wing(ctx, actions):
     yield from actions.find(lambda i: has_trait(i, "Starfleet", "Dominion"), "a Starfleet or Dominion")
     yield from actions.draw(2)
     if (yield from actions.attack()) and opponent_ships(ctx):
-        ship = yield from actions.pick_card("Red Squadron: dismiss one of your deployed Ships.", opponent_ships(ctx),
+        ship = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: dismiss one of your deployed Ships.", opponent_ships(ctx),
                                             seat=ctx.opponent.seat)
         yield from actions.dismiss(ship)
     yield from actions.log(ctx.this_card)

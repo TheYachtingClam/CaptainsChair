@@ -15,7 +15,7 @@ def historian(ctx, actions):
     if amount:
         yield from actions.gain_resource("dilithium", amount)
     if len(others_in_hand(ctx)) >= 2 and (yield from actions.may(
-            "Put 2 cards on top of your deck to gain 1 Glory and promote Marla McGivers?")):
+            f"Put 2 cards on top of your deck to gain 1 Glory and promote {ctx.name(ctx.this_card)}?")):
         for n in (1, 2):
             card = yield from actions.pick_card(f"Put which card on top of your deck ({n} of 2)?", others_in_hand(ctx))
             yield from actions.put_on_deck(card)

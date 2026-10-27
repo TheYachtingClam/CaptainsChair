@@ -24,7 +24,7 @@ def sweep(ctx, actions):
         else:
             cloaks = [i for i in ctx.in_play(opp) if "Cloak" in ctx.traits(i) and i not in opp.staging]
             if cloaks:
-                cloak = yield from actions.pick_card("Tachyon Detection Grid: log one of your Cloak cards.", cloaks,
+                cloak = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: log one of your Cloak cards.", cloaks,
                                                      seat=opp.seat)
                 yield from actions.log(cloak)
                 yield from actions.gain_resource("glory", 1)

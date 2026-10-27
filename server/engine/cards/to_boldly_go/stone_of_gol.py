@@ -18,7 +18,7 @@ def psionic_weapon(ctx, actions):
         if officer.exhausted:
             yield from actions.dismiss(officer)
             continue
-        choice = yield from actions.choose(f"Stone of Gol: dismiss {ctx.name(officer)}, or exhaust it (your opponent "
+        choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: dismiss {ctx.name(officer)}, or exhaust it (your opponent "
                                            "gains 1 Glory)?", [("dismiss", "Dismiss it"),
                                                                ("exhaust", "Exhaust it; opponent gains 1 Glory")],
                                            seat=opp.seat)

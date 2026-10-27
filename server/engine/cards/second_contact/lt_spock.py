@@ -24,7 +24,7 @@ def science_officer(ctx, actions):
     if ctx.track("research") <= ctx.track("influence") or ctx.this_card.exhausted:
         return
     yield from actions.exhaust(ctx.this_card)
-    choice = yield from actions.choose("Lt. Spock is exhausted. Choose:", [("glory", "Gain 1 Glory"),
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)} is exhausted. Choose:", [("glory", "Gain 1 Glory"),
                                                                             ("draw", "Draw a card")])
     if choice == "glory":
         yield from actions.gain_resource("glory", 1)

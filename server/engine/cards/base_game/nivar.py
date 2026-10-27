@@ -17,7 +17,7 @@ def reunified(ctx, actions):
 @operation("1BUR12", 1, uses=[A.FIND, A.SCAN_FOR])
 def science_institute(ctx, actions):
     """CONTROL: You may find Inspire OR scan for an Ambassador."""
-    choice = yield from actions.choose("Ni'Var:", [("find", "Find Inspire"), ("scan", "Scan for an Ambassador"),
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}:", [("find", "Find Inspire"), ("scan", "Scan for an Ambassador"),
                                                    ("none", "Neither")])
     if choice == "find":
         yield from actions.find(lambda i: ctx.card(i).name == "Inspire", "Inspire")

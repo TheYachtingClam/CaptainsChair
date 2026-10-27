@@ -10,7 +10,7 @@ from ._util import has_trait
 @operation("2LOC04", 0, uses=[A.BEAM])
 def store(ctx, actions):
     """CONTROL: You may beam a card from your hand or Discard pile here."""
-    card = yield from actions.pick_card("Beam a card from your hand or Discard pile to Cold Station 12?",
+    card = yield from actions.pick_card(f"Beam a card from your hand or Discard pile to {ctx.name(ctx.this_card)}?",
                                         ctx.me.hand + ctx.me.discard, optional=True, none_label="No")
     if card:
         yield from actions.beam(card, ctx.this_card)
@@ -20,7 +20,7 @@ def store(ctx, actions):
 def thaw(ctx, actions):
     """RESUPPLY: You may spend 1 [Dilithium] to recall a card from here."""
     if beamed_here(ctx) and actions.can_spend(dilithium=1):
-        card = yield from actions.pick_card("Spend 1 Dilithium to recall a card from Cold Station 12?",
+        card = yield from actions.pick_card(f"Spend 1 Dilithium to recall a card from {ctx.name(ctx.this_card)}?",
                                             beamed_here(ctx), optional=True, none_label="No")
         if card:
             yield from actions.spend(dilithium=1)

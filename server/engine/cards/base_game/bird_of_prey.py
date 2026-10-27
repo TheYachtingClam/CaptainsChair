@@ -31,7 +31,7 @@ def strike(ctx, actions):
     if not (yield from actions.attack()) or opp is None:
         return
     theirs = opponent_ships(ctx)
-    ship = yield from actions.pick_card("Bird-of-Prey: recall one of your Ships.", theirs, seat=opp.seat)
+    ship = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: recall one of your Ships.", theirs, seat=opp.seat)
     if ship:
         yield from actions.recall(ship)
 

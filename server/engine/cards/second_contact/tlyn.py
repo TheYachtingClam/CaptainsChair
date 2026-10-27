@@ -16,7 +16,7 @@ def logical(ctx, actions):
     this card)."""
     options = [("dilithium", "Gain 2 Dilithium")] + ([("discard", "Draw a card from your Discard pile")]
                                                      if ctx.me.discard else [])
-    choice = options[0][0] if len(options) == 1 else (yield from actions.choose("T'Lyn: choose one.", options))
+    choice = options[0][0] if len(options) == 1 else (yield from actions.choose(f"{ctx.name(ctx.this_card)}: choose one.", options))
     if choice == "dilithium":
         yield from actions.gain_resource("dilithium", 2)
     else:

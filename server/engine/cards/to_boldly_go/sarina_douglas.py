@@ -11,7 +11,7 @@ def instability(ctx, actions):
     """RESUPPLY: Discard an Incident OR take an Incident OR dismiss this card."""
     options = ([("discard", "Discard an Incident")] if any(is_suit(i, "Incident") for i in ctx.me.hand) else []) + \
         [("take", "Take an Incident"), ("dismiss", "Dismiss Sarina Douglas")]
-    choice = yield from actions.choose("Sarina Douglas: choose one.", options)
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: choose one.", options)
     if choice == "discard":
         yield from actions.discard(1, pred=lambda i: is_suit(i, "Incident"), label="an Incident")
     elif choice == "take":
@@ -37,7 +37,7 @@ def augmented_insight(ctx, actions):
     playable = actions.free_play_candidates(lambda i: ctx.has_specialty_icon(i, "research"))
     options = ([("play", "Free play a card with Research")] if playable else []) + \
         [("peek", "Look at the top card of a Market deck")]
-    choice = options[0][0] if len(options) == 1 else (yield from actions.choose("Sarina Douglas: choose one.", options))
+    choice = options[0][0] if len(options) == 1 else (yield from actions.choose(f"{ctx.name(ctx.this_card)}: choose one.", options))
     if choice == "play":
         card = yield from actions.pick_card("Free play which card?", playable)
         yield from actions.free_play(card)

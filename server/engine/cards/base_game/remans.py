@@ -10,7 +10,7 @@ def shock_troops(ctx, actions):
     your opponent may draw a card."""
     yield from actions.send_away_team(1)
     opp = ctx.opponent
-    choice = yield from actions.choose("Remans:", [("log", "Log this card"), ("draw", "Your opponent may draw a card")])
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}:", [("log", "Log this card"), ("draw", "Your opponent may draw a card")])
     if choice == "log":
         yield from actions.log(ctx.this_card)
     elif opp is not None and (yield from actions.may("Draw a card?", seat=opp.seat)):

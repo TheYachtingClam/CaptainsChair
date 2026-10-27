@@ -14,7 +14,7 @@ def pattern(ctx, actions):
     opp = ctx.opponent
     theirs = [s for s in opponent_ships(ctx) if actions.can_warp(s)]
     if opp is not None and theirs:
-        ship = yield from actions.pick_card("Two Dimensional Thinking: warp one of your Ships?", theirs, optional=True,
+        ship = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: warp one of your Ships?", theirs, optional=True,
                                             seat=opp.seat, none_label="No")
         if ship is not None:
             yield from actions.warp(ship, by=opp)
@@ -34,7 +34,7 @@ def surprise(ctx, actions):
     human = ctx.opponent
     theirs = [s for s in opponent_ships(ctx) if actions.can_warp(s)]
     if human is not None and theirs:
-        ship = yield from actions.pick_card("Two Dimensional Thinking: warp one of your Ships?", theirs, optional=True,
+        ship = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: warp one of your Ships?", theirs, optional=True,
                                             seat=human.seat, none_label="No")
         if ship is not None:
             yield from actions.warp(ship, by=human)

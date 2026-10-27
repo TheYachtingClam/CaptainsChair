@@ -13,7 +13,7 @@ def explore(ctx, actions):
     options = [("draw", "Draw a card")] + ([("warp", "Warp a Ship")] if ships(ctx) else [])
     if ships(ctx) and not ctx.me.captain.exhausted:
         options.append(("both", "Exhaust your Captain to do both"))
-    choice = yield from actions.choose("Reach Any Star: choose one.", options)
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: choose one.", options)
     if choice == "both":
         yield from actions.exhaust(ctx.me.captain)
     if choice in ("draw", "both"):

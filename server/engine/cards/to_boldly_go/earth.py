@@ -15,7 +15,7 @@ def homeworld(ctx, actions):
     """CLEAN-UP: You may beam a non-Directive card here from your hand or Staging Area. If it shares no traits with
     your Captain, gain 1 [Influence] and place 1 [Glory] here."""
     cards = [i for i in ctx.me.hand + ctx.me.staging if not is_suit(i, "Directive")]
-    card = yield from actions.pick_card("Beam a card to Earth?", cards, optional=True, none_label="No")
+    card = yield from actions.pick_card(f"Beam a card to {ctx.name(ctx.this_card)}?", cards, optional=True, none_label="No")
     if not card:
         return
     yield from actions.beam(card, ctx.this_card)
@@ -29,5 +29,5 @@ def homeworld(ctx, actions):
            and ctx.event_card is not None and is_suit(ctx.event_card, "Directive"))
 def funding(ctx, actions):
     """REACTION: After discarding a Directive during your Action Step, place 1 [Dilithium]/[Latinum] here."""
-    kind = yield from actions.choose("Place which resource on Earth?", [("dilithium", "Dilithium"), ("latinum", "Latinum")])
+    kind = yield from actions.choose(f"Place which resource on {ctx.name(ctx.this_card)}?", [("dilithium", "Dilithium"), ("latinum", "Latinum")])
     yield from actions.place_resources(ctx.this_card, kind, 1)

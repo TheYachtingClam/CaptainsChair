@@ -36,5 +36,5 @@ def klingon_agent(ctx, actions):
             if officer:
                 yield from actions.dismiss(officer)
                 yield from actions.gain_resource("glory", 2)
-    if ctx.this_card in ctx.me.staging and (yield from actions.may("Promote Ash Tyler to Duty Officer?")):
+    if ctx.this_card in ctx.me.staging and (yield from actions.may(f"Promote {ctx.name(ctx.this_card)} to Duty Officer?")):
         yield from actions.promote(ctx.this_card)

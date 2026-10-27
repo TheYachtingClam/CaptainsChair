@@ -34,7 +34,7 @@ def reinforcements(ctx, actions):
     incidents = [i for i in ctx.me.hand if is_suit(i, "Incident")]
     options = ([("discard", "Spend an Action and discard an Incident")] if incidents and ctx.me.actions > 0 else []) \
         + [("take", "Take an Incident")]
-    choice = options[0][0] if len(options) == 1 else (yield from actions.choose("Ma'ah: choose one.", options))
+    choice = options[0][0] if len(options) == 1 else (yield from actions.choose(f"{ctx.name(ctx.this_card)}: choose one.", options))
     if choice == "discard":
         yield from actions.spend(actions=1)
         yield from actions.discard(1, pred=lambda i: is_suit(i, "Incident"), label="an Incident")

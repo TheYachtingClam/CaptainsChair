@@ -24,9 +24,9 @@ def promenade(ctx, actions):
         ([("recall", "Recall a card beamed here")] if beamed_here(ctx) else [])
     if not options:
         return
-    choice = options[0][0] if len(options) == 1 else (yield from actions.choose("Deep Space 9:", options))
+    choice = options[0][0] if len(options) == 1 else (yield from actions.choose(f"{ctx.name(ctx.this_card)}:", options))
     if choice == "beam":
-        card = yield from actions.pick_card("Beam which card to Deep Space 9?", others_in_hand(ctx))
+        card = yield from actions.pick_card(f"Beam which card to {ctx.name(ctx.this_card)}?", others_in_hand(ctx))
         yield from actions.beam(card, ctx.this_card)
     else:
         card = yield from actions.pick_card("Recall which card?", beamed_here(ctx))

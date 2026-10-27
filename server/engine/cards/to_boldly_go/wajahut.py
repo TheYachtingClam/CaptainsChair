@@ -32,7 +32,7 @@ def claim(ctx, actions):
     options = [("gain", "Gain an Action")]
     if actions.can_spend(actions=1) and ctx.me.development:
         options.append(("enlist", "Spend an Action to enlist a Development and dismiss Wajahut"))
-    choice = yield from actions.choose("Wajahut: which effect?", options)
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: which effect?", options)
     if choice == "gain":
         yield from actions.gain_action(1)
         return

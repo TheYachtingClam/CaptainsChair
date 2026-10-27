@@ -21,7 +21,7 @@ def peace_of_mind(ctx, actions):
     Su'Kal; returned Incidents no longer score their negative VP."""
     for n in (1, 2):
         incidents = [i for i in owned_everywhere(ctx.me) if is_suit(i, "Incident")]
-        incident = yield from actions.pick_card(f"Su'Kal: return an Incident before scoring ({n} of up to 2)?",
+        incident = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: return an Incident before scoring ({n} of up to 2)?",
                                                 incidents, optional=True, none_label="Stop")
         if not incident:
             break

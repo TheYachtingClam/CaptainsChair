@@ -19,7 +19,7 @@ def unmasked(ctx, actions):
     3 [Glory] and log this card."""
     opp = ctx.opponent
     if (yield from actions.attack()) and opp is not None and opp.duty:
-        officer = yield from actions.pick_card("Arne Darvin: dismiss one of your Duty Officers.", list(opp.duty),
+        officer = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: dismiss one of your Duty Officers.", list(opp.duty),
                                                seat=opp.seat)
         yield from actions.dismiss(officer)
     yield from actions.take_incident()

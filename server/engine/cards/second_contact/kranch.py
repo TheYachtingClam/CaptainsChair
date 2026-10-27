@@ -15,7 +15,7 @@ def collector(ctx, actions):
     if drawn and (yield from actions.may(f"Log {ctx.name(drawn[0])} to gain 2 Glory?")):
         yield from actions.log(drawn[0])
         yield from actions.gain_resource("glory", 2)
-        if ctx.this_card in ctx.me.staging and (yield from actions.may("Promote K'ranch to Duty Officer?")):
+        if ctx.this_card in ctx.me.staging and (yield from actions.may(f"Promote {ctx.name(ctx.this_card)} to Duty Officer?")):
             yield from actions.promote(ctx.this_card)
 
 

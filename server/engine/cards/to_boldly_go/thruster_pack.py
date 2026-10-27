@@ -40,7 +40,7 @@ def beam_person(ctx, actions):
     person = yield from actions.pick_card("Beam which Person here?",
                                           [i for i in ctx.me.hand + ctx.me.discard if is_suit(i, "Person")])
     yield from actions.beam(person, ctx.this_card)
-    if can_afford(ctx.me, dilithium=1) and (yield from actions.may("Spend 1 Dilithium to refresh Thruster Pack?")):
+    if can_afford(ctx.me, dilithium=1) and (yield from actions.may(f"Spend 1 Dilithium to refresh {ctx.name(ctx.this_card)}?")):
         yield from actions.spend(dilithium=1)
         yield from actions.refresh(ctx.this_card)
 

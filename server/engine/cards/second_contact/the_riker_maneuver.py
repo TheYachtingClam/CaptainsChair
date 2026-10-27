@@ -13,7 +13,7 @@ def maneuver(ctx, actions):
     yield from actions.send_away_team(1)
     me = ctx.this_card
     if me in ctx.me.staging and not ctx.me.captain.exhausted and (
-            yield from actions.may("Exhaust your Captain to promote The Riker Maneuver to Duty Officer?")):
+            yield from actions.may(f"Exhaust your Captain to promote {ctx.name(ctx.this_card)} to Duty Officer?")):
         yield from actions.exhaust(ctx.me.captain)
         yield from actions.promote(me, as_person=True)
         if me in ctx.me.duty:

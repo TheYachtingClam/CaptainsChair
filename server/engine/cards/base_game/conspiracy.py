@@ -40,7 +40,7 @@ def surprise(ctx, actions):
     choice = "glory"
     if human is not None:
         choice = yield from actions.choose(
-            "Conspiracy: you must choose.",
+            f"{ctx.name(ctx.this_card)}: you must choose.",
             [("incident", "Take an Incident; it and Conspiracy go on the bottom of your Draw deck"),
              ("glory", "The Bot gains 2 Glory and discards the top card of its Supplement deck")], seat=human.seat)
     if choice == "incident":

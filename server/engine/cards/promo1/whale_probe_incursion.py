@@ -18,7 +18,7 @@ def probe(ctx, actions):
         yield from actions.recall(mine)
     opp = ctx.opponent
     if (yield from actions.attack()) and opp is not None:
-        theirs = yield from actions.pick_card("Whale Probe Incursion: recall one of your Ships.", opponent_ships(ctx),
+        theirs = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: recall one of your Ships.", opponent_ships(ctx),
                                               seat=opp.seat)
         if theirs:
             yield from actions.recall(theirs)
@@ -32,7 +32,7 @@ def surprise(ctx, actions):
     (REQ-SOLO-87); "you" is the human."""
     human = ctx.opponent
     if (yield from actions.attack()) and human is not None:
-        ship = yield from actions.pick_card("Whale Probe Incursion: recall one of your Ships.", opponent_ships(ctx),
+        ship = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: recall one of your Ships.", opponent_ships(ctx),
                                             seat=human.seat)
         if ship:
             yield from actions.recall(ship)

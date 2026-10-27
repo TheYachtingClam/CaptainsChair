@@ -23,7 +23,7 @@ def deals(ctx, actions):
                  ("influence", "Gain 1 Influence"), ("military", "Gain 1 Military")]
     for n in range(1, picks + 1):
         options = remaining + ([("done", "Done")] if picks == 4 and n > 2 else [])
-        choice = yield from actions.choose(f"D'Erika Tendi: choose an option ({n} of {picks}).", options)
+        choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: choose an option ({n} of {picks}).", options)
         if choice == "done":
             break
         remaining = [o for o in remaining if o[0] != choice]

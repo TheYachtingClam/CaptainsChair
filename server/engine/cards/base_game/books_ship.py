@@ -27,7 +27,7 @@ def unload(ctx, actions):
 
 
 def _dismiss_beamed(ctx, actions):
-    card = yield from actions.pick_card("Dismiss which card beamed to Book's Ship (cost)?", beamed_here(ctx))
+    card = yield from actions.pick_card(f"Dismiss which card beamed to {ctx.name(ctx.this_card)} (cost)?", beamed_here(ctx))
     yield from actions.dismiss(card)
 
 

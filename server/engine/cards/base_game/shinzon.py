@@ -27,7 +27,7 @@ def praetor(ctx, actions):
 def purge(ctx, actions):
     """RESUPPLY: Log a Romulan from your hand or Discard pile, if able. If you do, gain 1 [Military]."""
     romulans = [i for i in ctx.me.hand + ctx.me.discard if has_trait(i, "Romulan")]
-    romulan = yield from actions.pick_card("Shinzon: log which Romulan from your hand or Discard pile?", romulans)
+    romulan = yield from actions.pick_card(f"{ctx.name(ctx.this_card)}: log which Romulan from your hand or Discard pile?", romulans)
     if romulan:
         yield from actions.log(romulan)
         yield from actions.gain_specialty("military", 1)

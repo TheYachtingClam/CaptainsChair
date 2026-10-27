@@ -38,6 +38,6 @@ def helmet_drill(ctx, actions):
            requires=lambda ctx: bool(others_in_hand(ctx, lambda i: has_trait(i, "Helmet"))))
 def put_on_helmet(ctx, actions):
     """ACTIVATION: Spend 1 [Dilithium] to beam a Helmet here."""
-    helmet = yield from actions.pick_card("Beam which Helmet to Jackabog?",
+    helmet = yield from actions.pick_card(f"Beam which Helmet to {ctx.name(ctx.this_card)}?",
                                           others_in_hand(ctx, lambda i: has_trait(i, "Helmet")))
     yield from actions.beam(helmet, ctx.this_card)

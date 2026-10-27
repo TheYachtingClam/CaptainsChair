@@ -10,7 +10,7 @@ from ._util import has_trait
 def deploy(ctx, actions):
     """PLAY: Deploy this ship. You may warp this ship."""
     yield from actions.deploy(ctx.this_card)
-    if ctx.this_card in ctx.me.fleet and (yield from actions.may("Warp the R.I.S. Talvath?")):
+    if ctx.this_card in ctx.me.fleet and (yield from actions.may(f"Warp the {ctx.name(ctx.this_card)}?")):
         yield from actions.warp(ctx.this_card)
 
 
@@ -21,7 +21,7 @@ def scan_anomaly(ctx, actions):
     """REACTION: After you or your opponent puts an Anomaly/Communication/Time Travel into play, place 1 [Dilithium]
     on this card and you may warp this ship."""
     yield from actions.place_resources(ctx.this_card, "dilithium", 1)
-    if (yield from actions.may("Warp the R.I.S. Talvath?")):
+    if (yield from actions.may(f"Warp the {ctx.name(ctx.this_card)}?")):
         yield from actions.warp(ctx.this_card)
 
 

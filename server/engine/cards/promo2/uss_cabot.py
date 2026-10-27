@@ -42,7 +42,7 @@ def tribble_trouble(ctx, actions):
                                                                        if in_discard else [])
     if not options:
         return
-    choice = options[0][0] if len(options) == 1 else (yield from actions.choose("U.S.S. Cabot: choose one.", options))
+    choice = options[0][0] if len(options) == 1 else (yield from actions.choose(f"{ctx.name(ctx.this_card)}: choose one.", options))
     if choice == "play":
         yield from actions.free_play(playable[0])
     else:

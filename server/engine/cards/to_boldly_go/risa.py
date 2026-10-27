@@ -21,13 +21,13 @@ def shore_leave(ctx, actions):
 @operation("2LOC09", 1, uses=[A.BEAM], requires=lambda ctx: any(is_suit(i, "Person") for i in ctx.me.hand))
 def vacation(ctx, actions):
     """ACTIVATION: Beam a Person here."""
-    person = yield from actions.pick_card("Beam which Person to Risa?", [i for i in ctx.me.hand if is_suit(i, "Person")])
+    person = yield from actions.pick_card(f"Beam which Person to {ctx.name(ctx.this_card)}?", [i for i in ctx.me.hand if is_suit(i, "Person")])
     yield from actions.beam(person, ctx.this_card)
 
 
 @operation("2LOC09", 2, uses=[A.RECALL, A.GAIN_RESOURCE], requires=lambda ctx: bool(beamed_here(ctx)))
 def return_home(ctx, actions):
     """ACTIVATION: Recall a card beamed here to gain 1 [Latinum]."""
-    card = yield from actions.pick_card("Recall which card from Risa?", beamed_here(ctx))
+    card = yield from actions.pick_card(f"Recall which card from {ctx.name(ctx.this_card)}?", beamed_here(ctx))
     yield from actions.recall(card)
     yield from actions.gain_resource("latinum", 1)

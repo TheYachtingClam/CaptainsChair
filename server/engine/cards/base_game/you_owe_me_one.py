@@ -18,7 +18,7 @@ def collect(ctx, actions):
     """REACTION: After you or your opponent plays Utilize, choose: draw a card and your opponent gains 2 [Dilithium] OR
     gain 2 [Dilithium] and your opponent may draw a card."""
     opp = ctx.opponent
-    choice = yield from actions.choose("You Owe Me One:", [("draw", "Draw a card; your opponent gains 2 Dilithium"),
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}:", [("draw", "Draw a card; your opponent gains 2 Dilithium"),
                                                           ("dilithium", "Gain 2 Dilithium; your opponent may draw a card")])
     if choice == "draw":
         yield from actions.draw(1)

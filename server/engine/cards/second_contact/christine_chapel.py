@@ -22,7 +22,7 @@ def triage(ctx, actions):
     placed = [s for s in ships(ctx) if ctx.location_of(s) is not None]
     if me is None or me not in ctx.me.staging or not placed:
         return
-    ship = yield from actions.pick_card("Beam Christine Chapel to a Ship to send an Away Team to its Location?", placed,
+    ship = yield from actions.pick_card(f"Beam {ctx.name(ctx.this_card)} to a Ship to send an Away Team to its Location?", placed,
                                         optional=True, none_label="No")
     if ship:
         yield from actions.beam(me, ship)

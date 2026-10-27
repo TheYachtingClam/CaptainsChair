@@ -24,7 +24,7 @@ def tactical_officer(ctx, actions):
         logged = True
     if scanned and logged:
         yield from actions.gain_resource("glory", 1)
-        if ctx.this_card in ctx.me.staging and (yield from actions.may("Promote Va'al Trask to Duty Officer?")):
+        if ctx.this_card in ctx.me.staging and (yield from actions.may(f"Promote {ctx.name(ctx.this_card)} to Duty Officer?")):
             yield from actions.promote(ctx.this_card)
 
 
@@ -37,7 +37,7 @@ def patrol(ctx, actions):
         options = [("top", "Discard the top card of your deck")]
         if actions.can_spend(dilithium=1) and ctx.me.discard:
             options.append(("draw", "Spend 1 Dilithium to take a card from your Discard pile"))
-        choice = yield from actions.choose(f"Va'al Trask ({n} of {teams}): choose one.", options)
+        choice = yield from actions.choose(f"{ctx.name(ctx.this_card)} ({n} of {teams}): choose one.", options)
         if choice == "top":
             yield from actions.discard_top()
         else:

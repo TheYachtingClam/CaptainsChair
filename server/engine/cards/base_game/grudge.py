@@ -19,7 +19,7 @@ def she_is_a_queen(ctx, actions):
         yield from actions.free_play(friend)
     ship = next((s for s in ctx.me.fleet if s.card == BOOKS_SHIP), None)
     if ship is not None and others_in_hand(ctx) and (
-            yield from actions.may("Beam Grudge and another card to Book's Ship?")):
+            yield from actions.may(f"Beam {ctx.name(ctx.this_card)} and another card to Book's Ship?")):
         other = yield from actions.pick_card("Beam which other card to Book's Ship?", others_in_hand(ctx))
         yield from actions.beam(ctx.this_card, ship)
         yield from actions.beam(other, ship)

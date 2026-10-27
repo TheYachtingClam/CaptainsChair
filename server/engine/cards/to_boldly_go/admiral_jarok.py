@@ -8,7 +8,7 @@ from engine.ops import A, traits_of
 def defect(ctx, actions):
     """PLAY: Requires [Military] 3. Your opponent may draw a card. Enlist a Development."""
     opp = ctx.opponent
-    if opp is not None and (yield from actions.may("Admiral Jarok: do you want to draw a card?", seat=opp.seat)):
+    if opp is not None and (yield from actions.may(f"{ctx.name(ctx.this_card)}: do you want to draw a card?", seat=opp.seat)):
         yield from actions.draw(1, player=opp)
     yield from actions.enlist_development()
 

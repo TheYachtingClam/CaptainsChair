@@ -12,7 +12,7 @@ def treatment(ctx, actions):
     yield from actions.junk()
     incidents = actions.free_play_candidates(lambda i: is_suit(i, "Incident"))
     options = ([("play", "Free play an Incident")] if incidents else []) + [("find", "Find a Doctor")]
-    choice = yield from actions.choose("Biobed: free play an Incident, or find a Doctor?", options)
+    choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: free play an Incident, or find a Doctor?", options)
     if choice == "play":
         incident = yield from actions.pick_card("Free play which Incident?", incidents)
         yield from actions.free_play(incident)

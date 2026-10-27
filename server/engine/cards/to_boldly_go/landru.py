@@ -10,7 +10,7 @@ from ._util import is_suit, others_in_hand
 @operation("2PER09", 0, uses=[A.BEAM], requires=lambda ctx: bool(others_in_hand(ctx, lambda i: is_suit(i, "Person"))))
 def absorb(ctx, actions):
     """ACTIVATION: Beam a Person here."""
-    person = yield from actions.pick_card("Beam which Person to Landru?",
+    person = yield from actions.pick_card(f"Beam which Person to {ctx.name(ctx.this_card)}?",
                                           others_in_hand(ctx, lambda i: is_suit(i, "Person")))
     yield from actions.beam(person, ctx.this_card)
 
@@ -26,7 +26,7 @@ def the_body(ctx, actions):
     """ACTIVATION: Requires [Influence] 2. Log 2 Person beamed here to draw the top Location and take control of it.
     Junk a card from the Market and recall this card."""
     for n in (1, 2):
-        person = yield from actions.pick_card(f"Log which Person beamed to Landru ({n} of 2)?", _beamed_people(ctx))
+        person = yield from actions.pick_card(f"Log which Person beamed to {ctx.name(ctx.this_card)} ({n} of 2)?", _beamed_people(ctx))
         yield from actions.log(person)
     yield from actions.take_control(ctx.state.location_deck[0])
     yield from actions.junk()

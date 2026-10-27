@@ -16,7 +16,7 @@ def orders(ctx, actions):
     chosen = 0
     for n in range(1, allowed + 1):
         options = remaining + ([("stop", "Stop at two")] if n == 3 else [])
-        choice = yield from actions.choose(f"Muroc: choose an option ({n} of {allowed}).", options)
+        choice = yield from actions.choose(f"{ctx.name(ctx.this_card)}: choose an option ({n} of {allowed}).", options)
         if choice == "stop":
             break
         remaining = [o for o in remaining if o[0] != choice]
