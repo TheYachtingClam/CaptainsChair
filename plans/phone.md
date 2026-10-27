@@ -76,7 +76,7 @@ What was done: on a phone `Board.tsx` shows one area, chosen from a tab bar at t
 
 Checked with Playwright on an emulated iPhone 13: the tabs are You, Centre, Bot, Log; the hand scrolls sideways; ending the turn switches to Centre for "Place 1 Glory on a Market card" and back to You for the discard; during the Bot's turn Centre, Bot and Log are marked and opening Bot clears its mark; nothing is wider than the screen. At 1280 pixels there are no tabs and all three mats and the log show.
 
-### Step 5: Touch polish (REQ-CLI-35, -36)
+### Step 5: Touch polish (REQ-CLI-35, -36) (done)
 
 Done so far, at your requests on 2026-10-27: the game's buttons, details, Players, Connection and Events moved to the System tab; the Neutral Zone shown compact (three across) on the You tab and in Centre; your mat ends with the Draw deck and, under it, the Discard pile on the left, and the Staging Area beside both, with End Turn (and Undo) beside the Staging Area's title and room for staged cards below, instead of a tall column of Discard pile and End Turn.
 
@@ -85,6 +85,8 @@ Done so far, at your requests on 2026-10-27: the game's buttons, details, Player
 - Double-tap zoom off on the table, so fast taps are not taken as zoom.
 
 **You test:** walk through every page on the phone.
+
+What was done: every page was measured with Playwright at 375 pixels (iPhone SE): sign-in, sign-up, reset, Admin, lobby, new game, new campaign, account, a campaign, and each tab of a game. Under 700 pixels (`styles.css`, "touch polish"): buttons, link buttons, fields, drop-downs and `summary` are at least 44 pixels tall; checkboxes and radio buttons are 20 pixels, inside 44-pixel labels; fields use 16-pixel text so an iPhone does not zoom in on them; the top bar's links, the page headers' Lobby links, list links, "Forgot password?" and "Solo rules" are 44 pixels tall; the top bar stays on one line, shortening a long account name; End Turn in the staging header is 44 pixels. The Admin page was wider than the screen: its tables now scroll sideways inside their own box, and a column's boxes may be narrower than their contents (`.stack > * { min-width: 0 }`). Everywhere, `touch-action: manipulation` stops a quick double-tap zooming the page. After the changes nothing is wider than the screen on any page, and the only target under 44 pixels is the lobby's "Admin" link at 40 by 44.
 
 ### Step 6: A full test pass
 

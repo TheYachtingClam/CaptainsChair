@@ -632,8 +632,39 @@ label.challenge { align-items: flex-start; }
   .staging-header .staging-label { font-size: 0.66rem; line-height: 1.2; min-width: 0; }
   .turn-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; flex: 0 1 auto; }
   .staging-header .end-turn, .staging-header .undo-move {
-    width: auto; flex: 0 0 auto; padding: 0.35rem 0.55rem; min-height: 40px; font-size: 0.72rem;
+    width: auto; flex: 0 0 auto; padding: 0.35rem 0.55rem; min-height: 44px; font-size: 0.72rem;
   }
   .cell.staging .lane { flex-wrap: wrap; }
   .cell.discard { justify-items: start; }
+}
+
+/* ---------------------------------------------------------------- touch polish (REQ-CLI-35, -36) */
+/* A quick double-tap is two taps, never a zoom. */
+html { touch-action: manipulation; }
+@media (max-width: 700px) {
+  /* Everything a finger taps is at least 44 pixels tall. */
+  button, .button, select, summary, input:not([type="checkbox"]):not([type="radio"]) { min-height: 44px; }
+  .button { display: inline-flex; align-items: center; }
+  /* iPhones zoom the page in when a text field's text is smaller than 16 pixels. */
+  input, select, textarea { font-size: 16px; }
+  input[type="checkbox"], input[type="radio"] { width: 20px; height: 20px; }
+  label.inline { min-height: 44px; display: flex; align-items: center; gap: 0.5rem; }
+  .topbar a, .topbar button.link, button.link, .lobby-footer a, .solo-rules-link, .login > a {
+    display: inline-flex; align-items: center; min-height: 44px;
+  }
+  summary { display: flex; align-items: center; }
+  /* The Admin page's wide tables scroll sideways inside their own box instead of widening the page. */
+  .admin-table { display: block; overflow-x: auto; white-space: nowrap; }
+  .admin-table td, .admin-table th { white-space: nowrap; }
+  .stack > * { min-width: 0; } /* a column's boxes may be narrower than a wide table inside them */
+  main .row.between > a { display: inline-flex; align-items: center; min-height: 44px; }
+  .list li > a:first-child { display: inline-flex; align-items: center; min-height: 44px; }
+  /* The top bar stays one line: the brand never breaks, and a long account name is shortened. */
+  .topbar { gap: 8px; padding: 0.25rem 12px; }
+  .topbar .brand { white-space: nowrap; font-size: 1rem; flex: 0 0 auto; }
+  .topbar > .row { flex-wrap: nowrap; gap: 10px; min-width: 0; }
+  .topbar > .row > * { white-space: nowrap; flex: 0 0 auto; }
+  .topbar > .row > a:first-child { flex: 0 1 auto; min-width: 2.5rem; }
+  .topbar > .row > a:first-child { max-width: 7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; line-height: 44px; }
+  input[type="checkbox"], input[type="radio"] { flex: 0 0 auto; }
 }
