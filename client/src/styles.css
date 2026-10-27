@@ -602,9 +602,9 @@ label.challenge { align-items: flex-start; }
   .area-tabs button:hover, .area-tabs button:active, .area-tabs button:focus { background: none; }
   .area-tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
   .area-tabs button { -webkit-tap-highlight-color: transparent; }
+  .area-tabs button { white-space: nowrap; font-size: 0.92rem; }
   .tab-mark {
-    display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e0453a; margin-left: 5px;
-    vertical-align: middle;
+    position: absolute; top: 8px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: #e0453a;
   }
   /* Your hand sits under your mat, outside its border, fanned (REQ-CLI-33). */
   .hand.under-mat { flex-wrap: nowrap; justify-content: center; margin: 4px 0 0; padding: 14px 0 4px; position: relative; }
@@ -656,6 +656,9 @@ html { touch-action: manipulation; }
   /* The Admin page's wide tables scroll sideways inside their own box instead of widening the page. */
   .admin-table { display: block; overflow-x: auto; white-space: nowrap; }
   .admin-table td, .admin-table th { white-space: nowrap; }
+  /* The campaign log scrolls the same way; its long cells (an upgrade's text) wrap within a readable width. */
+  .campaign-log { display: block; overflow-x: auto; }
+  .campaign-log th, .campaign-log td { min-width: 5rem; max-width: 14rem; }
   .stack > * { min-width: 0; } /* a column's boxes may be narrower than a wide table inside them */
   main .row.between > a { display: inline-flex; align-items: center; min-height: 44px; }
   .list li > a:first-child { display: inline-flex; align-items: center; min-height: 44px; }
@@ -668,3 +671,27 @@ html { touch-action: manipulation; }
   .topbar > .row > a:first-child { max-width: 7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; line-height: 44px; }
   input[type="checkbox"], input[type="radio"] { flex: 0 0 auto; }
 }
+
+/* ---------------------------------------------------------------- the centre on a phone (REQ-CLI-38) */
+.deck-counts { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; width: 100%; }
+.deck-count {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; min-height: 44px;
+  padding: 3px 4px; border-radius: 8px; color: #fff; text-align: center; min-width: 0;
+}
+.deck-count span { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.2;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.deck-count strong { font-size: 1.05rem; line-height: 1.1; }
+.deck-count.encounter { background: #b56fc2; }
+.deck-count.incident { background: #c0392b; }
+.deck-count.location { background: #2f8f4a; }
+.deck-count.reward { background: #2f8f8a; }
+.deck-count.person { background: #b8922a; }
+.deck-count.cargo { background: #1f4fa0; }
+.deck-count.ship { background: #3b4048; }
+.deck-count.ally { background: #6b2fa0; }
+.market.phone-market { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-column: auto; grid-row: auto; gap: 6px; width: 100%; }
+.phone-market .market-col { gap: 4px; min-width: 0; justify-items: stretch; grid-template-columns: minmax(0, 1fr); }
+.phone-market .market-col > * { min-width: 0; }
+.mat .phone-market .gcard { width: 100%; margin: 0; }
+.phone-centre-row { display: flex; gap: 16px; align-items: center; justify-content: center; width: 100%; }
+.phone-centre { gap: 14px; }

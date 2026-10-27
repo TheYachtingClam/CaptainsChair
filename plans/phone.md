@@ -88,12 +88,21 @@ Done so far, at your requests on 2026-10-27: the game's buttons, details, Player
 
 What was done: every page was measured with Playwright at 375 pixels (iPhone SE): sign-in, sign-up, reset, Admin, lobby, new game, new campaign, account, a campaign, and each tab of a game. Under 700 pixels (`styles.css`, "touch polish"): buttons, link buttons, fields, drop-downs and `summary` are at least 44 pixels tall; checkboxes and radio buttons are 20 pixels, inside 44-pixel labels; fields use 16-pixel text so an iPhone does not zoom in on them; the top bar's links, the page headers' Lobby links, list links, "Forgot password?" and "Solo rules" are 44 pixels tall; the top bar stays on one line, shortening a long account name; End Turn in the staging header is 44 pixels. The Admin page was wider than the screen: its tables now scroll sideways inside their own box, and a column's boxes may be narrower than their contents (`.stack > * { min-width: 0 }`). Everywhere, `touch-action: manipulation` stops a quick double-tap zooming the page. After the changes nothing is wider than the screen on any page, and the only target under 44 pixels is the lobby's "Admin" link at 40 by 44.
 
-### Step 6: A full test pass
+### Step 6: A full test pass (done in the emulator; your real-phone pass still to come)
 
 - A whole solo game, a whole two-player game and a campaign assignment on a real phone; fix what turns up.
 - Deploy to Fly.
 
 **You test:** play on the phone for real.
+
+What was done (2026-10-27): a Playwright player (kept outside the repository) plays whole games through the phone interface, tapping as a person would: it answers the bottom panel's questions, plays cards from the fanned hand by their visible edge, uses card panels, ends turns, skips through and closes the Bot's or opponent's turn, and records page errors, anything wider than the screen, and every tap the browser refuses because something covers the target. Runs, on an iPhone SE (375 pixels) and, for the second player, a Pixel 7: a solo game against the Soval Bot in Chromium (32 turns) and WebKit, the engine of iPhone Safari (28 turns, twice); a two-player game in both engines (32 turns each); and a campaign assignment in WebKit, from New Five-Year Mission and "Start the assignment" through the game to the upgrade (a Boost taken, the campaign back at the start of the next assignment). Every game reached its end; there were no page errors.
+
+Found and fixed on the way:
+- After a question moved you to another tab (Centre for "Place 1 Glory"), you stayed there when your Action Step resumed, away from your hand and End Turn. Answering now returns you to the tab you were on, unless you chose a tab in between.
+- "Opponent" and its change mark did not fit a tab on a 375-pixel screen, so the bar grew to two lines; labels stay on one line and the mark sits in the corner.
+- The campaign page's log table made the page wider than the screen; it scrolls inside its own box.
+- In the fanned hand a card's visible edge could be covered by its neighbour's tilted corner; on a phone the fan tilts half as much. With a hand of 7 or more on a 375-pixel screen each card still shows only about 35 pixels, under the 44-pixel guideline: the price of keeping the fan.
+- At your request: the Centre has its own phone layout (REQ-CLI-38).
 
 ## Risks and notes
 

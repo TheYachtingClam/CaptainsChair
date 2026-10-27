@@ -279,19 +279,30 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system }: {
   // other card by its uid at the end.
   // The Action Step is left alone: its answers are the cards in your hand and play area.
   const questionKey = d?.options && d.seat === me && d.kind !== "action" ? `${d.prompt}|${d.options.map((o) => o.id).join(",")}` : "";
+  // When a question moved you to another tab, answering it brings you back, unless you chose a tab in between.
+  const returnTo = useRef<Area | null>(null);
   useEffect(() => {
-    if (!phone || !questionKey) return;
+    if (!phone) return;
+    if (!questionKey) {
+      if (returnTo.current) setTab(returnTo.current);
+      returnTo.current = null;
+      return;
+    }
     const held = d!.options!
       .map((o) => {
         const tail = o.id.split(":").pop() ?? "";
         return o.id.includes(":") && tail in view.market ? "centre" : areaOf(tail);
       })
       .filter((a): a is Area => !!a);
-    if (held.length && !held.includes(shownTab)) setTab(held[0]);
+    if (held.length && !held.includes(shownTab)) {
+      returnTo.current ??= shownTab;
+      setTab(held[0]);
+    }
   }, [questionKey, phone]); // eslint-disable-line react-hooks/exhaustive-deps
   // A new tab starts at the top of the table, below the game's title and buttons.
   const boardRef = useRef<HTMLDivElement>(null);
   const chooseTab = (a: Area) => {
+    returnTo.current = null;
     setTab(a);
     const top = boardRef.current ? boardRef.current.getBoundingClientRect().top + window.scrollY - 8 : 0;
     window.scrollTo({ top });

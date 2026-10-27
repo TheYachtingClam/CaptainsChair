@@ -12,6 +12,8 @@ export function CenterMat({ view }: { view: GameStateView }) {
 
   const phone = usePhone();
 
+  if (phone) return <PhoneCentre view={view} />;
+
   return (
     <section className="mat center-mat" aria-label="Central play area">
       {/* Encounter deck and Reward pile (item 4) */}
@@ -109,5 +111,66 @@ export function NeutralZone({ view, compact = false }: { view: GameStateView; co
         </div>
       ))}
     </div>
+  );
+}
+
+/** A deck shown only by its count, on a phone (REQ-CLI-38). */
+function DeckCount({ kind, label, count }: { kind: string; label: string; count: number }) {
+  return (
+    <div className={`deck-count ${kind}`} aria-label={`${label}: ${count} card(s)`}>
+      <span>{label}</span>
+      <strong>{count}</strong>
+    </div>
+  );
+}
+
+/** The centre on a phone (REQ-CLI-38): the Encounter, Incident and Location decks as counts in one row; the Market
+ *  four across, each suit's deck count above its face-up card, as on the table; then the Junk and the Stardate side by
+ *  side, and the Neutral Zone. */
+function PhoneCentre({ view }: { view: GameStateView }) {
+  const [viewingJunk, setViewingJunk] = useState(false);
+  const topJunk = view.junk[view.junk.length - 1];
+  return (
+    <section className="mat center-mat phone-centre" aria-label="Central play area">
+      <div className="deck-counts">
+        <DeckCount kind="encounter" label="Encounter" count={view.encounter_count} />
+        <DeckCount kind="incident" label="Incident" count={view.incident_count} />
+        <DeckCount kind="location" label="Locations" count={view.location_deck_count} />
+        {view.reward_count > 0 && <DeckCount kind="reward" label="Rewards" count={view.reward_count} />}
+      </div>
+
+      <div className="market phone-market">
+        {SUITS.map((suit) => (
+          <div key={suit} className="market-col">
+            <DeckCount kind={suit.toLowerCase()} label={suit} count={view.market_deck_counts?.[suit] ?? 0} />
+            {view.market[suit] ? <Card card={view.market[suit] as CardView} /> : <div className="market-empty">Empty</div>}
+          </div>
+        ))}
+      </div>
+
+      <div className="phone-centre-row">
+        <button type="button" className="junk-space" onClick={() => setViewingJunk(true)}
+          aria-label={`Junk pile: ${view.junk.length} card(s)`}>
+          {topJunk ? (
+            <>
+              <img src={imageUrl(topJunk.image)} alt="" />
+              <span className="badge">{view.junk.length}</span>
+            </>
+          ) : <span className="junk-label">Junk space</span>}
+        </button>
+        <div className="stardate">
+          {view.stardate.top ? <Card card={view.stardate.top} /> : <div className="market-empty">No Stardate</div>}
+          <div className="stardate-info">
+            <span className="glory-token" title="Glory on the Stardate card">{view.stardate.glory}</span>
+            <span className="muted">{view.stardate.remaining} Stardate card(s)</span>
+            {view.resolution && <span className="pill">Resolution: last turn {view.last_turn}</span>}
+          </div>
+        </div>
+      </div>
+
+      <NeutralZone view={view} compact />
+
+      {viewingJunk && <PileViewer title="Junk pile" cards={view.junk} onClose={() => setViewingJunk(false)} />}
+    </section>
   );
 }

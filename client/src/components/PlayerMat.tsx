@@ -179,7 +179,8 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
             const mid = (p.hand!.length - 1) / 2;
             const overlap = fanStep == null ? undefined : (fanStep - PHONE_HAND_CARD) / 2;
             return <Card key={c.uid} card={c} style={{
-              transform: `rotate(${(i - mid) * 4}deg) translateY(${Math.abs(i - mid) * 4}px)`,
+              // A phone's fan tilts half as much, so each card's visible edge is not covered by its neighbour's corner.
+              transform: `rotate(${(i - mid) * (phone ? 2 : 4)}deg) translateY(${Math.abs(i - mid) * (phone ? 2 : 4)}px)`,
               ...(overlap == null ? {} : { marginLeft: overlap, marginRight: overlap }),
             }} />;
           })
