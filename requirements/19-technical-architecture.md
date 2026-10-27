@@ -8,7 +8,7 @@ This document covers how the online game is built. It does not change any game r
   - an **API server** written in Python, which owns all game state and enforces every rule;
   - a **web client** written in React, which shows the game and sends player choices.
 - **REQ-TECH-02** The server is the only authority. The client never decides whether a move is legal, and never receives hidden information (see [11-logging-and-hidden-information.md](11-logging-and-hidden-information.md)).
-- **REQ-TECH-03** Access to the whole site is protected by one shared password (see §5).
+- **REQ-TECH-03** Access to the whole site needs a personal account, which can only be created by invitation (see §5).
 
 ```
 Browser (React)  ──HTTPS / REST──►  Python API server  ──►  Database
@@ -21,7 +21,7 @@ These are defaults. Change them here if you decide otherwise.
 
 - The expected audience is a small private group: friends playing two-player games, plus solo games against the Bot and Cadet Training.
 - One server instance is enough; there is no need for horizontal scaling.
-- Players do not have individual accounts. They enter a display name when they create or join a game.
+- Each player has a personal account, created from an invitation. Their display name comes from the account.
 - The site runs behind HTTPS, provided by a reverse proxy or the hosting platform.
 
 ## 3. API server (Python)
@@ -86,19 +86,29 @@ All endpoints except login and health require a valid session (see §5).
 
 | Method and path | Purpose |
 |---|---|
-| `POST /api/auth/login` | Check the shared password and start a session |
+| `POST /api/auth/login` | Check an email address and password and start a session (REQ-USER-10) |
 | `POST /api/auth/logout` | End the session |
+| `GET /api/auth/me` | The signed-in user: id, email, display name, admin flag |
+| `POST /api/auth/signup` | Create an account from an invitation code (REQ-USER-02) |
+| `PATCH /api/auth/me` | Change the display name |
+| `POST /api/auth/password` | Change the password, given the current one (REQ-USER-14) |
+| `POST /api/auth/forgot` | Email a password-reset link; always answers the same (REQ-USER-20) |
+| `POST /api/auth/reset` | Set a new password with a reset code (REQ-USER-21) |
+| `POST /api/auth/claim` | Attach the seats and campaigns this browser holds tokens for to the signed-in user (REQ-USER-41) |
+| `GET /api/me/games`, `GET /api/me/campaigns` | The signed-in user's games and campaigns (REQ-USER-40) |
+| `GET /api/admin/users`, `PATCH /api/admin/users/{id}` | Admin: list users; disable, enable, make or unmake admin (REQ-USER-31) |
+| `POST /api/admin/invites`, `GET /api/admin/invites`, `DELETE /api/admin/invites/{id}` | Admin: invite an email address, list open invitations, cancel one (REQ-USER-30) |
+| `POST /api/admin/users/{id}/reset` | Admin: send a password-reset email and show the link (REQ-USER-22) |
 | `GET /api/health` | Liveness check for hosting; no auth |
 | `GET /api/content/decks` | List Crew decks with complexity and summary text |
 | `GET /api/content/cards` | Card list for reference screens |
 | `POST /api/games` | Create a game: mode, chosen deck, board side, display name |
 | `GET /api/games` | List open and in-progress games |
 | `POST /api/games/{id}/join` | Join as the second player |
-| `DELETE /api/games/{id}` | Delete the game for everyone. Needs the seat token of a player in that game. Connected players get a `game_deleted` message and return to the lobby |
-| `POST /api/admin/login` | Check the admin password and start an admin session (§5.4) |
+| `DELETE /api/games/{id}` | Delete the game for everyone. Only a player seated in that game (REQ-USER-42). Connected players get a `game_deleted` message and return to the lobby |
 | `GET /api/admin/games` | Admin: every game, in any state, with its players |
 | `DELETE /api/admin/games/{id}` | Admin: delete any game; connected players get `game_deleted` |
-| `POST /api/admin/games/{id}/seats/{index}/take` | Admin: take over a seat; returns its new seat token (REQ-ADMIN-06) |
+| `POST /api/admin/games/{id}/seats/{index}/take` | Admin: take over a seat; it moves to the admin's account (REQ-ADMIN-06) |
 | `GET /api/admin/campaigns`, `DELETE /api/admin/campaigns/{id}` | Admin: list or delete Five-Year Mission campaigns |
 | `GET /api/games/{id}` | Current view of the game for this player |
 | `POST /api/games/{id}/commands` | Submit a command |
@@ -113,11 +123,11 @@ All endpoints except login and health require a valid session (see §5).
 | `POST /api/admin/bugs/{id}/status`, `DELETE /api/admin/bugs/{id}` | Admin: mark a report resolved or open; delete it |
 | `POST /api/admin/bugs/{id}/recreate` | Admin: make a playable copy of the reported game, as reported or some moves earlier |
 
-- **REQ-SRV-30** After creating or joining a game, the player receives a **seat token**. It identifies which seat they hold, so they can rejoin after a refresh. It is separate from the site password session.
+- **REQ-SRV-30** A seat belongs to the account that created or joined the game (REQ-USER-42). Games created before accounts existed use a **seat token** instead: a secret the browser keeps, which identifies the seat until the seat is claimed by an account (REQ-USER-41). New games do not issue seat tokens.
 
 ### 3.6 WebSocket
 
-- **REQ-SRV-40** Each client opens one WebSocket per game at `/api/games/{id}/ws`, authenticated with the session and the seat token.
+- **REQ-SRV-40** Each client opens one WebSocket per game at `/api/games/{id}/ws`, authenticated with the session. The server finds the seat from the signed-in user, or from a seat token for an unclaimed seat.
 - **REQ-SRV-41** After any accepted command, the server pushes each connected player their own updated view, plus the new events for animation and the action log.
 - **REQ-SRV-42** Commands may be sent over the WebSocket or over REST. The server processes one command per game at a time, in arrival order.
 - **REQ-SRV-43** When a player reconnects, the server sends the full current view.
@@ -125,7 +135,7 @@ All endpoints except login and health require a valid session (see §5).
 
 ### 3.7 Persistence
 
-- **REQ-SRV-50** Game records, command history and seat tokens are stored in the database. A server restart must not lose any game.
+- **REQ-SRV-50** Accounts, game records, command history and seat ownership are stored in the database. A server restart must not lose any game.
 - **REQ-SRV-51** Finished games keep their final score breakdown.
 
 ## 4. Web client (React)
@@ -148,9 +158,12 @@ All endpoints except login and health require a valid session (see §5).
 
 | Page | Contents |
 |---|---|
-| Password page | One password field and a submit button. Shown whenever there is no valid session |
+| Sign-in page | Email, password, and a "Forgot password?" link. Shown whenever there is no valid session |
+| Sign-up page | Reached from an invitation link: the invited email (fixed), display name and password |
+| Forgot and reset password pages | Ask for the email address; then, from the emailed link, set a new password |
+| Account | Display name, change password, sign out |
 | Lobby | Create game, list of open games to join, list of the player's own in-progress games. Each of the player's own games has a Delete button that asks for confirmation, because deleting cannot be undone |
-| New game | Choose mode (two-player, solo against the Bot, Cadet Training), box (Core Box, To Boldly Go or both), expansions, promo cards, Crew deck (with complexity and summary), board side and display name. Solo adds Bot Crew, difficulty and Ticking Clock |
+| New game | Choose mode (two-player, solo against the Bot, Cadet Training), box (Core Box, To Boldly Go or both), expansions, promo cards, Crew deck (with complexity and summary) and board side; the display name comes from the account. Solo adds Bot Crew, difficulty and Ticking Clock |
 | Campaign | Five-Year Mission log, rank, upgrades, challenges and the next assignment |
 | Game table | The main play screen (§4.3), with a Report a bug button (§5.5) |
 | Score screen | Final score breakdown per player, following [13-final-scoring.md](13-final-scoring.md) |
@@ -169,49 +182,66 @@ All endpoints except login and health require a valid session (see §5).
 - **REQ-CLI-18** The table works on a laptop screen. Tablet support is desirable. Phone support is not required.
 - **REQ-CLI-19** In a two-player game each player can step through the other player's latest turn, as with a Bot's turn (REQ-SOLO-56): the same panel with Previous, Next, Auto-play, Skip to end and Done, showing each log line of that turn and, where a line is about a card (played, used, deployed, gained, logged, taken control of and so on), that card. Only lines the viewer may see are shown. It follows the other player's turn live as it happens. Unlike a Bot's turn, the player's own turn does not wait for Done.
 
-## 5. Access control: shared password
+## 5. Access control: user accounts
 
-The whole site is behind one password that you share with the people you want to let in. There are no user accounts.
+Every player has their own account, created only by invitation from the admin, and signs in with an email address and a password. Their games, campaigns and reports belong to the account, on any device. This replaces the shared site password (REQ-AUTH-01 to -16, retired) and the separate admin password (REQ-ADMIN-01 and -02, retired). The plan is [plans/users.md](../plans/users.md).
 
-### 5.1 Behaviour
+### 5.1 Accounts and invitations
 
-- **REQ-AUTH-01** Every page and every API endpoint, except login and health, requires a valid session.
-- **REQ-AUTH-02** Without a valid session, the client shows only the password page.
-- **REQ-AUTH-03** A correct password creates a session that lasts **30 days**. The player is not asked again on that browser until it expires or they log out.
-- **REQ-AUTH-04** A wrong password shows "Incorrect password" and nothing else.
-- **REQ-AUTH-05** Changing the password on the server ends all existing sessions.
+- **REQ-USER-01** An account has an email address (unique, compared without regard to case), a display name (1 to 40 characters, shown to other players), a password, an admin flag, and a disabled flag.
+- **REQ-USER-02** An account can only be created from an **invitation**. The admin invites an email address (REQ-USER-30); the invitation link lets that person choose a display name and password. The email address is the invited one and cannot be changed during sign-up. An invitation can be used once and expires after 7 days.
+- **REQ-USER-03** There is no sign-up without an invitation. Every page and API endpoint, except sign-in, sign-up from an invitation, forgot and reset password, and health, needs a signed-in account.
+- **REQ-USER-04** The first admin is made with `scripts/create_admin.py` on the server, which asks for the email address, display name and password. After that, an admin can make other accounts admin.
 
-### 5.2 Server implementation
+### 5.2 Signing in and sessions
 
-- **REQ-AUTH-10** The password is set through an environment variable, for example `SITE_PASSWORD`. It is never stored in the code or the repository.
-- **REQ-AUTH-11** The server compares passwords with a constant-time comparison.
-- **REQ-AUTH-12** On success, the server sets a signed session cookie:
-  - `HttpOnly`, so page scripts cannot read it;
-  - `Secure`, so it is only sent over HTTPS;
-  - `SameSite=Lax`.
-- **REQ-AUTH-13** The cookie is signed with a secret from another environment variable, for example `SESSION_SECRET`. The signed value includes a fingerprint of the current password, so changing the password invalidates old cookies.
-- **REQ-AUTH-14** The WebSocket connection checks the same session cookie before accepting.
-- **REQ-AUTH-15** Login attempts are rate-limited per IP address, for example 5 attempts per minute, to slow down password guessing.
-- **REQ-AUTH-16** The server refuses to start if `SITE_PASSWORD` or `SESSION_SECRET` is missing.
+- **REQ-USER-10** Signing in takes the email address and password. A correct pair creates a session that lasts **30 days** on that browser, until the user signs out.
+- **REQ-USER-11** A wrong email address and a wrong password give the same message, "Incorrect email or password", so nobody can find out which addresses have accounts. A disabled account cannot sign in, and its sessions end.
+- **REQ-USER-12** Sign-in attempts are rate-limited per IP address, for example 5 a minute.
+- **REQ-USER-13** The session is a signed cookie (`HttpOnly`, `Secure`, `SameSite=Lax`), signed with `SESSION_SECRET`. It holds the user's id and their session version. The WebSocket checks the same cookie before accepting.
+- **REQ-USER-14** Changing the password needs the current one. It raises the session version, which ends every other session of that user; the current one is renewed. A "your password was changed" email is sent.
+- **REQ-USER-15** Passwords are at least 8 characters. They are stored only as a salted `scrypt` hash, and compared in constant time.
+- **REQ-USER-16** Signing out ends the session on that browser only.
 
-### 5.3 Admin
+### 5.3 Forgotten passwords and email
 
-The site has one optional admin, who can clean up games and campaigns that their players cannot, for example a game waiting for an opponent who never came, or a game whose seat link was lost.
+- **REQ-USER-20** "Forgot password?" asks for an email address and always answers "If that address has an account, we have sent a link", whether or not it does. If it does, the user gets an email with a reset link. Requests are rate-limited per IP address.
+- **REQ-USER-21** A reset link can be used once and expires after 1 hour. Setting a new password with it raises the session version, ending every session of that user, and signs them in.
+- **REQ-USER-22** The admin can also send a user a reset email from the Admin page, and sees the link, to pass on another way if the email does not arrive.
+- **REQ-USER-23** Emails are plain text, sent over SMTP with the settings in §6 (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM`), from a Gmail account with an app password for now. Without SMTP settings, as on a developer's machine, each email is written to the server log instead. Links in emails start with `PUBLIC_URL`.
+- **REQ-USER-24** There are three emails: the invitation, the password-reset link, and the notice that a password was changed.
 
-- **REQ-ADMIN-01** The admin password is set through the `ADMIN_PASSWORD` environment variable. Without it, the admin features are off and the server still starts.
-- **REQ-ADMIN-02** The admin signs in on the Admin page, which needs a normal session first. A correct admin password sets a second signed cookie (`HttpOnly`, `SameSite=Lax`, `Secure` as for sessions) that lasts 1 day and includes a fingerprint of the admin password, so changing it ends admin sessions. The comparison is constant-time and attempts are rate-limited like REQ-AUTH-15.
+### 5.4 The admin
+
+The admin is any account with the admin flag. They can manage accounts and clean up games and campaigns that their players cannot, for example a game waiting for an opponent who never came.
+
+- **REQ-USER-30** The Admin page invites an email address: it sends the invitation email and shows the link, to pass on another way if the email does not arrive. It lists open invitations and can cancel one. Inviting an address that already has an account is refused.
+- **REQ-USER-31** The Admin page lists every account with its email, display name, admin flag, disabled flag, creation date and last sign-in. It can disable or re-enable an account and make an account admin or not. An admin cannot remove their own admin flag or disable themselves, so there is always one admin.
+- **REQ-USER-32** Admin pages and endpoints need a signed-in account with the admin flag.
+
+### 5.5 Games, campaigns and reports belong to accounts
+
+- **REQ-USER-40** Creating or joining a game, starting a campaign, and sending a bug report or suggestion record the account. The lobby's "Your games" and the list of campaigns come from the server, so they follow the user to any device.
+- **REQ-USER-41** Games and campaigns from before accounts are **claimed**: after a user signs in, the client sends the seat tokens and campaign links it holds, and the server attaches each valid one that no account owns yet to that user. A seat or campaign already owned by an account never moves. Until claimed, a seat token and a campaign link keep working as before.
+- **REQ-USER-42** A player may act in a seat (commands, undo, delete the game, report) when the seat belongs to their account, or, for an unclaimed seat, with its seat token. One account cannot hold both seats of a two-player game.
+- **REQ-USER-43** A campaign is opened by its owner, or by its link while unclaimed.
+
+### 5.6 Admin tools for games and campaigns
+
+These keep their numbers; REQ-ADMIN-01 and -02, about the admin password, are retired (REQ-USER-04, -32).
+
 - **REQ-ADMIN-03** The Admin page lists every game, in any state, with its mode, status, players and creation date, and can delete any game after a confirmation. Players connected to a deleted game get the `game_deleted` message.
 - **REQ-ADMIN-04** The Admin page lists every Five-Year Mission campaign and can delete one after a confirmation. Its games are not deleted.
 - **REQ-ADMIN-05** Apart from the admin, only a player seated in a game can delete it. A game still waiting for an opponent therefore can be deleted only by the player who created it.
-- **REQ-ADMIN-06** The admin can take over any seat of any game from the Admin page, after a confirmation. The seat gets a new seat token that only the admin receives, and the admin is taken to the game in that seat. The player who held it is locked out for good: their token no longer works, any page they have open is told and disconnected, and they can still watch. The game itself is unchanged and carries on from where it was.
+- **REQ-ADMIN-06** The admin can take over any seat of any game from the Admin page, after a confirmation. The seat moves to the admin's account, and the admin is taken to the game in that seat. The player who held it is locked out for good: they can no longer act in it, any page they have open is told and disconnected, and they can still watch. The game itself is unchanged and carries on from where it was.
 
-### 5.4 Limits of this approach
+### 5.7 Limits
 
-A shared password keeps strangers out, but it does not identify people. Anyone with the password can open any game's lobby entry. Seats are protected by seat tokens (REQ-SRV-30), so one player cannot act as another. If you later need per-person accounts, replace §5 without changing the rest of the system.
+Accounts identify people, but the site is still meant for a small private group: there is no email verification beyond the invitation, no two-step sign-in, and no way for players to delete their own account (the admin disables it). The email address is visible only to the admin; other players see display names.
 
-### 5.5 Bug reports
+### 5.8 Bug reports
 
-A player who sees something wrong can report it from the game table. The report carries what is needed to recreate the game, so the bug can be reproduced later, also after the game has moved on or been deleted.
+A player who sees something wrong can report it from the game table. The report carries what is needed to recreate the game, so the bug can be reproduced later, also after the game has moved on or been deleted. A report also records the reporter's account (REQ-USER-40).
 
 - **REQ-BUG-01** The game table has a **Report a bug** button for a seated player once the game has started, also after it is over. It is not shown to someone without a seat.
 - **REQ-BUG-02** The button opens a dialog that asks what the player saw and what they expected (required, up to 4000 characters). Sending it does not change or interrupt the game; the dialog confirms that the report was saved.
@@ -219,7 +249,7 @@ A player who sees something wrong can report it from the game table. The report 
 - **REQ-BUG-04** The bundle also records what the reporter was looking at, for reading without a replay: the turn, step and active seat, the pending decision with its options, the last 60 log lines, and the reporter's own view of the game.
 - **REQ-BUG-05** Only the admin can read reports, because a bundle holds both players' hidden cards. The Admin page lists them, newest first, with the reporter, the game and the description, and can mark one resolved, reopen it or delete it.
 - **REQ-BUG-06** The admin can download a report as a JSON file, written by the server (`GET /api/admin/bugs/{id}/download`) so that no number passes through the browser; the seed is also stored as text, because JavaScript rounds a 63-bit seed and the game would no longer replay. `scripts/replay_bug.py` rebuilds the game from that file with the rules of the current checkout and prints where it stands: the last log lines and the pending decision. `--moves N` and `--back N` stop earlier; `--state` writes the whole engine state.
-- **REQ-BUG-07** The admin can **recreate** a report: the server makes a new game from the bundle, as reported or a chosen number of moves earlier, with new seat tokens for every seat, and the admin is seated where the reporter sat. The copy is an ordinary game and can be played on. The original game is not touched, and a copy of a campaign assignment never counts for the campaign.
+- **REQ-BUG-07** The admin can **recreate** a report: the server makes a new game from the bundle, as reported or a chosen number of moves earlier. The reporter's seat belongs to the admin's account, so the admin is seated where the reporter sat; the other seat, in a two-player game, gets a seat token the admin can pass on. The copy is an ordinary game and can be played on. The original game is not touched, and a copy of a campaign assignment never counts for the campaign.
 - **REQ-BUG-08** A report has no link to the game's row, so deleting the game keeps the report. If the rules have changed so that a stored move no longer applies, the copy follows REQ-SRV-14's rule for that: the move and the later ones are dropped and a note is logged.
 - **REQ-BUG-09** Next to Report a bug, a seated player has **Suggest a feature**: the same dialog, asking what they would like the game to do. A suggestion is saved the same way, with the same bundle (REQ-BUG-03, -04), so the position that prompted it can be recreated. The Admin page lists bugs and suggestions together, marked by kind, and can show only one kind.
 
@@ -232,19 +262,19 @@ A player who sees something wrong can report it from the game table. The report 
 
 | Variable | Purpose |
 |---|---|
-| `SITE_PASSWORD` | The shared access password |
 | `SESSION_SECRET` | Key for signing session cookies |
-| `ADMIN_PASSWORD` | Optional: the admin password (§5.3). Without it there is no admin |
+| `PUBLIC_URL` | The site's address, used in links in emails, for example `https://captains-chair-wild-bush-4325.fly.dev` |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | Sending email (REQ-USER-23). Optional: without them, emails go to the server log |
 | `DATABASE_URL` | Database location. Defaults to a local SQLite file |
 | `LOG_LEVEL` | Server log detail |
 
-- **REQ-OPS-05** Server logs must never contain the password, session cookies or seat tokens.
+- **REQ-OPS-05** Server logs must never contain passwords, session cookies, seat tokens, or invitation and reset codes. When no SMTP settings are set, the emails written to the log do contain their links; that is only for a developer's machine.
 - **REQ-OPS-06** The SQLite database file is backed up daily if the host allows it.
-- **REQ-OPS-07** The site is hosted on Fly.io from `fly.toml`: one machine, with one volume mounted at `/app/data` for the SQLite file. It must stay a single machine, because the server caches games in memory and locks commands in-process (REQ-SRV-42). The passwords and the session secret are Fly secrets, never in the file. The container starts as root only to give the mounted volume to the unprivileged `app` user (`scripts/docker-entrypoint.sh`), then runs the server as `app`.
+- **REQ-OPS-07** The site is hosted on Fly.io from `fly.toml`: one machine, with one volume mounted at `/app/data` for the SQLite file. It must stay a single machine, because the server caches games in memory and locks commands in-process (REQ-SRV-42). The session secret and the SMTP password are Fly secrets, never in the file. The container starts as root only to give the mounted volume to the unprivileged `app` user (`scripts/docker-entrypoint.sh`), then runs the server as `app`.
 
 ## 7. Out of scope for the first version
 
-- Per-user accounts, profiles and match history per person.
+- Profiles, statistics and match history per person (accounts exist, §5).
 - Matchmaking with strangers.
 - Spectators.
 - Turn timers.

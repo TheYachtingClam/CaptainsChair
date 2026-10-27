@@ -24,6 +24,14 @@ class Settings(BaseSettings):
     dev_tools: bool = False
     # Optional admin password (requirements/19-technical-architecture.md §5.3). Empty: no admin.
     admin_password: str = ""
+    # The site's address, for links in emails (REQ-USER-23).
+    public_url: str = "http://localhost:8000"
+    # Sending email over SMTP (REQ-USER-23). Without a host, emails are written to the log instead.
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    mail_from: str = ""
 
 
 @lru_cache

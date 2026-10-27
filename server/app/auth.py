@@ -1,4 +1,6 @@
-"""Shared-password access control (requirements/19-technical-architecture.md §5)."""
+"""Access control (requirements/19-technical-architecture.md §5): user accounts, and, until plans/users.md Step 8
+retires it, the shared site password. Both use the same signed session cookie: an account's holds the user id and
+their session version (REQ-USER-13); the shared password's holds a fingerprint of that password."""
 
 import hashlib
 import hmac
@@ -47,16 +49,50 @@ def clear_session(response: Response) -> None:
     response.delete_cookie(COOKIE_NAME, path="/")
 
 
-def session_is_valid(cookie: str | None, settings: Settings) -> bool:
+def _session_data(cookie: str | None, settings: Settings) -> dict | None:
     if not cookie:
-        return False
+        return None
     try:
         data = _serializer(settings).loads(cookie, max_age=settings.session_days * 86400)
     except (BadSignature, SignatureExpired):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def issue_user_session(response: Response, settings: Settings, user) -> None:
+    """Sign a user in on this browser for 30 days (REQ-USER-10, -13)."""
+    token = _serializer(settings).dumps({"uid": user.id, "v": user.session_version})
+    response.set_cookie(COOKIE_NAME, token, max_age=settings.session_days * 86400, httponly=True,
+                        secure=settings.secure_cookies, samesite="lax", path="/")
+
+
+def _user_matches(user, data: dict) -> bool:
+    """The account still exists, is not disabled, and its password has not changed since (REQ-USER-11, -14)."""
+    return user is not None and not user.disabled and user.session_version == data.get("v")
+
+
+def session_user(request_cookies, db):
+    """The signed-in account, or None (also None for a shared-password session)."""
+    from app.models import User
+
+    data = _session_data(request_cookies.get(COOKIE_NAME), get_settings())
+    if not data or "uid" not in data:
+        return None
+    user = db.get(User, data["uid"])
+    return user if _user_matches(user, data) else None
+
+
+def session_is_valid(cookie: str | None, settings: Settings) -> bool:
+    data = _session_data(cookie, settings)
+    if data is None:
         return False
-    return isinstance(data, dict) and hmac.compare_digest(
-        str(data.get("pw", "")), _password_fingerprint(settings)
-    )
+    if "uid" in data:
+        from app.db import open_session
+        from app.models import User
+
+        with open_session() as db:
+            return _user_matches(db.get(User, data["uid"]), data)
+    return hmac.compare_digest(str(data.get("pw", "")), _password_fingerprint(settings))
 
 
 def require_session(request: Request) -> None:
@@ -117,6 +153,17 @@ def require_admin(request: Request) -> None:
     require_session(request)
     if not is_admin(request):
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Admin only")
+
+
+def require_user(request: Request):
+    """FastAPI dependency: the signed-in account (REQ-USER-03). A shared-password session is not an account."""
+    from app.db import open_session
+
+    with open_session() as db:
+        user = session_user(request.cookies, db)
+        if user is None:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Sign in to your account")
+        return user.id
 
 
 def websocket_has_session(websocket: WebSocket) -> bool:

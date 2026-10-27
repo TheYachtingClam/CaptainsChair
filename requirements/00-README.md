@@ -26,7 +26,7 @@ These documents turn the *Star Trek: Captain's Chair – To Boldly Go* rulebook 
 | 16 | [Cadet Training](16-solo-and-cadet-training.md) | 28 |
 | 17 | [Quick Reference & Icons](17-reference-and-icons.md) | 36 |
 | 18 | [Acceptance Scenarios](18-acceptance-scenarios.md) | Examples throughout |
-| 19 | [Technical Architecture: Python API, React Client, Password Access](19-technical-architecture.md) | Not from the rulebook |
+| 19 | [Technical Architecture: Python API, React Client, User Accounts](19-technical-architecture.md) | Not from the rulebook |
 | 20 | [Undo](20-undo.md) | Not from the rulebook |
 | 21 | [Expansion: Second Contact](21-expansion-second-contact.md) | Expansion pp. 1–6 |
 | 22 | [Solo Mode: Playing Against the Bot, and the Five-Year Mission Campaign](22-solo-mode.md) | Solo rulebook pp. 1–21 |

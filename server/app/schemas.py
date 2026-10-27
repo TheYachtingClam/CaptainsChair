@@ -10,7 +10,9 @@ Box = Literal["core", "to_boldly_go", "both"]  # REQ-CORE-10
 
 
 class LoginRequest(BaseModel):
-    password: str
+    # With an email, an account's sign-in (REQ-USER-10); without, the shared site password until it is retired.
+    email: str | None = Field(default=None, max_length=254)
+    password: str = Field(max_length=200)
 
 
 class SeatChoice(BaseModel):

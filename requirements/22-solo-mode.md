@@ -384,7 +384,7 @@ At the end of the campaign, show the evaluation for the final rank:
 - **REQ-CAMP-51** Each assignment row records the date, the human's rank, the Bot's Captain, the Bot's difficulty, both scores, and the upgrade chosen.
 - **REQ-CAMP-52** The campaign record also holds the current Reinforcement pile and active Boosts. New games in the campaign are set up from it automatically.
 - **REQ-CAMP-53** The client shows a campaign screen with the log, current rank, Reinforcement pile, Boosts and final rank.
-- **REQ-CAMP-54** Campaigns belong to a seat token or a named player profile on this server, so a player can continue across sessions. Players do not have accounts (see [19-technical-architecture.md](19-technical-architecture.md)).
+- **REQ-CAMP-54** A campaign belongs to the account that started it, so its player can continue on any device (REQ-USER-40). Campaigns started before accounts are reached by their secret link until they are claimed (REQ-USER-41, -43).
 
 ## 15. Solo player aid (in-app reference)
 

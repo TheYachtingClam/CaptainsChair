@@ -97,3 +97,48 @@ class BugReport(Base):
     kind: Mapped[str] = mapped_column(String(10), default="bug", server_default=text("'bug'"))
     # The setup, the seed and every command so far (REQ-BUG-03), plus what the reporter saw.
     bundle: Mapped[dict] = mapped_column(JSON)
+
+
+class User(Base):
+    """A player's account (requirements/19-technical-architecture.md §5, REQ-USER-01)."""
+
+    __tablename__ = "users"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    email: Mapped[str] = mapped_column(String(254), unique=True, index=True)  # stored lower-case
+    display_name: Mapped[str] = mapped_column(String(40))
+    password_hash: Mapped[str] = mapped_column(String(200))
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    disabled: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    # Raised on a password change or reset: every session holding an older version ends (REQ-USER-14, -21).
+    session_version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class Invite(Base):
+    """An invitation to create an account for one email address (REQ-USER-02). Only a hash of its code is kept."""
+
+    __tablename__ = "invites"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    email: Mapped[str] = mapped_column(String(254), index=True)
+    code_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    created_by: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    user_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+
+
+class PasswordReset(Base):
+    """A one-time password-reset link (REQ-USER-21). Only a hash of its code is kept."""
+
+    __tablename__ = "password_resets"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    user_id: Mapped[str] = mapped_column(String(36), index=True)
+    code_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
