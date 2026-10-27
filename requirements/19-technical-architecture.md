@@ -160,7 +160,7 @@ All endpoints except login and health require a valid session (see §5).
 | Sign-in page | Email, password, and a "Forgot password?" link. Shown whenever there is no valid session |
 | Sign-up page | Reached from an invitation link: the invited email (fixed), display name and password |
 | Forgot and reset password pages | Ask for the email address; then, from the emailed link, set a new password |
-| Account | Display name, change password, sign out |
+| Account | Reached from the account name in the top bar, beside Sign out: the email address (shown, not changed), the display name, and changing the password (current one, new one twice). A new display name applies to games created or joined afterwards |
 | Lobby | Create game, list of open games to join, list of the player's own in-progress games. Each of the player's own games has a Delete button that asks for confirmation, because deleting cannot be undone |
 | New game | Choose mode (two-player, solo against the Bot, Cadet Training), box (Core Box, To Boldly Go or both), expansions, promo cards, Crew deck (with complexity and summary) and board side; the display name comes from the account. Solo adds Bot Crew, difficulty and Ticking Clock |
 | Campaign | Five-Year Mission log, rank, upgrades, challenges and the next assignment |

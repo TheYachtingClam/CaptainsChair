@@ -8,6 +8,7 @@ import { GameTable } from "./pages/GameTable";
 import { Admin } from "./pages/Admin";
 import { Campaign } from "./pages/Campaign";
 import { NewCampaign } from "./pages/NewCampaign";
+import { AccountPage } from "./pages/Account";
 import { ResetPassword, SignUp } from "./pages/Welcome";
 
 export function App() {
@@ -53,7 +54,7 @@ function SignedInApp() {
       <header className="topbar">
         <Link to="/" className="brand">Captain's Chair</Link>
         <span className="row">
-          {account.data && <span className="muted">{account.data.display_name}</span>}
+          {account.data && <Link to="/account" title="Your account">{account.data.display_name}</Link>}
           {account.data?.is_admin && <Link to="/admin">Admin</Link>}
           <button className="link" onClick={logout}>Sign out</button>
         </span>
@@ -65,6 +66,7 @@ function SignedInApp() {
         <Route path="/campaigns/new" element={<NewCampaign />} />
         <Route path="/campaigns/:campaignId" element={<Campaign />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/account" element={<AccountPage />} />
         <Route path="*" element={<main className="page">Page not found. <Link to="/">Back to lobby</Link></main>} />
       </Routes>
     </>

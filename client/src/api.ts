@@ -443,6 +443,12 @@ export const api = {
   login: (email: string, password: string) =>
     request<void>("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
   me: () => request<Account>("/api/auth/me"),
+  /** Change the display name shown to other players (REQ-USER-01). */
+  rename: (display_name: string) =>
+    request<Account>("/api/auth/me", { method: "PATCH", body: JSON.stringify({ display_name }) }),
+  /** Change the password; signs out every other browser (REQ-USER-14). */
+  changePassword: (current: string, next: string) =>
+    request<null>("/api/auth/password", { method: "POST", body: JSON.stringify({ current, new: next }) }),
   /** The signed-in account's games and campaigns, on any device (REQ-USER-40). */
   myGames: () => request<(Game & { your_seat: number })[]>("/api/me/games"),
   myCampaigns: () => request<{ id: string }[]>("/api/me/campaigns"),

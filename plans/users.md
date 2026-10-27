@@ -126,7 +126,7 @@ What was done: `seats`, `campaigns` and `bug_reports` have a `user_id`. Creating
 
 Dropped with decision 4 as changed: the old games are deleted instead, and with them the shared site password, the admin password, seat tokens and campaign links (done the same day). The server is account-only: every endpoint takes the account from the session (`auth.viewer_id`), `/api/admin/login` and `/logout` are gone, and the client keeps nothing in local storage for seats or campaigns. A recreated bug report gives every seat to the admin, who acts in the seat whose decision is pending. API tests sign in with `sign_in_as` and `another_browser` (`tests/conftest.py`).
 
-### Step 7: The client
+### Step 7: The client (done)
 
 - Sign-in page, sign-up page (from an invite link), "Forgot password?" and reset-password pages.
 - An account menu: display name, change password, sign out.
@@ -136,7 +136,9 @@ Dropped with decision 4 as changed: the old games are deleted instead, and with 
 
 **You test:** the whole flow in the browser: invite, sign up, play, sign out, sign in elsewhere.
 
-### Step 8: Switch over and retire the old pieces
+What was done: the sign-in, sign-up and reset pages and the Admin page's Invitations and Accounts sections came with Steps 3 and 6; the lobby lists and the seat form with Steps 5 and 6. Last, the Account page (`client/src/pages/Account.tsx`, `/account`, opened from your name in the top bar): change the display name and the password.
+
+### Step 8: Switch over and retire the old pieces (done)
 
 - The code side is done (Step 6). What is left is on Fly:
 - Deploy. **The first start deletes every game and campaign on Fly** (decision 4).
@@ -144,6 +146,8 @@ Dropped with decision 4 as changed: the old games are deleted instead, and with 
 - Create the first admin on Fly with `fly ssh console -C "python -m app.create_admin"`, then invite the players.
 
 **You test:** on Fly, sign in as the admin, invite a player, and play a game together.
+
+What was done (2026-10-26): deployed; the old games and campaigns on Fly were deleted and the 12 bug reports kept. `SITE_PASSWORD` and `ADMIN_PASSWORD` are off Fly. `PUBLIC_URL` had been set to the Fly dashboard's address and was corrected to the site's. The admin invitation went to nmayne@gmail.com.
 
 ## Risks and notes
 
