@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     dev_tools: bool = False
     # Optional admin password (requirements/19-technical-architecture.md §5.3). Empty: no admin.
     admin_password: str = ""
+    # Where `python -m app.create_admin` sends the first admin invitation when no address is given (REQ-USER-04).
+    admin_email: str = ""
     # The site's address, for links in emails (REQ-USER-23).
     public_url: str = "http://localhost:8000"
     # Sending email over SMTP (REQ-USER-23). Without a host, emails are written to the log instead.

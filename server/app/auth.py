@@ -148,10 +148,20 @@ def is_admin(request: Request) -> bool:
     return isinstance(data, dict) and hmac.compare_digest(str(data.get("admin", "")), _admin_fingerprint(settings))
 
 
+def account_is_admin(request: Request) -> bool:
+    """The signed-in account has the admin flag (REQ-USER-32)."""
+    from app.db import open_session
+
+    with open_session() as db:
+        user = session_user(request.cookies, db)
+        return user is not None and user.is_admin
+
+
 def require_admin(request: Request) -> None:
-    """FastAPI dependency for admin endpoints; needs a normal session too."""
+    """FastAPI dependency for admin endpoints: an admin account, or, until plans/users.md Step 8, the admin
+    password's session."""
     require_session(request)
-    if not is_admin(request):
+    if not (account_is_admin(request) or is_admin(request)):
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Admin only")
 
 

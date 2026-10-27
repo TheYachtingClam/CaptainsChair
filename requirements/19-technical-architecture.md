@@ -191,7 +191,7 @@ Every player has their own account, created only by invitation from the admin, a
 - **REQ-USER-01** An account has an email address (unique, compared without regard to case), a display name (1 to 40 characters, shown to other players), a password, an admin flag, and a disabled flag.
 - **REQ-USER-02** An account can only be created from an **invitation**. The admin invites an email address (REQ-USER-30); the invitation link lets that person choose a display name and password. The email address is the invited one and cannot be changed during sign-up. An invitation can be used once and expires after 7 days.
 - **REQ-USER-03** There is no sign-up without an invitation. Every page and API endpoint, except sign-in, sign-up from an invitation, forgot and reset password, and health, needs a signed-in account.
-- **REQ-USER-04** The first admin is made with `scripts/create_admin.py` on the server, which asks for the email address, display name and password. After that, an admin can make other accounts admin.
+- **REQ-USER-04** The first admin is made on the server with `python -m app.create_admin [email]` (the address defaults to the `ADMIN_EMAIL` setting). It creates an **admin invitation**, emails it and prints the link; signing up from it creates an admin account, so no password is typed on the server. If the address already has an account, that account is made admin instead. After that, an admin can make other accounts admin, or invite someone as an admin.
 
 ### 5.2 Signing in and sessions
 
@@ -263,6 +263,7 @@ A player who sees something wrong can report it from the game table. The report 
 | Variable | Purpose |
 |---|---|
 | `SESSION_SECRET` | Key for signing session cookies |
+| `ADMIN_EMAIL` | Where `python -m app.create_admin` sends the first admin invitation when no address is given |
 | `PUBLIC_URL` | The site's address, used in links in emails, for example `https://captains-chair-wild-bush-4325.fly.dev` |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | Sending email (REQ-USER-23). Optional: without them, emails go to the server log |
 | `DATABASE_URL` | Database location. Defaults to a local SQLite file |

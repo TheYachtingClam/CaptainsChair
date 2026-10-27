@@ -129,19 +129,21 @@ def change_password(db: Session, user: User, current: str, new: str) -> None:
 
 # ------------------------------------------------------------------ invitations (REQ-USER-02, -30)
 
-def create_invite(db: Session, email: str, created_by: User | None) -> tuple[Invite, str]:
-    """A new invitation and its code (only its hash is stored). Sends the invitation email."""
+def create_invite(db: Session, email: str, created_by: User | None, *, admin: bool = False) -> tuple[Invite, str]:
+    """A new invitation and its code (only its hash is stored). Sends the invitation email. An admin invitation makes
+    the new account an admin (REQ-USER-04)."""
     email = normal_email(email)
     if find_by_email(db, email) is not None:
         raise UserError("There is already an account for that email address.")
     code = secrets.token_urlsafe(24)
     invite = Invite(email=email, code_hash=_code_hash(code), created_by=created_by.id if created_by else None,
-                    expires_at=now() + timedelta(days=INVITE_DAYS))
+                    expires_at=now() + timedelta(days=INVITE_DAYS), is_admin=admin)
     db.add(invite)
     db.flush()
     who = created_by.display_name if created_by else "The admin"
+    role = " as its admin" if admin else ""
     mail.send(email, f"{who} invited you to Captain's Chair Online",
-              f"Hello,\n\n{who} invited you to play Star Trek: Captain's Chair online.\n\n"
+              f"Hello,\n\n{who} invited you to play Star Trek: Captain's Chair online{role}.\n\n"
               f"Create your account here (the link works once, for {INVITE_DAYS} days):\n"
               f"{invite_link(code)}\n")
     return invite, code
@@ -161,7 +163,7 @@ def open_invite(db: Session, code: str) -> Invite:
 
 def sign_up(db: Session, code: str, display_name: str, password: str) -> User:
     invite = open_invite(db, code)
-    user = create_user(db, invite.email, display_name, password)
+    user = create_user(db, invite.email, display_name, password, is_admin=invite.is_admin)
     invite.used_at = now()
     invite.user_id = user.id
     return user
@@ -199,6 +201,16 @@ def reset(db: Session, code: str, password: str) -> User:
     row.used_at = now()
     user.last_seen_at = now()
     return user
+
+
+def open_invites(db: Session) -> list[Invite]:
+    """Invitations not used yet and not expired, newest first (REQ-USER-30)."""
+    rows = db.scalars(select(Invite).where(Invite.used_at.is_(None)).order_by(Invite.created_at.desc())).all()
+    return [i for i in rows if _aware(i.expires_at) >= now()]
+
+
+def any_admin(db: Session) -> bool:
+    return db.scalar(select(User.id).where(User.is_admin.is_(True), User.disabled.is_(False)).limit(1)) is not None
 
 
 def public(user: User) -> dict:

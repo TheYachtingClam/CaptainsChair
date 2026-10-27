@@ -129,6 +129,8 @@ class Invite(Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     user_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    # An admin invitation: the account it creates is an admin (REQ-USER-04).
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
 
 
 class PasswordReset(Base):

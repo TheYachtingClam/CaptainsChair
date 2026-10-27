@@ -191,3 +191,66 @@ def test_a_reset_link_expires(client):
         db.commit()
     r = client.post("/api/auth/reset", json={"code": code, "password": "battery staple"})
     assert r.status_code == 422 and "expired" in r.json()["detail"]
+
+
+# ------------------------------------------------------------------ the admin as an account (plans/users.md Step 3)
+
+def make_admin(client, email="nick@example.com"):
+    """Run the first-admin command and sign up from its invitation, as the owner would."""
+    from app import create_admin
+
+    mail.OUTBOX.clear()
+    assert create_admin.main([email]) == 0
+    code = last_link("/signup?code=")
+    r = client.post("/api/auth/signup", json={"code": code, "display_name": "Nick", "password": "correct horse"})
+    assert r.status_code == 200 and r.json()["is_admin"]
+    return r.json()
+
+
+def test_the_first_admin_comes_from_an_admin_invitation(client, capsys, monkeypatch):
+    from app import create_admin
+    from app.config import get_settings
+
+    assert client.post("/api/auth/login", json={"password": "test-password"}).status_code == 204
+    assert client.get("/api/admin/status").json() == {"enabled": False, "admin": False, "account": False}
+    monkeypatch.setattr(get_settings(), "admin_email", "nick@example.com")
+    mail.OUTBOX.clear()
+    assert create_admin.main([]) == 0  # ADMIN_EMAIL
+    assert "/signup?code=" in capsys.readouterr().out
+    assert mail.OUTBOX[-1]["to"] == "nick@example.com" and "as its admin" in mail.OUTBOX[-1]["body"]
+    code = last_link("/signup?code=")
+    assert client.post("/api/auth/signup", json={"code": code, "display_name": "Nick",
+                                                 "password": "correct horse"}).json()["is_admin"]
+    assert client.get("/api/admin/status").json() == {"enabled": True, "admin": True, "account": True}
+    assert client.get("/api/admin/games").status_code == 200
+    # Running it again for an existing account makes that account admin instead of inviting it.
+    assert create_admin.main(["nick@example.com"]) == 0
+
+
+def test_the_admin_invites_and_manages_accounts(client):
+    admin = make_admin(client)
+    mail.OUTBOX.clear()
+    r = client.post("/api/admin/invites", json={"email": "ann@example.com"})
+    assert r.status_code == 201 and r.json()["link"].endswith(last_link("/signup?code="))
+    assert mail.OUTBOX[-1]["subject"] == "Nick invited you to Captain's Chair Online"
+    assert [i["email"] for i in client.get("/api/admin/invites").json()] == ["ann@example.com"]
+    assert client.post("/api/admin/invites", json={"email": "nick@example.com"}).status_code == 422  # has an account
+    spare = client.post("/api/admin/invites", json={"email": "spare@example.com"}).json()
+    assert client.delete(f"/api/admin/invites/{spare['id']}").status_code == 204
+    assert client.get(f"/api/auth/invite/{spare['link'].split('code=')[1]}").status_code == 404
+
+    ann = TestClient(client.app)
+    code = r.json()["link"].split("code=")[1]
+    ann_user = ann.post("/api/auth/signup", json={"code": code, "display_name": "Ann", "password": "correct horse"}).json()
+    assert not ann_user["is_admin"] and ann.get("/api/admin/users").status_code == 403
+    listed = {u["email"]: u for u in client.get("/api/admin/users").json()}
+    assert set(listed) == {"nick@example.com", "ann@example.com"} and listed["nick@example.com"]["is_admin"]
+
+    reset = client.post(f"/api/admin/users/{ann_user['id']}/reset")
+    assert reset.status_code == 200 and "/reset?code=" in reset.json()["link"] and mail.OUTBOX[-1]["to"] == "ann@example.com"
+    assert client.patch(f"/api/admin/users/{ann_user['id']}", json={"disabled": True}).json()["disabled"]
+    assert ann.get("/api/auth/me").status_code == 401  # signed out at once
+    assert client.patch(f"/api/admin/users/{ann_user['id']}", json={"disabled": False, "is_admin": True}).json()["is_admin"]
+    # An admin cannot lock themselves out (REQ-USER-31).
+    assert client.patch(f"/api/admin/users/{admin['id']}", json={"is_admin": False}).status_code == 409
+    assert client.patch(f"/api/admin/users/{admin['id']}", json={"disabled": True}).status_code == 409

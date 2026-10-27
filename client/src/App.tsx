@@ -8,11 +8,20 @@ import { GameTable } from "./pages/GameTable";
 import { Admin } from "./pages/Admin";
 import { Campaign } from "./pages/Campaign";
 import { NewCampaign } from "./pages/NewCampaign";
+import { ResetPassword, SignUp } from "./pages/Welcome";
 
 export function App() {
+  // Links from emails work without being signed in (REQ-USER-02, -21).
+  if (window.location.pathname === "/signup") return <SignUp />;
+  if (window.location.pathname === "/reset") return <ResetPassword />;
+  return <SignedInApp />;
+}
+
+function SignedInApp() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const session = useQuery({ queryKey: ["session"], queryFn: api.checkSession });
+  const account = useQuery({ queryKey: ["me"], queryFn: api.me, enabled: session.isSuccess });
 
   if (session.isPending) return <main className="page center">Connecting…</main>;
   // Without a valid session only the password page is shown (REQ-AUTH-02).
@@ -43,7 +52,11 @@ export function App() {
     <>
       <header className="topbar">
         <Link to="/" className="brand">Captain's Chair</Link>
-        <button className="link" onClick={logout}>Sign out</button>
+        <span className="row">
+          {account.data && <span className="muted">{account.data.display_name}</span>}
+          {account.data?.is_admin && <Link to="/admin">Admin</Link>}
+          <button className="link" onClick={logout}>Sign out</button>
+        </span>
       </header>
       <Routes>
         <Route path="/" element={<Lobby />} />

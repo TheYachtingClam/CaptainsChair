@@ -57,6 +57,10 @@ def _add_missing_columns(engine: Engine) -> None:
                 conn.execute(text(f'ALTER TABLE {table.name} ADD COLUMN "{column.name}" {ddl}{default}'))
 
 
+def initialised() -> bool:
+    return _session_factory is not None
+
+
 def open_session() -> Session:
     """A database session outside a request, e.g. to check a session cookie (closed by the caller)."""
     assert _session_factory is not None, "init_db() was not called"

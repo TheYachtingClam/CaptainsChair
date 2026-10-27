@@ -17,7 +17,7 @@ def waiting_game(client):
 
 
 def test_without_admin_password_there_is_no_admin(authed):
-    assert authed.get("/api/admin/status").json() == {"enabled": False, "admin": False}
+    assert authed.get("/api/admin/status").json() == {"enabled": False, "admin": False, "account": False}
     assert authed.post("/api/admin/login", json={"password": ""}).status_code == 404
     assert authed.get("/api/admin/games").status_code == 403
 
@@ -29,7 +29,7 @@ def test_admin_needs_a_session_first(client, admin_on):
 def test_wrong_admin_password(authed, admin_on):
     r = authed.post("/api/admin/login", json={"password": "nope"})
     assert r.status_code == 401 and r.json()["detail"] == "Incorrect password"
-    assert authed.get("/api/admin/status").json() == {"enabled": True, "admin": False}
+    assert authed.get("/api/admin/status").json() == {"enabled": True, "admin": False, "account": False}
 
 
 def test_only_the_creator_or_the_admin_can_delete_a_waiting_game(authed, admin_on):

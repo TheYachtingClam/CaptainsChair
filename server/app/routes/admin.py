@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app import bugs, play
 from app.auth import (
+    account_is_admin,
     admin_enabled,
     check_admin_password,
     clear_admin,
@@ -15,6 +16,7 @@ from app.auth import (
     login_limiter,
     require_admin,
     require_session,
+    session_user,
 )
 from app.config import get_settings
 from app.db import get_db
@@ -30,9 +32,14 @@ class AdminLogin(BaseModel):
 
 
 @router.get("/status")
-def admin_status(request: Request) -> dict:
-    """Whether the admin is configured, and whether this browser is signed in as the admin."""
-    return {"enabled": admin_enabled(get_settings()), "admin": is_admin(request)}
+def admin_status(request: Request, db: Session = Depends(get_db)) -> dict:
+    """Whether there is an admin, and whether this browser is the admin: an admin account (REQ-USER-32) or, until
+    plans/users.md Step 8, the admin password's session."""
+    from app import users
+
+    account = account_is_admin(request)
+    return {"enabled": admin_enabled(get_settings()) or users.any_admin(db), "admin": account or is_admin(request),
+            "account": account}
 
 
 @router.post("/login", status_code=status.HTTP_204_NO_CONTENT)
@@ -232,3 +239,99 @@ def recreate_bug(bug_id: str, body: Recreate | None = None, db: Session = Depend
         game.status = "active"
     db.commit()
     return {"game_id": game.id, "seat_tokens": tokens, "reporter_seat": report.seat}
+
+
+# ------------------------------------------------------------------ accounts and invitations (REQ-USER-30, -31)
+
+class InviteRequest(BaseModel):
+    email: str
+    admin: bool = False
+
+
+def _user_row(u) -> dict:
+    return {"id": u.id, "email": u.email, "display_name": u.display_name, "is_admin": u.is_admin,
+            "disabled": u.disabled, "created_at": u.created_at.isoformat() if u.created_at else None,
+            "last_seen_at": u.last_seen_at.isoformat() if u.last_seen_at else None}
+
+
+def _invite_row(i) -> dict:
+    return {"id": i.id, "email": i.email, "is_admin": i.is_admin,
+            "created_at": i.created_at.isoformat() if i.created_at else None,
+            "expires_at": i.expires_at.isoformat() if i.expires_at else None}
+
+
+@router.get("/users", dependencies=[Depends(require_admin)])
+def all_users(db: Session = Depends(get_db)) -> list[dict]:
+    from app.models import User
+
+    return [_user_row(u) for u in db.scalars(select(User).order_by(User.created_at)).all()]
+
+
+class UserChange(BaseModel):
+    disabled: bool | None = None
+    is_admin: bool | None = None
+
+
+@router.patch("/users/{user_id}", dependencies=[Depends(require_admin)])
+def change_user(user_id: str, body: UserChange, request: Request, db: Session = Depends(get_db)) -> dict:
+    """Disable or enable an account, make it admin or not. An admin cannot do either to themselves, so there is
+    always an admin (REQ-USER-31)."""
+    from app.models import User
+
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No such account")
+    me = session_user(request.cookies, db)
+    if me is not None and me.id == user.id and (body.disabled or body.is_admin is False):
+        raise HTTPException(409, "You cannot disable yourself or remove your own admin rights")
+    if body.disabled is not None:
+        user.disabled = body.disabled
+    if body.is_admin is not None:
+        user.is_admin = body.is_admin
+    db.commit()
+    return _user_row(user)
+
+
+@router.post("/users/{user_id}/reset", dependencies=[Depends(require_admin)])
+def reset_user(user_id: str, db: Session = Depends(get_db)) -> dict:
+    """Email the user a password-reset link, and show it to pass on another way (REQ-USER-22)."""
+    from app import users
+    from app.models import User
+
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No such account")
+    link = users.start_reset(db, user)
+    db.commit()
+    return {"link": link}
+
+
+@router.get("/invites", dependencies=[Depends(require_admin)])
+def all_invites(db: Session = Depends(get_db)) -> list[dict]:
+    from app import users
+
+    return [_invite_row(i) for i in users.open_invites(db)]
+
+
+@router.post("/invites", status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_admin)])
+def invite(body: InviteRequest, request: Request, db: Session = Depends(get_db)) -> dict:
+    """Invite an email address: the invitation is emailed, and its link shown once, here (REQ-USER-30)."""
+    from app import users
+
+    try:
+        row, code = users.create_invite(db, body.email, session_user(request.cookies, db), admin=body.admin)
+    except users.UserError as err:
+        raise HTTPException(422, str(err)) from err
+    db.commit()
+    return {**_invite_row(row), "link": users.invite_link(code)}
+
+
+@router.delete("/invites/{invite_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_admin)])
+def cancel_invite(invite_id: str, db: Session = Depends(get_db)) -> None:
+    from app.models import Invite
+
+    row = db.get(Invite, invite_id)
+    if row is None or row.used_at is not None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No open invitation")
+    db.delete(row)
+    db.commit()

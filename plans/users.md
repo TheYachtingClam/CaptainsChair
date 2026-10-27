@@ -91,13 +91,15 @@ What was done: `requirements/19-technical-architecture.md` §5 is now "Access co
 
 What was done: tables `users`, `invites` and `password_resets` (`app/models.py`); `app/users.py` (scrypt password hashing, invitations, sign-up, password change and reset); `app/mail.py`, which for now writes every email to the log and keeps the latest in `mail.OUTBOX`; the account session cookie in `app/auth.py` (user id and session version, checked against the database on every request), alongside the shared-password session; endpoints in `app/routes/auth.py`: `POST /login` (with an email), `GET`/`PATCH /me`, `POST /password`, `GET /invite/{code}`, `POST /signup`, `POST /forgot`, `POST /reset`. Tests: `tests/test_users.py`, 15 tests. There is no way to make an invitation outside the code yet: that is the admin's, in Step 3.
 
-### Step 3: The admin as an account
+### Step 3: The admin as an account (done)
 
 - `scripts/create_admin.py` makes the first admin.
 - Admin endpoints check the flag. New ones: list users, invite an email address (and see or copy the link), list and cancel open invites, send a password reset, disable or re-enable a user, make or unmake an admin.
 - The Admin page gets a Users section.
 
 **You test:** create the first admin locally, invite a second account, reset its password, disable it.
+
+What was done: the first admin comes from an **admin invitation** (`python -m app.create_admin`, address from `ADMIN_EMAIL`, set to nmayne@gmail.com in the local `.env`), so no password is typed on the server. Admin endpoints accept an admin account (and, until Step 8, the admin password). New admin endpoints for accounts and invitations, and the Admin page's Invitations and Accounts sections. Pulled forward from Step 7 so the invitation can be used: the sign-in page takes an email and password (with "Forgot password?" and a switch back to the shared password), and the sign-up and reset-password pages that email links open. The top bar shows the account's name and, for an admin, a link to the Admin page. Tests: `tests/test_users.py`, 17 tests.
 
 ### Step 4: Sending email
 

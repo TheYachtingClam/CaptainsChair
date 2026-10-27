@@ -409,6 +409,31 @@ export interface AdminGame {
   moves: number;
 }
 
+/** The signed-in account (REQ-USER-01). */
+export interface Account {
+  id: string;
+  email: string;
+  display_name: string;
+  is_admin: boolean;
+}
+
+/** An account as the Admin page lists it (REQ-USER-31). */
+export interface AdminUser extends Account {
+  disabled: boolean;
+  created_at: string | null;
+  last_seen_at: string | null;
+}
+
+/** An open invitation (REQ-USER-30). `link` is only there right after it is made. */
+export interface AdminInvite {
+  id: string;
+  email: string;
+  is_admin: boolean;
+  created_at: string | null;
+  expires_at: string | null;
+  link?: string;
+}
+
 export interface AdminCampaign {
   id: string;
   display_name: string;
@@ -454,7 +479,15 @@ export const adminApi = {
   deleteBug: (id: string) => request<null>(`/api/admin/bugs/${id}`, { method: "DELETE" }),
   recreateBug: (id: string, moves?: number) =>
     request<RecreatedGame>(`/api/admin/bugs/${id}/recreate`, { method: "POST", body: JSON.stringify(moves == null ? {} : { moves }) }),
-  status: () => request<{ enabled: boolean; admin: boolean }>("/api/admin/status"),
+  status: () => request<{ enabled: boolean; admin: boolean; account: boolean }>("/api/admin/status"),
+  users: () => request<AdminUser[]>("/api/admin/users"),
+  changeUser: (id: string, change: { disabled?: boolean; is_admin?: boolean }) =>
+    request<AdminUser>(`/api/admin/users/${id}`, { method: "PATCH", body: JSON.stringify(change) }),
+  resetUser: (id: string) => request<{ link: string }>(`/api/admin/users/${id}/reset`, { method: "POST" }),
+  invites: () => request<AdminInvite[]>("/api/admin/invites"),
+  invite: (email: string, admin = false) =>
+    request<AdminInvite>("/api/admin/invites", { method: "POST", body: JSON.stringify({ email, admin }) }),
+  cancelInvite: (id: string) => request<null>(`/api/admin/invites/${id}`, { method: "DELETE" }),
   login: (password: string) => request<null>("/api/admin/login", { method: "POST", body: JSON.stringify({ password }) }),
   logout: () => request<null>("/api/admin/logout", { method: "POST" }),
   games: () => request<AdminGame[]>("/api/admin/games"),
@@ -469,8 +502,17 @@ export const adminApi = {
 
 export const api = {
   checkSession: () => request<null>("/api/auth/session").then(() => true),
-  login: (password: string) =>
-    request<void>("/api/auth/login", { method: "POST", body: JSON.stringify({ password }) }),
+  /** With an email, an account's sign-in (REQ-USER-10); without, the shared site password until it is retired. */
+  login: (password: string, email?: string) =>
+    request<void>("/api/auth/login", { method: "POST", body: JSON.stringify(email ? { email, password } : { password }) }),
+  me: () => request<Account>("/api/auth/me"),
+  invitation: (code: string) => request<{ email: string }>(`/api/auth/invite/${encodeURIComponent(code)}`),
+  signUp: (code: string, display_name: string, password: string) =>
+    request<Account>("/api/auth/signup", { method: "POST", body: JSON.stringify({ code, display_name, password }) }),
+  forgot: (email: string) =>
+    request<{ detail: string }>("/api/auth/forgot", { method: "POST", body: JSON.stringify({ email }) }),
+  resetPassword: (code: string, password: string) =>
+    request<Account>("/api/auth/reset", { method: "POST", body: JSON.stringify({ code, password }) }),
   logout: () => request<void>("/api/auth/logout", { method: "POST" }),
   decks: () => request<Deck[]>("/api/content/decks"),
   expansions: () => request<Record<string, string>>("/api/content/expansions"),

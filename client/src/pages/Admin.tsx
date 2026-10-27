@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { AdminBug, AdminCampaign, AdminGame, MODE_LABELS, adminApi, saveSeatToken } from "../api";
+import { AdminBug, AdminCampaign, AdminGame, AdminInvite, AdminUser, MODE_LABELS, adminApi, saveSeatToken } from "../api";
 
 const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "—");
 
@@ -20,15 +20,17 @@ export function Admin() {
       <div className="row between">
         <h1>Admin</h1>
         <div className="row">
-          {admin && <button className="secondary" onClick={() => logout.mutate()}>Sign out of admin</button>}
+          {admin && !status.data.account && <button className="secondary" onClick={() => logout.mutate()}>Sign out of admin</button>}
           <Link to="/">Lobby</Link>
         </div>
       </div>
       {!status.data.enabled ? (
-        <p className="muted">There is no admin on this server. Set <code>ADMIN_PASSWORD</code> in the server&apos;s
-          environment to turn it on.</p>
+        <p className="muted">There is no admin on this server yet. Make one with <code>python -m app.create_admin</code>
+          on the server, then sign up from the invitation it prints.</p>
       ) : !admin ? <AdminLogin onDone={refresh} /> : (
         <>
+          <AdminInvites />
+          <AdminUsers />
           <AdminBugs />
           <AdminGames />
           <AdminCampaigns />
@@ -67,6 +69,97 @@ function ConfirmDelete({ what, onDelete, busy }: { what: string; onDelete: () =>
       <button className="secondary" onClick={() => setAsking(false)} disabled={busy}>Cancel</button>
       <button className="danger" onClick={onDelete} disabled={busy}>Delete</button>
     </span>
+  );
+}
+
+/** Invite people (REQ-USER-30): the invitation is emailed, and its link shown once here to pass on another way. */
+function AdminInvites() {
+  const queryClient = useQueryClient();
+  const invites = useQuery({ queryKey: ["admin-invites"], queryFn: adminApi.invites });
+  const [email, setEmail] = useState("");
+  const [asAdmin, setAsAdmin] = useState(false);
+  const [made, setMade] = useState<AdminInvite | null>(null);
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin-invites"] });
+  const invite = useMutation({
+    mutationFn: () => adminApi.invite(email.trim(), asAdmin),
+    onSuccess: (row) => { setMade(row); setEmail(""); setAsAdmin(false); refresh(); },
+  });
+  const cancel = useMutation({ mutationFn: adminApi.cancelInvite, onSuccess: refresh });
+  const error = invites.error ?? invite.error ?? cancel.error;
+  return (
+    <section className="card stack">
+      <h2>Invitations</h2>
+      <form className="row" onSubmit={(e: FormEvent) => { e.preventDefault(); invite.mutate(); }}>
+        <input type="email" placeholder="Email address to invite" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <label className="inline"><input type="checkbox" checked={asAdmin} onChange={(e) => setAsAdmin(e.target.checked)} /> as an admin</label>
+        <button type="submit" disabled={!email.trim() || invite.isPending}>Invite</button>
+      </form>
+      {made?.link && (
+        <p role="status">Invitation sent to {made.email}. If it does not arrive, send them this link (it works once,
+          for 7 days): <code className="invite-link">{made.link}</code></p>
+      )}
+      {error && <p className="error">{error.message}</p>}
+      {(invites.data ?? []).length > 0 && (
+        <table className="admin-table">
+          <thead><tr><th>Invited</th><th>Email</th><th>Expires</th><th /></tr></thead>
+          <tbody>
+            {invites.data!.map((i) => (
+              <tr key={i.id}>
+                <td>{when(i.created_at)}</td>
+                <td>{i.email}{i.is_admin && " (admin)"}</td>
+                <td>{when(i.expires_at)}</td>
+                <td className="admin-actions">
+                  <button className="secondary" disabled={cancel.isPending} onClick={() => cancel.mutate(i.id)}>Cancel</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  );
+}
+
+/** Every account (REQ-USER-31): disable, enable, make admin, send a password reset. */
+function AdminUsers() {
+  const queryClient = useQueryClient();
+  const users = useQuery({ queryKey: ["admin-users"], queryFn: adminApi.users });
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+  const change = useMutation({
+    mutationFn: ({ id, ...c }: { id: string; disabled?: boolean; is_admin?: boolean }) => adminApi.changeUser(id, c),
+    onSuccess: refresh,
+  });
+  const reset = useMutation({ mutationFn: (u: AdminUser) => adminApi.resetUser(u.id).then((r) => ({ ...r, email: u.email })) });
+  const error = users.error ?? change.error ?? reset.error;
+  return (
+    <section className="card stack">
+      <h2>Accounts ({users.data?.length ?? 0})</h2>
+      {reset.data && (
+        <p role="status">Password reset sent to {reset.data.email}. If it does not arrive, send them this link (it works
+          once, for 1 hour): <code className="invite-link">{reset.data.link}</code></p>
+      )}
+      {error && <p className="error">{error.message}</p>}
+      <table className="admin-table">
+        <thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>Last sign-in</th><th /></tr></thead>
+        <tbody>
+          {(users.data ?? []).map((u) => (
+            <tr key={u.id} className={u.disabled ? "resolved" : undefined}>
+              <td>{u.display_name}{u.is_admin && <span className="pill">Admin</span>}{u.disabled && " (disabled)"}</td>
+              <td>{u.email}</td>
+              <td>{when(u.created_at)}</td>
+              <td>{when(u.last_seen_at)}</td>
+              <td className="admin-actions">
+                <button className="secondary" disabled={reset.isPending} onClick={() => reset.mutate(u)}>Reset password</button>{" "}
+                <button className="secondary" disabled={change.isPending}
+                  onClick={() => change.mutate({ id: u.id, is_admin: !u.is_admin })}>{u.is_admin ? "Remove admin" : "Make admin"}</button>{" "}
+                <button className="secondary" disabled={change.isPending}
+                  onClick={() => change.mutate({ id: u.id, disabled: !u.disabled })}>{u.disabled ? "Enable" : "Disable"}</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
   );
 }
 
