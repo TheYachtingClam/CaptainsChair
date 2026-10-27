@@ -42,9 +42,9 @@ export function CenterMat({ view }: { view: GameStateView }) {
           ) : <span className="junk-label">Junk space</span>}
         </button>
 
-        <div className="market">
+        <div className="market" data-tutorial="market">
           {SUITS.map((suit) => (
-            <div key={suit} className="market-col">
+            <div key={suit} className="market-col" data-tutorial={`market:${suit}`}>
               <CardBack label={suit} count={view.market_deck_counts?.[suit] ?? 0} />
               <span className={`suit-tag ${suit.toLowerCase()}`}>{suit}</span>
               {view.market[suit] ? <Card card={view.market[suit] as CardView} /> : <div className="market-empty">Empty</div>}
@@ -52,7 +52,7 @@ export function CenterMat({ view }: { view: GameStateView }) {
           ))}
         </div>
 
-        <div className="labelled incident">
+        <div className="labelled incident" data-tutorial="incident">
           <span className="suit-tag incident">Incident</span>
           <CardBack label="Incident" count={view.incident_count} />
         </div>
@@ -60,7 +60,7 @@ export function CenterMat({ view }: { view: GameStateView }) {
 
       {/* Stardate pile (items 11, 13) and Location deck (items 8, 9) */}
       <div className="center-middle">
-        <div className="stardate">
+        <div className="stardate" data-tutorial="stardate">
           {view.stardate.top ? <Card card={view.stardate.top} /> : <div className="market-empty">No Stardate</div>}
           <div className="stardate-info">
             <span className="glory-token" title="Glory on the Stardate card">{view.stardate.glory}</span>
@@ -88,7 +88,7 @@ export function CenterMat({ view }: { view: GameStateView }) {
 export function NeutralZone({ view, compact = false }: { view: GameStateView; compact?: boolean }) {
   const shipsAt = (uid: string, seat: number) => view.players[seat].fleet.filter((s) => s.at === uid).length;
   return (
-    <div className={`neutral-zone ${compact ? "compact" : ""}`}>
+    <div className={`neutral-zone ${compact ? "compact" : ""}`} data-tutorial="neutral">
       {view.neutral_zone.map((loc, i) => (
         <div key={loc.uid} className="nz-slot">
           <span className="nz-label">{compact ? `NZ ${i + 1}` : `Neutral Zone ${i + 1}`}</span>
@@ -134,14 +134,14 @@ function PhoneCentre({ view }: { view: GameStateView }) {
     <section className="mat center-mat phone-centre" aria-label="Central play area">
       <div className="deck-counts">
         <DeckCount kind="encounter" label="Encounter" count={view.encounter_count} />
-        <DeckCount kind="incident" label="Incident" count={view.incident_count} />
+        <div data-tutorial="incident"><DeckCount kind="incident" label="Incident" count={view.incident_count} /></div>
         <DeckCount kind="location" label="Locations" count={view.location_deck_count} />
         {view.reward_count > 0 && <DeckCount kind="reward" label="Rewards" count={view.reward_count} />}
       </div>
 
-      <div className="market phone-market">
+      <div className="market phone-market" data-tutorial="market">
         {SUITS.map((suit) => (
-          <div key={suit} className="market-col">
+          <div key={suit} className="market-col" data-tutorial={`market:${suit}`}>
             <DeckCount kind={suit.toLowerCase()} label={suit} count={view.market_deck_counts?.[suit] ?? 0} />
             {view.market[suit] ? <Card card={view.market[suit] as CardView} /> : <div className="market-empty">Empty</div>}
           </div>
@@ -158,7 +158,7 @@ function PhoneCentre({ view }: { view: GameStateView }) {
             </>
           ) : <span className="junk-label">Junk space</span>}
         </button>
-        <div className="stardate">
+        <div className="stardate" data-tutorial="stardate">
           {view.stardate.top ? <Card card={view.stardate.top} /> : <div className="market-empty">No Stardate</div>}
           <div className="stardate-info">
             <span className="glory-token" title="Glory on the Stardate card">{view.stardate.glory}</span>

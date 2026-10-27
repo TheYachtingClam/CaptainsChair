@@ -23,6 +23,8 @@ export function Lobby() {
       </div>
       {games.isError && <p className="error">{games.error.message}</p>}
 
+      <Tutorials />
+
       <section>
         <h2>Your games</h2>
         {mine.length === 0 ? <p className="muted">You have no games yet.</p> : (
@@ -162,6 +164,37 @@ function MyCampaigns() {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+
+/** Learn to play: start a tutorial game (requirements/24-tutorials.md §1.6). */
+function Tutorials() {
+  const tutorials = useQuery({ queryKey: ["tutorials"], queryFn: api.tutorials });
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const start = useMutation({
+    mutationFn: (id: string) => api.startTutorial(id),
+    onSuccess: (grant) => {
+      queryClient.invalidateQueries({ queryKey: ["my-games"] });
+      navigate(`/games/${grant.game.id}`);
+    },
+  });
+  if (!tutorials.data?.length) return null;
+  return (
+    <section className="card stack learn-to-play">
+      <h2>Learn to play</h2>
+      {tutorials.data.map((t) => (
+        <div key={t.id} className="row between">
+          <div>
+            <strong>{t.title}</strong>
+            <p className="muted">{t.summary}</p>
+          </div>
+          <button disabled={start.isPending} onClick={() => start.mutate(t.id)}>Start</button>
+        </div>
+      ))}
+      {start.error && <p className="error" role="alert">{start.error.message}</p>}
     </section>
   );
 }

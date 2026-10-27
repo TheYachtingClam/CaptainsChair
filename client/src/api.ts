@@ -62,6 +62,8 @@ export interface Game {
   your_seat?: number | null;
   bot?: BotChoice | null;
   campaign_id?: string | null;
+  /** The tutorial this game is (REQ-TUT-02). */
+  tutorial?: string | null;
 }
 
 // ------------------------------------------------------------------ Five-Year Mission campaigns
@@ -185,6 +187,8 @@ export interface OptionView {
   label: string;
   irreversible: boolean;
   reason: string | null;
+  /** A tutorial's rails: shown, but not until the coach asks for it (REQ-TUT-23). */
+  disabled?: boolean;
 }
 
 /** One trait slot on Khan's Crew board: its token image changes when it is marked. */
@@ -301,6 +305,25 @@ export interface GameStateView {
   result: { reason: string; winners: number[]; rating?: string; scores?: { seat: number; name: string; total: number; parts: Record<string, number> }[] } | null;
   can_undo: boolean;
   dev_tools?: boolean;
+  /** A tutorial game's coach (requirements/24-tutorials.md). */
+  tutorial?: TutorialView;
+}
+
+/** The coach's part of a tutorial game's view (REQ-TUT-40). */
+export interface TutorialView {
+  id: string;
+  title: string;
+  index: number;
+  total: number;
+  /** The guided part is over: free play. */
+  free: boolean;
+  step: { id: string; say: string; show: string | null; next: boolean } | null;
+}
+
+export interface TutorialInfo {
+  id: string;
+  title: string;
+  summary: string;
 }
 
 /** Developer panel command (server engine/dev.py). */
@@ -483,6 +506,11 @@ export const api = {
   dev: (id: string, body: DevCommand) =>
     request<GameStateView>(`/api/games/${id}/dev`, { method: "POST", body: JSON.stringify(body) }),
   deleteGame: (id: string) => request<null>(`/api/games/${id}`, { method: "DELETE" }),
+  tutorials: () => request<TutorialInfo[]>("/api/tutorials"),
+  startTutorial: (id: string) => request<SeatGrant>(`/api/tutorials/${id}`, { method: "POST" }),
+  /** The coach's Next, or Let me play (REQ-TUT-24, -25). */
+  coach: (id: string, action: "next" | "free") =>
+    request<GameStateView>(`/api/games/${id}/tutorial/${action}`, { method: "POST" }),
   joinGame: (id: string, body: SeatChoice) =>
     request<SeatGrant>(`/api/games/${id}/join`, { method: "POST", body: JSON.stringify(body) }),
 };

@@ -61,7 +61,7 @@ export function CardPanel({ selection, view, onChoose, onClose }: {
 
   const card = selection.card;
   const data = cards.data?.[card.id];
-  const options = view.decision?.seat === view.you ? view.decision?.options ?? [] : [];
+  const options = view.decision?.seat === view.you ? (view.decision?.options ?? []).filter((o) => !o.disabled) : [];
   const items: Item[] = (data?.operations ?? []).map((op, index) => {
     const option = options.find((o) => o.id === `play:${card.uid}:${index}` || o.id === `activate:${card.uid}:${index}`);
     return {

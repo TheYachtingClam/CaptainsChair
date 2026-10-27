@@ -277,6 +277,7 @@ export function Card({ card, badges, style, tokens = true, mini = false }: {
       className={`gcard ${mini ? "mini" : ""} ${card.exhausted && !mini ? "exhausted" : ""} ${playable ? "playable" : ""} ${isSelected ? "selected" : ""} ${target ? "target" : ""}`}
       role="button"
       data-uid={card.uid}
+      data-card-id={card.id}
       aria-pressed={isSelected}
       {...press}
       onClick={(e) => select(e.currentTarget)}

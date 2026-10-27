@@ -8,6 +8,7 @@ import {
 } from "./Cards";
 import { CardPanel } from "./CardPanel";
 import { Sheet, usePhone } from "./Sheet";
+import { Coach, coachTarget } from "./Coach";
 import { PlayerMat } from "./PlayerMat";
 import { CenterMat, NeutralZone } from "./CenterMat";
 
@@ -66,7 +67,8 @@ function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint,
   onUndo: () => void;
 }) {
   const button = (o: OptionView) => (
-    <button key={o.id} disabled={busy} className="option" onClick={() => onPick(o)}>
+    <button key={o.id} disabled={busy || o.disabled} className="option" onClick={() => onPick(o)}
+      title={o.disabled ? "Follow the tutorial's coach" : undefined}>
       {o.irreversible && <span aria-label="Cannot be undone" title="Cannot be undone">🔒 </span>}
       {o.label}
     </button>
@@ -124,7 +126,7 @@ const SCORE_PART: Record<string, string> = {
   traits: "Marked traits (3 each)",
 };
 
-export function Board({ gameId, view, onChoose, onUndo, busy, system }: {
+export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }: {
   gameId: string;
   view: GameStateView;
   onChoose: (option: string) => void;
@@ -133,6 +135,8 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system }: {
   /** Exit game, Report a bug, Suggest a feature, the game's details and its players: on a phone they are on the System
    *  tab, above the log. */
   system?: React.ReactNode;
+  /** A tutorial's Next and Let me play (REQ-TUT-24, -25). */
+  onCoach?: (action: "next" | "free") => void;
 }) {
   const [pending, setPending] = useState<OptionView | null>(null);
   const [preview, setPreview] = useState<Preview>(null);
@@ -201,10 +205,12 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system }: {
     botTurn && botTurnClosed(gameId, botTurn) ? botTurn.start : null);
   const botHold = !!botTurn && botTurn.finished && botTurn.steps.length > 0 && botDone !== botTurn.start && !view.result;
   const d = botHold ? null : view.decision;
-  const endOption = d?.kind === "action" ? d.options?.find((o) => o.id === "end") : undefined;
+  // A tutorial's rails disable some answers (REQ-TUT-23): the table offers only the usable ones.
+  const usable = (o: OptionView) => !o.disabled;
+  const endOption = d?.kind === "action" ? d.options?.find((o) => o.id === "end" && usable(o)) : undefined;
   // Cards named by a "play" or "activate" option the viewer can choose right now.
   const playable = new Set(
-    (d?.options ?? []).filter((o) => /^(play|activate):/.test(o.id)).map((o) => o.id.split(":")[1]),
+    (d?.options ?? []).filter((o) => usable(o) && /^(play|activate):/.test(o.id)).map((o) => o.id.split(":")[1]),
   );
   // Where a Ship can be warped: Locations, and table cards Ships can warp to such as Archer's Earth (a Status card).
   const locationNames: Record<string, string> = Object.fromEntries(
@@ -228,7 +234,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system }: {
   const visibleUids = new Set(visibleCards.map((c) => c.uid));
   // Cards the question is about that are not on the board, e.g. a card just gained or looked at from a deck.
   const shownCards = midOperation ? (d!.cards ?? []).filter((c) => !visibleUids.has(c.uid)) : [];
-  const optionFor = (uid: string) => d?.options?.find((o) => o.id === uid || o.id.endsWith(`:${uid}`));
+  const optionFor = (uid: string) => d?.options?.find((o) => usable(o) && (o.id === uid || o.id.endsWith(`:${uid}`)));
   const targets = new Map<string, OptionView>();
   if (midOperation) {
     for (const uid of [...visibleUids, ...shownCards.map((c) => c.uid)]) {
@@ -238,7 +244,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system }: {
     // "market:<suit>" answers name the faceup Market card by its slot.
     for (const o of d!.options!) {
       const faceup = o.id.startsWith("market:") ? view.market[o.id.slice("market:".length)] : null;
-      if (faceup) targets.set(faceup.uid, o);
+      if (faceup && usable(o)) targets.set(faceup.uid, o);
     }
   }
   // When the question shows cards from off the board (scanning, gaining from a deck or the Junk), the box shows every
@@ -289,7 +295,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system }: {
       returnTo.current = null;
       return;
     }
-    const held = d!.options!
+    const held = d!.options!.filter(usable)
       .map((o) => {
         const tail = o.id.split(":").pop() ?? "";
         return o.id.includes(":") && tail in view.market ? "centre" : areaOf(tail);
@@ -300,6 +306,52 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system }: {
       setTab(held[0]);
     }
   }, [questionKey, phone]); // eslint-disable-line react-hooks/exhaustive-deps
+  // A tutorial step points at something (REQ-TUT-21, -41): on a phone, show the tab that holds it; then highlight it
+  // and bring it into view. Re-applied after every update, since the table re-renders.
+  const coachShow = view.tutorial?.step?.show ?? null;
+  const coachStep = view.tutorial?.step?.id ?? null;
+  useEffect(() => {
+    if (!phone || !coachShow) return;
+    const [kind, ...rest] = coachShow.split(":");
+    const name = rest.join(":");
+    const centreZones = ["market", "stardate", "incident"];
+    const inCentre = kind === "zone" ? centreZones.includes(name.split(":")[0])
+      : kind === "card" ? Object.values(view.market).some((c) => c?.id === name)  // the You tab has the Neutral Zone
+        && !(mine && areaCards(mine).size && [...withBeamed([mine.captain, ...mine.status, ...mine.fleet, ...mine.locations,
+          ...mine.duty, ...mine.staging, ...(mine.hand ?? [])])].some((c) => c.id === name))
+      : false;
+    if (kind !== "question") setTab(inCentre ? "centre" : "you");
+  }, [coachStep, phone]); // eslint-disable-line react-hooks/exhaustive-deps
+  const scrolledFor = useRef<string | null>(null);
+  useEffect(() => {
+    const el = coachTarget(coachShow);
+    if (!el) return;
+    el.classList.add("coach-target");
+    // A card that is also an answer in the question box: point at that button too, the quickest thing to tap.
+    const name = el.getAttribute("title")?.replace(/^Choose /, "") ?? "";
+    const buttons = name ? [...document.querySelectorAll<HTMLElement>(".decision-dock button.option:not(:disabled)")]
+      .filter((b) => b.textContent?.trim() === name) : [];
+    buttons.forEach((b) => b.classList.add("coach-target"));
+    let timer: number | undefined;
+    if (scrolledFor.current !== coachStep) {  // once per step, so looking around is not interrupted
+      scrolledFor.current = coachStep;
+      // After the question's own scroll to its cards, so the coach's target is where the eye lands.
+      timer = window.setTimeout(() => {
+        // Centre it in the part of the screen the coach and the bottom sheet leave free (REQ-TUT-41).
+        const sheet = document.querySelector(".sheet-stack")?.getBoundingClientRect();
+        const bottom = sheet && sheet.height > 0 ? sheet.top : window.innerHeight;
+        const r = el.getBoundingClientRect();
+        const middle = r.height > bottom ? r.top : r.top + r.height / 2 - bottom / 2;
+        window.scrollBy({ top: middle, behavior: "smooth" });
+      }, 150);
+    }
+    return () => {
+      window.clearTimeout(timer);
+      el.classList.remove("coach-target");
+      buttons.forEach((b) => b.classList.remove("coach-target"));
+    };
+  }, [coachShow, coachStep, view, shownTab]);
+
   // A new tab starts at the top of the table, below the game's title and buttons.
   const boardRef = useRef<HTMLDivElement>(null);
   const chooseTab = (a: Area) => {
@@ -428,7 +480,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system }: {
         <PlayerMat p={mine} you active={view.active === mine.seat} locationNames={locationNames}
           onEndTurn={endOption && !busy ? () => pick(endOption) : null}
           onUndo={view.can_undo && !busy && !showDock ? onUndo : null}
-          missions={d?.kind === "action" && d.seat === view.you ? (d.options ?? []).filter((o) => o.id.startsWith("mission:")) : []}
+          missions={d?.kind === "action" && d.seat === view.you ? (d.options ?? []).filter((o) => usable(o) && o.id.startsWith("mission:")) : []}
           onMission={busy ? undefined : pick} />
       )}
 
@@ -444,6 +496,10 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system }: {
       {/* The floating panels. On a laptop each floats on its own; on a phone they share one sheet at the bottom of
           the screen (REQ-CLI-34), and the table leaves room for it. */}
       <div className="sheet-stack" ref={sheetRef}>
+      {view.tutorial && onCoach && (
+        <Coach tutorial={view.tutorial} canUndo={view.can_undo} busy={busy} onNext={() => onCoach("next")}
+          onBack={onUndo} onFree={() => onCoach("free")} />
+      )}
       {bot && (
         <BotPlayback gameId={gameId} turn={view.bot_turn} botName={bot.name} rowText={rowText} onHighlight={setBotRow}
           onDone={setBotDone} />

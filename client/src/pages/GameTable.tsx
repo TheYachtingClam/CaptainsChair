@@ -23,6 +23,10 @@ export function GameTable() {
     mutationFn: () => api.undo(gameId),
     onSuccess: (view) => queryClient.setQueryData(["state", gameId], view),
   });
+  const coach = useMutation({
+    mutationFn: (action: "next" | "free") => api.coach(gameId, action),
+    onSuccess: (view) => queryClient.setQueryData(["state", gameId], view),
+  });
   const [socket, setSocket] = useState<SocketState>("connecting");
   const [exiting, setExiting] = useState(false);
   const [reporting, setReporting] = useState<"bug" | "feature" | null>(null);
@@ -193,8 +197,8 @@ export function GameTable() {
       {!(phone && onTable) && gameInfo}
 
       {started && state.data ? (
-        <Board gameId={gameId} view={state.data} busy={command.isPending || undo.isPending}
-          onChoose={(o) => command.mutate(o)} onUndo={() => undo.mutate()}
+        <Board gameId={gameId} view={state.data} busy={command.isPending || undo.isPending || coach.isPending}
+          onChoose={(o) => command.mutate(o)} onUndo={() => undo.mutate()} onCoach={(a) => coach.mutate(a)}
           system={<><section className="card">{systemButtons}</section>{gameInfo}{connection}</>} />
       ) : (
         <section className="card">

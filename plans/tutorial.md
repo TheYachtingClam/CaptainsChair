@@ -101,13 +101,17 @@ What was done:
 
 The existing table cannot show the coach yet (it has no Next button), so the tutorial is only playable through the API until Step 3.
 
-### Step 3: The coach on the table
+### Step 3: The coach on the table (done)
 
 - The coach panel and spotlight, on a laptop and on a phone (a block in the bottom sheet; switches tabs).
 - `data-tutorial` targets on the table's cards, zones and buttons; moves the step does not allow are greyed out.
 - Next, Back, "Let me play", Leave tutorial.
 
 **You test:** play the scripted turns on your phone and laptop.
+
+What was done: `components/Coach.tsx`, the coach: the tutorial's title, "Step n of 63", a progress bar, the step's text (with **bold**), Back (an ordinary undo, shown when there is something to undo), Next (on explanations), Let me play and Leave tutorial. On a laptop it floats in the top-right corner; on a phone it is the first block of the bottom sheet, collapsible like the others. `coachTarget` finds what a step points at from `data-tutorial` names on the table (resources, tracks, captain, hand, fleet, locations, duty, staging, deck, discard, reserve, development, end-turn, market, market:<suit>, neutral, stardate, incident) and `data-card-id` on cards, looking in your own mat first. The board highlights it (a pulsing yellow outline, nothing blocked), and also the matching answer button when the card is an answer in the question box; once per step it scrolls the target into the middle of the space the bottom sheet leaves free. On a phone it first switches to the tab that holds the target (Market, Stardate and Incident on Centre; the Neutral Zone and everything of yours on You). Disabled answers (REQ-TUT-23) are greyed out in the question box and left out of playable cards, card panels, clickable targets, End Turn and missions. The lobby has a simple Learn to play card that starts the tutorial (polished in Step 4).
+
+Checked with Playwright on a 1280-pixel laptop and an emulated iPhone SE: all 63 steps, Next taps through the coach's own button, and at every step the coach shows the step's text and what it points at is on screen and not covered (by the sheet, the coach or anything else). Two fixes came from it: the coach's scroll now runs just after the question's own scroll to its cards, and it centres in the space above the bottom sheet rather than the whole screen.
 
 ### Step 4: Free play, tips and the end
 

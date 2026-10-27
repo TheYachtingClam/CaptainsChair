@@ -23,7 +23,7 @@ function CrewBoard({ p }: { p: PlayerView }) {
   const inspect = useContext(InspectContext);
   const enlarge = () => inspect({ image: p.board, name: `${p.name}'s Crew board`, wide: true });
   return (
-    <div className="crew-board" {...preview} title={`${p.name}'s Crew board`} role="button"
+    <div className="crew-board" data-tutorial="tracks" {...preview} title={`${p.name}'s Crew board`} role="button"
       onClick={enlarge} onKeyDown={(e) => e.key === "Enter" && enlarge()}>
       <img src={imageUrl(p.board)} alt={`${p.name}'s Crew board`} />
       {traits?.map((t, i) => (
@@ -58,7 +58,7 @@ function CrewBoard({ p }: { p: PlayerView }) {
 
 function Tokens({ p }: { p: PlayerView }) {
   return (
-    <div className="tokens" aria-label="Resources and actions">
+    <div className="tokens" data-tutorial="resources" aria-label="Resources and actions">
       {!p.bot && <span className="token action" title="Available actions">{p.actions} Action{p.actions === 1 ? "" : "s"}</span>}
       <span className="token glory" title="Glory">{p.resources.glory} Glory</span>
       <span className="token dilithium" title="Dilithium">{p.resources.dilithium} Dilithium</span>
@@ -165,7 +165,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
     : null;
   const turnButtons = you && (
     <>
-      <button type="button" className="end-turn" disabled={!onEndTurn} onClick={() => onEndTurn?.()}
+      <button type="button" className="end-turn" data-tutorial="end-turn" disabled={!onEndTurn} onClick={() => onEndTurn?.()}
         title={onEndTurn ? "End your Action Step and go to Clean-up" : "Available during your Action Step"}>
         End Turn
       </button>
@@ -173,7 +173,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
     </>
   );
   const hand = !p.bot && (
-    <div className={`hand ${phone ? "under-mat" : ""}`} aria-label={you ? "Your hand" : `${p.name}'s hand`}>
+    <div className={`hand ${phone ? "under-mat" : ""}`} data-tutorial="hand" aria-label={you ? "Your hand" : `${p.name}'s hand`}>
       {p.hand
         ? p.hand.map((c, i) => {
             const mid = (p.hand!.length - 1) / 2;
@@ -213,14 +213,14 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
       <div className="mat-grid">
         {/* Left column: Reserve, Status, Development, tokens, Crew board (items 7, 4, 6, 12, 1) */}
         <div className="mat-left">
-          <div className="row top">
+          <div className="row top" data-tutorial="reserve">
             <CardBack label={p.bot ? "Supplement" : "Reserve"} count={p.reserve_count}
               onClick={p.reserve ? () => setViewing("reserve") : undefined}
               title={p.reserve ? "See what is in your Reserve deck (not its order)" : undefined} />
             {p.status.map((c) => <Card key={c.uid} card={c} />)}
           </div>
           {p.bot ? <CommandCards bot={p.bot} highlight={highlight} onSoloRules={onSoloRules} /> : (
-            <button type="button" className="dev-pile" onClick={() => setViewing("development")} disabled={!p.development.length}>
+            <button type="button" className="dev-pile" data-tutorial="development" onClick={() => setViewing("development")} disabled={!p.development.length}>
               <span>Development</span>
               <span className="count">{p.development.length}</span>
             </button>
@@ -239,11 +239,11 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
         </div>
 
         {/* Duty Officer and Location Area (items 8) */}
-        <div className="cell duty"><Section label="Duty Officer" cards={p.duty} /></div>
-        <div className="cell locations"><Section label="Location Area" cards={p.locations} /></div>
+        <div className="cell duty" data-tutorial="duty"><Section label="Duty Officer" cards={p.duty} /></div>
+        <div className="cell locations" data-tutorial="locations"><Section label="Location Area" cards={p.locations} /></div>
 
         {/* Captain and Fleet Area (items 3, 13, 9) */}
-        <div className="cell captain">
+        <div className="cell captain" data-tutorial="captain">
           <Card
             card={p.captain}
             badges={
@@ -258,12 +258,12 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
             }
           />
         </div>
-        <div className="cell fleet">
+        <div className="cell fleet" data-tutorial="fleet">
           <Section label="Fleet Area" cards={p.fleet} place={(c) => (c.at ? locationNames[c.at] : undefined)} />
         </div>
 
         {/* Draw deck, Staging Area, Discard pile (items 5, 10) */}
-        <div className="cell draw">
+        <div className="cell draw" data-tutorial="deck">
           {p.draw && p.draw.length ? (
             <button type="button" className="discard-pile" onClick={() => setViewing("draw")}
               aria-label={`Face-up Draw deck: ${p.draw.length} card(s)`} title="The Draw deck is face-up (Gluonic Distortion)">
@@ -272,7 +272,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
             </button>
           ) : <CardBack label={p.bot ? "Bot deck" : "Draw deck"} count={p.draw_count} />}
         </div>
-        <div className="cell staging">
+        <div className="cell staging" data-tutorial="staging">
           {/* On a phone the title sits above the staged cards, with End Turn beside it. */}
           {phone && (
             <div className="staging-header">
@@ -288,7 +288,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
             </div>
           ) : !phone && <span className="staging-label">Staging Area</span>}
         </div>
-        <div className="cell discard">
+        <div className="cell discard" data-tutorial="discard">
           {topDiscard ? (
             <button type="button" className="discard-pile" onClick={() => setViewing("discard")} aria-label={`Discard pile: ${p.discard.length} card(s)`}>
               <img src={imageUrl(topDiscard.image)} alt="" />
