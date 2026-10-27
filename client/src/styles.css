@@ -674,24 +674,36 @@ html { touch-action: manipulation; }
 
 /* ---------------------------------------------------------------- the centre on a phone (REQ-CLI-38) */
 .deck-counts { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; width: 100%; }
+/* Each deck is a small card back, edged like a stack, with its suit's colour as a softer label and its count. */
 .deck-count {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; min-height: 44px;
-  padding: 3px 4px; border-radius: 8px; color: #fff; text-align: center; min-width: 0;
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  height: 64px; min-width: 0; padding: 4px 3px; border-radius: 6px; text-align: center;
+  background: url("/api/content/images/card-back") center / cover no-repeat, #5c7f9c;
+  box-shadow: 2px 2px 0 #c9d3de, 4px 4px 0 #8796a8, 0 2px 6px rgb(0 0 0 / 0.45);
+  margin: 0 4px 4px 0;
 }
-.deck-count span { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.2;
-  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.deck-count strong { font-size: 1.05rem; line-height: 1.1; }
-.deck-count.encounter { background: #b56fc2; }
-.deck-count.incident { background: #c0392b; }
-.deck-count.location { background: #2f8f4a; }
-.deck-count.reward { background: #2f8f8a; }
-.deck-count.person { background: #b8922a; }
-.deck-count.cargo { background: #1f4fa0; }
-.deck-count.ship { background: #3b4048; }
-.deck-count.ally { background: #6b2fa0; }
+.deck-count span {
+  font-size: 0.58rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.3;
+  color: #fff; border-radius: 4px; padding: 0 5px; max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; opacity: 0.88;
+}
+.deck-count strong {
+  font-size: 0.95rem; line-height: 1; color: #10233a; background: #ffffffdd; border-radius: 999px;
+  min-width: 1.7rem; padding: 3px 4px;
+}
+.deck-count.encounter span { background: #b56fc2; }
+.deck-count.incident span { background: #c0392b; }
+.deck-count.location span { background: #2f8f4a; }
+.deck-count.reward span { background: #2f8f8a; }
+.deck-count.person span { background: #b8922a; }
+.deck-count.cargo span { background: #1f4fa0; }
+.deck-count.ship span { background: #3b4048; }
+.deck-count.ally span { background: #6b2fa0; }
 .market.phone-market { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-column: auto; grid-row: auto; gap: 6px; width: 100%; }
 .phone-market .market-col { gap: 4px; min-width: 0; justify-items: stretch; grid-template-columns: minmax(0, 1fr); }
 .phone-market .market-col > * { min-width: 0; }
+.phone-market .deck-count { height: 56px; }
+.phone-market .deck-count span { font-size: 0.54rem; letter-spacing: 0; padding: 0 3px; }
 .mat .phone-market .gcard { width: 100%; margin: 0; }
 .phone-centre-row { display: flex; gap: 16px; align-items: center; justify-content: center; width: 100%; }
 .phone-centre { gap: 14px; }

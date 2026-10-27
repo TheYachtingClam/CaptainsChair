@@ -193,7 +193,7 @@ A phone is a screen narrower than 700 pixels, or one without a mouse (no hover).
 - **REQ-CLI-35** Buttons and other tap targets are at least 44 by 44 pixels on a phone. The page never scrolls sideways, except a row of cards that is meant to.
 - **REQ-CLI-36** The lobby, new game, campaign, account, sign-in and Admin pages work at 375 pixels wide.
 - **REQ-CLI-37** On a phone the Neutral Zone is compact: its three Locations side by side, small, each with every player's tokens as icons and a mark where a player has secured it.
-- **REQ-CLI-38** On a phone the **Centre** shows, from the top: the Encounter, Incident and Location decks (and the Reward pile when it has cards) as counts in one row; the Market four across, each suit's deck count above its face-up card, as on the table; then the Junk and the Stardate side by side; then the Neutral Zone.
+- **REQ-CLI-38** On a phone the **Centre** shows, from the top: the Encounter, Incident and Location decks (and the Reward pile when it has cards) in one row, each a small card back with its name in its colour and its count; the Market four across, each suit's deck drawn the same way above its face-up card, as on the table; then the Junk and the Stardate side by side; then the Neutral Zone.
 
 ## 5. Access control: user accounts
 
