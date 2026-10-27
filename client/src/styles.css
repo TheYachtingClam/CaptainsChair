@@ -729,3 +729,7 @@ button.option:disabled { opacity: 0.45; }
   .sheet-stack .coach .coach-head { display: none; } /* the handle says which step */
   .coach-say { font-size: 0.95rem; }
 }
+
+.learn-to-play.featured { border: 2px solid var(--accent); }
+.learn-to-play .pill { margin-left: 0.5rem; }
+.tutorial-row p { margin: 0.2rem 0 0; }

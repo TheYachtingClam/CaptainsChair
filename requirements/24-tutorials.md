@@ -32,7 +32,8 @@ A tutorial is a real game with a coach: it explains each part of *Captain's Chai
 ### 1.4 Tips
 
 - **REQ-TUT-30** A tip has an id, the coach's text, what to show, and a trigger: an event (`event: take_incident`, `event: cycle`, …), a kind of question (`question: mission`, `question: develop`, …) or a game moment (`moment: stardate-empties`, `moment: resolution`, `moment: final-scoring`).
-- **REQ-TUT-31** Each tip appears once per game, the first time its trigger happens after the rails end, and closes with Next or when the player makes a move.
+- **REQ-TUT-31** Each tip appears once per game, the first time its trigger holds after the rails end, and stays until the player taps **Got it** (stored like Next, so undo brings it back). It never blocks a move. One tip shows at a time, in the script's order. A tip may carry a link (the last one: Play against a Bot).
+- **REQ-TUT-32** Triggers look at the game as it is: a question (`question: mission` when a mission can be claimed, `encounter` or `develop` by the question's words), a card that can be played (`playable: <card id>`), a track at a value (`track_at_least: n`), an Incident in hand (`event: take_incident`), or a moment (`stardate-empties`: the first Stardate is used up; `last-turn`; `final-scoring` and `game-over`: the game has ended).
 
 ### 1.5 The coach on screen
 

@@ -54,7 +54,7 @@ function GameLine({ game }: { game: Game }) {
   const players = game.seats.map((s) => `${s.display_name} (${s.deck_id})`).join(" vs ");
   return (
     <div>
-      <strong>{MODE_LABELS[game.mode]}</strong> · {players}
+      <strong>{game.tutorial ? "Tutorial" : MODE_LABELS[game.mode]}</strong> · {players}
       {game.box === "core" && <span className="muted"> · Core Box</span>}
       {game.box === "both" && <span className="muted"> · both boxes</span>}
       {game.open_seats > 0 && <span className="muted"> · waiting for opponent</span>}
@@ -169,7 +169,8 @@ function MyCampaigns() {
 }
 
 
-/** Learn to play: start a tutorial game (requirements/24-tutorials.md §1.6). */
+/** Learn to play (requirements/24-tutorials.md §1.6): each tutorial, continued or started again, and marked finished.
+ *  Shown first and highlighted until the first tutorial is finished. */
 function Tutorials() {
   const tutorials = useQuery({ queryKey: ["tutorials"], queryFn: api.tutorials });
   const navigate = useNavigate();
@@ -178,20 +179,28 @@ function Tutorials() {
     mutationFn: (id: string) => api.startTutorial(id),
     onSuccess: (grant) => {
       queryClient.invalidateQueries({ queryKey: ["my-games"] });
+      queryClient.invalidateQueries({ queryKey: ["tutorials"] });
       navigate(`/games/${grant.game.id}`);
     },
   });
-  if (!tutorials.data?.length) return null;
+  const list = tutorials.data ?? [];
+  if (!list.length) return null;
+  const learning = !list[0].finished;
   return (
-    <section className="card stack learn-to-play">
-      <h2>Learn to play</h2>
-      {tutorials.data.map((t) => (
-        <div key={t.id} className="row between">
+    <section className={`card stack learn-to-play ${learning ? "featured" : ""}`}>
+      <h2>{learning ? "Learn to play" : "Tutorials"}</h2>
+      {learning && <p className="muted">New to Captain&apos;s Chair? Play a practice game with a coach beside you.</p>}
+      {list.map((t) => (
+        <div key={t.id} className="row between tutorial-row">
           <div>
-            <strong>{t.title}</strong>
+            <strong>{t.title}</strong>{t.finished && <span className="pill">Finished</span>}
             <p className="muted">{t.summary}</p>
           </div>
-          <button disabled={start.isPending} onClick={() => start.mutate(t.id)}>Start</button>
+          <div className="row">
+            {t.game_id && <Link className="button" to={`/games/${t.game_id}`}>Continue</Link>}
+            <button className={t.game_id || t.finished ? "secondary" : undefined} disabled={start.isPending}
+              onClick={() => start.mutate(t.id)}>{t.game_id || t.finished ? "Start again" : "Start"}</button>
+          </div>
         </div>
       ))}
       {start.error && <p className="error" role="alert">{start.error.message}</p>}

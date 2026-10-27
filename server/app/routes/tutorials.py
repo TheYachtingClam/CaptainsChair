@@ -1,12 +1,13 @@
 """Starting tutorials (requirements/24-tutorials.md §1.6)."""
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import tutorial
 from app.auth import require_session, viewer_id
 from app.db import get_db
-from app.models import Game, User
+from app.models import Game, Seat, User
 from app.routes.games import add_seat, summarize
 from app.schemas import SeatChoice
 
@@ -14,9 +15,18 @@ router = APIRouter(prefix="/api/tutorials", tags=["tutorials"], dependencies=[De
 
 
 @router.get("")
-def all_tutorials() -> list[dict]:
-    """Every tutorial: id, title and one-line summary."""
-    return [{"id": s["id"], "title": s["title"], "summary": s["summary"]} for s in tutorial.scripts().values()]
+def all_tutorials(db: Session = Depends(get_db), viewer: str = Depends(viewer_id)) -> list[dict]:
+    """Every tutorial: id, title, summary, whether this account has finished it, and its game in progress if any
+    (REQ-TUT-42, -50, -51)."""
+    games = db.scalars(select(Game).join(Seat).where(Seat.user_id == viewer, Game.tutorial.is_not(None))
+                       .order_by(Game.created_at.desc())).unique().all()
+    out = []
+    for s in tutorial.scripts().values():
+        mine = [g for g in games if (g.tutorial or {}).get("id") == s["id"]]
+        playing = next((g.id for g in mine if g.status == "active"), None)
+        out.append({"id": s["id"], "title": s["title"], "summary": s["summary"],
+                    "finished": any(g.status == "finished" for g in mine), "game_id": playing})
+    return out
 
 
 @router.post("/{tutorial_id}", status_code=status.HTTP_201_CREATED)

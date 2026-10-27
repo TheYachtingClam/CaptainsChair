@@ -133,9 +133,56 @@ def block(game: Game, state: GameState) -> dict | None:
     data = script(game.tutorial["id"])
     steps = data["steps"]
     index, free = progress(game)
-    out = {"id": data["id"], "title": data["title"], "index": index, "total": len(steps), "free": free, "step": None}
+    out = {"id": data["id"], "title": data["title"], "index": index, "total": len(steps), "free": free, "step": None,
+           "tip": tip(game, state)}
     if not free:
         step = steps[index]
         out["step"] = {"id": step["id"], "say": step["say"].strip(), "show": step.get("show"),
                        "next": not _wants(step)}
     return out
+
+
+# ----------------------------------------------------------------------------- tips (REQ-TUT-30, -31)
+
+# A `question` trigger names the kind of question by words in its prompt; "mission" is a mission that can be claimed.
+QUESTION_WORDS = {"encounter": "encounter", "develop": "development"}
+
+
+def _triggered(when: dict, state: GameState) -> bool:
+    me = state.players[0]
+    decision = state.decision
+    mine = decision is not None and decision.seat == 0
+    if "question" in when:
+        kind = when["question"]
+        if kind == "mission":
+            return mine and any(o.id.startswith("mission:") for o in decision.options)
+        return mine and QUESTION_WORDS.get(kind, kind) in decision.prompt.lower()
+    if "playable" in when:
+        return mine and any(resolve(state, f"play:{when['playable']}:{n}") for n in range(4))
+    if "track_at_least" in when:
+        return any(v >= when["track_at_least"] for v in me.tracks.values())
+    if "event" in when:
+        if when["event"] == "take_incident":  # an Incident in your hand
+            return any(content().cards[i.card].suit == "Incident" for i in me.hand)
+        return False
+    moment = when.get("moment")
+    if moment == "stardate-empties":
+        return len(state.stardates) < 2 and state.result is None
+    if moment == "last-turn":
+        return state.last_turn is not None and state.turn >= state.last_turn and state.result is None
+    if moment in ("final-scoring", "game-over"):
+        return state.result is not None
+    return False
+
+
+def tip(game: Game, state: GameState) -> dict | None:
+    """The tip to show now: the first one, in the script's order, whose trigger holds and that has not been closed.
+    Tips appear only once the guided part is over (REQ-TUT-31)."""
+    if not game.tutorial or not progress(game)[1]:
+        return None
+    closed = {str(c["option"])[len("tutorial:tip:"):] for c in game.commands
+              if not c.get("undone") and str(c.get("option", "")).startswith("tutorial:tip:")}
+    for t in script(game.tutorial["id"]).get("tips", []):
+        if t["id"] not in closed and _triggered(t.get("when", {}), state):
+            return {"id": t["id"], "say": t["say"].strip(), "show": t.get("show"), "link": t.get("link")}
+    return None

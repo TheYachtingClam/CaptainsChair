@@ -410,3 +410,4 @@ tips:
     say: |
       Well done, Captain! Next, try a game **against a Bot**: a real opponent with its own deck, who attacks and claims
       Locations too.
+    link: {label: Play against a Bot, to: /new}

@@ -318,12 +318,18 @@ export interface TutorialView {
   /** The guided part is over: free play. */
   free: boolean;
   step: { id: string; say: string; show: string | null; next: boolean } | null;
+  /** After the guided part: a one-time tip, closed with Got it (REQ-TUT-31). */
+  tip: { id: string; say: string; show: string | null; link: { label: string; to: string } | null } | null;
 }
 
 export interface TutorialInfo {
   id: string;
   title: string;
   summary: string;
+  /** This account has played it to the end (REQ-TUT-51). */
+  finished: boolean;
+  /** Its game in progress, to continue (REQ-TUT-42). */
+  game_id: string | null;
 }
 
 /** Developer panel command (server engine/dev.py). */
@@ -509,7 +515,7 @@ export const api = {
   tutorials: () => request<TutorialInfo[]>("/api/tutorials"),
   startTutorial: (id: string) => request<SeatGrant>(`/api/tutorials/${id}`, { method: "POST" }),
   /** The coach's Next, or Let me play (REQ-TUT-24, -25). */
-  coach: (id: string, action: "next" | "free") =>
+  coach: (id: string, action: "next" | "free" | "tip") =>
     request<GameStateView>(`/api/games/${id}/tutorial/${action}`, { method: "POST" }),
   joinGame: (id: string, body: SeatChoice) =>
     request<SeatGrant>(`/api/games/${id}/join`, { method: "POST", body: JSON.stringify(body) }),

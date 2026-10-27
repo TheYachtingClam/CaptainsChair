@@ -113,7 +113,7 @@ What was done: `components/Coach.tsx`, the coach: the tutorial's title, "Step n 
 
 Checked with Playwright on a 1280-pixel laptop and an emulated iPhone SE: all 63 steps, Next taps through the coach's own button, and at every step the coach shows the step's text and what it points at is on screen and not covered (by the sheet, the coach or anything else). Two fixes came from it: the coach's scroll now runs just after the question's own scroll to its cards, and it centres in the space above the bottom sheet rather than the whole screen.
 
-### Step 4: Free play, tips and the end
+### Step 4: Free play, tips and the end (done)
 
 - Tips that wait for an event or a kind of decision, each shown once.
 - The end: final scoring explained line by line, the Cadet rating, and "Play against a Bot next".
@@ -121,10 +121,14 @@ Checked with Playwright on a 1280-pixel laptop and an emulated iPhone SE: all 63
 
 **You test:** play the whole tutorial to the end.
 
-### Step 5: Test pass and deploy
+What was done: tips (`tutorial.tip`, REQ-TUT-31, -32): after the guided part, the first tip in the script's order whose trigger holds and that has not been closed shows in the coach with **Got it** (stored as a `tutorial:tip:<id>` move, so undo brings it back) and, for the last one, a **Play against a Bot** link. Triggers read the game as it is: a question (a claimable mission, or an Encounter or Development question by its words), a playable card, a track value, an Incident in hand, or a moment (the first Stardate used up, the last turn, the game's end). The game's end shows the final-scoring tip over the score breakdown and Cadet rating, then the closing tip. The lobby's Learn to play card is highlighted until the first tutorial is finished, offers **Continue** and **Start again** for a tutorial in progress, and marks finished ones (`GET /api/tutorials` reports `finished` and `game_id` per account); tutorial games are labelled "Tutorial" in Your games.
+
+### Step 5: Test pass and deploy (the emulated pass done; your play-through and the deploy to come)
 
 - A Playwright run through the whole tutorial on an emulated phone and a laptop (the player from the phone plan's Step 6, following the coach).
 - Fixes from your play-through; deploy.
+
+Done so far: a Playwright player started the tutorial from the lobby's Learn to play card on an emulated iPhone SE and on a 1280-pixel touch laptop, followed the coach through all 63 steps, then played freely to the end of turn 11, reading and closing each tip: Strange New Worlds, Incident in hand, the first Stardate, enlisting a Development, the last turn, final scoring and the closing tip with its Play against a Bot link. Afterwards the lobby showed the tutorial as Finished. No page errors and no taps blocked. (The Encounter, track and mission tips did not come up in that random game.)
 
 ## Later tutorials
 

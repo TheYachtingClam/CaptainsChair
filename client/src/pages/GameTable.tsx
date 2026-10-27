@@ -24,7 +24,7 @@ export function GameTable() {
     onSuccess: (view) => queryClient.setQueryData(["state", gameId], view),
   });
   const coach = useMutation({
-    mutationFn: (action: "next" | "free") => api.coach(gameId, action),
+    mutationFn: (action: "next" | "free" | "tip") => api.coach(gameId, action),
     onSuccess: (view) => queryClient.setQueryData(["state", gameId], view),
   });
   const [socket, setSocket] = useState<SocketState>("connecting");

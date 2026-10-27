@@ -136,7 +136,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }:
    *  tab, above the log. */
   system?: React.ReactNode;
   /** A tutorial's Next and Let me play (REQ-TUT-24, -25). */
-  onCoach?: (action: "next" | "free") => void;
+  onCoach?: (action: "next" | "free" | "tip") => void;
 }) {
   const [pending, setPending] = useState<OptionView | null>(null);
   const [preview, setPreview] = useState<Preview>(null);
@@ -308,8 +308,8 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }:
   }, [questionKey, phone]); // eslint-disable-line react-hooks/exhaustive-deps
   // A tutorial step points at something (REQ-TUT-21, -41): on a phone, show the tab that holds it; then highlight it
   // and bring it into view. Re-applied after every update, since the table re-renders.
-  const coachShow = view.tutorial?.step?.show ?? null;
-  const coachStep = view.tutorial?.step?.id ?? null;
+  const coachShow = view.tutorial?.step?.show ?? view.tutorial?.tip?.show ?? null;
+  const coachStep = view.tutorial?.step?.id ?? (view.tutorial?.tip ? `tip:${view.tutorial.tip.id}` : null);
   useEffect(() => {
     if (!phone || !coachShow) return;
     const [kind, ...rest] = coachShow.split(":");
@@ -498,7 +498,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }:
       <div className="sheet-stack" ref={sheetRef}>
       {view.tutorial && onCoach && (
         <Coach tutorial={view.tutorial} canUndo={view.can_undo} busy={busy} onNext={() => onCoach("next")}
-          onBack={onUndo} onFree={() => onCoach("free")} />
+          onBack={onUndo} onFree={() => onCoach("free")} onTip={() => onCoach("tip")} />
       )}
       {bot && (
         <BotPlayback gameId={gameId} turn={view.bot_turn} botName={bot.name} rowText={rowText} onHighlight={setBotRow}

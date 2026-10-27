@@ -24,10 +24,14 @@ def follow(client, game_id, view):
     return client.post(f"/api/games/{game_id}/commands", json={"option": allowed[0]["id"]})
 
 
-def test_tutorials_are_listed(authed):
+def test_tutorials_are_listed_with_progress(authed):
+    """REQ-TUT-42, -50: each tutorial, whether it is finished, and the game in progress."""
     listed = authed.get("/api/tutorials").json()
-    assert {"id": "picard-basics", "title": "Learn to play with Picard",
-            "summary": listed[0]["summary"]} in listed
+    first = next(t for t in listed if t["id"] == "picard-basics")
+    assert first["title"] == "Learn to play with Picard" and not first["finished"] and first["game_id"] is None
+    game_id = start(authed)
+    first = next(t for t in authed.get("/api/tutorials").json() if t["id"] == "picard-basics")
+    assert first["game_id"] == game_id and not first["finished"]
 
 
 def test_the_picard_script_plays_through_its_guided_turns(authed):
@@ -107,3 +111,48 @@ def test_stacking_orders_the_decks_and_uses_no_randomness():
     assert stacked.market["Ally"].card == "1ALL13" and stacked.market_decks["Ally"][0].card == "1ALL02"
     assert [i.card for i in stacked.neutral] == ["1LOC19", "1LOC12", "1LOC20"]
     assert stacked.rng_calls == plain.rng_calls
+
+
+def play_rails(client, game_id):
+    view = state(client, game_id)
+    while not view["tutorial"]["free"]:
+        view = follow(client, game_id, view).json()
+    return view
+
+
+def test_tips_appear_after_the_rails_one_at_a_time(authed):
+    """REQ-TUT-31, -32: free play begins with Strange New Worlds in hand (a playable tip) and an Incident in hand."""
+    game_id = start(authed)
+    view = play_rails(authed, game_id)
+    assert view["tutorial"]["tip"]["id"] == "strange-new-worlds" and view["tutorial"]["tip"]["show"] == "card:1PIC18"
+    view = authed.post(f"/api/games/{game_id}/tutorial/tip").json()
+    assert view["tutorial"]["tip"]["id"] == "incident-in-hand"
+    view = authed.post(f"/api/games/{game_id}/undo").json()  # Got it is a move: undo brings the tip back
+    assert view["tutorial"]["tip"]["id"] == "strange-new-worlds"
+    authed.post(f"/api/games/{game_id}/tutorial/tip")
+    view = authed.post(f"/api/games/{game_id}/tutorial/tip").json()
+    assert view["tutorial"]["tip"] is None
+    assert authed.post(f"/api/games/{game_id}/tutorial/tip").status_code == 409
+
+
+def test_no_tips_while_on_the_rails(authed):
+    game_id = start(authed)
+    assert state(authed, game_id)["tutorial"]["tip"] is None
+
+
+def test_the_end_of_game_moments():
+    """REQ-TUT-32: the moments read the game's end flags."""
+    from types import SimpleNamespace
+
+    from app.tutorial import _triggered
+
+    me = SimpleNamespace(tracks={"research": 4, "influence": 0, "military": 0}, hand=[])
+    game = SimpleNamespace(players=[me], decision=None, stardates=[1, 2], result=None, last_turn=None, turn=3)
+    assert _triggered({"track_at_least": 4}, game) and not _triggered({"moment": "stardate-empties"}, game)
+    game.stardates = [1]
+    assert _triggered({"moment": "stardate-empties"}, game) and not _triggered({"moment": "last-turn"}, game)
+    game.last_turn, game.turn = 10, 10
+    assert _triggered({"moment": "last-turn"}, game) and not _triggered({"moment": "game-over"}, game)
+    game.result = {"reason": "resolution"}
+    assert _triggered({"moment": "game-over"}, game) and _triggered({"moment": "final-scoring"}, game)
+    assert not _triggered({"moment": "last-turn"}, game) and not _triggered({"moment": "stardate-empties"}, game)

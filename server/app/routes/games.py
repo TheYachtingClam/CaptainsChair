@@ -232,8 +232,16 @@ async def coach(game_id: str, action: str, db: Session = Depends(get_db), viewer
     """The tutorial's Next (past an explanation) and Let me play (leave the rails), REQ-TUT-24, -25."""
     game = load_game(db, game_id)
     seat = seat_or_403(game, viewer)
-    if not game.tutorial or game.status != "active":
-        raise HTTPException(409, "This is not a tutorial in progress")
+    if not game.tutorial:
+        raise HTTPException(409, "This is not a tutorial")
+    if action == "tip":  # Got it: close the tip on show, also after the game ended (REQ-TUT-31)
+        shown = tutorial.tip(game, play.build(game))
+        if shown is None:
+            raise HTTPException(409, "There is no tip to close")
+        play.apply_coaching(db, game, seat, f"tip:{shown['id']}")
+        return play.view(game, seat)
+    if game.status != "active":
+        raise HTTPException(409, "This tutorial is over")
     if action not in ("next", "free"):
         raise HTTPException(404, "Unknown tutorial action")
     index, free = tutorial.progress(game)

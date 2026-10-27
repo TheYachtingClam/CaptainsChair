@@ -12,15 +12,30 @@ function Say({ text }: { text: string }) {
  * A tutorial's coach (requirements/24-tutorials.md REQ-TUT-40): what to do or learn now, with Next for explanations,
  * Back (an ordinary undo), Let me play and Leave. A floating panel on a laptop, the top block of the sheet on a phone.
  */
-export function Coach({ tutorial, canUndo, busy, onNext, onBack, onFree }: {
+export function Coach({ tutorial, canUndo, busy, onNext, onBack, onFree, onTip }: {
   tutorial: TutorialView;
   canUndo: boolean;
   busy: boolean;
   onNext: () => void;
   onBack: () => void;
   onFree: () => void;
+  onTip: () => void;
 }) {
   const step = tutorial.step;
+  const tip = tutorial.tip;
+  if (!step && tip) {
+    return (
+      <Sheet className="coach card" role="region" label="Tutorial tip" live openOn={tip.id} summary="Tutorial tip">
+        <div className="coach-head"><strong>Tip</strong><span className="muted">{tutorial.title}</span></div>
+        <Say text={tip.say} />
+        <div className="coach-buttons">
+          {tip.link && <Link className="button" to={tip.link.to}>{tip.link.label}</Link>}
+          <span className="coach-spacer" />
+          <button className={tip.link ? "secondary" : undefined} disabled={busy} onClick={onTip}>Got it</button>
+        </div>
+      </Sheet>
+    );
+  }
   if (!step) return null;
   const done = Math.round((tutorial.index / tutorial.total) * 100);
   return (
