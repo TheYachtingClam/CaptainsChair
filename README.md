@@ -13,7 +13,7 @@ scripts/process_scans.py    # turn raw scans into the images the server serves
 scripts/build_content.py    # turn card and board specs into the server's data files
 ```
 
-The first run creates `.env` with a random site password and prints it. Change `SITE_PASSWORD` in `.env` to choose your own. Changing it signs everyone out.
+Everyone signs in with their own account; accounts are made by invitation from the admin. The first run creates `.env`. Set `ADMIN_EMAIL` in it and run `python -m app.create_admin` in `server/` (or `scripts/create_admin.py`): it prints, and emails when SMTP is set, an invitation to sign up as the admin. From then on the Admin page sends invitations.
 
 Local runs need [uv](https://docs.astral.sh/uv/) and Node.js 20 or later. Docker runs need only Docker.
 

@@ -119,18 +119,12 @@ def test_a_disabled_account_cannot_sign_in_and_its_sessions_end(client):
     assert client.post("/api/auth/login", json={"email": "ann@example.com", "password": "correct horse"}).status_code == 401
 
 
-def test_the_shared_site_password_still_works_until_step_8(client):
-    assert client.post("/api/auth/login", json={"password": "test-password"}).status_code == 204
-    assert client.get("/api/games").status_code == 200
-    assert client.get("/api/auth/me").status_code == 401  # but it is not an account
-
-
 def test_an_account_session_opens_the_game_socket(client):
     sign_up(client)
-    r = client.post("/api/games", json={"display_name": "Ann", "deck_id": "kirk", "mode": "solo",
+    r = client.post("/api/games", json={"deck_id": "kirk", "mode": "solo",
                                         "bot": {"deck_id": "soval", "difficulty": "ensign"}})
-    game_id, token = r.json()["game"]["id"], r.json()["seat_token"]
-    with client.websocket_connect(f"/api/games/{game_id}/ws?seat={token}") as ws:
+    game_id = r.json()["game"]["id"]
+    with client.websocket_connect(f"/api/games/{game_id}/ws") as ws:
         assert ws.receive_json()["type"] == "hello"
 
 
@@ -211,8 +205,7 @@ def test_the_first_admin_comes_from_an_admin_invitation(client, capsys, monkeypa
     from app import create_admin
     from app.config import get_settings
 
-    assert client.post("/api/auth/login", json={"password": "test-password"}).status_code == 204
-    assert client.get("/api/admin/status").json() == {"enabled": False, "admin": False, "account": False}
+    assert client.get("/api/admin/status").status_code == 401
     monkeypatch.setattr(get_settings(), "admin_email", "nick@example.com")
     mail.OUTBOX.clear()
     assert create_admin.main([]) == 0  # ADMIN_EMAIL
@@ -221,7 +214,7 @@ def test_the_first_admin_comes_from_an_admin_invitation(client, capsys, monkeypa
     code = last_link("/signup?code=")
     assert client.post("/api/auth/signup", json={"code": code, "display_name": "Nick",
                                                  "password": "correct horse"}).json()["is_admin"]
-    assert client.get("/api/admin/status").json() == {"enabled": True, "admin": True, "account": True}
+    assert client.get("/api/admin/status").json() == {"admin": True}
     assert client.get("/api/admin/games").status_code == 200
     # Running it again for an existing account makes that account admin instead of inviting it.
     assert create_admin.main(["nick@example.com"]) == 0
@@ -339,3 +332,87 @@ def test_without_a_password_email_is_only_logged(client, monkeypatch):
     monkeypatch.setattr(get_settings(), "smtp_host", "smtp.gmail.com")
     monkeypatch.setattr(get_settings(), "smtp_password", "")
     assert mail.send("ann@example.com", "Hello", "Body") == "logged"
+
+
+# ------------------------------------------------------------------ games and campaigns belong to accounts (Step 5)
+
+SOLO = {"deck_id": "kirk", "mode": "solo", "bot": {"deck_id": "soval", "difficulty": "ensign"}}
+
+
+def account(client, email, name):
+    browser = TestClient(client.app)
+    sign_up(browser, email, name)
+    return browser
+
+
+def test_an_accounts_game_follows_it_to_another_browser(client):
+    ann = account(client, "ann@example.com", "Ann")
+    r = ann.post("/api/games", json=SOLO)
+    game_id = r.json()["game"]["id"]
+    assert r.json()["game"]["seats"][0]["display_name"] == "Ann"  # from the account, not the form (REQ-USER-40)
+    laptop = TestClient(client.app)  # the same person, another browser
+    assert laptop.post("/api/auth/login", json={"email": "ann@example.com", "password": "correct horse"}).status_code == 204
+    assert [g["id"] for g in laptop.get("/api/me/games").json()] == [game_id]
+    assert laptop.get(f"/api/games/{game_id}").json()["your_seat"] == 0
+    state = laptop.get(f"/api/games/{game_id}/state").json()
+    assert state["you"] == 0
+    option = state["decision"]["options"][0]["id"]
+    assert laptop.post(f"/api/games/{game_id}/commands", json={"option": option}).status_code == 200
+    with laptop.websocket_connect(f"/api/games/{game_id}/ws") as ws:  # found from the account
+        assert ws.receive_json() == {"type": "hello", "your_seat": 0}
+
+
+def test_an_owned_seat_needs_its_account(client):
+    ann = account(client, "ann@example.com", "Ann")
+    r = ann.post("/api/games", json=SOLO)
+    game_id = r.json()["game"]["id"]
+    bob = account(client, "bob@example.com", "Bob")
+    assert bob.get(f"/api/games/{game_id}").json()["your_seat"] is None
+    assert bob.post(f"/api/games/{game_id}/commands", json={"option": "end"}).status_code == 403
+    assert bob.get("/api/me/games").json() == []
+
+
+def test_one_account_cannot_take_both_seats(client):
+    ann = account(client, "ann@example.com", "Ann")
+    game_id = ann.post("/api/games", json={"deck_id": "kirk", "mode": "two_player"}).json()["game"]["id"]
+    again = ann.post(f"/api/games/{game_id}/join", json={"deck_id": "soval"})
+    assert again.status_code == 409 and again.json()["detail"] == "You already have a seat in this game"
+    bob = account(client, "bob@example.com", "Bob")
+    joined = bob.post(f"/api/games/{game_id}/join", json={"deck_id": "soval"})
+    assert joined.status_code == 200 and [s["display_name"] for s in joined.json()["game"]["seats"]] == ["Ann", "Bob"]
+
+
+def test_a_campaign_belongs_to_its_account(client):
+    ann = account(client, "ann@example.com", "Ann")
+    r = ann.post("/api/campaigns", json={"deck_id": "kirk"})
+    camp_id = r.json()["campaign"]["id"]
+    assert r.json()["campaign"]["display_name"] == "Ann"
+    laptop = TestClient(client.app)
+    laptop.post("/api/auth/login", json={"email": "ann@example.com", "password": "correct horse"})
+    assert [c["id"] for c in laptop.get("/api/me/campaigns").json()] == [camp_id]
+    assert laptop.get(f"/api/campaigns/{camp_id}").status_code == 200
+    started = laptop.post(f"/api/campaigns/{camp_id}/assignments", json={"bot_deck_id": "soval"})
+    assert started.status_code == 201
+    assert laptop.get(f"/api/games/{started.json()['game_id']}").json()["your_seat"] == 0  # the assignment is hers
+    bob = account(client, "bob@example.com", "Bob")
+    assert bob.get(f"/api/campaigns/{camp_id}").status_code == 403
+
+
+def test_a_report_records_the_reporters_account(client):
+    from app.models import BugReport
+
+    ann = account(client, "ann@example.com", "Ann")
+    game_id = ann.post("/api/games", json=SOLO).json()["game"]["id"]
+    assert ann.post(f"/api/games/{game_id}/bugs", json={"description": "Odd."}).status_code == 201
+    ann_id = ann.get("/api/auth/me").json()["id"]
+    with open_session() as db:
+        assert db.query(BugReport).one().user_id == ann_id
+
+
+def test_taking_a_seat_moves_it_to_the_admins_account(client):
+    ann = account(client, "ann@example.com", "Ann")
+    game_id = ann.post("/api/games", json=SOLO).json()["game"]["id"]
+    make_admin(client)
+    assert client.post(f"/api/admin/games/{game_id}/seats/0/take").status_code == 200
+    assert [g["id"] for g in client.get("/api/me/games").json()] == [game_id]
+    assert ann.get("/api/me/games").json() == [] and ann.get(f"/api/games/{game_id}").json()["your_seat"] is None

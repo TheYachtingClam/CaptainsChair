@@ -2,7 +2,7 @@ import { FormEvent, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
-  Box, CAMPAIGN_MODES, CampaignMode, DEFAULT_BOX, Deck, api, byComplexity, campaignApi, deckLabel, saveCampaignToken, setsFor,
+  Box, CAMPAIGN_MODES, CampaignMode, DEFAULT_BOX, Deck, api, byComplexity, campaignApi, deckLabel, setsFor,
 } from "../api";
 
 /** Start a Five-Year Mission (REQ-CAMP-02): your Crew deck and a campaign mode. You start as an Ensign. */
@@ -10,7 +10,6 @@ export function NewCampaign() {
   const navigate = useNavigate();
   const decks = useQuery({ queryKey: ["decks"], queryFn: api.decks });
   const expansions = useQuery({ queryKey: ["expansions"], queryFn: api.expansions });
-  const [name, setName] = useState("");
   const [deck, setDeck] = useState("");
   const [mode, setMode] = useState<CampaignMode>("set_phasers_to_stun");
   const boxes = useQuery({ queryKey: ["boxes"], queryFn: api.boxes });
@@ -26,13 +25,10 @@ export function NewCampaign() {
 
   const create = useMutation({
     mutationFn: () => campaignApi.create({
-      display_name: name.trim(), deck_id: deck, mode, box, expansions: chosen, promos,
+      deck_id: deck, mode, box, expansions: chosen, promos,
       challenges: challenges.filter((c) => available.data?.some((a) => a.id === c)),
     }),
-    onSuccess: ({ campaign, token }) => {
-      saveCampaignToken(campaign.id, token);
-      navigate(`/campaigns/${campaign.id}?key=${encodeURIComponent(token)}`);
-    },
+    onSuccess: ({ campaign }) => navigate(`/campaigns/${campaign.id}`),
   });
 
   function submit(e: FormEvent) {
@@ -48,10 +44,6 @@ export function NewCampaign() {
         upgrade for your Crew deck. Reach Admiral to win.
       </p>
       <form className="card stack" onSubmit={submit}>
-        <label>
-          Your name
-          <input maxLength={40} value={name} onChange={(e) => setName(e.target.value)} />
-        </label>
         <fieldset>
           <legend>Box</legend>
           {(Object.entries(boxes.data ?? {}) as [Box, { name: string }][]).map(([id, b]) => (
@@ -107,7 +99,7 @@ export function NewCampaign() {
           </fieldset>
         )}
         {create.error && <p className="error" role="alert">{create.error.message}</p>}
-        <button type="submit" disabled={create.isPending || !name.trim() || !deck}>Start the campaign</button>
+        <button type="submit" disabled={create.isPending || !deck}>Start the campaign</button>
       </form>
     </main>
   );

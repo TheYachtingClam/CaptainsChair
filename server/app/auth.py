@@ -1,10 +1,7 @@
-"""Access control (requirements/19-technical-architecture.md §5): user accounts, and, until plans/users.md Step 8
-retires it, the shared site password. Both use the same signed session cookie: an account's holds the user id and
-their session version (REQ-USER-13); the shared password's holds a fingerprint of that password."""
+"""Access control (requirements/19-technical-architecture.md §5): every request is made by a signed-in account. The
+session is a signed cookie holding the user's id and their session version (REQ-USER-13); a password change, a
+reset or disabling the account ends it."""
 
-import hashlib
-import hmac
-import secrets
 import time
 from collections import defaultdict, deque
 
@@ -20,29 +17,11 @@ def _serializer(settings: Settings) -> URLSafeTimedSerializer:
     return URLSafeTimedSerializer(settings.session_secret, salt="cc-session")
 
 
-def _password_fingerprint(settings: Settings) -> str:
-    # Part of every session, so changing the password ends all sessions
-    # (REQ-AUTH-05, REQ-AUTH-13).
-    return hmac.new(
-        settings.session_secret.encode(), settings.site_password.encode(), hashlib.sha256
-    ).hexdigest()[:32]
-
-
-def check_password(candidate: str, settings: Settings) -> bool:
-    return hmac.compare_digest(candidate.encode(), settings.site_password.encode())
-
-
-def issue_session(response: Response, settings: Settings) -> None:
-    token = _serializer(settings).dumps({"pw": _password_fingerprint(settings)})
-    response.set_cookie(
-        COOKIE_NAME,
-        token,
-        max_age=settings.session_days * 86400,
-        httponly=True,
-        secure=settings.secure_cookies,
-        samesite="lax",
-        path="/",
-    )
+def issue_user_session(response: Response, settings: Settings, user) -> None:
+    """Sign a user in on this browser for 30 days (REQ-USER-10, -13)."""
+    token = _serializer(settings).dumps({"uid": user.id, "v": user.session_version})
+    response.set_cookie(COOKIE_NAME, token, max_age=settings.session_days * 86400, httponly=True,
+                        secure=settings.secure_cookies, samesite="lax", path="/")
 
 
 def clear_session(response: Response) -> None:
@@ -56,132 +35,62 @@ def _session_data(cookie: str | None, settings: Settings) -> dict | None:
         data = _serializer(settings).loads(cookie, max_age=settings.session_days * 86400)
     except (BadSignature, SignatureExpired):
         return None
-    return data if isinstance(data, dict) else None
+    return data if isinstance(data, dict) and "uid" in data else None
 
 
-def issue_user_session(response: Response, settings: Settings, user) -> None:
-    """Sign a user in on this browser for 30 days (REQ-USER-10, -13)."""
-    token = _serializer(settings).dumps({"uid": user.id, "v": user.session_version})
-    response.set_cookie(COOKIE_NAME, token, max_age=settings.session_days * 86400, httponly=True,
-                        secure=settings.secure_cookies, samesite="lax", path="/")
-
-
-def _user_matches(user, data: dict) -> bool:
-    """The account still exists, is not disabled, and its password has not changed since (REQ-USER-11, -14)."""
-    return user is not None and not user.disabled and user.session_version == data.get("v")
-
-
-def session_user(request_cookies, db):
-    """The signed-in account, or None (also None for a shared-password session)."""
+def session_user(cookies, db):
+    """The signed-in account, or None: no cookie, a bad one, a disabled account, or a password changed since
+    (REQ-USER-11, -14)."""
     from app.models import User
 
-    data = _session_data(request_cookies.get(COOKIE_NAME), get_settings())
-    if not data or "uid" not in data:
+    data = _session_data(cookies.get(COOKIE_NAME), get_settings())
+    if data is None:
         return None
     user = db.get(User, data["uid"])
-    return user if _user_matches(user, data) else None
+    if user is None or user.disabled or user.session_version != data.get("v"):
+        return None
+    return user
 
 
-def session_is_valid(cookie: str | None, settings: Settings) -> bool:
-    data = _session_data(cookie, settings)
-    if data is None:
-        return False
-    if "uid" in data:
-        from app.db import open_session
-        from app.models import User
+def _signed_in(cookies):
+    from app.db import open_session
 
-        with open_session() as db:
-            return _user_matches(db.get(User, data["uid"]), data)
-    return hmac.compare_digest(str(data.get("pw", "")), _password_fingerprint(settings))
+    with open_session() as db:
+        user = session_user(cookies, db)
+        return (user.id, user.is_admin) if user is not None else None
 
 
 def require_session(request: Request) -> None:
-    """FastAPI dependency for every protected endpoint (REQ-AUTH-01)."""
-    if not session_is_valid(request.cookies.get(COOKIE_NAME), get_settings()):
+    """FastAPI dependency for every protected endpoint (REQ-USER-03)."""
+    if _signed_in(request.cookies) is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not signed in")
 
 
-# ------------------------------------------------------------------ admin (REQ-ADMIN-01 to -05)
-
-ADMIN_COOKIE = "cc_admin"
-ADMIN_DAYS = 1
-
-
-def _admin_serializer(settings: Settings) -> URLSafeTimedSerializer:
-    return URLSafeTimedSerializer(settings.session_secret, salt="cc-admin")
-
-
-def _admin_fingerprint(settings: Settings) -> str:
-    # Changing ADMIN_PASSWORD ends every admin session (REQ-ADMIN-02).
-    return hmac.new(
-        settings.session_secret.encode(), b"admin:" + settings.admin_password.encode(), hashlib.sha256
-    ).hexdigest()[:32]
-
-
-def admin_enabled(settings: Settings) -> bool:
-    return bool(settings.admin_password)
-
-
-def check_admin_password(candidate: str, settings: Settings) -> bool:
-    return admin_enabled(settings) and hmac.compare_digest(candidate.encode(), settings.admin_password.encode())
-
-
-def issue_admin(response: Response, settings: Settings) -> None:
-    token = _admin_serializer(settings).dumps({"admin": _admin_fingerprint(settings)})
-    response.set_cookie(ADMIN_COOKIE, token, max_age=ADMIN_DAYS * 86400, httponly=True,
-                        secure=settings.secure_cookies, samesite="lax", path="/")
-
-
-def clear_admin(response: Response) -> None:
-    response.delete_cookie(ADMIN_COOKIE, path="/")
-
-
-def is_admin(request: Request) -> bool:
-    settings = get_settings()
-    cookie = request.cookies.get(ADMIN_COOKIE)
-    if not admin_enabled(settings) or not cookie:
-        return False
-    try:
-        data = _admin_serializer(settings).loads(cookie, max_age=ADMIN_DAYS * 86400)
-    except (BadSignature, SignatureExpired):
-        return False
-    return isinstance(data, dict) and hmac.compare_digest(str(data.get("admin", "")), _admin_fingerprint(settings))
-
-
-def account_is_admin(request: Request) -> bool:
-    """The signed-in account has the admin flag (REQ-USER-32)."""
-    from app.db import open_session
-
-    with open_session() as db:
-        user = session_user(request.cookies, db)
-        return user is not None and user.is_admin
+def viewer_id(request: Request) -> str:
+    """FastAPI dependency: the signed-in account's id (REQ-USER-03)."""
+    signed_in = _signed_in(request.cookies)
+    if signed_in is None:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not signed in")
+    return signed_in[0]
 
 
 def require_admin(request: Request) -> None:
-    """FastAPI dependency for admin endpoints: an admin account, or, until plans/users.md Step 8, the admin
-    password's session."""
-    require_session(request)
-    if not (account_is_admin(request) or is_admin(request)):
+    """FastAPI dependency for admin endpoints: a signed-in account with the admin flag (REQ-USER-32)."""
+    signed_in = _signed_in(request.cookies)
+    if signed_in is None:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not signed in")
+    if not signed_in[1]:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Admin only")
 
 
-def require_user(request: Request):
-    """FastAPI dependency: the signed-in account (REQ-USER-03). A shared-password session is not an account."""
-    from app.db import open_session
-
-    with open_session() as db:
-        user = session_user(request.cookies, db)
-        if user is None:
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Sign in to your account")
-        return user.id
-
-
-def websocket_has_session(websocket: WebSocket) -> bool:
-    return session_is_valid(websocket.cookies.get(COOKIE_NAME), get_settings())
+def websocket_user(websocket: WebSocket) -> str | None:
+    """The account a WebSocket connection comes from (REQ-SRV-40)."""
+    signed_in = _signed_in(websocket.cookies)
+    return signed_in[0] if signed_in is not None else None
 
 
 class LoginRateLimiter:
-    """In-memory, per-IP limit on login attempts (REQ-AUTH-15)."""
+    """In-memory, per-IP limit on sign-in and similar attempts (REQ-USER-12, -20)."""
 
     def __init__(self) -> None:
         self._attempts: dict[str, deque[float]] = defaultdict(deque)
@@ -201,11 +110,3 @@ class LoginRateLimiter:
 
 
 login_limiter = LoginRateLimiter()
-
-
-def new_seat_token() -> str:
-    return secrets.token_urlsafe(32)
-
-
-def hash_seat_token(token: str) -> str:
-    return hashlib.sha256(token.encode()).hexdigest()

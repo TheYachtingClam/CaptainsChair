@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { Game, MODE_LABELS, SeatChoice, api, campaignApi, forgetSeatToken, knownCampaigns, loadSeatToken, saveSeatToken, setsFor } from "../api";
+import { Game, MODE_LABELS, SeatChoice, api, campaignApi, setsFor } from "../api";
 import { SeatForm } from "../components/SeatForm";
 
 export function Lobby() {
   const games = useQuery({ queryKey: ["games"], queryFn: api.games, refetchInterval: 5000 });
-  const mine = (games.data ?? []).filter((g) => loadSeatToken(g.id));
-  const open = (games.data ?? []).filter((g) => !loadSeatToken(g.id) && g.open_seats > 0);
+  // Your games: the account's, on any device (REQ-USER-40).
+  const myGames = useQuery({ queryKey: ["my-games"], queryFn: api.myGames, refetchInterval: 5000 });
+  const mine = myGames.data ?? [];
+  const ownIds = new Set(mine.map((g) => g.id));
+  const open = (games.data ?? []).filter((g) => !ownIds.has(g.id) && g.open_seats > 0);
 
   return (
     <main className="page">
@@ -63,8 +66,8 @@ function MyGame({ game }: { game: Game }) {
   const remove = useMutation({
     mutationFn: () => api.deleteGame(game.id),
     onSuccess: () => {
-      forgetSeatToken(game.id);
       queryClient.invalidateQueries({ queryKey: ["games"] });
+      queryClient.invalidateQueries({ queryKey: ["my-games"] });
     },
   });
   const others = game.seats.length > 1;
@@ -99,13 +102,13 @@ function OpenGame({ game }: { game: Game }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [joining, setJoining] = useState(false);
-  const [seat, setSeat] = useState<SeatChoice>({ display_name: "", deck_id: "", board_side: "basic" });
+  const [seat, setSeat] = useState<SeatChoice>({ deck_id: "", board_side: "basic" });
 
   const join = useMutation({
     mutationFn: () => api.joinGame(game.id, seat),
-    onSuccess: (grant) => {
-      saveSeatToken(game.id, grant.seat_token);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["games"] });
+      queryClient.invalidateQueries({ queryKey: ["my-games"] });
       navigate(`/games/${game.id}`);
     },
   });
@@ -126,7 +129,7 @@ function OpenGame({ game }: { game: Game }) {
           />
           {join.error && <p className="error" role="alert">{join.error.message}</p>}
           <div className="row">
-            <button disabled={join.isPending || !seat.display_name.trim() || !seat.deck_id} onClick={() => join.mutate()}>
+            <button disabled={join.isPending || !seat.deck_id} onClick={() => join.mutate()}>
               Take the seat
             </button>
             <button className="link" onClick={() => setJoining(false)}>Cancel</button>
@@ -138,9 +141,10 @@ function OpenGame({ game }: { game: Game }) {
 }
 
 
-/** Five-Year Missions this browser has the link of (REQ-CAMP-54). */
+/** The account's Five-Year Missions (REQ-CAMP-54). */
 function MyCampaigns() {
-  const ids = knownCampaigns();
+  const owned = useQuery({ queryKey: ["my-campaigns"], queryFn: api.myCampaigns });
+  const ids = (owned.data ?? []).map((c) => c.id);
   const campaigns = useQuery({
     queryKey: ["campaigns", ids.join(",")],
     queryFn: () => Promise.all(ids.map((id) => campaignApi.get(id).catch(() => null))),

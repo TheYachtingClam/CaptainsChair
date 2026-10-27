@@ -1,6 +1,6 @@
 """Five-Year Mission campaigns (requirements/22-solo-mode.md §14, REQ-CAMP-50 to -54).
 
-A campaign is reached by its own secret link: the token goes in the X-Campaign-Token header. Each assignment is an
+A campaign belongs to the account that started it (REQ-USER-43). Each assignment is an
 ordinary solo game against a Bot; the campaign reads its result when it is over and records the upgrade.
 """
 
@@ -11,15 +11,15 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 from typing import Literal
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
 from app import content, play
-from app.auth import hash_seat_token, new_seat_token, require_session
+from app.auth import require_session, viewer_id
 from app.db import get_db
-from app.models import Campaign, Game
+from app.models import Campaign, Game, User
 from app.routes.games import add_seat, validate_deck
 from app.schemas import BoardSide, SeatChoice
 from engine import campaign as rules
@@ -29,8 +29,7 @@ router = APIRouter(prefix="/api/campaigns", tags=["campaigns"], dependencies=[De
 
 
 class NewCampaign(BaseModel):
-    display_name: str = Field(min_length=1, max_length=40)
-    deck_id: str
+    deck_id: str  # the display name comes from the account (REQ-USER-40)
     mode: str = "set_phasers_to_stun"
     box: Literal["core", "to_boldly_go", "both"] = "to_boldly_go"
     expansions: list[str] = []
@@ -53,12 +52,13 @@ class UpgradeChoice(BaseModel):
     cards: list[str] = []
 
 
-def _load(db: Session, campaign_id: str, token: str | None) -> Campaign:
+def _load(db: Session, campaign_id: str, user_id: str) -> Campaign:
+    """Only the account that started a campaign can open it (REQ-USER-43)."""
     found = db.get(Campaign, campaign_id)
     if found is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Campaign not found")
-    if not token or hash_seat_token(token) != found.token_hash:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "This campaign needs its link")
+    if found.user_id != user_id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "This is someone else's campaign")
     return found
 
 
@@ -179,7 +179,7 @@ def _view(camp: Campaign) -> dict:
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-def create_campaign(body: NewCampaign, db: Session = Depends(get_db)) -> dict:
+def create_campaign(body: NewCampaign, db: Session = Depends(get_db), viewer: str = Depends(viewer_id)) -> dict:
     """REQ-CAMP-02: choose a Crew deck and a campaign mode; the rank starts at Ensign."""
     unknown = set(body.expansions) - set(content.EXPANSIONS)
     if unknown:
@@ -192,30 +192,30 @@ def create_campaign(body: NewCampaign, db: Session = Depends(get_db)) -> dict:
     allowed = rules.available_challenges(body.deck_id)
     if set(body.challenges) - set(allowed):
         raise HTTPException(422, "A chosen challenge is not available for this Crew deck")
-    token = new_seat_token()
-    camp = Campaign(display_name=body.display_name.strip(), deck_id=body.deck_id, mode=body.mode,
+    user = db.get(User, viewer)
+    camp = Campaign(display_name=user.display_name, deck_id=body.deck_id, mode=body.mode, user_id=user.id,
                     box=body.box, expansions=body.expansions, promos=body.promos,
-                    promo_sets=list(content.ALL_PROMOS) if body.promos else [], token_hash=hash_seat_token(token),
+                    promo_sets=list(content.ALL_PROMOS) if body.promos else [],
                     challenges=[c for c in rules.CHALLENGES if c in body.challenges])
     db.add(camp)
     db.commit()
-    return {"campaign": _view(camp), "token": token}
+    return {"campaign": _view(camp)}
 
 
 @router.get("/{campaign_id}")
 def get_campaign(campaign_id: str, db: Session = Depends(get_db),
-                 x_campaign_token: str | None = Header(default=None)) -> dict:
-    camp = _load(db, campaign_id, x_campaign_token)
+                 viewer: str = Depends(viewer_id)) -> dict:
+    camp = _load(db, campaign_id, viewer)
     _sync(db, camp)
     return _view(camp)
 
 
 @router.post("/{campaign_id}/assignments", status_code=status.HTTP_201_CREATED)
 def start_assignment(campaign_id: str, body: NewAssignment, db: Session = Depends(get_db),
-                     x_campaign_token: str | None = Header(default=None)) -> dict:
+                     viewer: str = Depends(viewer_id)) -> dict:
     """The next assignment: a solo game against a Bot you have not beaten, at the difficulty the rank and mode give
-    (REQ-CAMP-04, -05, -10). Returns the new game and your seat token."""
-    camp = _load(db, campaign_id, x_campaign_token)
+    (REQ-CAMP-04, -05, -10). Returns the new game."""
+    camp = _load(db, campaign_id, viewer)
     _sync(db, camp)
     if _phase(camp) != "start":
         raise HTTPException(409, "Finish the current assignment first")
@@ -230,15 +230,14 @@ def start_assignment(campaign_id: str, body: NewAssignment, db: Session = Depend
                 campaign={"id": camp.id, "assignment": number, "reinforcement": list(camp.reinforcement),
                           "setup": asdict(_setup(camp, body.drop))})
     db.add(game)
-    seat, token = add_seat(db, game, SeatChoice(display_name=camp.display_name, deck_id=camp.deck_id,
-                                                board_side=body.board_side))
+    seat = add_seat(db, game, SeatChoice(deck_id=camp.deck_id, board_side=body.board_side), db.get(User, camp.user_id))
     camp.assignments = [*camp.assignments, {
         "number": number, "game_id": game.id, "date": datetime.now(UTC).date().isoformat(), "rank": camp.rank,
         "bot": bot, "difficulty": level, "board_side": body.board_side, "outcome": None, "scores": None,
         "upgrade": None,
     }]
     db.commit()
-    return {"game_id": game.id, "seat_index": seat.index, "seat_token": token, "campaign": _view(camp)}
+    return {"game_id": game.id, "seat_index": seat.index, "campaign": _view(camp)}
 
 
 @router.get("/challenges/{deck_id}")
@@ -256,10 +255,10 @@ def _boost_text(key: str) -> str:
 
 @router.post("/{campaign_id}/upgrade")
 def choose_upgrade(campaign_id: str, body: UpgradeChoice, db: Session = Depends(get_db),
-                   x_campaign_token: str | None = Header(default=None)) -> dict:
+                   viewer: str = Depends(viewer_id)) -> dict:
     """One upgrade after each assignment (REQ-CAMP-25): option A adds an offered Market card to the Reinforcement
     pile; option B takes one of the Bot's bonuses: a Boost for every later game, or own cards to reinforce."""
-    camp = _load(db, campaign_id, x_campaign_token)
+    camp = _load(db, campaign_id, viewer)
     _sync(db, camp)
     if _phase(camp) != "upgrade":
         raise HTTPException(409, "There is no upgrade to choose now")

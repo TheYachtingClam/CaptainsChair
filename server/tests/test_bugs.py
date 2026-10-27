@@ -8,58 +8,53 @@ from pathlib import Path
 import pytest
 
 from app import bugs
-from tests.test_admin import admin_on  # noqa: F401  (fixture)
+from tests.conftest import another_browser, sign_in_as
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
-@pytest.fixture
-def admin(authed, admin_on):  # noqa: F811
-    """A session that is also signed in as the admin."""
-    assert authed.post("/api/admin/login", json={"password": "admin-secret"}).status_code == 204
-    return authed
-
-
 def solo_game(client, **overrides):
-    body = {"display_name": "Nick", "deck_id": "kirk", "mode": "solo",
+    body = {"deck_id": "kirk", "mode": "solo",
             "bot": {"deck_id": "soval", "difficulty": "ensign"}, **overrides}
     r = client.post("/api/games", json=body)
     assert r.status_code == 201, r.text
-    return r.json()["game"]["id"], {"X-Seat-Token": r.json()["seat_token"]}
+    return r.json()["game"]["id"]
 
 
-def play_some(client, game_id, headers, moves=6):
+def play_some(client, game_id, moves=6):
     """Make a few moves: the first option each time, never ending the game."""
     for _ in range(moves):
-        state = client.get(f"/api/games/{game_id}/state", headers=headers).json()
+        state = client.get(f"/api/games/{game_id}/state").json()
         options = state["decision"]["options"]
         pick = next((o for o in options if o["id"].startswith("play:")), options[0])
-        assert client.post(f"/api/games/{game_id}/commands", json={"option": pick["id"]}, headers=headers).status_code == 200
-    return client.get(f"/api/games/{game_id}/state", headers=headers).json()
+        assert client.post(f"/api/games/{game_id}/commands", json={"option": pick["id"]}).status_code == 200
+    return client.get(f"/api/games/{game_id}/state").json()
 
 
-def report(client, game_id, headers, text="The Glory did not arrive."):
-    return client.post(f"/api/games/{game_id}/bugs", json={"description": text}, headers=headers)
+def report(client, game_id, text="The Glory did not arrive."):
+    return client.post(f"/api/games/{game_id}/bugs", json={"description": text})
 
 
 def test_a_seated_player_reports_a_bug(authed):
-    game_id, headers = solo_game(authed)
-    assert report(authed, game_id, {}).status_code == 403  # no seat
-    assert report(authed, game_id, headers, "   ").status_code == 422
-    r = report(authed, game_id, headers)
+    game_id = solo_game(authed)
+    other = sign_in_as(another_browser(authed), "sam@example.com", "Sam")
+    assert report(other, game_id).status_code == 403  # no seat
+    assert report(authed, game_id, "   ").status_code == 422
+    r = report(authed, game_id)
     assert r.status_code == 201 and r.json()["id"]
 
 
 def test_the_report_recreates_the_game_exactly(admin):
+    """The admin plays a game of their own, then reports on it."""
     authed = admin
-    game_id, headers = solo_game(authed)
-    seen = play_some(authed, game_id, headers)
-    bug_id = report(authed, game_id, headers).json()["id"]
-    play_some(authed, game_id, headers, moves=3)  # the game moves on; the report does not
+    game_id = solo_game(authed)
+    seen = play_some(authed, game_id)
+    bug_id = report(authed, game_id).json()["id"]
+    play_some(authed, game_id, moves=3)  # the game moves on; the report does not
 
     listed = authed.get("/api/admin/bugs").json()
     assert [b["id"] for b in listed] == [bug_id]
-    assert listed[0]["reporter"] == "Nick" and listed[0]["status"] == "open" and listed[0]["moves"] == 6
+    assert listed[0]["reporter"] == "Admin" and listed[0]["status"] == "open" and listed[0]["moves"] == 6
     full = authed.get(f"/api/admin/bugs/{bug_id}").json()
     data = full["bundle"]
     assert data["game"]["seed"] and len(data["commands"]) == 6 and data["recent_log"]
@@ -73,42 +68,39 @@ def test_the_report_recreates_the_game_exactly(admin):
 
 
 def test_reports_need_the_admin(authed):
-    game_id, headers = solo_game(authed)
-    bug_id = report(authed, game_id, headers).json()["id"]
+    game_id = solo_game(authed)
+    bug_id = report(authed, game_id).json()["id"]
     assert authed.get("/api/admin/bugs").status_code in (401, 403, 404)
     assert authed.get(f"/api/admin/bugs/{bug_id}").status_code in (401, 403, 404)
 
 
 def test_a_report_outlives_its_game_and_can_be_recreated(admin):
     authed = admin
-    game_id, headers = solo_game(authed)
-    seen = play_some(authed, game_id, headers)
-    bug_id = report(authed, game_id, headers).json()["id"]
-    assert authed.delete(f"/api/games/{game_id}", headers=headers).status_code == 204
+    game_id = solo_game(authed)
+    seen = play_some(authed, game_id)
+    bug_id = report(authed, game_id).json()["id"]
+    assert authed.delete(f"/api/games/{game_id}").status_code == 204
 
     r = authed.post(f"/api/admin/bugs/{bug_id}/recreate", json={})
     assert r.status_code == 200, r.text
     copy = r.json()
     assert copy["game_id"] != game_id and copy["reporter_seat"] == 0
-    copy_headers = {"X-Seat-Token": copy["seat_tokens"]["0"]}
-    state = authed.get(f"/api/games/{copy['game_id']}/state", headers=copy_headers).json()
+    state = authed.get(f"/api/games/{copy['game_id']}/state").json()
     assert state["decision"] == seen["decision"] and state["you"] == 0
     # The copy is an ordinary game: it can be played on.
     option = state["decision"]["options"][0]["id"]
-    assert authed.post(f"/api/games/{copy['game_id']}/commands", json={"option": option},
-                       headers=copy_headers).status_code == 200
+    assert authed.post(f"/api/games/{copy['game_id']}/commands", json={"option": option}).status_code == 200
 
     back = authed.post(f"/api/admin/bugs/{bug_id}/recreate", json={"moves": 3}).json()
-    earlier = authed.get(f"/api/games/{back['game_id']}/state",
-                         headers={"X-Seat-Token": back["seat_tokens"]["0"]}).json()
+    earlier = authed.get(f"/api/games/{back['game_id']}/state").json()
     assert len(earlier["log"]) < len(state["log"])
     assert authed.post(f"/api/admin/bugs/{bug_id}/recreate", json={"moves": 99}).status_code == 422
 
 
 def test_resolving_and_deleting_a_report(admin):
     authed = admin
-    game_id, headers = solo_game(authed)
-    bug_id = report(authed, game_id, headers).json()["id"]
+    game_id = solo_game(authed)
+    bug_id = report(authed, game_id).json()["id"]
     r = authed.post(f"/api/admin/bugs/{bug_id}/status", json={"status": "resolved"})
     assert r.status_code == 200 and r.json()["status"] == "resolved"
     assert authed.post(f"/api/admin/bugs/{bug_id}/status", json={"status": "fixed"}).status_code == 422
@@ -117,25 +109,27 @@ def test_resolving_and_deleting_a_report(admin):
     assert authed.get(f"/api/admin/bugs/{bug_id}").status_code == 404
 
 
-def test_a_two_player_report_gives_a_token_for_every_seat(admin):
-    authed = admin
-    r = authed.post("/api/games", json={"display_name": "Ann", "deck_id": "georgiou", "mode": "two_player"})
-    game_id, ann = r.json()["game"]["id"], {"X-Seat-Token": r.json()["seat_token"]}
-    assert report(authed, game_id, ann).status_code == 409  # not started
-    j = authed.post(f"/api/games/{game_id}/join", json={"display_name": "Bob", "deck_id": "soval"})
-    bob = {"X-Seat-Token": j.json()["seat_token"]}
-    bug_id = report(authed, game_id, bob, "Seen from the second seat.").json()["id"]
-    copy = authed.post(f"/api/admin/bugs/{bug_id}/recreate", json={}).json()
-    assert copy["reporter_seat"] == 1 and set(copy["seat_tokens"]) == {"0", "1"}
-    view = authed.get(f"/api/games/{copy['game_id']}/state", headers={"X-Seat-Token": copy["seat_tokens"]["1"]}).json()
-    assert view["you"] == 1
+def test_a_two_player_copy_seats_the_admin_in_every_seat(admin):
+    """REQ-BUG-07: the admin plays both sides of the copy; each request acts in the seat whose decision is pending."""
+    ann = sign_in_as(another_browser(admin), "ann@example.com", "Ann")
+    game_id = ann.post("/api/games", json={"deck_id": "georgiou", "mode": "two_player"}).json()["game"]["id"]
+    assert report(ann, game_id).status_code == 409  # not started
+    bob = sign_in_as(another_browser(admin), "bob@example.com", "Bob")
+    bob.post(f"/api/games/{game_id}/join", json={"deck_id": "soval"})
+    bug_id = report(bob, game_id, "Seen from the second seat.").json()["id"]
+    copy = admin.post(f"/api/admin/bugs/{bug_id}/recreate", json={}).json()
+    assert copy["reporter_seat"] == 1
+    view = admin.get(f"/api/games/{copy['game_id']}/state").json()
+    assert view["you"] == view["decision"]["seat"]
+    option = view["decision"]["options"][0]["id"]
+    assert admin.post(f"/api/games/{copy['game_id']}/commands", json={"option": option}).status_code == 200
 
 
 def test_replay_script_reads_a_downloaded_report(admin, tmp_path):
     authed = admin
-    game_id, headers = solo_game(authed)
-    play_some(authed, game_id, headers)
-    bug_id = report(authed, game_id, headers).json()["id"]
+    game_id = solo_game(authed)
+    play_some(authed, game_id)
+    bug_id = report(authed, game_id).json()["id"]
     path = tmp_path / "report.json"
     download = authed.get(f"/api/admin/bugs/{bug_id}/download")
     assert download.status_code == 200 and "attachment" in download.headers["content-disposition"]
@@ -154,13 +148,13 @@ def test_the_seed_survives_the_download_exactly(admin):
     from app.models import Game
 
     authed = admin
-    game_id, headers = solo_game(authed)
+    game_id = solo_game(authed)
     db = next(app.dependency_overrides.get(get_db, get_db)())
     game = db.get(Game, game_id)
     game.seed = 6233931749992975690  # above 2**53: a JavaScript number would round it to ...975000
     db.commit()
-    play_some(authed, game_id, headers)
-    bug_id = report(authed, game_id, headers).json()["id"]
+    play_some(authed, game_id)
+    bug_id = report(authed, game_id).json()["id"]
     raw = authed.get(f"/api/admin/bugs/{bug_id}/download").content.decode()
     assert '"6233931749992975690"' in raw  # written as text, so no client can round it
     data = json.loads(raw)["bundle"]
@@ -171,14 +165,12 @@ def test_the_seed_survives_the_download_exactly(admin):
 def test_a_feature_request_keeps_the_game_too(admin):
     """REQ-BUG-09."""
     authed = admin
-    game_id, headers = solo_game(authed)
-    play_some(authed, game_id, headers, moves=3)
-    r = authed.post(f"/api/games/{game_id}/bugs", json={"description": "Show the Bot's hand size.", "kind": "feature"},
-                    headers=headers)
+    game_id = solo_game(authed)
+    play_some(authed, game_id, moves=3)
+    r = authed.post(f"/api/games/{game_id}/bugs", json={"description": "Show the Bot's hand size.", "kind": "feature"})
     assert r.status_code == 201
-    assert report(authed, game_id, headers).status_code == 201  # a bug, by default
-    assert authed.post(f"/api/games/{game_id}/bugs", json={"description": "x", "kind": "wish"},
-                       headers=headers).status_code == 422
+    assert report(authed, game_id).status_code == 201  # a bug, by default
+    assert authed.post(f"/api/games/{game_id}/bugs", json={"description": "x", "kind": "wish"}).status_code == 422
     listed = {b["description"]: b for b in authed.get("/api/admin/bugs").json()}
     feature = listed["Show the Bot's hand size."]
     assert feature["kind"] == "feature" and feature["moves"] == 3 and listed["The Glory did not arrive."]["kind"] == "bug"

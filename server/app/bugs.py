@@ -49,9 +49,10 @@ def bundle(game: Game, seat: int) -> dict:
     }
 
 
-def as_game(data: dict, *, moves: int | None = None) -> Game:
-    """A Game row built from a bundle, not yet in any database. `moves` keeps only the first that many commands, to
-    look at an earlier moment (REQ-BUG-06)."""
+def as_game(data: dict, *, moves: int | None = None, owner: str = "") -> Game:
+    """A Game row built from a bundle, not yet in any database, every seat held by `owner` (an account id; empty when
+    the game is only rebuilt, never stored). `moves` keeps only the first that many commands, to look at an earlier
+    moment (REQ-BUG-06)."""
     g = data["game"]
     commands = [dict(c) for c in data["commands"]]
     game = Game(id=str(uuid.uuid4()), mode=g["mode"], box=g.get("box", "to_boldly_go"), expansions=g["expansions"],
@@ -60,7 +61,7 @@ def as_game(data: dict, *, moves: int | None = None) -> Game:
                 commands=commands if moves is None else commands[:moves])
     for s in g["seats"]:
         game.seats.append(Seat(index=s["index"], display_name=s["display_name"], deck_id=s["deck_id"],
-                               board_side=s["board_side"], token_hash=""))
+                               board_side=s["board_side"], user_id=owner))
     return game
 
 

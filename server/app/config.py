@@ -10,7 +10,6 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    site_password: str = Field(min_length=1)
     session_secret: str = Field(min_length=16)
     database_url: str = "sqlite:///./data/captains_chair.db"
     log_level: str = "info"
@@ -22,8 +21,6 @@ class Settings(BaseSettings):
     login_attempts_per_minute: int = 5
     # Developer panel for testing cards by hand (plans/card-implementation.md). Never turn on for real games.
     dev_tools: bool = False
-    # Optional admin password (requirements/19-technical-architecture.md §5.3). Empty: no admin.
-    admin_password: str = ""
     # Where `python -m app.create_admin` sends the first admin invitation when no address is given (REQ-USER-04).
     admin_email: str = ""
     # The site's address, for links in emails (REQ-USER-23).
@@ -38,6 +35,5 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    # Raises a validation error, and so refuses to start, if the password
-    # or session secret is missing (REQ-AUTH-16).
+    # Raises a validation error, and so refuses to start, if the session secret is missing (REQ-OPS-04).
     return Settings()

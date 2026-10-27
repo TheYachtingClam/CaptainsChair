@@ -1,20 +1,11 @@
-"""Signing in and accounts (requirements/19-technical-architecture.md §5.2, §5.3). Until plans/users.md Step 8,
-signing in with the shared site password (a password and no email) still works."""
+"""Signing in and accounts (requirements/19-technical-architecture.md §5.2, §5.3)."""
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app import users
-from app.auth import (
-    check_password,
-    clear_session,
-    issue_session,
-    issue_user_session,
-    login_limiter,
-    require_session,
-    session_user,
-)
+from app.auth import clear_session, issue_user_session, login_limiter, require_session, session_user
 from app.config import get_settings
 from app.db import get_db
 from app.schemas import LoginRequest
@@ -31,14 +22,9 @@ def _limit(request: Request, what: str) -> None:
 
 @router.post("/login", status_code=status.HTTP_204_NO_CONTENT)
 def login(body: LoginRequest, request: Request, response: Response, db: Session = Depends(get_db)) -> None:
-    """Sign in with an email and password (REQ-USER-10 to -12), or with the shared site password alone."""
+    """Sign in with an email and password (REQ-USER-10 to -12)."""
     settings = get_settings()
     _limit(request, "login")
-    if body.email is None:
-        if not check_password(body.password, settings):
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Incorrect password")
-        issue_session(response, settings)
-        return
     user = users.authenticate(db, body.email, body.password)
     if user is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Incorrect email or password")

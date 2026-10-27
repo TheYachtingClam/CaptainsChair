@@ -49,21 +49,20 @@ class Seat(Base):
     display_name: Mapped[str] = mapped_column(String(40))
     deck_id: Mapped[str] = mapped_column(String(40))
     board_side: Mapped[str] = mapped_column(String(10))
-    # Only a hash of the seat token is stored (REQ-SRV-30).
-    token_hash: Mapped[str] = mapped_column(String(64), index=True)
+    # The account that holds the seat (REQ-SRV-30, REQ-USER-42).
+    user_id: Mapped[str] = mapped_column(String(36), index=True)
 
     game: Mapped[Game] = relationship(back_populates="seats")
 
 
 class Campaign(Base):
-    """A Five-Year Mission (requirements/22-solo-mode.md §14), replacing the paper logbook (REQ-CAMP-50 to -54). It is
-    reached through its own secret link: only a hash of the token is stored, like seat tokens."""
+    """A Five-Year Mission (requirements/22-solo-mode.md §14), replacing the paper logbook (REQ-CAMP-50 to -54). It
+    belongs to the account that started it (REQ-USER-43)."""
 
     __tablename__ = "campaigns"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
-    token_hash: Mapped[str] = mapped_column(String(64), index=True)
     display_name: Mapped[str] = mapped_column(String(40))
     deck_id: Mapped[str] = mapped_column(String(40))
     mode: Mapped[str] = mapped_column(String(30))
@@ -77,6 +76,8 @@ class Campaign(Base):
     reinforcement: Mapped[list[str]] = mapped_column(JSON, default=list, server_default=text("'[]'"))
     challenges: Mapped[list[str]] = mapped_column(JSON, default=list, server_default=text("'[]'"))  # §14.4
     boosts: Mapped[list[str]] = mapped_column(JSON, default=list, server_default=text("'[]'"))  # REQ-CAMP-30
+    # The account it belongs to (REQ-USER-43).
+    user_id: Mapped[str] = mapped_column(String(36), index=True)
     status: Mapped[str] = mapped_column(String(20), default="active")
 
 
@@ -95,6 +96,7 @@ class BugReport(Base):
     status: Mapped[str] = mapped_column(String(20), default="open")  # open or resolved
     # "bug" (something went wrong) or "feature" (a request for something new). Both keep the game (REQ-BUG-09).
     kind: Mapped[str] = mapped_column(String(10), default="bug", server_default=text("'bug'"))
+    user_id: Mapped[str | None] = mapped_column(String(36), nullable=True)  # the reporter's account (REQ-USER-40)
     # The setup, the seed and every command so far (REQ-BUG-03), plus what the reporter saw.
     bundle: Mapped[dict] = mapped_column(JSON)
 

@@ -2,7 +2,7 @@ import { FormEvent, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
-  BotChoice, Box, DEFAULT_BOX, DIFFICULTIES, Deck, GameMode, MODE_LABELS, SeatChoice, api, byComplexity, saveSeatToken, setsFor,
+  BotChoice, Box, DEFAULT_BOX, DIFFICULTIES, Deck, GameMode, MODE_LABELS, SeatChoice, api, byComplexity, setsFor,
 } from "../api";
 import { SeatForm } from "../components/SeatForm";
 
@@ -14,7 +14,7 @@ export function NewGame() {
   const [box, setBox] = useState<Box>(DEFAULT_BOX);
   const [chosen, setChosen] = useState<string[]>([]);
   const [promos, setPromos] = useState(false);
-  const [seat, setSeat] = useState<SeatChoice>({ display_name: "", deck_id: "", board_side: "basic" });
+  const [seat, setSeat] = useState<SeatChoice>({ deck_id: "", board_side: "basic" });
   const [bot, setBot] = useState<BotChoice>({ deck_id: "", difficulty: "ensign", ticking_clock: false });
   const decks = useQuery({ queryKey: ["decks"], queryFn: api.decks });
   const sets = setsFor(boxes.data, box, chosen);
@@ -23,10 +23,7 @@ export function NewGame() {
 
   const create = useMutation({
     mutationFn: () => api.createGame({ ...seat, mode, box, expansions: chosen, promos, ...(solo ? { bot } : {}) }),
-    onSuccess: (grant) => {
-      saveSeatToken(grant.game.id, grant.seat_token);
-      navigate(`/games/${grant.game.id}`);
-    },
+    onSuccess: (grant) => navigate(`/games/${grant.game.id}`),
   });
 
   // A Crew deck or Bot of another box cannot stay chosen (REQ-CORE-11).
@@ -128,7 +125,7 @@ export function NewGame() {
           </fieldset>
         )}
         {create.error && <p className="error" role="alert">{create.error.message}</p>}
-        <button type="submit" disabled={create.isPending || !seat.display_name.trim() || !seat.deck_id || (solo && !bot.deck_id)}>
+        <button type="submit" disabled={create.isPending || !seat.deck_id || (solo && !bot.deck_id)}>
           Create game
         </button>
       </form>

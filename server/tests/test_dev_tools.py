@@ -63,21 +63,21 @@ def dev_on(monkeypatch):
 
 
 def cadet(authed):
-    grant = authed.post("/api/games", json={"display_name": "Dev", "deck_id": "georgiou", "mode": "cadet"}).json()
-    return grant["game"]["id"], {"X-Seat-Token": grant["seat_token"]}
+    grant = authed.post("/api/games", json={"deck_id": "georgiou", "mode": "cadet"}).json()
+    return grant["game"]["id"]
 
 
 def test_dev_endpoint_is_off_by_default(authed):
     get_settings.cache_clear()
-    game_id, h = cadet(authed)
-    r = authed.post(f"/api/games/{game_id}/dev", json={"kind": "resource", "resource": "glory", "amount": 1}, headers=h)
+    game_id = cadet(authed)
+    r = authed.post(f"/api/games/{game_id}/dev", json={"kind": "resource", "resource": "glory", "amount": 1})
     assert r.status_code == 404
-    assert authed.get(f"/api/games/{game_id}/state", headers=h).json()["dev_tools"] is False
+    assert authed.get(f"/api/games/{game_id}/state").json()["dev_tools"] is False
 
 
 def test_dev_commands_replay_and_undo(authed, dev_on):
-    game_id, h = cadet(authed)
-    r = authed.post(f"/api/games/{game_id}/dev", json={"kind": "card", "card": "2PER07", "zone": "hand"}, headers=h)
+    game_id = cadet(authed)
+    r = authed.post(f"/api/games/{game_id}/dev", json={"kind": "card", "card": "2PER07", "zone": "hand"})
     assert r.status_code == 200
     view = r.json()
     assert view["dev_tools"] is True
@@ -86,16 +86,16 @@ def test_dev_commands_replay_and_undo(authed, dev_on):
     from app import play
 
     play._cache.clear()
-    view = authed.get(f"/api/games/{game_id}/state", headers=h).json()
+    view = authed.get(f"/api/games/{game_id}/state").json()
     assert any(c["id"] == "2PER07" for c in view["players"][0]["hand"]) and view["can_undo"]
-    view = authed.post(f"/api/games/{game_id}/undo", headers=h).json()
+    view = authed.post(f"/api/games/{game_id}/undo").json()
     assert not any(c["id"] == "2PER07" for c in view["players"][0]["hand"])
 
 
 def test_dev_command_needs_a_seat(authed, dev_on):
-    game_id, _ = cadet(authed)
-    r = authed.post(f"/api/games/{game_id}/dev", json={"kind": "resource", "resource": "glory", "amount": 1})
+    from tests.conftest import another_browser, sign_in_as
+
+    game_id = cadet(authed)
+    other = sign_in_as(another_browser(authed), "sam@example.com", "Sam")
+    r = other.post(f"/api/games/{game_id}/dev", json={"kind": "resource", "resource": "glory", "amount": 1})
     assert r.status_code == 403
-    r = authed.post(f"/api/games/{game_id}/dev", json={"kind": "card", "card": "XX", "zone": "hand"},
-                    headers=cadet(authed)[1])
-    assert r.status_code in (403, 409)

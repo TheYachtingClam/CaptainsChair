@@ -50,7 +50,7 @@ def image(image_id: str, v: str | None = None) -> FileResponse:
         raise HTTPException(404, "No such image")
     version = content.image_manifest()[image_id]["version"]
     # A URL with the current version never changes, so it can be cached for a year.
-    # "private" keeps shared caches from storing images that sit behind the site password.
+    # "private" keeps shared caches from storing images that sit behind sign-in.
     cache = "private, max-age=31536000, immutable" if v == version else "private, no-cache"
     return FileResponse(path, media_type="image/webp", headers={"Cache-Control": cache})
 

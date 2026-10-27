@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { BoardSide, CampaignBonus, CampaignCard, CampaignView, campaignApi, loadCampaignToken, saveCampaignToken, saveSeatToken } from "../api";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { BoardSide, CampaignBonus, CampaignCard, CampaignView, campaignApi } from "../api";
 import { imageUrl } from "../components/Cards";
 
 const title = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -19,26 +19,19 @@ function CardTile({ card, onPick, disabled }: { card: CampaignCard; onPick?: () 
 }
 
 /** A Five-Year Mission: the log, rank, Reinforcement pile, the next assignment, upgrades and the final review
- * (REQ-CAMP-53). Reached by its secret link (`?key=`), which this browser then remembers. */
+ * (REQ-CAMP-53). Only its own account can open it. */
 export function Campaign() {
   const { campaignId = "" } = useParams();
-  const [search] = useSearchParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const key = search.get("key");
-  if (key && loadCampaignToken(campaignId) !== key) saveCampaignToken(campaignId, key);
   const campaign = useQuery({ queryKey: ["campaign", campaignId], queryFn: () => campaignApi.get(campaignId), retry: false });
   const [bot, setBot] = useState("");
   const [side, setSide] = useState<BoardSide>("basic");
   const [drop, setDrop] = useState<"dilithium" | "latinum">("dilithium");
-  const [copied, setCopied] = useState(false);
 
   const start = useMutation({
     mutationFn: () => campaignApi.start(campaignId, { bot_deck_id: bot || null, board_side: side, drop: campaign.data?.choose_resource ? drop : null }),
-    onSuccess: (r) => {
-      saveSeatToken(r.game_id, r.seat_token);
-      navigate(`/games/${r.game_id}`);
-    },
+    onSuccess: (r) => navigate(`/games/${r.game_id}`),
   });
   const upgrade = useMutation({
     mutationFn: (choice: { card_id?: string; bonus?: string; cards?: string[] }) => campaignApi.upgrade(campaignId, choice),
@@ -51,13 +44,11 @@ export function Campaign() {
     return (
       <main className="page">
         <p className="error">{campaign.error.message}</p>
-        <p className="muted">A campaign opens only from its own link. <Link to="/">Back to the lobby</Link></p>
+        <p className="muted"><Link to="/">Back to the lobby</Link></p>
       </main>
     );
   }
   const c = campaign.data;
-  const token = loadCampaignToken(campaignId);
-  const link = `${window.location.origin}/campaigns/${c.id}?key=${encodeURIComponent(token ?? "")}`;
 
   return (
     <main className="page stack">
@@ -86,12 +77,6 @@ export function Campaign() {
           )}
         </section>
       )}
-      <p className="muted">
-        This campaign's link is its key. Bookmark it to continue from another browser.{" "}
-        <button className="link" onClick={() => { navigator.clipboard?.writeText(link); setCopied(true); }}>
-          {copied ? "Copied" : "Copy the link"}
-        </button>
-      </p>
 
       {c.phase === "finished" && (
         <section className="card">

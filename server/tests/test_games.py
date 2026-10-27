@@ -1,10 +1,17 @@
 import pytest
 from starlette.websockets import WebSocketDisconnect
 
+from tests.conftest import another_browser, sign_in_as
+
 
 def create(client, **overrides):
-    body = {"display_name": "Nick", "deck_id": "georgiou", "mode": "two_player", **overrides}
+    body = {"deck_id": "georgiou", "mode": "two_player", **overrides}
     return client.post("/api/games", json=body)
+
+
+def sam(client):
+    """A second player: another browser, signed in to another account."""
+    return sign_in_as(another_browser(client), "sam@example.com", "Sam")
 
 
 def test_decks_listed(authed):
@@ -17,23 +24,33 @@ def test_create_and_join(authed):
     assert r.status_code == 201
     grant = r.json()
     game_id = grant["game"]["id"]
-    assert grant["game"]["open_seats"] == 1
+    assert grant["game"]["open_seats"] == 1 and grant["seat_index"] == 0
+    assert grant["game"]["seats"][0]["display_name"] == "Nick"  # the account's name (REQ-USER-40)
 
-    r = authed.post(f"/api/games/{game_id}/join", json={"display_name": "Sam", "deck_id": "soval"})
+    other = sam(authed)
+    r = other.post(f"/api/games/{game_id}/join", json={"deck_id": "soval"})
     assert r.status_code == 200
     assert r.json()["seat_index"] == 1
     assert r.json()["game"]["status"] == "active"
+    assert [s["display_name"] for s in r.json()["game"]["seats"]] == ["Nick", "Sam"]
 
-    view = authed.get(f"/api/games/{game_id}", headers={"X-Seat-Token": grant["seat_token"]}).json()
-    assert view["your_seat"] == 0
-    assert authed.get(f"/api/games/{game_id}").json()["your_seat"] is None
+    assert authed.get(f"/api/games/{game_id}").json()["your_seat"] == 0
+    assert other.get(f"/api/games/{game_id}").json()["your_seat"] == 1
+    watcher = sign_in_as(another_browser(authed), "eve@example.com", "Eve")
+    assert watcher.get(f"/api/games/{game_id}").json()["your_seat"] is None
+
+
+def test_one_account_cannot_take_both_seats(authed):
+    game_id = create(authed).json()["game"]["id"]
+    r = authed.post(f"/api/games/{game_id}/join", json={"deck_id": "soval"})
+    assert r.status_code == 409
 
 
 def test_full_game_rejects_join(authed):
     game_id = create(authed).json()["game"]["id"]
-    authed.post(f"/api/games/{game_id}/join", json={"display_name": "Sam", "deck_id": "soval"})
-    r = authed.post(f"/api/games/{game_id}/join", json={"display_name": "Eve", "deck_id": "kirk"})
-    assert r.status_code == 409
+    sam(authed).post(f"/api/games/{game_id}/join", json={"deck_id": "soval"})
+    eve = sign_in_as(another_browser(authed), "eve@example.com", "Eve")
+    assert eve.post(f"/api/games/{game_id}/join", json={"deck_id": "kirk"}).status_code == 409
 
 
 def test_expansion_deck_needs_expansion(authed):
@@ -41,25 +58,26 @@ def test_expansion_deck_needs_expansion(authed):
     assert create(authed, deck_id="freeman", expansions=["second_contact"]).status_code == 201
 
 
-def test_seat_tokens_are_not_listed(authed):
-    create(authed)
-    assert "token" not in authed.get("/api/games").text
-
-
 def test_websocket_presence(authed):
-    grant = create(authed).json()
-    game_id = grant["game"]["id"]
-    with authed.websocket_connect(f"/api/games/{game_id}/ws?seat={grant['seat_token']}") as ws:
+    game_id = create(authed).json()["game"]["id"]
+    with authed.websocket_connect(f"/api/games/{game_id}/ws") as ws:
         assert ws.receive_json() == {"type": "hello", "your_seat": 0}
         assert ws.receive_json() == {"type": "presence", "connected": [0]}
         ws.send_json({"type": "ping"})
         assert ws.receive_json() == {"type": "pong"}
 
 
-def test_websocket_rejects_bad_seat(authed):
+def test_websocket_needs_a_signed_in_account(authed):
     game_id = create(authed).json()["game"]["id"]
     with pytest.raises(WebSocketDisconnect):
-        with authed.websocket_connect(f"/api/games/{game_id}/ws?seat=wrong") as ws:
+        with another_browser(authed).websocket_connect(f"/api/games/{game_id}/ws") as ws:
+            ws.receive_json()
+
+
+def test_websocket_needs_a_seat(authed):
+    game_id = create(authed).json()["game"]["id"]
+    with pytest.raises(WebSocketDisconnect):
+        with sam(authed).websocket_connect(f"/api/games/{game_id}/ws") as ws:
             ws.receive_json()
 
 
@@ -86,48 +104,49 @@ def test_old_database_gets_promos_column(tmp_path):
 
 
 def started_game(authed):
+    """A two-player game, with each seat's browser."""
     a = create(authed).json()
-    b = authed.post(f"/api/games/{a['game']['id']}/join", json={"display_name": "Sam", "deck_id": "soval"}).json()
-    return a["game"]["id"], {0: a["seat_token"], 1: b["seat_token"]}
+    other = sam(authed)
+    other.post(f"/api/games/{a['game']['id']}/join", json={"deck_id": "soval"})
+    return a["game"]["id"], {0: authed, 1: other}
 
 
 def test_game_starts_and_plays(authed):
-    game_id, tokens = started_game(authed)
-    views = {seat: authed.get(f"/api/games/{game_id}/state", headers={"X-Seat-Token": t}).json() for seat, t in tokens.items()}
+    game_id, players = started_game(authed)
+    views = {seat: p.get(f"/api/games/{game_id}/state").json() for seat, p in players.items()}
     active = views[0]["active"]
     assert views[active]["decision"]["options"]
     assert "options" not in views[1 - active]["decision"]
     assert views[0]["players"][1]["hand"] is None and views[1]["players"][1]["hand"] is not None
 
-    h = {"X-Seat-Token": tokens[1 - active]}
-    assert authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}, headers=h).status_code == 409
+    assert players[1 - active].post(f"/api/games/{game_id}/commands", json={"option": "end"}).status_code == 409
 
-    h = {"X-Seat-Token": tokens[active]}
-    r = authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}, headers=h)
+    p = players[active]
+    r = p.post(f"/api/games/{game_id}/commands", json={"option": "end"})
     assert r.status_code == 200 and r.json()["decision"]["kind"] == "glory"
     assert r.json()["can_undo"] is True
 
-    r = authed.post(f"/api/games/{game_id}/undo", headers=h)
+    r = p.post(f"/api/games/{game_id}/undo")
     assert r.json()["decision"]["kind"] == "action"
     assert r.json()["can_undo"] is False
 
 
 def test_irreversible_command_cannot_be_undone(authed):
-    game_id, tokens = started_game(authed)
-    h0 = {"X-Seat-Token": tokens[0]}
-    active = authed.get(f"/api/games/{game_id}/state", headers=h0).json()["active"]
-    h = {"X-Seat-Token": tokens[active]}
-    authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}, headers=h)
-    glory = authed.get(f"/api/games/{game_id}/state", headers=h).json()["decision"]["options"][0]["id"]
-    authed.post(f"/api/games/{game_id}/commands", json={"option": glory}, headers=h)
-    r = authed.post(f"/api/games/{game_id}/commands", json={"option": "done"}, headers=h)
+    game_id, players = started_game(authed)
+    active = authed.get(f"/api/games/{game_id}/state").json()["active"]
+    p = players[active]
+    p.post(f"/api/games/{game_id}/commands", json={"option": "end"})
+    glory = p.get(f"/api/games/{game_id}/state").json()["decision"]["options"][0]["id"]
+    p.post(f"/api/games/{game_id}/commands", json={"option": glory})
+    r = p.post(f"/api/games/{game_id}/commands", json={"option": "done"})
     assert r.json()["active"] != active and r.json()["can_undo"] is False
-    assert authed.post(f"/api/games/{game_id}/undo", headers=h).status_code == 409
+    assert p.post(f"/api/games/{game_id}/undo").status_code == 409
 
 
 def test_state_needs_a_seat_to_act(authed):
     game_id, _ = started_game(authed)
-    assert authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}).status_code == 403
+    watcher = sign_in_as(another_browser(authed), "eve@example.com", "Eve")
+    assert watcher.post(f"/api/games/{game_id}/commands", json={"option": "end"}).status_code == 403
 
 
 def test_solo_needs_an_available_bot(authed):
@@ -156,32 +175,30 @@ def test_cadet_game_through_the_api(authed):
     grant = create(authed, mode="cadet").json()
     game_id = grant["game"]["id"]
     assert grant["game"]["status"] == "active"
-    h = {"X-Seat-Token": grant["seat_token"]}
-    view = authed.get(f"/api/games/{game_id}/state", headers=h).json()
+    view = authed.get(f"/api/games/{game_id}/state").json()
     assert view["mode"] == "cadet" and len(view["players"]) == 1
-    r = authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}, headers=h)
+    r = authed.post(f"/api/games/{game_id}/commands", json={"option": "end"})
     assert r.json()["decision"]["kind"] == "wipe"  # REQ-CTM-20
-    r = authed.post(f"/api/games/{game_id}/undo", headers=h)
+    r = authed.post(f"/api/games/{game_id}/undo")
     assert r.json()["decision"]["kind"] == "action"  # REQ-CTM-15: same undo as normal play
 
 
 def test_delete_game_needs_a_seat(authed):
     grant = create(authed).json()
     game_id = grant["game"]["id"]
-    assert authed.delete(f"/api/games/{game_id}").status_code == 403
-    assert authed.delete(f"/api/games/{game_id}", headers={"X-Seat-Token": "nope"}).status_code == 403
-    r = authed.delete(f"/api/games/{game_id}", headers={"X-Seat-Token": grant["seat_token"]})
+    assert sam(authed).delete(f"/api/games/{game_id}").status_code == 403
+    r = authed.delete(f"/api/games/{game_id}")
     assert r.status_code == 204
     assert game_id not in {g["id"] for g in authed.get("/api/games").json()}
     assert authed.get(f"/api/games/{game_id}").status_code == 404
-    assert authed.delete(f"/api/games/{game_id}", headers={"X-Seat-Token": grant["seat_token"]}).status_code == 404
+    assert authed.delete(f"/api/games/{game_id}").status_code == 404
 
 
 def test_delete_started_game_by_second_player(authed):
-    game_id, tokens = started_game(authed)
-    authed.get(f"/api/games/{game_id}/state", headers={"X-Seat-Token": tokens[0]})  # fills the state cache
-    assert authed.delete(f"/api/games/{game_id}", headers={"X-Seat-Token": tokens[1]}).status_code == 204
-    assert authed.get(f"/api/games/{game_id}/state", headers={"X-Seat-Token": tokens[0]}).status_code == 404
+    game_id, players = started_game(authed)
+    players[0].get(f"/api/games/{game_id}/state")  # fills the state cache
+    assert players[1].delete(f"/api/games/{game_id}").status_code == 204
+    assert players[0].get(f"/api/games/{game_id}/state").status_code == 404
 
 
 def test_moves_that_no_longer_apply_are_dropped(authed):
@@ -191,7 +208,7 @@ def test_moves_that_no_longer_apply_are_dropped(authed):
     from app.models import Game
 
     grant = create(authed, mode="cadet").json()
-    game_id, h = grant["game"]["id"], {"X-Seat-Token": grant["seat_token"]}
+    game_id = grant["game"]["id"]
     db = next(get_db())
     game = db.get(Game, game_id)
     game.commands = [{"seat": 0, "option": "no-such-option", "irreversible": False, "turn": 0},
@@ -199,16 +216,16 @@ def test_moves_that_no_longer_apply_are_dropped(authed):
     db.commit()
     play._cache.clear()
 
-    view = authed.get(f"/api/games/{game_id}/state", headers=h).json()
+    view = authed.get(f"/api/games/{game_id}/state").json()
     assert view["decision"]["kind"] == "action"
     assert "2 later move(s) no longer apply" in view["log"][-1]
     assert view["can_undo"] is False
 
     # The game continues normally, and the note survives later rebuilds.
-    r = authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}, headers=h)
+    r = authed.post(f"/api/games/{game_id}/commands", json={"option": "end"})
     assert r.status_code == 200 and r.json()["decision"]["kind"] == "wipe"
     play._cache.clear()
-    view = authed.get(f"/api/games/{game_id}/state", headers=h).json()
+    view = authed.get(f"/api/games/{game_id}/state").json()
     assert view["decision"]["kind"] == "wipe"
     assert any("no longer apply" in line for line in view["log"])
 
@@ -220,7 +237,8 @@ def test_the_box_limits_crew_decks(authed):
     r = create(authed, box="core", deck_id="picard")
     assert r.status_code == 201 and r.json()["game"]["box"] == "core"
     game_id = r.json()["game"]["id"]
-    join = lambda deck: authed.post(f"/api/games/{game_id}/join", json={"display_name": "B", "deck_id": deck})  # noqa: E731
+    other = sam(authed)
+    join = lambda deck: other.post(f"/api/games/{game_id}/join", json={"deck_id": deck})  # noqa: E731
     assert join("kirk").status_code == 422
     assert join("sisko").status_code == 200
     assert create(authed, box="both", deck_id="georgiou").status_code == 201
@@ -241,8 +259,8 @@ def test_the_weekday_is_stored_with_each_command_and_replayed(authed, monkeypatc
 
     monkeypatch.setattr(play, "today", lambda: 1)  # a Tuesday
     r = create(authed, mode="cadet")
-    game_id, headers = r.json()["game"]["id"], {"X-Seat-Token": r.json()["seat_token"]}
-    assert authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}, headers=headers).status_code == 200
+    game_id = r.json()["game"]["id"]
+    assert authed.post(f"/api/games/{game_id}/commands", json={"option": "end"}).status_code == 200
     from app.db import get_db
     from app.main import app
     from app.models import Game
@@ -273,7 +291,7 @@ def test_conspiracy_needs_core_box_content(authed):
     assert create(authed, mode="solo", bot=bot).status_code == 422
     r = create(authed, mode="solo", box="both", bot={**bot, "deck_id": "picard", "ticking_clock": True})
     assert r.status_code == 201 and r.json()["game"]["bot"]["conspiracy"]
-    view = authed.get(f"/api/games/{r.json()['game']['id']}", headers={"X-Seat-Token": r.json()["seat_token"]})
+    view = authed.get(f"/api/games/{r.json()['game']['id']}")
     assert view.status_code == 200
 
 

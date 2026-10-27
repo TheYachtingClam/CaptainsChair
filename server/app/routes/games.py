@@ -1,15 +1,27 @@
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+"""Games (requirements/19-technical-architecture.md §3.5). Every seat belongs to an account, and a request acts in
+the signed-in account's own seat (REQ-USER-42)."""
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app import content, play
+from app import bugs, content, play
+from app.auth import require_session, viewer_id
 from app.config import get_settings
-from app.auth import hash_seat_token, new_seat_token, require_session
 from app.db import get_db
 from app.hub import hub
-from app import bugs
-from app.models import BugReport, Game, Seat
-from app.schemas import BugReportRequest, CommandRequest, DevCommand, CreateGameRequest, GameSummary, GameView, SeatChoice, SeatGrant, SeatOut
+from app.models import BugReport, Game, Seat, User
+from app.schemas import (
+    BugReportRequest,
+    CommandRequest,
+    CreateGameRequest,
+    DevCommand,
+    GameSummary,
+    GameView,
+    SeatChoice,
+    SeatGrant,
+    SeatOut,
+)
 
 router = APIRouter(prefix="/api/games", tags=["games"], dependencies=[Depends(require_session)])
 
@@ -36,11 +48,21 @@ def summarize(game: Game) -> dict:
     }
 
 
-def seat_for_token(game: Game, token: str | None) -> Seat | None:
-    if not token:
-        return None
-    token_hash = hash_seat_token(token)
-    return next((s for s in game.seats if s.token_hash == token_hash), None)
+def seat_for(game: Game, user_id: str | None) -> Seat | None:
+    """The seat the account acts in. An account holds one seat of a game, except the admin in a copy made from a bug
+    report, who holds every seat (REQ-BUG-07): then it is the seat whose decision is pending."""
+    mine = [s for s in game.seats if user_id is not None and s.user_id == user_id]
+    if len(mine) > 1 and game.seed is not None:
+        decision = play.build(game).decision
+        return next((s for s in mine if decision is not None and s.index == decision.seat), mine[0])
+    return mine[0] if mine else None
+
+
+def seat_or_403(game: Game, user_id: str) -> int:
+    seat = seat_for(game, user_id)
+    if seat is None:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "You have no seat in this game")
+    return seat.index
 
 
 def load_game(db: Session, game_id: str) -> Game:
@@ -55,15 +77,13 @@ def validate_deck(deck_id: str, expansions: list[str], box: str = content.DEFAUL
         raise HTTPException(422, "That Crew deck is not available in this game")
 
 
-def add_seat(db: Session, game: Game, choice: SeatChoice) -> tuple[Seat, str]:
-    token = new_seat_token()
-    seat = Seat(
-        index=len(game.seats),
-        display_name=choice.display_name.strip(),
-        deck_id=choice.deck_id,
-        board_side=choice.board_side,
-        token_hash=hash_seat_token(token),
-    )
+def add_seat(db: Session, game: Game, choice: SeatChoice, user: User) -> Seat:
+    """A new seat for the account, under its display name (REQ-USER-40). One account cannot hold two seats of the
+    same game (REQ-USER-42)."""
+    if any(s.user_id == user.id for s in game.seats):
+        raise HTTPException(status.HTTP_409_CONFLICT, "You already have a seat in this game")
+    seat = Seat(index=len(game.seats), display_name=user.display_name, deck_id=choice.deck_id,
+                board_side=choice.board_side, user_id=user.id)
     game.seats.append(seat)
     if len(game.seats) >= seat_count(game):
         try:
@@ -72,7 +92,7 @@ def add_seat(db: Session, game: Game, choice: SeatChoice) -> tuple[Seat, str]:
             raise HTTPException(422, str(err)) from err
     db.commit()
     db.refresh(game)
-    return seat, token
+    return seat
 
 
 @router.get("", response_model=list[GameSummary])
@@ -82,7 +102,7 @@ def list_games(db: Session = Depends(get_db)) -> list[dict]:
 
 
 @router.post("", response_model=SeatGrant, status_code=status.HTTP_201_CREATED)
-def create_game(body: CreateGameRequest, db: Session = Depends(get_db)) -> dict:
+def create_game(body: CreateGameRequest, db: Session = Depends(get_db), viewer: str = Depends(viewer_id)) -> dict:
     unknown = set(body.expansions) - set(content.EXPANSIONS)
     if unknown:
         raise HTTPException(422, f"Unknown expansion: {', '.join(sorted(unknown))}")
@@ -99,65 +119,56 @@ def create_game(body: CreateGameRequest, db: Session = Depends(get_db)) -> dict:
     game = Game(mode=body.mode, box=body.box, expansions=body.expansions, promos=body.promos, bot=bot,
                 promo_sets=list(content.ALL_PROMOS) if body.promos else [])
     db.add(game)
-    seat, token = add_seat(db, game, body)
-    return {"game": {**summarize(game), "your_seat": seat.index}, "seat_index": seat.index, "seat_token": token}
+    seat = add_seat(db, game, body, db.get(User, viewer))
+    return {"game": {**summarize(game), "your_seat": seat.index}, "seat_index": seat.index}
 
 
 @router.post("/{game_id}/join", response_model=SeatGrant)
-async def join_game(game_id: str, body: SeatChoice, db: Session = Depends(get_db)) -> dict:
+async def join_game(game_id: str, body: SeatChoice, db: Session = Depends(get_db),
+                    viewer: str = Depends(viewer_id)) -> dict:
     game = load_game(db, game_id)
     if len(game.seats) >= seat_count(game):
         raise HTTPException(status.HTTP_409_CONFLICT, "This game is full")
     validate_deck(body.deck_id, game.expansions, game.box)
     if any(s.deck_id == body.deck_id for s in game.seats):
         raise HTTPException(status.HTTP_409_CONFLICT, "Your opponent already chose that Crew deck")
-    seat, token = add_seat(db, game, body)
+    seat = add_seat(db, game, body, db.get(User, viewer))
     await hub.broadcast(game.id, {"type": "game_updated"})
-    return {"game": {**summarize(game), "your_seat": seat.index}, "seat_index": seat.index, "seat_token": token}
+    return {"game": {**summarize(game), "your_seat": seat.index}, "seat_index": seat.index}
 
 
 @router.get("/{game_id}", response_model=GameView)
-def get_game(
-    game_id: str,
-    db: Session = Depends(get_db),
-    x_seat_token: str | None = Header(default=None),
-) -> dict:
+def get_game(game_id: str, db: Session = Depends(get_db), viewer: str = Depends(viewer_id)) -> dict:
     game = load_game(db, game_id)
-    seat = seat_for_token(game, x_seat_token)
+    seat = seat_for(game, viewer)
     return {**summarize(game), "your_seat": seat.index if seat else None}
 
 
 @router.delete("/{game_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_game(game_id: str, db: Session = Depends(get_db), x_seat_token: str | None = Header(default=None)) -> None:
+async def delete_game(game_id: str, db: Session = Depends(get_db), viewer: str = Depends(viewer_id)) -> None:
     """Delete a game for everyone. Only a player seated in it may do so."""
     game = load_game(db, game_id)
-    seat_or_403(game, x_seat_token)
+    seat_or_403(game, viewer)
     db.delete(game)
     db.commit()
     play.forget(game_id)
     await hub.broadcast(game_id, {"type": "game_deleted"})
 
 
-def seat_or_403(game: Game, token: str | None) -> int:
-    seat = seat_for_token(game, token)
-    if seat is None:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "You have no seat in this game")
-    return seat.index
-
-
 @router.get("/{game_id}/state")
-def game_state(game_id: str, db: Session = Depends(get_db), x_seat_token: str | None = Header(default=None)) -> dict:
+def game_state(game_id: str, db: Session = Depends(get_db), viewer: str = Depends(viewer_id)) -> dict:
     game = load_game(db, game_id)
     if game.seed is None:
         raise HTTPException(409, "The game has not started yet")
-    seat = seat_for_token(game, x_seat_token)
+    seat = seat_for(game, viewer)
     return play.view(game, seat.index if seat else None)
 
 
 @router.post("/{game_id}/commands")
-async def command(game_id: str, body: CommandRequest, db: Session = Depends(get_db), x_seat_token: str | None = Header(default=None)) -> dict:
+async def command(game_id: str, body: CommandRequest, db: Session = Depends(get_db),
+                  viewer: str = Depends(viewer_id)) -> dict:
     game = load_game(db, game_id)
-    seat = seat_or_403(game, x_seat_token)
+    seat = seat_or_403(game, viewer)
     if game.status != "active":
         raise HTTPException(409, "The game is not in progress")
     try:
@@ -170,12 +181,12 @@ async def command(game_id: str, body: CommandRequest, db: Session = Depends(get_
 
 @router.post("/{game_id}/dev")
 async def dev_command(game_id: str, body: DevCommand, db: Session = Depends(get_db),
-                      x_seat_token: str | None = Header(default=None)) -> dict:
+                      viewer: str = Depends(viewer_id)) -> dict:
     """Developer panel: only when DEV_TOOLS is on."""
     if not get_settings().dev_tools:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Developer tools are off")
     game = load_game(db, game_id)
-    seat = seat_or_403(game, x_seat_token)
+    seat = seat_or_403(game, viewer)
     if game.status != "active":
         raise HTTPException(409, "The game is not in progress")
     try:
@@ -187,9 +198,9 @@ async def dev_command(game_id: str, body: DevCommand, db: Session = Depends(get_
 
 
 @router.post("/{game_id}/undo")
-async def undo(game_id: str, db: Session = Depends(get_db), x_seat_token: str | None = Header(default=None)) -> dict:
+async def undo(game_id: str, db: Session = Depends(get_db), viewer: str = Depends(viewer_id)) -> dict:
     game = load_game(db, game_id)
-    seat = seat_or_403(game, x_seat_token)
+    seat = seat_or_403(game, viewer)
     try:
         play.undo(db, game, seat)
     except play.IllegalCommand as err:
@@ -200,11 +211,11 @@ async def undo(game_id: str, db: Session = Depends(get_db), x_seat_token: str | 
 
 @router.post("/{game_id}/bugs", status_code=status.HTTP_201_CREATED)
 def report_bug(game_id: str, body: BugReportRequest, db: Session = Depends(get_db),
-               x_seat_token: str | None = Header(default=None)) -> dict:
+               viewer: str = Depends(viewer_id)) -> dict:
     """A seated player reports a bug. The report keeps the game's setup, seed and commands, so it can be recreated
     even after the game moves on or is deleted (REQ-BUG-01 to -04)."""
     game = load_game(db, game_id)
-    seat = seat_or_403(game, x_seat_token)
+    seat = seat_or_403(game, viewer)
     if game.seed is None:
         raise HTTPException(409, "The game has not started yet")
     description = body.description.strip()
@@ -212,7 +223,7 @@ def report_bug(game_id: str, body: BugReportRequest, db: Session = Depends(get_d
         raise HTTPException(422, "Describe what you saw")
     name = next(s.display_name for s in game.seats if s.index == seat)
     report = BugReport(game_id=game.id, seat=seat, reporter=name, description=description, kind=body.kind,
-                       bundle=bugs.bundle(game, seat))
+                       user_id=viewer, bundle=bugs.bundle(game, seat))
     db.add(report)
     db.commit()
     return {"id": report.id}

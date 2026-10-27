@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { AdminBug, AdminCampaign, AdminGame, AdminInvite, AdminUser, MODE_LABELS, MailOutcome, adminApi, saveSeatToken } from "../api";
+import { AdminBug, AdminCampaign, AdminGame, AdminInvite, AdminUser, MODE_LABELS, MailOutcome, adminApi } from "../api";
 
 /** What happened to an email the admin just caused, and what to do about it. */
 function mailNote(outcome: MailOutcome | undefined, email: string): string {
@@ -12,13 +12,11 @@ function mailNote(outcome: MailOutcome | undefined, email: string): string {
 
 const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "—");
 
-/** The admin: delete any game or campaign (requirements/19-technical-architecture.md §5.3). */
+/** The admin: accounts, invitations, bug reports, and every game and campaign (requirements/19-technical-architecture.md §5.4). */
 export function Admin() {
   const queryClient = useQueryClient();
   const status = useQuery({ queryKey: ["admin-status"], queryFn: adminApi.status });
   const admin = !!status.data?.admin;
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin-status"] });
-  const logout = useMutation({ mutationFn: adminApi.logout, onSuccess: refresh });
 
   if (status.isPending) return <main className="page">Loading…</main>;
   if (status.isError) return <main className="page error">{status.error.message}</main>;
@@ -26,15 +24,12 @@ export function Admin() {
     <main className="page stack">
       <div className="row between">
         <h1>Admin</h1>
-        <div className="row">
-          {admin && !status.data.account && <button className="secondary" onClick={() => logout.mutate()}>Sign out of admin</button>}
-          <Link to="/">Lobby</Link>
-        </div>
+        <Link to="/">Lobby</Link>
       </div>
-      {!status.data.enabled ? (
-        <p className="muted">There is no admin on this server yet. Make one with <code>python -m app.create_admin</code>
-          on the server, then sign up from the invitation it prints.</p>
-      ) : !admin ? <AdminLogin onDone={refresh} /> : (
+      {!admin ? (
+        <p className="muted">Your account is not an admin. The first admin is made on the server with{" "}
+          <code>python -m app.create_admin</code>.</p>
+      ) : (
         <>
           <AdminInvites />
           <AdminUsers />
@@ -44,25 +39,6 @@ export function Admin() {
         </>
       )}
     </main>
-  );
-}
-
-function AdminLogin({ onDone }: { onDone: () => void }) {
-  const [password, setPassword] = useState("");
-  const login = useMutation({ mutationFn: () => adminApi.login(password), onSuccess: onDone });
-  function submit(e: FormEvent) {
-    e.preventDefault();
-    login.mutate();
-  }
-  return (
-    <form className="card stack" onSubmit={submit}>
-      <label>
-        Admin password
-        <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      </label>
-      {login.error && <p className="error" role="alert">{login.error.message}</p>}
-      <button type="submit" disabled={!password || login.isPending}>Sign in</button>
-    </form>
   );
 }
 
@@ -188,8 +164,7 @@ function AdminBugs() {
     mutationFn: ({ bug, back }: { bug: AdminBug; back: number }) =>
       adminApi.recreateBug(bug.id, back > 0 ? Math.max(0, bug.moves - back) : undefined),
     onSuccess: (copy) => {
-      // Sit in the reporter's seat; the copy is an ordinary game from here on.
-      saveSeatToken(copy.game_id, copy.seat_tokens[String(copy.reporter_seat)]);
+      // The admin holds every seat of the copy; it is an ordinary game from here on.
       queryClient.invalidateQueries({ queryKey: ["admin-games"] });
       navigate(`/games/${copy.game_id}`);
     },
@@ -276,10 +251,7 @@ function TakeSeat({ game }: { game: AdminGame }) {
   const [asking, setAsking] = useState<number | null>(null);
   const take = useMutation({
     mutationFn: (seat: number) => adminApi.takeSeat(game.id, seat),
-    onSuccess: (grant) => {
-      saveSeatToken(grant.game_id, grant.seat_token);
-      navigate(`/games/${grant.game_id}`);
-    },
+    onSuccess: (grant) => navigate(`/games/${grant.game_id}`),
   });
   if (game.players.length === 0) return null;
   if (asking === null) {

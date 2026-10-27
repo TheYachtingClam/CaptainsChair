@@ -10,13 +10,13 @@ Box = Literal["core", "to_boldly_go", "both"]  # REQ-CORE-10
 
 
 class LoginRequest(BaseModel):
-    # With an email, an account's sign-in (REQ-USER-10); without, the shared site password until it is retired.
-    email: str | None = Field(default=None, max_length=254)
+    email: str = Field(max_length=254)
     password: str = Field(max_length=200)
 
 
 class SeatChoice(BaseModel):
-    display_name: str = Field(min_length=1, max_length=40)
+    """The display name comes from the account (REQ-USER-40)."""
+
     deck_id: str
     board_side: BoardSide = "basic"
 
@@ -92,4 +92,3 @@ class GameView(GameSummary):
 class SeatGrant(BaseModel):
     game: GameView
     seat_index: int
-    seat_token: str

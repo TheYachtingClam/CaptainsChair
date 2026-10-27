@@ -113,17 +113,18 @@ def test_reinforce_with_an_empty_pile_draws_and_logs_itself():
 # ------------------------------------------------------------------ the API (app/routes/campaigns.py)
 
 def create(client, **overrides):
-    body = {"display_name": "Nick", "deck_id": "kirk", "mode": "set_phasers_to_stun", **overrides}
+    body = {"deck_id": "kirk", "mode": "set_phasers_to_stun", **overrides}
     return client.post("/api/campaigns", json=body)
 
 
-def test_a_campaign_needs_its_link(authed):
+def test_a_campaign_belongs_to_its_account(authed):
+    from tests.conftest import another_browser, sign_in_as
+
     r = create(authed)
     assert r.status_code == 201
     cid = r.json()["campaign"]["id"]
-    assert authed.get(f"/api/campaigns/{cid}").status_code == 403
-    assert authed.get(f"/api/campaigns/{cid}", headers={"X-Campaign-Token": "nope"}).status_code == 403
-    view = authed.get(f"/api/campaigns/{cid}", headers={"X-Campaign-Token": r.json()["token"]}).json()
+    assert sign_in_as(another_browser(authed), "sam@example.com", "Sam").get(f"/api/campaigns/{cid}").status_code == 403
+    view = authed.get(f"/api/campaigns/{cid}").json()
     assert view["rank"] == "ensign" and view["phase"] == "start" and view["assignments_left"] == 10
     assert "khan" in {o["deck_id"] for o in view["opponents"]}
 
@@ -152,48 +153,48 @@ def _finish_game(monkeypatch, won: bool, extra_cards=()):
 
 def test_assignment_flow(authed, monkeypatch):
     grant = create(authed).json()
-    cid, h = grant["campaign"]["id"], {"X-Campaign-Token": grant["token"]}
+    cid = grant["campaign"]["id"]
 
-    r = authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "soval"}, headers=h)
+    r = authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "soval"})
     assert r.status_code == 201
     started = r.json()
-    assert started["campaign"]["phase"] == "playing" and started["seat_token"]
+    assert started["campaign"]["phase"] == "playing" and started["seat_index"] == 0
     game = authed.get(f"/api/games/{started['game_id']}").json()
     assert game["mode"] == "solo" and game["bot"]["difficulty"] == "ensign" and game["campaign_id"] == cid
     # Only one assignment at a time.
-    assert authed.post(f"/api/campaigns/{cid}/assignments", json={}, headers=h).status_code == 409
+    assert authed.post(f"/api/campaigns/{cid}/assignments", json={}).status_code == 409
 
     _finish_game(monkeypatch, won=True, extra_cards=("2PER16",))
-    view = authed.get(f"/api/campaigns/{cid}", headers=h).json()
+    view = authed.get(f"/api/campaigns/{cid}").json()
     assert view["rank"] == "lieutenant" and view["phase"] == "upgrade"
     assert view["upgrade"]["won"] and [c["id"] for c in view["upgrade"]["options"]] == ["2PER16"]
-    assert authed.post(f"/api/campaigns/{cid}/upgrade", json={"card_id": "2PER07"}, headers=h).status_code == 422
-    view = authed.post(f"/api/campaigns/{cid}/upgrade", json={"card_id": "2PER16"}, headers=h).json()
+    assert authed.post(f"/api/campaigns/{cid}/upgrade", json={"card_id": "2PER07"}).status_code == 422
+    view = authed.post(f"/api/campaigns/{cid}/upgrade", json={"card_id": "2PER16"}).json()
     assert [c["id"] for c in view["reinforcement"]] == ["2PER16"] and view["phase"] == "start"
     # A Bot you have beaten cannot be faced again (REQ-CAMP-05).
     assert "soval" not in {o["deck_id"] for o in view["opponents"]}
-    assert authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "soval"}, headers=h).status_code == 422
+    assert authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "soval"}).status_code == 422
 
     # The next game is at the new rank's difficulty and brings the Reinforcement pile.
     monkeypatch.undo()
-    r = authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "kirk"}, headers=h).json()
+    r = authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "kirk"}).json()
     game = authed.get(f"/api/games/{r['game_id']}").json()
     assert game["bot"]["difficulty"] == "lieutenant"
-    state = authed.get(f"/api/games/{r['game_id']}/state", headers={"X-Seat-Token": r["seat_token"]}).json()
+    state = authed.get(f"/api/games/{r['game_id']}/state").json()
     assert [c["id"] for c in state["players"][0]["reinforcement"]] == ["2PER16"]
 
 
 def test_a_loss_keeps_the_rank_and_with_no_card_option_b_is_required(authed, monkeypatch):
     grant = create(authed).json()
-    cid, h = grant["campaign"]["id"], {"X-Campaign-Token": grant["token"]}
-    authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "soval"}, headers=h)
+    cid = grant["campaign"]["id"]
+    authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "soval"})
     _finish_game(monkeypatch, won=False)
-    view = authed.get(f"/api/campaigns/{cid}", headers=h).json()
+    view = authed.get(f"/api/campaigns/{cid}").json()
     assert view["rank"] == "ensign" and view["phase"] == "upgrade" and not view["upgrade"]["won"]
     assert view["upgrade"]["options"] == []
     assert [b["key"] for b in view["upgrade"]["bonuses"]] == ["soval:loss:0", "soval:loss:1"]
-    assert authed.post(f"/api/campaigns/{cid}/upgrade", json={}, headers=h).status_code == 422  # must pick B
-    view = authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "soval:loss:0"}, headers=h).json()
+    assert authed.post(f"/api/campaigns/{cid}/upgrade", json={}).status_code == 422  # must pick B
+    view = authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "soval:loss:0"}).json()
     assert view["boosts"] == ["BOOST: Gain 1 [Research]/[Military]."] and view["phase"] == "start"
 
 
@@ -202,14 +203,14 @@ def test_reaching_admiral_ends_the_campaign(authed, monkeypatch):
     from app.models import Campaign
 
     grant = create(authed).json()
-    cid, h = grant["campaign"]["id"], {"X-Campaign-Token": grant["token"]}
+    cid = grant["campaign"]["id"]
     db = next(authed.app.dependency_overrides.get(get_db, get_db)())
     camp = db.get(Campaign, cid)
     camp.rank = "commodore"
     db.commit()
-    authed.post(f"/api/campaigns/{cid}/assignments", json={}, headers=h)
+    authed.post(f"/api/campaigns/{cid}/assignments", json={})
     _finish_game(monkeypatch, won=True)
-    view = authed.get(f"/api/campaigns/{cid}", headers=h).json()
+    view = authed.get(f"/api/campaigns/{cid}").json()
     assert view["rank"] == "admiral" and view["phase"] == "finished"
     assert view["evaluation"] == "The Legends: Archer, Kirk, Picard, you…"
 

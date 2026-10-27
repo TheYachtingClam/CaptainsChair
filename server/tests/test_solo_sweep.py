@@ -66,15 +66,15 @@ def test_random_campaign_games_with_challenges_and_boosts(seed):
 # ------------------------------------------------------------------ undo (REQ-SOLO-200, -201)
 
 def test_undo_works_in_your_turn_but_not_across_the_bot_turn(authed):
-    r = authed.post("/api/games", json={"display_name": "Me", "deck_id": "kirk", "mode": "solo",
+    r = authed.post("/api/games", json={"deck_id": "kirk", "mode": "solo",
                                         "bot": {"deck_id": "soval", "difficulty": "ensign"}})
     grant = r.json()
-    game_id, h = grant["game"]["id"], {"X-Seat-Token": grant["seat_token"]}
-    cmd = lambda option: authed.post(f"/api/games/{game_id}/commands", json={"option": option}, headers=h)  # noqa: E731
+    game_id = grant["game"]["id"]
+    cmd = lambda option: authed.post(f"/api/games/{game_id}/commands", json={"option": option})  # noqa: E731
 
     view = cmd("end").json()  # end the Action Step: nothing revealed yet
     assert view["can_undo"]
-    view = authed.post(f"/api/games/{game_id}/undo", headers=h).json()
+    view = authed.post(f"/api/games/{game_id}/undo").json()
     assert view["decision"]["kind"] == "action"
 
     # Ending the turn is flagged first, because the Bot's turn follows and reveals cards.
@@ -90,4 +90,4 @@ def test_undo_works_in_your_turn_but_not_across_the_bot_turn(authed):
     assert view["turn"] >= 2 and view["active"] == 0  # the Bot has had its turn and it is ours again
     assert view["bot_turn"]["steps"]
     assert not view["can_undo"]
-    assert authed.post(f"/api/games/{game_id}/undo", headers=h).status_code == 409
+    assert authed.post(f"/api/games/{game_id}/undo").status_code == 409

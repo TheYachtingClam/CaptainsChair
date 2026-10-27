@@ -24,7 +24,7 @@ function SignedInApp() {
   const account = useQuery({ queryKey: ["me"], queryFn: api.me, enabled: session.isSuccess });
 
   if (session.isPending) return <main className="page center">Connecting…</main>;
-  // Without a valid session only the password page is shown (REQ-AUTH-02).
+  // Without a valid session only the sign-in page is shown (REQ-USER-03).
   if (session.isError && session.error instanceof AuthError) {
     return <Login onSuccess={() => queryClient.invalidateQueries()} />;
   }

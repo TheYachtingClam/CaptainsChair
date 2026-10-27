@@ -13,13 +13,11 @@ MODE="${1:-local}"
 
 ensure_env() {
   if [[ ! -f .env ]]; then
-    local password secret
-    password="$(python3 -c 'import secrets; print(secrets.token_urlsafe(9))')"
+    local secret
     secret="$(python3 -c 'import secrets; print(secrets.token_urlsafe(48))')"
-    sed -e "s|^SITE_PASSWORD=.*|SITE_PASSWORD=${password}|" \
-        -e "s|^SESSION_SECRET=.*|SESSION_SECRET=${secret}|" .env.example > .env
-    echo "Created .env. The site password is: ${password}"
-    echo "Change SITE_PASSWORD in .env to set your own."
+    sed -e "s|^SESSION_SECRET=.*|SESSION_SECRET=${secret}|" .env.example > .env
+    echo "Created .env. Set ADMIN_EMAIL in it, then make the first admin with:"
+    echo "  (cd server && uv run python -m app.create_admin)"
   fi
 }
 

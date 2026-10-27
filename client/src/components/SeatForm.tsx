@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useAccount } from "../account";
 import { BoardSide, Deck, SeatChoice, api, byComplexity, deckLabel } from "../api";
 
 interface Props {
@@ -16,17 +17,12 @@ export function SeatForm({ value, onChange, sets, takenDecks = [] }: Props) {
     .filter((d: Deck) => sets.includes(d.set) && !takenDecks.includes(d.id))
     .sort(byComplexity);
   const selected = available.find((d) => d.id === value.deck_id);
+  // The seat takes the account's display name (REQ-USER-40).
+  const account = useAccount();
 
   return (
     <div className="stack">
-      <label>
-        Your name
-        <input
-          maxLength={40}
-          value={value.display_name}
-          onChange={(e) => onChange({ ...value, display_name: e.target.value })}
-        />
-      </label>
+      {account && <p className="muted">Playing as <strong>{account.display_name}</strong></p>}
       <label>
         Crew deck
         <select value={value.deck_id} onChange={(e) => onChange({ ...value, deck_id: e.target.value })}>

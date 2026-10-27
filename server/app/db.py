@@ -34,8 +34,23 @@ def init_db(url: str | None = None) -> None:
 
     from app import models  # noqa: F401  registers tables
 
+    _drop_games_from_before_accounts(_engine)
     Base.metadata.create_all(_engine)
     _add_missing_columns(_engine)
+
+
+def _drop_games_from_before_accounts(engine: Engine) -> None:
+    """Games, seats and campaigns from before accounts were held by secret tokens, not accounts. They are deleted
+    once, when a database that still has seat tokens is opened (decision 2026-10-26, plans/users.md); their tables
+    are then made afresh. Bug reports are kept: each carries its own copy of its game (REQ-BUG-08)."""
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(engine)
+    if not inspector.has_table("seats") or "token_hash" not in {c["name"] for c in inspector.get_columns("seats")}:
+        return
+    with engine.begin() as conn:
+        for table in ("seats", "games", "campaigns"):
+            conn.execute(text(f"DROP TABLE IF EXISTS {table}"))
 
 
 def _add_missing_columns(engine: Engine) -> None:

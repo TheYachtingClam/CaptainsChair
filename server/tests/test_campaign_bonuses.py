@@ -248,7 +248,7 @@ def test_they_will_arrive_on_tuesday():
 # ------------------------------------------------------------------ the API
 
 def create(client, **overrides):
-    body = {"display_name": "Nick", "deck_id": "kirk", "mode": "set_phasers_to_stun", **overrides}
+    body = {"deck_id": "kirk", "mode": "set_phasers_to_stun", **overrides}
     return client.post("/api/campaigns", json=body)
 
 
@@ -277,16 +277,16 @@ def _finish(monkeypatch, won):
 
 def test_a_boost_applies_in_the_next_game(authed, monkeypatch):
     grant = create(authed, expansions=["second_contact"]).json()
-    cid, h = grant["campaign"]["id"], {"X-Campaign-Token": grant["token"]}
-    authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "pike"}, headers=h)
+    cid = grant["campaign"]["id"]
+    authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "pike"})
     _finish(monkeypatch, won=True)
-    view = authed.get(f"/api/campaigns/{cid}", headers=h).json()
+    view = authed.get(f"/api/campaigns/{cid}").json()
     assert [b["key"] for b in view["upgrade"]["bonuses"]] == ["pike:win:0", "pike:win:1"]
-    view = authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "pike:win:1"}, headers=h).json()
+    view = authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "pike:win:1"}).json()
     assert view["assignments"][0]["upgrade"]["option"] == "B"
     monkeypatch.undo()
-    r = authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "kirk"}, headers=h).json()
-    state = authed.get(f"/api/games/{r['game_id']}/state", headers={"X-Seat-Token": r["seat_token"]}).json()
+    r = authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "kirk"}).json()
+    state = authed.get(f"/api/games/{r['game_id']}/state").json()
     me = state["players"][0]
     assert me["boosts"] == ["BOOST: Gain 1 [Research], 1 [Influence], and 1 [Military]."]
     assert (me["tracks"]["research"], me["tracks"]["influence"], me["tracks"]["military"]) == (1, 1, 1)
@@ -294,32 +294,29 @@ def test_a_boost_applies_in_the_next_game(authed, monkeypatch):
 
 def test_a_reinforce_bonus_moves_own_cards(authed, monkeypatch):
     grant = create(authed).json()
-    cid, h = grant["campaign"]["id"], {"X-Campaign-Token": grant["token"]}
-    authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "georgiou"}, headers=h)
+    cid = grant["campaign"]["id"]
+    authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "georgiou"})
     _finish(monkeypatch, won=True)
-    view = authed.get(f"/api/campaigns/{cid}", headers=h).json()
+    view = authed.get(f"/api/campaigns/{cid}").json()
     bonus = next(b for b in view["upgrade"]["bonuses"] if b["key"] == "georgiou:win:0")
     assert bonus["kind"] == "reinforce" and bonus["each"] and len(bonus["pools"]) == 2
     a, b = bonus["pools"][0][0]["id"], bonus["pools"][1][0]["id"]
     second = bonus["pools"][0][1]["id"]
-    assert authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "georgiou:win:0", "cards": [a, second]},
-                       headers=h).status_code == 422  # one from each pool at most
-    view = authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "georgiou:win:0", "cards": [a, b]},
-                       headers=h).json()
+    assert authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "georgiou:win:0", "cards": [a, second]}).status_code == 422  # one from each pool at most
+    view = authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "georgiou:win:0", "cards": [a, b]}).json()
     assert [c["id"] for c in view["reinforcement"]] == [a, b]
 
 
 def test_live_long_asks_which_resource(authed, monkeypatch):
     grant = create(authed, challenges=["live_long_and_prosper"]).json()
-    cid, h = grant["campaign"]["id"], {"X-Campaign-Token": grant["token"]}
-    authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "soval"}, headers=h)
+    cid = grant["campaign"]["id"]
+    authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "soval"})
     _finish(monkeypatch, won=True)
-    view = authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "soval:win:0"}, headers=h).json()
+    view = authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "soval:win:0"}).json()
     assert view["choose_resource"]
     monkeypatch.undo()
-    r = authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "kirk", "drop": "latinum"},
-                    headers=h).json()
-    me = authed.get(f"/api/games/{r['game_id']}/state", headers={"X-Seat-Token": r["seat_token"]}).json()["players"][0]
+    r = authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "kirk", "drop": "latinum"}).json()
+    me = authed.get(f"/api/games/{r['game_id']}/state").json()["players"][0]
     assert me["resources"]["latinum"] == 0 and me["resources"]["dilithium"] == 1
 
 
@@ -430,17 +427,17 @@ def test_core_box_option_a_restrictions():
 
 def test_a_core_box_campaign_earns_and_uses_a_core_box_bonus(authed, monkeypatch):
     grant = create(authed, deck_id="burnham", box="core").json()
-    cid, h = grant["campaign"]["id"], {"X-Campaign-Token": grant["token"]}
-    view = authed.get(f"/api/campaigns/{cid}", headers=h).json()
+    cid = grant["campaign"]["id"]
+    view = authed.get(f"/api/campaigns/{cid}").json()
     assert sorted(o["deck_id"] for o in view["opponents"]) == ["burnham", "koloth", "picard", "sela", "shran", "sisko"]
-    authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "shran"}, headers=h)
+    authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "shran"})
     _finish(monkeypatch, won=True)
-    view = authed.get(f"/api/campaigns/{cid}", headers=h).json()
+    view = authed.get(f"/api/campaigns/{cid}").json()
     assert [b["key"] for b in view["upgrade"]["bonuses"]] == ["shran:win:0", "shran:win:1"]
-    authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "shran:win:1"}, headers=h)
+    authed.post(f"/api/campaigns/{cid}/upgrade", json={"bonus": "shran:win:1"})
     monkeypatch.undo()
-    r = authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "koloth"}, headers=h).json()
-    state = authed.get(f"/api/games/{r['game_id']}/state", headers={"X-Seat-Token": r["seat_token"]}).json()
+    r = authed.post(f"/api/campaigns/{cid}/assignments", json={"bot_deck_id": "koloth"}).json()
+    state = authed.get(f"/api/games/{r['game_id']}/state").json()
     me = state["players"][0]
     assert me["boosts"] == ["BOOST: Gain 2 [Dilithium]."] and me["resources"]["dilithium"] == 1  # inert for Burnham
     assert me["status"][0]["resources"] == {"dilithium": 2}

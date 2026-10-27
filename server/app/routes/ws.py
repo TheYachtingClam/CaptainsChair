@@ -1,18 +1,19 @@
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, status
 from sqlalchemy.orm import Session
 
-from app.auth import websocket_has_session
+from app.auth import websocket_user
 from app.db import get_db
 from app.hub import hub
-from app.routes.games import load_game, seat_for_token
+from app.routes.games import load_game, seat_for
 
 router = APIRouter()
 
 
 @router.websocket("/api/games/{game_id}/ws")
-async def game_socket(websocket: WebSocket, game_id: str, seat: str | None = None, db: Session = Depends(get_db)) -> None:
-    # Checks the session cookie and the seat token before accepting (REQ-AUTH-14, REQ-SRV-40).
-    if not websocket_has_session(websocket):
+async def game_socket(websocket: WebSocket, game_id: str, db: Session = Depends(get_db)) -> None:
+    # The signed-in account's seat in this game, checked before accepting (REQ-USER-13, REQ-SRV-40).
+    user_id = websocket_user(websocket)
+    if user_id is None:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Not signed in")
         return
     try:
@@ -20,7 +21,7 @@ async def game_socket(websocket: WebSocket, game_id: str, seat: str | None = Non
     except Exception:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Game not found")
         return
-    seat_row = seat_for_token(game, seat)
+    seat_row = seat_for(game, user_id)
     if seat_row is None:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="No seat in this game")
         return

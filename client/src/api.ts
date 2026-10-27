@@ -134,46 +134,13 @@ export interface CampaignView {
   evaluation?: string;
 }
 
-const campaignKey = (id: string) => `cc.campaign.${id}`;
-
-export function saveCampaignToken(id: string, token: string): void {
-  try {
-    localStorage.setItem(campaignKey(id), token);
-  } catch {
-    /* storage unavailable: keep the link */
-  }
-}
-
-export function loadCampaignToken(id: string): string | null {
-  try {
-    return localStorage.getItem(campaignKey(id));
-  } catch {
-    return null;
-  }
-}
-
-/** Campaigns this browser knows the link of. */
-export function knownCampaigns(): string[] {
-  try {
-    return Object.keys(localStorage).filter((k) => k.startsWith("cc.campaign.")).map((k) => k.slice("cc.campaign.".length));
-  } catch {
-    return [];
-  }
-}
-
-function campaignHeaders(id: string): Record<string, string> {
-  const token = loadCampaignToken(id);
-  return token ? { "X-Campaign-Token": token } : {};
-}
-
 export interface SeatGrant {
   game: Game;
   seat_index: number;
-  seat_token: string;
 }
 
+/** The player's name comes from their account (REQ-USER-40). */
 export interface SeatChoice {
-  display_name: string;
   deck_id: string;
   board_side: BoardSide;
 }
@@ -184,8 +151,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     ...init,
     headers: { "Content-Type": "application/json", ...(init.headers ?? {}) },
   });
-  // A wrong password (site or admin) is an ordinary error; any other 401 means the site session has ended.
-  if (res.status === 401 && !path.startsWith("/api/auth/login") && !path.startsWith("/api/admin/login")) {
+  // A wrong password is an ordinary error; any other 401 means the session has ended.
+  if (res.status === 401 && !path.startsWith("/api/auth/login")) {
     throw new AuthError("Not signed in");
   }
   if (!res.ok) {
@@ -195,33 +162,6 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   // Queries must never resolve to undefined (TanStack Query treats that as an error), so 204 becomes null.
   return res.status === 204 ? (null as T) : ((await res.json()) as T);
-}
-
-// Seat tokens let a player rejoin their seat after a refresh (REQ-SRV-30).
-const seatKey = (gameId: string) => `cc.seat.${gameId}`;
-
-export function saveSeatToken(gameId: string, token: string): void {
-  try {
-    localStorage.setItem(seatKey(gameId), token);
-  } catch {
-    /* storage unavailable: the seat lasts only for this page */
-  }
-}
-
-export function forgetSeatToken(gameId: string): void {
-  try {
-    localStorage.removeItem(seatKey(gameId));
-  } catch {
-    /* storage unavailable: nothing stored */
-  }
-}
-
-export function loadSeatToken(gameId: string): string | null {
-  try {
-    return localStorage.getItem(seatKey(gameId));
-  } catch {
-    return null;
-  }
 }
 
 export interface CardView {
@@ -377,23 +317,18 @@ export interface CardText {
   operations: { kind: string; text: string | null; action_cost: boolean; attack: boolean; requires: string | null }[];
 }
 
-function seatHeaders(id: string): Record<string, string> {
-  const token = loadSeatToken(id);
-  return token ? { "X-Seat-Token": token } : {};
-}
-
 export const campaignApi = {
   challenges: (deckId: string) => request<Challenge[]>(`/api/campaigns/challenges/${deckId}`),
-  create: (body: { display_name: string; deck_id: string; mode: CampaignMode; box: Box; expansions: string[];
+  create: (body: { deck_id: string; mode: CampaignMode; box: Box; expansions: string[];
     promos: boolean; challenges: string[] }) =>
-    request<{ campaign: CampaignView; token: string }>("/api/campaigns", { method: "POST", body: JSON.stringify(body) }),
-  get: (id: string) => request<CampaignView>(`/api/campaigns/${id}`, { headers: campaignHeaders(id) }),
+    request<{ campaign: CampaignView }>("/api/campaigns", { method: "POST", body: JSON.stringify(body) }),
+  get: (id: string) => request<CampaignView>(`/api/campaigns/${id}`),
   start: (id: string, body: { bot_deck_id: string | null; board_side: BoardSide; drop: "dilithium" | "latinum" | null }) =>
-    request<{ game_id: string; seat_token: string; campaign: CampaignView }>(`/api/campaigns/${id}/assignments`,
-      { method: "POST", body: JSON.stringify(body), headers: campaignHeaders(id) }),
+    request<{ game_id: string; seat_index: number; campaign: CampaignView }>(`/api/campaigns/${id}/assignments`,
+      { method: "POST", body: JSON.stringify(body) }),
   upgrade: (id: string, choice: { card_id?: string; bonus?: string; cards?: string[] }) =>
     request<CampaignView>(`/api/campaigns/${id}/upgrade`,
-      { method: "POST", body: JSON.stringify(choice), headers: campaignHeaders(id) }),
+      { method: "POST", body: JSON.stringify(choice) }),
 };
 
 // ------------------------------------------------------------------ admin (REQ-ADMIN-01 to -05)
@@ -469,10 +404,9 @@ export interface AdminBug {
   moves: number;
 }
 
-/** A playable copy of a reported game: a new game, with a seat token for every seat (REQ-BUG-07). */
+/** A playable copy of a reported game: a new game in which the admin holds every seat (REQ-BUG-07). */
 export interface RecreatedGame {
   game_id: string;
-  seat_tokens: Record<string, string>;
   reporter_seat: number;
 }
 
@@ -484,7 +418,7 @@ export const adminApi = {
   deleteBug: (id: string) => request<null>(`/api/admin/bugs/${id}`, { method: "DELETE" }),
   recreateBug: (id: string, moves?: number) =>
     request<RecreatedGame>(`/api/admin/bugs/${id}/recreate`, { method: "POST", body: JSON.stringify(moves == null ? {} : { moves }) }),
-  status: () => request<{ enabled: boolean; admin: boolean; account: boolean }>("/api/admin/status"),
+  status: () => request<{ admin: boolean }>("/api/admin/status"),
   users: () => request<AdminUser[]>("/api/admin/users"),
   changeUser: (id: string, change: { disabled?: boolean; is_admin?: boolean }) =>
     request<AdminUser>(`/api/admin/users/${id}`, { method: "PATCH", body: JSON.stringify(change) }),
@@ -493,13 +427,11 @@ export const adminApi = {
   invite: (email: string, admin = false) =>
     request<AdminInvite>("/api/admin/invites", { method: "POST", body: JSON.stringify({ email, admin }) }),
   cancelInvite: (id: string) => request<null>(`/api/admin/invites/${id}`, { method: "DELETE" }),
-  login: (password: string) => request<null>("/api/admin/login", { method: "POST", body: JSON.stringify({ password }) }),
-  logout: () => request<null>("/api/admin/logout", { method: "POST" }),
   games: () => request<AdminGame[]>("/api/admin/games"),
   deleteGame: (id: string) => request<null>(`/api/admin/games/${id}`, { method: "DELETE" }),
   /** Take over a seat in a real game: its player is locked out (REQ-ADMIN-06). */
   takeSeat: (id: string, seat: number) =>
-    request<{ game_id: string; seat_index: number; seat_token: string; display_name: string }>(
+    request<{ game_id: string; seat_index: number; display_name: string }>(
       `/api/admin/games/${id}/seats/${seat}/take`, { method: "POST" }),
   campaigns: () => request<AdminCampaign[]>("/api/admin/campaigns"),
   deleteCampaign: (id: string) => request<null>(`/api/admin/campaigns/${id}`, { method: "DELETE" }),
@@ -507,10 +439,13 @@ export const adminApi = {
 
 export const api = {
   checkSession: () => request<null>("/api/auth/session").then(() => true),
-  /** With an email, an account's sign-in (REQ-USER-10); without, the shared site password until it is retired. */
-  login: (password: string, email?: string) =>
-    request<void>("/api/auth/login", { method: "POST", body: JSON.stringify(email ? { email, password } : { password }) }),
+  /** Sign in to an account (REQ-USER-10). */
+  login: (email: string, password: string) =>
+    request<void>("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
   me: () => request<Account>("/api/auth/me"),
+  /** The signed-in account's games and campaigns, on any device (REQ-USER-40). */
+  myGames: () => request<(Game & { your_seat: number })[]>("/api/me/games"),
+  myCampaigns: () => request<{ id: string }[]>("/api/me/campaigns"),
   invitation: (code: string) => request<{ email: string }>(`/api/auth/invite/${encodeURIComponent(code)}`),
   signUp: (code: string, display_name: string, password: string) =>
     request<Account>("/api/auth/signup", { method: "POST", body: JSON.stringify({ code, display_name, password }) }),
@@ -523,23 +458,20 @@ export const api = {
   expansions: () => request<Record<string, string>>("/api/content/expansions"),
   boxes: () => request<Boxes>("/api/content/boxes"),
   games: () => request<Game[]>("/api/games"),
-  game: (id: string) => {
-    const token = loadSeatToken(id);
-    return request<Game>(`/api/games/${id}`, { headers: token ? { "X-Seat-Token": token } : {} });
-  },
+  game: (id: string) => request<Game>(`/api/games/${id}`),
   createGame: (body: SeatChoice & { mode: GameMode; box: Box; expansions: string[]; promos: boolean; bot?: BotChoice }) =>
     request<SeatGrant>("/api/games", { method: "POST", body: JSON.stringify(body) }),
   cardText: () => request<Record<string, CardText>>("/api/content/cards"),
-  state: (id: string) => request<GameStateView>(`/api/games/${id}/state`, { headers: seatHeaders(id) }),
+  state: (id: string) => request<GameStateView>(`/api/games/${id}/state`),
   command: (id: string, option: string) =>
-    request<GameStateView>(`/api/games/${id}/commands`, { method: "POST", body: JSON.stringify({ option }), headers: seatHeaders(id) }),
-  undo: (id: string) => request<GameStateView>(`/api/games/${id}/undo`, { method: "POST", headers: seatHeaders(id) }),
+    request<GameStateView>(`/api/games/${id}/commands`, { method: "POST", body: JSON.stringify({ option }) }),
+  undo: (id: string) => request<GameStateView>(`/api/games/${id}/undo`, { method: "POST" }),
   /** Report a bug: the server keeps the description with the game's setup, seed and moves (REQ-BUG-01). */
   reportBug: (id: string, description: string, kind: "bug" | "feature" = "bug") =>
-    request<{ id: string }>(`/api/games/${id}/bugs`, { method: "POST", body: JSON.stringify({ description, kind }), headers: seatHeaders(id) }),
+    request<{ id: string }>(`/api/games/${id}/bugs`, { method: "POST", body: JSON.stringify({ description, kind }) }),
   dev: (id: string, body: DevCommand) =>
-    request<GameStateView>(`/api/games/${id}/dev`, { method: "POST", body: JSON.stringify(body), headers: seatHeaders(id) }),
-  deleteGame: (id: string) => request<null>(`/api/games/${id}`, { method: "DELETE", headers: seatHeaders(id) }),
+    request<GameStateView>(`/api/games/${id}/dev`, { method: "POST", body: JSON.stringify(body) }),
+  deleteGame: (id: string) => request<null>(`/api/games/${id}`, { method: "DELETE" }),
   joinGame: (id: string, body: SeatChoice) =>
     request<SeatGrant>(`/api/games/${id}/join`, { method: "POST", body: JSON.stringify(body) }),
 };

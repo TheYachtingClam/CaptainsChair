@@ -1,4 +1,5 @@
-"""The admin: delete any game or campaign (requirements/19-technical-architecture.md §5.3, REQ-ADMIN-01 to -05)."""
+"""The admin (requirements/19-technical-architecture.md §5.4, §5.6): accounts and invitations, every game and
+campaign, and bug reports. Every endpoint here needs an admin account (REQ-USER-32)."""
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel
@@ -6,19 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app import bugs, play
-from app.auth import (
-    account_is_admin,
-    admin_enabled,
-    check_admin_password,
-    clear_admin,
-    is_admin,
-    issue_admin,
-    login_limiter,
-    require_admin,
-    require_session,
-    session_user,
-)
-from app.config import get_settings
+from app.auth import require_admin, require_session, session_user, viewer_id
 from app.db import get_db
 from app.hub import hub
 from app.models import BugReport, Campaign, Game
@@ -27,37 +16,11 @@ from app.schemas import BugStatus
 router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(require_session)])
 
 
-class AdminLogin(BaseModel):
-    password: str
-
-
 @router.get("/status")
 def admin_status(request: Request, db: Session = Depends(get_db)) -> dict:
-    """Whether there is an admin, and whether this browser is the admin: an admin account (REQ-USER-32) or, until
-    plans/users.md Step 8, the admin password's session."""
-    from app import users
-
-    account = account_is_admin(request)
-    return {"enabled": admin_enabled(get_settings()) or users.any_admin(db), "admin": account or is_admin(request),
-            "account": account}
-
-
-@router.post("/login", status_code=status.HTTP_204_NO_CONTENT)
-def admin_login(body: AdminLogin, request: Request, response: Response) -> None:
-    settings = get_settings()
-    if not admin_enabled(settings):
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "There is no admin on this server")
-    ip = request.client.host if request.client else "unknown"
-    if not login_limiter.allow(f"admin:{ip}", settings.login_attempts_per_minute):
-        raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "Too many attempts. Try again in a minute.")
-    if not check_admin_password(body.password, settings):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Incorrect password")
-    issue_admin(response, settings)
-
-
-@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-def admin_logout(response: Response) -> None:
-    clear_admin(response)
+    """Whether this account is an admin (REQ-USER-32)."""
+    user = session_user(request.cookies, db)
+    return {"admin": bool(user and user.is_admin)}
 
 
 @router.get("/games", dependencies=[Depends(require_admin)])
@@ -88,23 +51,21 @@ async def delete_any_game(game_id: str, db: Session = Depends(get_db)) -> None:
 
 
 @router.post("/games/{game_id}/seats/{seat_index}/take", dependencies=[Depends(require_admin)])
-async def take_seat(game_id: str, seat_index: int, db: Session = Depends(get_db)) -> dict:
-    """The admin takes over a seat in a real game (REQ-ADMIN-06): the seat gets a new token, which only the admin
-    receives, so the player who held it is locked out. Their open pages are told and disconnected."""
-    from app.auth import hash_seat_token, new_seat_token
-
+async def take_seat(game_id: str, seat_index: int, db: Session = Depends(get_db),
+                    viewer: str = Depends(viewer_id)) -> dict:
+    """The admin takes over a seat in a real game (REQ-ADMIN-06): the seat moves to the admin's account, so the player
+    who held it is locked out. Their open pages are told and disconnected."""
     game = db.get(Game, game_id)
     if game is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Game not found")
     seat = next((s for s in game.seats if s.index == seat_index), None)
     if seat is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "That seat is not taken")
-    token = new_seat_token()
-    seat.token_hash = hash_seat_token(token)
+    seat.user_id = viewer
     db.commit()
     await hub.broadcast(game_id, {"type": "seat_taken", "seat": seat_index})
     await hub.close_seat(game_id, seat_index, "The admin took over this seat")
-    return {"game_id": game_id, "seat_index": seat_index, "seat_token": token, "display_name": seat.display_name}
+    return {"game_id": game_id, "seat_index": seat_index, "display_name": seat.display_name}
 
 
 @router.get("/campaigns", dependencies=[Depends(require_admin)])
@@ -208,23 +169,18 @@ class Recreate(BaseModel):
 
 
 @router.post("/bugs/{bug_id}/recreate", dependencies=[Depends(require_admin)])
-def recreate_bug(bug_id: str, body: Recreate | None = None, db: Session = Depends(get_db)) -> dict:
-    """Make a playable copy of the reported game, as it was at the report or `moves` commands in (REQ-BUG-07). The
-    copy is a new game with new seat tokens, returned for every seat; the original game is not touched."""
-    from app.auth import hash_seat_token, new_seat_token
-
+def recreate_bug(bug_id: str, body: Recreate | None = None, db: Session = Depends(get_db),
+                 viewer: str = Depends(viewer_id)) -> dict:
+    """Make a playable copy of the reported game, as it was at the report or `moves` commands in (REQ-BUG-07). Every
+    seat of the copy is the admin's, so the admin can play either side; the original game is not touched."""
     report = _bug(db, bug_id)
     moves = body.moves if body else None
     if moves is not None and not 0 <= moves <= len(report.bundle["commands"]):
         raise HTTPException(422, "There are not that many moves in the report")
-    game = bugs.as_game(report.bundle, moves=moves)
+    game = bugs.as_game(report.bundle, moves=moves, owner=viewer)
     game.status = "active" if moves is not None else game.status
     if game.campaign:  # a copy must never count for the campaign it came from
         game.campaign = {k: v for k, v in game.campaign.items() if k in ("reinforcement", "setup")}
-    tokens = {}
-    for seat in game.seats:
-        tokens[seat.index] = token = new_seat_token()
-        seat.token_hash = hash_seat_token(token)
     db.add(game)
     db.commit()
     try:
@@ -238,7 +194,7 @@ def recreate_bug(bug_id: str, body: Recreate | None = None, db: Session = Depend
     elif game.status == "finished":
         game.status = "active"
     db.commit()
-    return {"game_id": game.id, "seat_tokens": tokens, "reporter_seat": report.seat}
+    return {"game_id": game.id, "reporter_seat": report.seat}
 
 
 # ------------------------------------------------------------------ accounts and invitations (REQ-USER-30, -31)

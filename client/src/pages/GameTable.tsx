@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { MODE_LABELS, api, forgetSeatToken, loadSeatToken } from "../api";
+import { MODE_LABELS, api } from "../api";
 import { Board } from "../components/Board";
 import { DevPanel } from "../components/DevPanel";
 
@@ -26,14 +26,13 @@ export function GameTable() {
   const [exiting, setExiting] = useState(false);
   const [reporting, setReporting] = useState<"bug" | "feature" | null>(null);
   const quitting = useRef(false);
-  const hello = useRef<number | null>(null); // the seat this page's socket connected as // we deleted the game ourselves: the page moves on, not the socket handler
+  const hello = useRef<number | null>(null); // the seat this page's socket connected as
   const quit = useMutation({
     mutationFn: () => {
-      quitting.current = true;
+      quitting.current = true; // we deleted the game ourselves: the page moves on, not the socket handler
       return api.deleteGame(gameId);
     },
     onSuccess: () => {
-      forgetSeatToken(gameId);
       queryClient.invalidateQueries({ queryKey: ["games"] });
       const campaignId = game.data?.campaign_id;
       navigate(campaignId ? `/campaigns/${campaignId}` : "/", { replace: true });
@@ -44,9 +43,10 @@ export function GameTable() {
   const [seatTaken, setSeatTaken] = useState(false);
   const [log, setLog] = useState<string[]>([]);
 
+  // The signed-in account's seat (REQ-USER-42). Watchers have no socket.
+  const seated = game.data?.your_seat != null;
   useEffect(() => {
-    const token = loadSeatToken(gameId);
-    if (!token) {
+    if (!seated) {
       setSocket("no-seat");
       return;
     }
@@ -56,17 +56,15 @@ export function GameTable() {
 
     const connect = () => {
       const scheme = location.protocol === "https:" ? "wss" : "ws";
-      ws = new WebSocket(`${scheme}://${location.host}/api/games/${gameId}/ws?seat=${encodeURIComponent(token)}`);
+      ws = new WebSocket(`${scheme}://${location.host}/api/games/${gameId}/ws`);
       setSocket("connecting");
       ws.onopen = () => setSocket("open");
       ws.onmessage = (ev) => {
         const msg = JSON.parse(ev.data);
         if (msg.type === "presence") setOnline(msg.connected);
         if (msg.type === "seat_taken" && msg.seat === hello.current) {
-          // The admin took over this seat (REQ-ADMIN-06): this page can only watch from now on. Only forget the token
-          // this page connected with, in case the admin took the seat in this same browser.
+          // The admin took over this seat (REQ-ADMIN-06): this page can only watch from now on.
           stopped = true;
-          if (loadSeatToken(gameId) === token) forgetSeatToken(gameId);
           setSeatTaken(true);
           queryClient.invalidateQueries({ queryKey: ["game", gameId] });
           queryClient.invalidateQueries({ queryKey: ["state", gameId] });
@@ -75,7 +73,6 @@ export function GameTable() {
         if (msg.type === "game_deleted") {
           stopped = true;
           if (quitting.current) return;
-          forgetSeatToken(gameId);
           queryClient.invalidateQueries({ queryKey: ["games"] });
           navigate("/", { replace: true });
           return;
@@ -95,7 +92,7 @@ export function GameTable() {
       window.clearTimeout(retry);
       ws?.close();
     };
-  }, [gameId, queryClient, navigate]);
+  }, [gameId, queryClient, navigate, seated]);
 
   if (game.isPending) return <main className="page">Loading game…</main>;
   if (game.isError) return <main className="page error">{game.error.message}</main>;

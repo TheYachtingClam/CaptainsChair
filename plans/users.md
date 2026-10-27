@@ -30,7 +30,7 @@ Answered on 2026-10-26:
 1. **Who can create an account:** only with an **invite** from the admin. The admin makes an invite for an email address; the person gets the invite by email, or the admin copies the link and sends it themselves.
 2. **How people sign in:** **email address and password**, with "Forgot password?" emails. This needs an email-sending service (decision 6).
 3. **The shared site password:** **retired** once accounts work; signing in to an account becomes the gate.
-4. **Existing games and campaigns:** **claimed automatically.** Signing in on a browser that holds seat tokens or campaign links moves those seats and campaigns to your account. Games nobody claims keep working with their tokens until they finish.
+4. **Existing games and campaigns:** first "claimed automatically"; changed later on 2026-10-26 to **deleted**, because simplicity mattered more than the games in progress. Seat tokens, campaign links, the shared site password and the admin password were all removed at once, and the server drops the old games, seats and campaigns the first time it opens a database that still has seat tokens (`db._drop_games_from_before_accounts`). Bug reports are kept.
 5. **The admin:** an **admin flag on accounts**. The first admin is made with a command on the server (`scripts/create_admin.py`, run once through `fly ssh console`); after that the admin can make others admin. `ADMIN_PASSWORD` is retired.
 
 6. **Email service:** **your Gmail account, through an app password**, for now (decided 2026-10-26). The server sends through Gmail's SMTP server with Python's own `smtplib`, so the emails come from your Gmail address and no domain is needed. The settings are `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_USER` (your Gmail address), `SMTP_PASSWORD` (the app password, as a Fly secret, never in the code) and `MAIL_FROM` (the same address, with a display name such as "Captain's Chair Online"). Gmail allows a few hundred emails a day, far more than invites and resets need. Without these settings (on your Mac, and in tests) the server writes each email to its log instead of sending it, so everything can be tried locally.
@@ -44,7 +44,7 @@ Answered on 2026-10-26:
 - New table `users`: id, email (unique, stored lower-case), display name, password hash, `is_admin`, `disabled`, created and last-seen times, and a `session_version` that is raised on a password change or reset, ending every session of that user.
 - New table `invites`: the email address invited, a random code (only its hash stored), who made it, when it expires (7 days), and when it was used.
 - New table `password_resets`: a random code (only its hash stored), the user, when it expires (1 hour) and whether it was used.
-- `seats`, `campaigns` and `bug_reports` gain a nullable `user_id`. Existing rows stay valid without one (decision 4a).
+- `seats` and `campaigns` have a required `user_id`; `bug_reports` a nullable one (reports from before accounts have none).
 - The Bot has no seat row, so nothing changes for it.
 
 ### Passwords and sessions
@@ -63,10 +63,10 @@ Answered on 2026-10-26:
 
 ### Who may act
 
-- A seat belongs to the account that created or joined it. A command, an undo or a report is allowed when the seat's `user_id` is the signed-in user. The seat token still works for seats with no account, so old games keep running.
-- A campaign belongs to its account; the secret link keeps working for unclaimed campaigns.
+- A seat belongs to the account that created or joined it. A command, an undo or a report is allowed when the seat's `user_id` is the signed-in user.
+- A campaign belongs to its account and opens only for it.
 - Admin endpoints check the account's `is_admin` flag.
-- The WebSocket finds the seat from the signed-in user, as it now does from the token.
+- The WebSocket finds the seat from the signed-in user.
 - Taking over a seat (REQ-ADMIN-06) moves the seat to the admin's account.
 
 ## Steps
@@ -111,7 +111,7 @@ What was done: the first admin comes from an **admin invitation** (`python -m ap
 
 What was done: `app/mail.py` sends over SMTP with Python's `smtplib` (STARTTLS on 587, TLS on 465) when `SMTP_HOST` and `SMTP_PASSWORD` are set, and otherwise writes to the log as before. A failed email is logged (without its text, which holds the link) and never fails the request; invitations and resets report "sent", "logged" or "failed", and the Admin page says what to do. The local `.env` has the Gmail settings for nmayne@gmail.com except the app password, which you add yourself; `.env.example` documents them. Tests: a fake SMTP server checks the Gmail conversation, the sender and the link, and that a failure is handled.
 
-### Step 5: Seats and campaigns belong to accounts
+### Step 5: Seats and campaigns belong to accounts (done)
 
 - Creating or joining a game, starting a campaign and sending a report record the user.
 - New endpoints: "my games" and "my campaigns".
@@ -120,12 +120,11 @@ What was done: `app/mail.py` sends over SMTP with Python's `smtplib` (STARTTLS o
 
 **You test:** play a game from one browser, open the site in another browser signed in as the same user, and carry on.
 
-### Step 6: Claiming existing games and campaigns
+What was done: `seats`, `campaigns` and `bug_reports` have a `user_id`. Creating or joining a game, starting a campaign or an assignment, and sending a report record the signed-in account, and a seat or campaign takes the account's display name. A request may act in the account's own seat (`seat_for` in `app/routes/games.py`); a seat token still works for a seat no account holds, but not for one an account holds. One account cannot take both seats of a game. Campaigns open for their owner without the link. New endpoints `GET /api/me/games` and `GET /api/me/campaigns` (`app/routes/me.py`). The game socket finds the account's seat. Taking over a seat, or recreating a reported game, gives that seat to the admin's account. Client: the lobby's "Your games" and Five-Year Missions include the account's, the game page connects through the account, and the seat and campaign forms use the account's name. Tests: `tests/test_users.py`, 27 tests.
 
-- After sign-in, the client sends the seat tokens and campaign links this browser holds. The server checks each and attaches the ones it accepts to the account.
-- A seat already owned by another account is never moved.
+### Step 6: Claiming existing games and campaigns (dropped)
 
-**You test:** a game started before accounts shows up under "Your games" after signing in, on another device too.
+Dropped with decision 4 as changed: the old games are deleted instead, and with them the shared site password, the admin password, seat tokens and campaign links (done the same day). The server is account-only: every endpoint takes the account from the session (`auth.viewer_id`), `/api/admin/login` and `/logout` are gone, and the client keeps nothing in local storage for seats or campaigns. A recreated bug report gives every seat to the admin, who acts in the seat whose decision is pending. API tests sign in with `sign_in_as` and `another_browser` (`tests/conftest.py`).
 
 ### Step 7: The client
 
@@ -139,16 +138,16 @@ What was done: `app/mail.py` sends over SMTP with Python's `smtplib` (STARTTLS o
 
 ### Step 8: Switch over and retire the old pieces
 
-- Retire the shared site password and the admin password (decisions 3a, 5a): the account sign-in becomes the only gate. The `SITE_PASSWORD` and `ADMIN_PASSWORD` secrets come off Fly.
-- Seat tokens and campaign links stay only for unclaimed old games; new games don't issue them.
-- Update CLAUDE.md, the README, `.env.example` and the Fly notes.
-- Deploy: create the first admin on Fly with `fly ssh console`, then invite the players.
+- The code side is done (Step 6). What is left is on Fly:
+- Deploy. **The first start deletes every game and campaign on Fly** (decision 4).
+- Set the secrets `PUBLIC_URL`, `ADMIN_EMAIL`, `SMTP_HOST`, `SMTP_USER`, `MAIL_FROM`; you set `SMTP_PASSWORD` yourself. Remove `SITE_PASSWORD` and `ADMIN_PASSWORD`.
+- Create the first admin on Fly with `fly ssh console -C "python -m app.create_admin"`, then invite the players.
 
 **You test:** on Fly, sign in as the admin, invite a player, and play a game together.
 
 ## Risks and notes
 
-- **Signing everyone out once.** The switch in Step 8 ends every current session; players sign in again with their new accounts. Games in progress are not lost: they are claimed or keep their tokens.
+- **Signing everyone out once.** The switch in Step 8 ends every current session, and games in progress are deleted (decision 4); players sign in again with their new accounts.
 - **Email delivery.** Emails come from your own Gmail address, so they should arrive reliably. If one goes astray, the admin can always copy an invite or reset link from the Admin page and send it another way.
 - **Your address is the sender.** Players see your Gmail address on invites and resets, and replies come to you. A spare Gmail account for the site avoids that.
 - **Backups.** Accounts make the database more valuable. Fly snapshots the volume daily; check the retention, and consider a periodic copy of the SQLite file somewhere else.
