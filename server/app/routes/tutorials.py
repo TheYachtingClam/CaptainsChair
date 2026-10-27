@@ -29,6 +29,15 @@ def all_tutorials(db: Session = Depends(get_db), viewer: str = Depends(viewer_id
     return out
 
 
+@router.get("/guides/{guide_id}")
+def guide(guide_id: str) -> dict:
+    """A reference sheet for the coach's "?" (REQ-TUT-43)."""
+    try:
+        return tutorial.guide(guide_id)
+    except tutorial.TutorialError as err:
+        raise HTTPException(404, str(err)) from err
+
+
 @router.post("/{tutorial_id}", status_code=status.HTTP_201_CREATED)
 def start_tutorial(tutorial_id: str, db: Session = Depends(get_db), viewer: str = Depends(viewer_id)) -> dict:
     """A new game of the tutorial, for the signed-in account (REQ-TUT-02)."""

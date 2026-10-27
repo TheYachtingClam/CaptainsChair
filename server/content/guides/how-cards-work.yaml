@@ -1,0 +1,52 @@
+# "How cards work": the reference sheet behind the tutorial coach's "?" (plans/tutorial.md, Revision 1).
+# Not a tutorial script: app/tutorial.py loads only server/content/tutorials/.
+# Rules: REQ-AS (actions), engine/game.py step_resupply (table cards) and step_cleanup (table cards and Staging Area).
+id: how-cards-work
+title: How cards work
+
+sections:
+  - heading: Where a card is
+    rows:
+      - {term: Hand, means: "Cards you can play this turn."}
+      - {term: Staging Area, means: "Cards you played this turn. They go to your Discard pile at Clean-up."}
+      - {term: "Table: Captain, Fleet Area, Locations, Duty Officer", means: "Cards in play. They stay from turn to turn."}
+      - {term: Discard pile, means: "Played and discarded cards. Shuffled into a new deck when your deck runs out."}
+      - {term: Captain's Log, means: "Out of your deck for good, but its VP still count."}
+      - {term: Reserve and Development pile, means: "Cards waiting to join your deck. They score nothing."}
+
+  - heading: Where each ability works
+    rows:
+      - {term: PLAY, means: "From your hand, when you play the card. [Action] costs one action; with no icon it's free."}
+      - {term: ACTIVATION, means: "On the table. Once a turn: using it exhausts the card."}
+      - {term: REACTION, means: "On the table. Triggers when something happens; you choose whether to use it. Exhausts the card."}
+      - {term: PASSIVE, means: "On the table. Always on."}
+      - {term: RESUPPLY, means: "On the table. At the start of each of your turns."}
+      - {term: CONTROL, means: "When you take control of the Location."}
+      - {term: CLEAN-UP, means: "On the table or in your Staging Area, at the end of your turn."}
+      - {term: ENDGAME, means: "On the table, at final scoring."}
+    note: |
+      Exhausted cards are turned sideways. Everything refreshes at the end of your turn.
+
+  - heading: Icons
+    rows:
+      - {term: "[Action]", means: "Costs one of your three actions."}
+      - {term: "[Dilithium]", means: "Dilithium: pays for cards and effects."}
+      - {term: "[Latinum]", means: "Latinum: pays for cards and effects."}
+      - {term: "[Glory]", means: "Glory: 1 VP at the end. Can pay as 1 Latinum or 2 Dilithium."}
+      - {term: "[Away Team]", means: "An Away Team token."}
+      - {term: "[Research] [Influence] [Military]", means: "Specialty skills and tracks."}
+
+  - heading: Words
+    rows:
+      - {term: Gain, means: "Take a card from the Market into your deck: on top, or into your Discard pile."}
+      - {term: Free, means: "No [Action] icon, so no action used."}
+      - {term: Beam, means: "Tuck a card under a Ship or Location."}
+      - {term: Warp, means: "Move a Ship to a Location."}
+      - {term: Secure, means: "3+ of your tokens at a Location, and 2+ more than your opponent."}
+      - {term: Take control, means: "Claim a secured Location in your Control step. Ships there are dismissed."}
+      - {term: Dismiss, means: "Move a card from play to your Discard pile."}
+      - {term: Log, means: "Move a card to your Captain's Log."}
+      - {term: Promote, means: "Make a Person your Duty Officer. You have one slot."}
+      - {term: Enlist, means: "Add a Reserve or Development card to the top of your deck when it reshuffles."}
+      - {term: Incident, means: "A bad card: −2 VP. Return it when a card lets you."}
+      - {term: The Burn, means: "If the Incident deck runs out, the game ends; fewer Incidents wins."}

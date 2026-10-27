@@ -38,7 +38,7 @@ def test_the_picard_script_plays_through_its_guided_turns(authed):
     """REQ-TUT-61: turns 1 to 3 on rails, every step reachable with the stacked decks, ending in free play."""
     game_id = start(authed)
     view = state(authed, game_id)
-    assert view["mode"] == "cadet" and view["tutorial"]["index"] == 0 and view["tutorial"]["total"] == 63
+    assert view["mode"] == "cadet" and view["tutorial"]["index"] == 0 and view["tutorial"]["total"] == 65
     assert [c["id"] for c in view["players"][0]["hand"]] == ["1PIC19", "1PIC22", "1PIC17", "1PIC24", "1PIC16"]
     seen = []
     for _ in range(200):
@@ -48,7 +48,7 @@ def test_the_picard_script_plays_through_its_guided_turns(authed):
         r = follow(authed, game_id, view)
         assert r.status_code == 200, (seen[-1], r.text)
         view = r.json()
-    assert view["tutorial"]["free"] and len(seen) == 63
+    assert view["tutorial"]["free"] and len(seen) == 65
     me = view["players"][0]
     assert view["turn"] == 4 and view["decision"]["kind"] == "action"  # free play starts on turn 4
     assert {l["name"] for l in me["locations"]} == {"Verex III", "Farpoint Station"}
@@ -156,3 +156,18 @@ def test_the_end_of_game_moments():
     game.result = {"reason": "resolution"}
     assert _triggered({"moment": "game-over"}, game) and _triggered({"moment": "final-scoring"}, game)
     assert not _triggered({"moment": "last-turn"}, game) and not _triggered({"moment": "stardate-empties"}, game)
+
+
+def test_more_and_the_how_cards_work_sheet(authed):
+    """REQ-TUT-20, -43: a step's optional detail, and the reference sheet behind the coach's "?"."""
+    game_id = start(authed)
+    view = state(authed, game_id)
+    assert view["tutorial"]["step"]["id"] == "welcome" and "How cards work" in view["tutorial"]["step"]["more"]
+    view = authed.post(f"/api/games/{game_id}/tutorial/next").json()
+    view = authed.post(f"/api/games/{game_id}/tutorial/next").json()
+    assert view["tutorial"]["step"]["id"] == "resources" and "2 Dilithium" in view["tutorial"]["step"]["more"]
+    guide = authed.get("/api/tutorials/guides/how-cards-work").json()
+    assert guide["title"] == "How cards work"
+    assert all(r["term"] and r["means"] for s in guide["sections"] for r in s["rows"])
+    assert authed.get("/api/tutorials/guides/nothing").status_code == 404
+    assert authed.get("/api/tutorials/guides/..%2Fsecrets").status_code == 404

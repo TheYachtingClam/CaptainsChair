@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { BotView, CardView, OptionView, PlayerView, RowRef } from "../api";
 import { usePhone } from "./Sheet";
 import { awayTokenImage, Card, CardBack, imageUrl, InspectContext, PileViewer, Slot, usePreviewHandlers } from "./Cards";
+import { IconText } from "./Icons";
 
 // Crew board track geometry, as fractions of the board image (measured from the scans).
 const TRACK_X0 = 0.073; // centre of space 0
@@ -169,7 +170,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
         title={onEndTurn ? "End your Action Step and go to Clean-up" : "Available during your Action Step"}>
         End Turn
       </button>
-      {onUndo && <button type="button" className="secondary undo-move" onClick={onUndo} title="Undo your last move">Undo</button>}
+      {onUndo && <button type="button" className="secondary undo-move" data-tutorial="undo" onClick={onUndo} title="Undo your last move">Undo</button>}
     </>
   );
   const hand = !p.bot && (
@@ -231,7 +232,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
             <div className="mission-actions">
               {missions.map((o) => (
                 <button key={o.id} className="mission-button" onClick={() => onMission(o)}>
-                  {o.irreversible && <span title="Cannot be undone">🔒 </span>}{o.label}
+                  {o.irreversible && <span title="Cannot be undone">🔒 </span>}<IconText text={o.label} />
                 </button>
               ))}
             </div>

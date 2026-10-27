@@ -1,11 +1,44 @@
+import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import { TutorialView } from "../api";
+import { api, TutorialView } from "../api";
+import { IconText, RichText } from "./Icons";
 import { Sheet } from "./Sheet";
 
-/** The coach's text: plain sentences with **bold** for card and game terms. */
-function Say({ text }: { text: string }) {
-  const parts = text.replace(/\s*\n\s*/g, " ").split(/\*\*(.+?)\*\*/g);
-  return <p className="coach-say">{parts.map((p, i) => (i % 2 ? <strong key={i}>{p}</strong> : p))}</p>;
+/** The coach's text: plain sentences with **bold** for card and game terms, and icons. */
+function Say({ text, className = "coach-say" }: { text: string; className?: string }) {
+  return <p className={className}><RichText text={text} /></p>;
+}
+
+/** The How cards work sheet behind the coach's "?" (REQ-TUT-43): where cards are, where abilities work, icons, words. */
+function GuideSheet({ onClose }: { onClose: () => void }) {
+  const guide = useQuery({ queryKey: ["guide", "how-cards-work"], queryFn: () => api.guide("how-cards-work"),
+    staleTime: Infinity });
+  const close = useRef<HTMLButtonElement>(null);
+  useEffect(() => close.current?.focus(), []);
+  return (
+    <div className="modal-backdrop guide-backdrop" onClick={onClose} onKeyDown={(e) => e.key === "Escape" && onClose()}>
+      <div className="card modal guide" role="dialog" aria-labelledby="guide-title" onClick={(e) => e.stopPropagation()}>
+        <div className="row between">
+          <h2 id="guide-title">{guide.data?.title ?? "How cards work"}</h2>
+          <button ref={close} className="secondary" onClick={onClose}>Close</button>
+        </div>
+        {!guide.data && <p className="muted">Loading…</p>}
+        {guide.data?.sections.map((s) => (
+          <section key={s.heading}>
+            <h3>{s.heading}</h3>
+            <dl className="guide-rows">
+              {s.rows.map((r) => (
+                <div key={r.term}><dt><IconText text={r.term} /></dt><dd><IconText text={r.means} /></dd></div>
+              ))}
+            </dl>
+            {s.note && <p className="muted">{s.note}</p>}
+          </section>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -23,6 +56,14 @@ export function Coach({ tutorial, canUndo, busy, onNext, onBack, onFree, onTip }
 }) {
   const step = tutorial.step;
   const tip = tutorial.tip;
+  const [more, setMore] = useState(false);
+  const [guide, setGuide] = useState(false);
+  useEffect(() => setMore(false), [step?.id]);
+  const help = (
+    <button className="icon-button coach-help" onClick={() => setGuide(true)} aria-label="How cards work"
+      title="How cards work">?</button>
+  );
+  const sheet = guide && createPortal(<GuideSheet onClose={() => setGuide(false)} />, document.body);
   if (!step && tip) {
     return (
       <Sheet className="coach card" role="region" label="Tutorial tip" live openOn={tip.id} summary="Tutorial tip">
@@ -31,8 +72,10 @@ export function Coach({ tutorial, canUndo, busy, onNext, onBack, onFree, onTip }
         <div className="coach-buttons">
           {tip.link && <Link className="button" to={tip.link.to}>{tip.link.label}</Link>}
           <span className="coach-spacer" />
+          {help}
           <button className={tip.link ? "secondary" : undefined} disabled={busy} onClick={onTip}>Got it</button>
         </div>
+        {sheet}
       </Sheet>
     );
   }
@@ -47,13 +90,19 @@ export function Coach({ tutorial, canUndo, busy, onNext, onBack, onFree, onTip }
       </div>
       <div className="coach-progress" aria-hidden><span style={{ width: `${done}%` }} /></div>
       <Say text={step.say} />
+      {step.more && more && <Say className="coach-say coach-more" text={step.more} />}
       <div className="coach-buttons">
+        {step.more && (
+          <button className="link" onClick={() => setMore(!more)} aria-expanded={more}>{more ? "Less" : "More"}</button>
+        )}
         {canUndo && <button className="secondary" disabled={busy} onClick={onBack}>Back</button>}
         {step.next && <button disabled={busy} onClick={onNext} autoFocus>Next</button>}
         <span className="coach-spacer" />
+        {help}
         <button className="link" disabled={busy} onClick={onFree}>Let me play</button>
         <Link className="link" to="/">Leave tutorial</Link>
       </div>
+      {sheet}
     </Sheet>
   );
 }

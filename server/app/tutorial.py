@@ -30,6 +30,18 @@ def scripts() -> dict[str, dict]:
     return out
 
 
+GUIDES = SCRIPTS.parent / "guides"
+
+
+@lru_cache
+def guide(guide_id: str) -> dict:
+    """A reference sheet the coach opens with "?" (REQ-TUT-43), such as How cards work."""
+    path = GUIDES / f"{guide_id}.yaml"
+    if not guide_id.replace("-", "").isalnum() or not path.is_file():
+        raise TutorialError(f"No guide {guide_id!r}")
+    return yaml.safe_load(path.read_text())
+
+
 def script(tutorial_id: str) -> dict:
     found = scripts().get(tutorial_id)
     if found is None:
@@ -137,8 +149,8 @@ def block(game: Game, state: GameState) -> dict | None:
            "tip": tip(game, state)}
     if not free:
         step = steps[index]
-        out["step"] = {"id": step["id"], "say": step["say"].strip(), "show": step.get("show"),
-                       "next": not _wants(step)}
+        out["step"] = {"id": step["id"], "say": step["say"].strip(), "more": (step.get("more") or "").strip() or None,
+                       "show": step.get("show"), "next": not _wants(step)}
     return out
 
 

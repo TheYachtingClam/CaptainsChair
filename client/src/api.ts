@@ -317,9 +317,17 @@ export interface TutorialView {
   total: number;
   /** The guided part is over: free play. */
   free: boolean;
-  step: { id: string; say: string; show: string | null; next: boolean } | null;
+  /** `more`: the optional detail behind the coach's More link. */
+  step: { id: string; say: string; more: string | null; show: string | null; next: boolean } | null;
   /** After the guided part: a one-time tip, closed with Got it (REQ-TUT-31). */
   tip: { id: string; say: string; show: string | null; link: { label: string; to: string } | null } | null;
+}
+
+/** A reference sheet the coach opens with "?" (server/content/guides/, REQ-TUT-43). */
+export interface Guide {
+  id: string;
+  title: string;
+  sections: { heading: string; rows: { term: string; means: string }[]; note?: string }[];
 }
 
 export interface TutorialInfo {
@@ -513,6 +521,7 @@ export const api = {
     request<GameStateView>(`/api/games/${id}/dev`, { method: "POST", body: JSON.stringify(body) }),
   deleteGame: (id: string) => request<null>(`/api/games/${id}`, { method: "DELETE" }),
   tutorials: () => request<TutorialInfo[]>("/api/tutorials"),
+  guide: (id: string) => request<Guide>(`/api/tutorials/guides/${id}`),
   startTutorial: (id: string) => request<SeatGrant>(`/api/tutorials/${id}`, { method: "POST" }),
   /** The coach's Next, or Let me play (REQ-TUT-24, -25). */
   coach: (id: string, action: "next" | "free" | "tip") =>

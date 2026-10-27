@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { GameStateView, OptionView, api } from "../api";
 import { Selection, imageUrl } from "./Cards";
 import { Sheet } from "./Sheet";
+import { IconText } from "./Icons";
 
 const GAP = 14;
 const MARGIN = 8;
@@ -105,7 +106,7 @@ export function CardPanel({ selection, view, onChoose, onClose }: {
                   {item.kind}
                   {item.option?.irreversible && <span title="Cannot be undone"> 🔒</span>}
                 </span>
-                <span className="op-text">{item.text}</span>
+                <span className="op-text"><IconText text={item.text} /></span>
                 {item.reason && <span className="op-reason">{item.reason}</span>}
               </button>
             </li>

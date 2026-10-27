@@ -17,7 +17,7 @@ A tutorial is a real game with a coach: it explains each part of *Captain's Chai
 
 ### 1.3 Steps
 
-- **REQ-TUT-20** A step has an id and the coach's text (`say`: two or three short sentences, with **bold** for card and game terms). It may point at something (`show`) and either wait for a move (`expect`) or wait for the player to tap Next (`next: button`).
+- **REQ-TUT-20** A step has an id and the coach's text (`say`: two or three short sentences, with **bold** for card and game terms and `[Action]`, `[Dilithium]` and the other bracketed icon names drawn as icons). It may have more detail (`more`), shown only when the player taps **More**. It may point at something (`show`) and either wait for a move (`expect`) or wait for the player to tap Next (`next: button`).
 - **REQ-TUT-21** `show` names one of: a card (`card:<card id>`, the instance the player owns, or in the Market or Neutral Zone), a zone (`zone:hand`, `zone:resources`, `zone:tracks`, `zone:captain`, `zone:fleet`, `zone:locations`, `zone:duty`, `zone:staging`, `zone:discard`, `zone:deck`, `zone:reserve`, `zone:development`, `zone:log`, `zone:market`, `zone:market:<suit>`, `zone:neutral`, `zone:stardate`, `zone:incident`), a button (`button:end-turn`, `button:undo`, `button:next`) or the question in the bottom sheet (`question`). On a phone the coach switches to the tab that holds it.
 - **REQ-TUT-22** `expect` is one move or a list of moves, written so that the script needs no card uids:
   - `play:<card id>:<n>` and `activate:<card id>:<n>`: play or activate that card's operation n;
@@ -40,6 +40,7 @@ A tutorial is a real game with a coach: it explains each part of *Captain's Chai
 - **REQ-TUT-40** On a laptop the coach is a panel beside what it points at; on a phone it is the top block of the bottom sheet (REQ-CLI-34). It shows the text, Back (for explanations), Next where needed, progress ("Step 7 of 52"), **Let me play** and **Leave tutorial**.
 - **REQ-TUT-41** What the step points at is highlighted and the rest of the table dimmed, without blocking it: cards can still be pressed and held to read them (REQ-CLI-31).
 - **REQ-TUT-42** Leaving keeps the game; the lobby offers to continue it or start again.
+- **REQ-TUT-43** A **?** in the coach opens **How cards work** (`server/content/guides/how-cards-work.yaml`): where a card can be, where each kind of ability works, the icons, and the game's words. The icons are cropped from the rulebook's icon reference (`scripts/crop_icons.py`) and drawn in card text and answers too.
 
 ### 1.6 The lobby and the account
 

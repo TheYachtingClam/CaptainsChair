@@ -139,3 +139,67 @@ A new tutorial is a new YAML file: its setup (Captain, box, stacked decks, mode)
 - **The script must match the cards.** If a card's code or the rules change, a scripted move may no longer exist. The replay test in Step 2 fails when that happens, so it is caught before players see it.
 - **Text length on a phone.** Each step's text is kept to two or three short sentences; longer explanations are split.
 - **Rails that are too tight feel like a slideshow.** Only turns 1 to 3 are on rails, and "Let me play" is always there.
+
+## Revision 1: your first play-through (2026-10-27)
+
+Your notes, each with what to change. Where I think a note would overload a new player or is not quite the rule, it says so (**push back**). Step numbers are the script's order (step 4 is `captain`, 43 `draw-up-2`, and so on).
+
+### Two new tools, to add depth without a wall of text
+
+The notes ask for a lot more explanation. A first game already has 63 steps; adding everything as plain text would double the reading and lose people. So:
+
+1. **"More" on a step** (`more:` in the script): the step's text stays two or three sentences, and a **More** link opens the extra detail for players who want it. The why-it-matters and strategy notes go there.
+2. **A "How cards work" sheet**, opened from a **?** in the coach at any time: where each kind of ability works (below), the icons, and the words used (gain, discard, dismiss, log, beam, secure, enlist). The coach links to it at the first Reaction and the first Activation instead of explaining everything at step 8.
+
+Where each kind of ability works (rules 06 §6, 05, 07; to be confirmed against the engine while writing the sheet):
+
+| Where the card is | What works |
+|---|---|
+| Hand | PLAY (playing it), and SUPPORT in expansions |
+| Staging Area (played this turn) | Only CLEAN-UP, at the end of the turn |
+| Table positions: Captain, Status, Fleet Area, Location Area, Duty Officer | Blue strip (ACTIVATION, PASSIVE, REACTION), RESUPPLY, CLEAN-UP; ENDGAME at the end |
+| Beamed onto a Ship or Location | Nothing (it travels with its host; it still scores) |
+| Captain's Log | Nothing (it still scores) |
+
+3. **Icons in the coach's text and card panels.** There are no icon images yet: cards show "[Action]" as text. Crop the Action, Dilithium, Latinum, Glory, Research, Influence, Military and Away Team icons from the rulebook's reference pages (`scripts/process_scans.py`) and draw them in place of `[Action]`, `[Dilithium]`, … in the coach and in card panels.
+
+### Your notes
+
+| # | Note | Decision | Change |
+|---|---|---|---|
+| Start | Glory can be spent as Latinum or Dilithium | Agree, with the exact rate | Step 3: "When you pay, 1 Glory can stand in for 1 Latinum or 2 Dilithium (no change given), but each Glory spent is a VP lost." (KW-SPEND-02) |
+| Start | 11 turns here; normally the Stardates | Agree | Step 2: "This practice game lasts 11 turns. In a real game it ends when the Stardate cards run out of Glory." |
+| — | The Burn is scary at the end | Agree | Step 2's More: the other ending, the Burn (Incident deck empty: the game ends at once; in practice you lose). The Incident tip later just reminds. |
+| 4 | "Reaction" comes out of nowhere; blue abilities only from deployed cards | Agree; the rule is "table positions", not only deployed | Step 4: what a Reaction is ("an ability that fires by itself when something happens; you choose whether to use it"), with a link to How cards work. The blue-strip rule goes in step 9's More and in the sheet: blue abilities work only while the card is in a table position (Captain, Fleet, Locations, Duty Officer), never from your hand, the Staging Area or beamed. |
+| — | A main goal is burning through your deck to reach Developments | **Push back** on "main goal": the goal is VP. Cycling your deck fast is a key strategy because each reshuffle enlists a Reserve card and, once the Reserve is empty, lets you enlist a Development | Taught at step 44 (deck cycling), with the card kinds (below), and in the discard notes (43) |
+| 5 | How you move along the tracks and why | Agree | Step 5: "Cards move your markers: 'gain 1 Research' moves Research one space; Utilize moves them for the Skill icons you have in play." More: why: some cards need a track value ("Requires Military 3"), Picard's mission needs two tracks at 4, and marked spaces multiply your Focus cards' VP at the end, once you've completed a mission. |
+| 8 | Which areas each kind of ability works in | **Push back** on putting it all at step 8: it is the hardest table to absorb before you've played a card | Step 8 stays about the four steps, plus one line: "What a card can do depends on where it is: see **How cards work**." The table above is the sheet. The coach points to it again at the first Reaction (18) and the first Activation. |
+| 9 | Show the Action icon | Agree | With the icons work above: step 9 shows the icon in its text and highlights it on Utilize. |
+| 10 | Explain undo | Agree | Step 10's More (or a step after it): you can undo your moves until something new is revealed (a card drawn, a card turned over); moves that can't be undone show 🔒 and ask first. |
+| 12 | Ships with a majority keep enemy Away Teams out | Agree, with the exact rule, kept short (there is no opponent here) | Step 13's More: an opponent can't send Away Teams to a Location where you have more Ships than they do (KW-SEND-03). Taught properly in the Bot tutorial. |
+| 14 | Gaining also makes your deck bigger | Agree | Step 14: "…but every card gained makes your deck bigger and slower to get through, so gain cards you'll be glad to draw." |
+| 15 | "You'll learn to return them" is awkward | Agree | Step 15: "Incidents are bad cards: −2 VP each at the end. Some cards return them to the Incident deck; you'll see one next turn." |
+| 26 | Say a real game has no wipe here | Agree | Step 26: "Only practice games wipe a card at Clean-up; in a real game the Market is wiped when a Stardate runs out." |
+| 29 | Define securing, and when it's controlled | Agree | Step 29: "A neutral Location is **secured** when you have 3+ tokens there and at least 2 more than your opponent. At the start of your next turn (the Control step) you may take control of one secured Location." The take-control procedure goes in step 46's More. |
+| 39 | How a Duty Officer keeps working | Agree | Step 39: "He stays in play: his RESUPPLY gains you 1 Latinum at the start of every turn, and his Activations can be used once each turn." |
+| 43 | Why discarding is usually right; did keeping Riker pay off? | Agree. And yes: Riker, kept in turn 1, was used in turn 2 (his PLAY took Utilize and Recruit back and sent the third Away Team, then he became Duty Officer) | Steps 28, 43, 62: "Discarding is usually good: you draw fresh cards, and your deck cycles sooner toward Reserve and Development cards. Keep a card only when you know how you'll use it next turn." Steps 28 and 43 then say what each kept card is for. |
+| 44 | The kinds of cards: yours, Market, Reserve, Development | Agree | Step 44, with More: **starting deck** (your 10 cards), **Market** (gained into your deck), **Reserve** (Picard's 4 better cards, one joins your deck at each reshuffle), **Development** (his best cards, once the Reserve is empty, for a cost). |
+| — | Resupply happens every turn, even with nothing to do | Agree | A short step at the start of turn 2: "Each turn starts with Resupply and Control. You have no RESUPPLY cards or secured Locations yet, so they passed by." |
+| 46 | Dismiss, and why the Enterprise-D stayed away | Agree | Step 46: "Taking control **dismisses** every Ship there: it goes to your Discard pile with every card beamed to it. We kept the Enterprise-D away to protect the Allies on it, which Picard's mission needs." |
+| 51 | The Glory comes with the card | Agree | Step 51: "Gain Halkan Council: its 2 Glory comes with it." |
+| 56 | What "free" means | Agree | Step 56: "Its second effect has no Action icon, so it doesn't use an action: it's **free**." Step 10 gets the same wording. |
+| 58 | The mission explained properly | Agree | Step 58: "**Peace Negotiations** is Picard's mission, the goal his deck is built around. Claim it once you have 3 Allies on one Ship and two tracks at 4: you gain 4 Dilithium and 4 cards." More: "Completing a mission also makes your **Focus** cards score at the end (each track's best multiplier × its Focus cards), so climbing the tracks pays twice." |
+| Tip | Encounters are the best cards | Mostly agree | "Encounters are among the strongest cards in the game: one-off effects you take into your hand." |
+| Tip | Developments | Kept as is | (You liked it.) |
+| Tip | Final scoring misses the special VP | Agree | Lists every part: Glory, tokens on neutral Locations, **ENDGAME** abilities (Picard: 1 VP per Ally; some Locations score too), printed VP (Incidents −2), and **Focus** multipliers if you completed a mission. |
+
+### Effect on length
+
+About 6 new steps (turn 2's Resupply note, undo, the Burn is in More, the card kinds) and longer text on about 20 others. With More and the sheet, the main path grows to roughly 69 steps of the same short size.
+
+### Steps
+
+1. ✅ **Script text** (for your review again): every change in the table, the More texts, and the How cards work sheet's text. The replay test keeps proving the moves.
+2. ✅ **Icons**: crop them from the rulebook pages, add them to the image set, and draw `[Action]`-style tokens as icons in the coach and card panels.
+3. ✅ **More and the ? sheet** in the coach, on phone and laptop.
+4. **Check and deploy**: ✅ the Playwright pass over every step on phone and laptop (text and icons shown, target visible, More opens, the ? sheet opens); deploy when you say so.

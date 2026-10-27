@@ -1,5 +1,8 @@
 # Tutorial: Learn to play with Picard (requirements/24-tutorials.md §2, plans/tutorial.md).
-# Every expected move was played through in the engine with this setup (Step 1 of the plan).
+# Every expected move was played through in the engine with this setup; tests/test_tutorial.py replays it.
+# Text: `say` is the step (two or three sentences); `more` is the optional detail behind the coach's More link.
+# **bold** marks game terms; [Action], [Dilithium], [Latinum], [Glory], [Research], [Influence], [Military] and
+# [Away Team] are drawn as icons.
 id: picard-basics
 title: Learn to play with Picard
 summary: Play a practice game with Jean-Luc Picard while a coach explains each part of the game.
@@ -23,29 +26,47 @@ steps:
     say: |
       Welcome aboard, Captain. This is a practice game with **Jean-Luc Picard**. I'll explain each part as it comes up
       and, for the first three turns, tell you what to do.
+    more: |
+      Tap **More** whenever you want the detail behind a step, and **?** for **How cards work**: where each kind of
+      ability works, the icons, and the game's words.
     next: button
   - id: goal
     say: |
-      You win with **Victory Points** (VP). They come from **Glory** you collect, the printed VP on your cards, and
-      bonuses from your Captain and Locations. You have 11 turns.
-    show: zone:resources
+      You win with **Victory Points** (VP): from **Glory** you collect, the VP printed on your cards, and bonuses from
+      your Captain and Locations. This practice game lasts 11 turns; a real game ends when the **Stardate** cards run
+      out of Glory.
+    more: |
+      There is one other way a game ends, **the Burn**: if the Incident deck runs out, the game stops at once and the
+      player with fewer Incidents wins. In a practice game the Burn means you lose, so return Incidents when you can.
+    show: zone:stardate
     next: button
   - id: resources
     say: |
-      These are your resources: **Dilithium** and **Latinum** pay for cards and effects; **Glory** is worth 1 VP each at
-      the end. You start with one of each.
+      Your resources: [Dilithium] **Dilithium** and [Latinum] **Latinum** pay for cards and effects; [Glory] **Glory**
+      is worth 1 VP each at the end. You start with one of each.
+    more: |
+      When you pay, 1 Glory can stand in for 1 Latinum or for 2 Dilithium, with no change given. Each Glory you spend
+      is a VP lost, so keep it for when you really need it.
     show: zone:resources
     next: button
   - id: captain
     say: |
-      This is your **Captain**. Picard has a **Reaction**: after you gain an **Ally**, you may discard a card to gain
-      1 Glory and beam that Ally onto a Ship. At the end he scores 1 VP for each of your Allies.
+      This is your **Captain**. Picard has a **Reaction**: an ability that triggers by itself when something happens,
+      and you choose whether to use it. His: after you gain an **Ally**, discard a card to gain 1 Glory and beam that
+      Ally onto a Ship.
+    more: |
+      At the end he also scores 1 VP for each Ally you own. Reactions, like other abilities on a blue strip, work only
+      while the card is in play on your table: see **How cards work**.
     show: zone:captain
     next: button
   - id: board
     say: |
-      Your **Crew board** shows Picard's mission, **Peace Negotiations**, and three **Specialty tracks**: Research,
-      Influence and Military. You'll move along them as you play.
+      Your **Crew board** shows Picard's mission and three **Specialty tracks**: [Research] Research, [Influence]
+      Influence and [Military] Military. Cards move your markers: "gain 1 Research" moves Research one space.
+    more: |
+      Why climb? Some cards need a track value ("Requires Military 3"). Picard's mission needs two tracks at 4. And
+      the marked spaces multiply the VP of your **Focus** cards at the end, once you've completed a mission.
+      **Utilize** can move a track once for each matching Skill icon you have in play.
     show: zone:tracks
     next: button
   - id: ship
@@ -56,28 +77,31 @@ steps:
     next: button
   - id: hand
     say: |
-      These five cards are your **hand**. Each turn you play cards from it; at the end of the turn you draw back up to
-      five.
+      These five cards are your **hand**, from your 10-card starting deck. Each turn you play cards from it; at the
+      end of the turn you draw back up to five.
     show: zone:hand
     next: button
   - id: turn
     say: |
       A turn has four steps: **Resupply**, **Control**, **Actions** and **Clean-up**. You're in the Action Step now,
-      with three **actions** to spend.
+      with three **actions** to spend. What a card can do depends on where it is: see **How cards work**.
     show: zone:resources
     next: button
 
   # ---------------------------------------------------------------- Turn 1
   - id: utilize
     say: |
-      Cards with the **Action** icon cost one of your three actions. Play **Utilize** and choose its first effect to
-      gain Dilithium.
+      A card with the [Action] **Action** icon on an effect costs one of your three actions to play it. Play
+      **Utilize** and choose its first effect to gain Dilithium.
+    more: |
+      **PLAY** effects happen when you play the card from your hand. Blue strips (**ACTIVATION**, **REACTION**, **PASSIVE**) work only while the card is on your table: your Captain,
+      Fleet Area, Location Area or Duty Officer slot.
     show: card:1PIC19
     expect: play:1PIC19:0
   - id: free-plays
     say: |
-      Some effects have no Action icon: they are **free**. **Set a Course**'s second effect draws a card, then you
-      discard one, and lets you warp your Ships. Play it.
+      **Set a Course**'s second effect has no [Action] icon, so it doesn't use an action: it's **free**. It draws a
+      card, then you discard one, and lets you warp your Ships. Play it.
     show: card:1PIC22
     expect: play:1PIC22:1
   - id: discard-analyze
@@ -93,19 +117,28 @@ steps:
   - id: warp-where
     say: |
       Send the Enterprise-D to **Indri VIII**. A Ship at a neutral Location counts toward claiming it, but we'll claim a
-      different one, so the Ship stays safe.
+      different one and keep this Ship safe.
+    more: |
+      Ships also guard a Location: an opponent can't send Away Teams to a Location where you have more Ships than they
+      do. You'll use that against a real opponent.
     show: zone:neutral
     expect: 1LOC12
+  - id: undo
+    say: |
+      Made a mistake? **Undo** takes back your last move, as long as it revealed nothing new. A move that draws or turns
+      over a card can't be undone: it shows a 🔒 and asks you first.
+    show: button:undo
+    next: button
   - id: market
     say: |
-      This is the **Market**: four decks with one card face up on each. **Gaining** a card puts it into your deck, so
-      it helps you in later turns.
+      This is the **Market**: four decks with one card face up on each. **Gaining** a card puts it into your deck, but
+      every card gained makes your deck bigger and slower to get through, so gain cards you'll be glad to draw.
     show: zone:market
     next: button
   - id: recruit
     say: |
       Play **Recruit**'s second effect: take an **Incident** to gain an Ally. Incidents are bad cards, −2 VP each at the
-      end; you'll learn to return them.
+      end; some cards return them to the Incident deck, and you'll see one next turn.
     show: card:1PIC17
     expect: play:1PIC17:1
   - id: gain-tholians
@@ -126,8 +159,8 @@ steps:
     expect: use:0
   - id: reaction-cost
     say: |
-      Discard the **Incident** you just took: it's the card you least want in your hand. (It stays in your deck, though;
-      only returning it gets rid of it.)
+      Discard the **Incident** you just took: it's the card you least want in your hand. (It stays in your deck,
+      though; only returning it gets rid of it.)
     show: question
     expect: pick:Incident
   - id: beam-tholians
@@ -148,45 +181,59 @@ steps:
     expect: market:Ally
   - id: bolians-top
     say: |
-      Put Bolians **on top of your deck**: you'll draw it next turn. (Picard's Reaction isn't offered: you have no card
-      left to discard.)
+      Put Bolians **on top of your deck**: you'll draw it next turn. (Picard's Reaction isn't offered: using it
+      **exhausted** him, turned him sideways, and he refreshes at the end of your turn.)
     show: question
     expect: top
   - id: log
     say: |
       Diplomacy is now in your **Captain's Log**. Logged cards leave your deck for good, but they still score their VP
       at the end.
+    more: |
+      Logging is also a way to thin your deck: fewer weak cards means you draw your good ones more often.
     show: zone:log
     next: button
   - id: end-turn-1
-    say: |
-      Will Riker stays in your hand for next turn; you don't have to play every card. Tap **End Turn** to go to
-      Clean-up.
+    say: Will Riker stays in your hand for next turn. Tap **End Turn** to go to Clean-up.
     show: button:end-turn
     expect: end
   - id: wipe
     say: |
-      In **Clean-up** of a practice game you clear one Market card. Wipe **Arin'sen**: it needs 3 Military, which you
+      In this practice game, Clean-up first clears one Market card. Wipe **Arin'sen**: it needs 3 Military, which you
       don't have.
+    more: |
+      Only practice games wipe a card here. In a real game the Market is wiped when a Stardate card runs out.
     show: zone:market:Ally
     expect: wipe:Ally
   - id: glory-on-market
     say: |
-      Then you place 1 **Glory** on a Market card. Whoever gains that card later takes the Glory. Put it on **Halkan
-      Council**.
+      Then you place 1 **Glory** on a Market card. Whoever gains that card later takes the Glory with it. Put it on
+      **Halkan Council**.
     show: zone:market:Ally
     expect: glory:Ally
   - id: draw-up
     say: |
-      Last, you may discard cards from your hand, then you **draw up** to five. Keep Will Riker and tap **Done**.
+      Last, you may discard cards from your hand, then you **draw up** to five. Discarding is usually good: you draw
+      fresh cards and get through your deck sooner. Keep **Will Riker**: he has a plan for next turn. Tap **Done**.
+    more: |
+      Keep a card only when you know how you'll use it next turn. Riker's PLAY will take two cards back from your
+      Discard pile and send an Away Team.
     show: question
     expect: done
 
   # ---------------------------------------------------------------- Turn 2
+  - id: turn-2-start
+    say: |
+      Every turn starts with **Resupply** and **Control**. You have no RESUPPLY abilities in play or secured Locations
+      yet, so they passed by and you're straight into your actions.
+    next: button
   - id: worf
     say: |
-      To claim a neutral Location you **secure** it with 3 of your tokens (Away Teams and Ships). Play **Worf**: he
-      sends 2 **Away Teams** to a neutral Location.
+      To claim a neutral Location, you first **secure** it: 3 or more of your tokens there (Away Teams and Ships), and
+      at least 2 more than your opponent. Play **Worf**: he sends 2 [Away Team] **Away Teams** to a neutral Location.
+    more: |
+      At the start of your next turn, in the Control step, you may take control of one secured Location. Here, the
+      practice game's opponent has 1 token everywhere, which 3 of yours beat by 2.
     show: card:1PIC23
     expect: play:1PIC23:0
   - id: worf-where
@@ -218,8 +265,8 @@ steps:
     expect: 1LOC19
   - id: red-alert
     say: |
-      **Red Alert** is one of Picard's own Incidents. Its effect returns it to the Incident deck: play it to get rid of
-      it.
+      **Red Alert** is one of Picard's own Incidents, and its effect returns it to the Incident deck. Play it to get rid
+      of it.
     show: card:1PIC20
     expect: play:1PIC20:0
   - id: red-alert-cost
@@ -234,8 +281,8 @@ steps:
     expect: 1PIC24
   - id: duty-officer
     say: |
-      A **Duty Officer** stays in play and keeps working every turn: Riker gains you 1 Latinum each Resupply. You can
-      have only one at a time.
+      A **Duty Officer** stays in play: Riker's RESUPPLY gains you 1 Latinum at the start of every turn, and his
+      Activations can each be used once a turn. You can have only one Duty Officer at a time.
     show: zone:duty
     next: button
   - id: end-turn-2
@@ -251,7 +298,12 @@ steps:
     show: zone:market:Ally
     expect: glory:Ally
   - id: draw-up-2
-    say: Keep your hand and tap **Done**.
+    say: |
+      This time keep all three cards: **Farpoint Station** becomes a Location you control, and **Utilize** and
+      **Recruit** pay off once it's out. Tap **Done**.
+    more: |
+      Keeping three is unusual: normally you'd discard more to see fresh cards. These three each have a job next turn,
+      which is the test for keeping a card.
     show: question
     expect: done
 
@@ -259,7 +311,12 @@ steps:
   - id: cycle
     say: |
       Drawing up, your deck ran out: your Discard pile was shuffled into a new deck, and the top card of your
-      **Reserve** went on it. Every reshuffle **enlists** a Reserve card like this.
+      **Reserve** went on it. Each reshuffle **enlists** a Reserve card like this.
+    more: |
+      Your cards come from four places. Your **starting deck**: the 10 cards you began with. The **Market**: cards you
+      gain. Your **Reserve**: four of Picard's better cards, one joining your deck at each reshuffle. Your **Development
+      pile**: his best cards; once the Reserve is empty, each reshuffle lets you enlist one by paying its cost. Getting
+      through your deck quickly gets you there sooner.
     show: zone:reserve
     next: button
   - id: resupply
@@ -270,20 +327,25 @@ steps:
     next: button
   - id: take-control
     say: |
-      Verex III is secured, so you may **take control** of it. Careful: taking a Location **dismisses every Ship
-      there**, which is why your Enterprise-D stayed away.
+      Verex III is secured, so take control of it. Taking a Location **dismisses** every Ship there: it goes to your
+      Discard pile with every card beamed to it. We kept the Enterprise-D away to protect the Allies on it, which
+      Picard's mission needs.
+    more: |
+      Taking control: the opponent gains 1 Glory for each of their tokens there; all Away Teams return to their
+      Captains; all Ships there are dismissed; the Location joins your Location Area and its **CONTROL** effect
+      resolves; a new Location fills the Neutral Zone. You can take one Location per turn.
     show: card:1LOC19
     expect: take:1LOC19
   - id: control-reward
     say: |
-      Verex III is now yours, and its **CONTROL** effect gave you 1 Glory. A new Location took its place in the Neutral
-      Zone.
+      Verex III is now yours, and its **CONTROL** effect gave you 1 Glory. Your Away Teams came back to your Captain to
+      use again.
     show: zone:locations
     next: button
   - id: farpoint
     say: |
       **Farpoint Station** is a Location from your own deck. Play it to take control of it; its CONTROL gives 1
-      **Research** on your Specialty track.
+      [Research] **Research**.
     show: card:1PIC21
     expect: play:1PIC21:0
   - id: utilize-2
@@ -296,7 +358,7 @@ steps:
     show: card:1PIC17
     expect: play:1PIC17:1
   - id: gain-halkan
-    say: Gain **Halkan Council**, and the 2 Glory on it.
+    say: Gain **Halkan Council**. Its 2 Glory comes with it.
     show: card:1ALL07
     expect: market:Ally
   - id: halkan-where
@@ -317,8 +379,8 @@ steps:
     expect: 1PIC02
   - id: shuttlecraft
     say: |
-      You drew **Type 7 Shuttlecraft**, the Reserve card enlisted when your deck ran out. Its second effect is free:
-      play it to gain 1 Dilithium and beam a card to a Ship.
+      You drew **Type 7 Shuttlecraft**, the Reserve card that joined your deck. Its second effect has no [Action] icon,
+      so it's free: play it to gain 1 Dilithium and beam a card to a Ship.
     show: card:1PIC14
     expect: play:1PIC14:1
   - id: beam-bolians
@@ -329,8 +391,12 @@ steps:
     expect: beam
   - id: mission
     say: |
-      **Peace Negotiations** also needs two of your Specialty tracks at 4 or more. When you get there, you can complete
-      it during your Action Step for 4 Dilithium and 4 cards.
+      **Peace Negotiations** is Picard's mission, the goal his deck is built around. Claim it once you have 3 Allies on
+      one Ship and two tracks at 4: you gain 4 Dilithium and draw 4 cards.
+    more: |
+      Completing a mission also makes your **Focus** cards score at the end: each track's best multiplier times its
+      Focus cards. So climbing the tracks pays twice. When the goal is met, a mission button appears on your Crew
+      board during your Action Step.
     show: zone:tracks
     next: button
   - id: end-turn-3
@@ -346,7 +412,8 @@ steps:
     show: zone:market
     expect: [glory:Person, glory:Cargo, glory:Ship, glory:Ally]
   - id: draw-up-3
-    say: Discard what you don't want to keep, then tap **Done**.
+    say: |
+      Discard what you have no plan for, then tap **Done**. From now on, the choices are yours.
     show: question
     expect: done
   - id: free-play
@@ -359,12 +426,12 @@ tips:
   - id: encounter
     when: {question: encounter}
     say: |
-      **Encounters** come from Strange New Worlds and similar cards: strong one-off cards you take into your hand.
+      **Encounters** are among the strongest cards in the game: one-off effects you take into your hand.
   - id: strange-new-worlds
     when: {playable: 1PIC18}
     say: |
       **Strange New Worlds** needs a Location you control with an Away Team and a Ship there. It logs that Location
-      for 1 Research, and you take an Encounter.
+      for 1 Research, and you take an **Encounter**: one of the strongest cards in the game.
     show: card:1PIC18
   - id: develop
     when: {question: develop}
@@ -387,14 +454,14 @@ tips:
   - id: incident-in-hand
     when: {event: take_incident}
     say: |
-      Each Incident you own is −2 VP at the end, and if the **Incident deck runs out** the game ends at once (the Burn):
-      in a practice game you lose. Return them when you can.
+      An Incident in hand: −2 VP at the end, and the more Incidents players take, the closer the **Burn** comes.
+      Return it when a card lets you.
     show: zone:incident
   - id: stardate
     when: {moment: stardate-empties}
     say: |
-      The first **Stardate** card ran out of Glory. Next turn the Market and every unclaimed Neutral Zone Location
-      without your tokens are wiped, and the second Stardate starts.
+      The first **Stardate** card ran out of Glory. Next turn the Market and every Neutral Zone Location without your
+      tokens are wiped, and the second Stardate starts.
     show: zone:stardate
   - id: last-turn
     when: {moment: last-turn}
@@ -403,8 +470,10 @@ tips:
   - id: final-scoring
     when: {moment: final-scoring}
     say: |
-      **Final scoring**: your Glory, your tokens on neutral Locations, Picard's 1 VP per Ally, and the VP printed on
-      every card you own, including your Log. Reserve and Development cards don't count.
+      **Final scoring** adds up: your Glory; your tokens on neutral Locations; **ENDGAME** abilities (Picard scores 1 VP
+      per Ally, and some Locations score too); the VP printed on every card you own, including your Log (Incidents
+      −2); and, if you completed a mission, your **Focus** cards times each track's best multiplier. Reserve and
+      Development cards don't count.
   - id: next
     when: {moment: game-over}
     say: |
