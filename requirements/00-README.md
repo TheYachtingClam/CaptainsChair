@@ -31,6 +31,7 @@ These documents turn the *Star Trek: Captain's Chair – To Boldly Go* rulebook 
 | 21 | [Expansion: Second Contact](21-expansion-second-contact.md) | Expansion pp. 1–6 |
 | 22 | [Solo Mode: Playing Against the Bot, and the Five-Year Mission Campaign](22-solo-mode.md) | Solo rulebook pp. 1–21 |
 | 23 | [Core Box: Its Crews, Choosing a Box, Combining Boxes](23-core-box.md) | Core Box cards, not a rulebook |
+| 24 | [Tutorials](24-tutorials.md) | Our design ([plans/tutorial.md](../plans/tutorial.md)), not the rulebook |
 
 ## Conventions
 
