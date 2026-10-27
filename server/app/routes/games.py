@@ -1,11 +1,11 @@
 """Games (requirements/19-technical-architecture.md §3.5). Every seat belongs to an account, and a request acts in
 the signed-in account's own seat (REQ-USER-42)."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app import bugs, content, play
+from app import bugs, content, mail, play
 from app.auth import require_session, viewer_id
 from app.config import get_settings
 from app.db import get_db
@@ -164,18 +164,60 @@ def game_state(game_id: str, db: Session = Depends(get_db), viewer: str = Depend
     return play.view(game, seat.index if seat else None)
 
 
+# (game, seat) pairs emailed since that seat last moved: a player who is away gets one email, not one per move
+# (REQ-USER-25). Kept in memory; after a restart the next email is sent again, which is harmless.
+_emailed: set[tuple[str, int]] = set()
+
+
+def waiting_email(db: Session, game: Game, mover: int, turn_before: int, active_before: int) -> tuple[str, str, str] | None:
+    """The email telling a player of a two-player game that the game is waiting for them (REQ-USER-25): their turn
+    has come, or the other player's move needs a decision from them (a Reaction, an attack, a choice forced on them).
+    Only if they want turn emails, do not have the game open, and have not been emailed since their last move."""
+    _emailed.discard((game.id, mover))
+    if game.mode != "two_player" or game.status != "active":
+        return None
+    state = play.build(game)
+    decision = state.decision
+    if decision is None or decision.seat == mover or state.result:
+        return None
+    seat = next((s for s in game.seats if s.index == decision.seat), None)
+    other = next((s for s in game.seats if s.index == mover), None)
+    if seat is None or other is None or seat.index in hub.connected_seats(game.id) or (game.id, seat.index) in _emailed:
+        return None
+    user = db.get(User, seat.user_id)
+    if user is None or user.disabled or not user.turn_emails:
+        return None
+    _emailed.add((game.id, seat.index))
+    them, link = other.display_name, mail.link(f"/games/{game.id}")
+    if state.turn != turn_before and state.active != active_before:
+        subject = f"Your turn: {them} finished their turn"
+        news = f"{them} has finished their turn in your game of Captain's Chair. It is your turn now:"
+    else:
+        subject = f"{them} needs a decision from you"
+        news = f"{them}'s move in your game of Captain's Chair needs a decision from you:\n\n  {decision.prompt}\n\nAnswer it here:"
+    body = (f"Hello {user.display_name},\n\n{news}\n{link}\n\n"
+            f"To stop these emails, turn them off on your Account page: {mail.link('/account')}\n")
+    return user.email, subject, body
+
+
 @router.post("/{game_id}/commands")
-async def command(game_id: str, body: CommandRequest, db: Session = Depends(get_db),
+async def command(game_id: str, body: CommandRequest, background: BackgroundTasks, db: Session = Depends(get_db),
                   viewer: str = Depends(viewer_id)) -> dict:
     game = load_game(db, game_id)
     seat = seat_or_403(game, viewer)
     if game.status != "active":
         raise HTTPException(409, "The game is not in progress")
+    before = play.build(game)
+    turn_before, active_before = before.turn, before.active
     try:
         play.apply(db, game, seat, body.option)
     except play.IllegalCommand as err:
         raise HTTPException(409, str(err)) from err
     await hub.broadcast(game.id, {"type": "state_changed"})
+    # Sent after the response, so a slow mail server never holds up the move.
+    email = waiting_email(db, game, seat, turn_before, active_before)
+    if email:
+        background.add_task(mail.send, *email)
     return play.view(game, seat)
 
 

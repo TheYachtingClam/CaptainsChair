@@ -116,6 +116,8 @@ class User(Base):
     # Raised on a password change or reset: every session holding an older version ends (REQ-USER-14, -21).
     session_version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
     last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Email me when a two-player game is waiting for me: my turn, or a decision on the other player's turn (REQ-USER-25).
+    turn_emails: Mapped[bool] = mapped_column(Boolean, default=True, server_default="1")
 
 
 class Invite(Base):

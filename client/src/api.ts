@@ -350,6 +350,9 @@ export interface Account {
   email: string;
   display_name: string;
   is_admin: boolean;
+  /** Email me when a two-player game is waiting for me: my turn, or a decision during the other player's turn
+   *  (REQ-USER-25). */
+  turn_emails: boolean;
 }
 
 /** An account as the Admin page lists it (REQ-USER-31). */
@@ -446,6 +449,8 @@ export const api = {
   /** Change the display name shown to other players (REQ-USER-01). */
   rename: (display_name: string) =>
     request<Account>("/api/auth/me", { method: "PATCH", body: JSON.stringify({ display_name }) }),
+  setTurnEmails: (turn_emails: boolean) =>
+    request<Account>("/api/auth/me", { method: "PATCH", body: JSON.stringify({ turn_emails }) }),
   /** Change the password; signs out every other browser (REQ-USER-14). */
   changePassword: (current: string, next: string) =>
     request<null>("/api/auth/password", { method: "POST", body: JSON.stringify({ current, new: next }) }),

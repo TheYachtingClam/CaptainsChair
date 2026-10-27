@@ -319,3 +319,98 @@ def test_the_other_players_turn_can_be_stepped_through():
     # Lines only the other player may see are left out.
     assert all(e.private_to in (None, 1) for e in s.log[done["start"]:] if any(st["text"] == e.text for st in done["steps"]))
     assert game_view(s, None)["opponent_turn"] is None  # a spectator has no "other player"
+
+
+def finish_turn(client, game_id):
+    """End the Action Step, place the Glory and keep the hand: the turn passes to the other player."""
+    client.post(f"/api/games/{game_id}/commands", json={"option": "end"})
+    glory = client.get(f"/api/games/{game_id}/state").json()["decision"]["options"][0]["id"]
+    client.post(f"/api/games/{game_id}/commands", json={"option": glory})
+    return client.post(f"/api/games/{game_id}/commands", json={"option": "done"}).json()
+
+
+def test_the_other_player_is_emailed_when_a_turn_ends(authed):
+    """REQ-USER-25: in a two-player game the player whose turn it now is gets an email, unless they turned it off."""
+    from app import mail
+
+    game_id, players = started_game(authed)
+    active = authed.get(f"/api/games/{game_id}/state").json()["active"]
+    me, other = players[active], players[1 - active]
+    other_email = other.get("/api/auth/me").json()["email"]
+    assert other.get("/api/auth/me").json()["turn_emails"] is True  # on by default
+    mail.OUTBOX.clear()
+    me.post(f"/api/games/{game_id}/commands", json={"option": "end"})
+    assert mail.OUTBOX == []  # a move within the turn sends nothing
+    glory = me.get(f"/api/games/{game_id}/state").json()["decision"]["options"][0]["id"]
+    me.post(f"/api/games/{game_id}/commands", json={"option": glory})
+    assert me.post(f"/api/games/{game_id}/commands", json={"option": "done"}).json()["active"] == 1 - active
+    sent = [m for m in mail.OUTBOX if m["to"] == other_email]
+    assert len(sent) == 1 and "finished their turn" in sent[0]["subject"]
+    assert f"/games/{game_id}" in sent[0]["body"] and "/account" in sent[0]["body"]
+
+    # The other player turns them off: the first player is still emailed when the other's turn ends, but the other
+    # player is not when the first player's next turn ends.
+    assert other.patch("/api/auth/me", json={"turn_emails": False}).json()["turn_emails"] is False
+    me_email = me.get("/api/auth/me").json()["email"]
+    mail.OUTBOX.clear()
+    finish_turn(other, game_id)
+    assert [m["to"] for m in mail.OUTBOX] == [me_email]
+    mail.OUTBOX.clear()
+    finish_turn(me, game_id)
+    assert mail.OUTBOX == []
+
+
+def test_no_turn_emails_in_a_solo_game(authed):
+    from app import mail
+
+    game_id = create(authed, mode="solo", bot={"deck_id": "soval", "difficulty": "ensign"}).json()["game"]["id"]
+    mail.OUTBOX.clear()
+    finish_turn(authed, game_id)
+    assert mail.OUTBOX == []
+
+
+def test_the_name_and_the_turn_email_setting_change_separately(authed):
+    assert authed.patch("/api/auth/me", json={"turn_emails": False}).json()["display_name"] == "Nick"
+    me = authed.patch("/api/auth/me", json={"display_name": "Nicholas"}).json()
+    assert me["display_name"] == "Nicholas" and me["turn_emails"] is False
+
+
+def test_no_email_while_the_game_is_open(authed):
+    """REQ-USER-25: a player with the game open sees the turn come; only an absent player is emailed."""
+    from app import mail
+
+    game_id, players = started_game(authed)
+    active = authed.get(f"/api/games/{game_id}/state").json()["active"]
+    me, other = players[active], players[1 - active]
+    mail.OUTBOX.clear()
+    with other.websocket_connect(f"/api/games/{game_id}/ws") as ws:
+        ws.receive_json()
+        finish_turn(me, game_id)
+    assert mail.OUTBOX == []
+
+
+def test_a_decision_mid_turn_is_emailed_once_until_the_player_moves(authed, monkeypatch):
+    """REQ-USER-25: the other player's move needs a decision from you (a Reaction, an attack, a forced choice): one
+    email, then none until you have moved."""
+    from types import SimpleNamespace
+
+    from app.db import open_session
+    from app.models import Game
+    from app.routes import games as routes
+
+    game_id, players = started_game(authed)
+    state = authed.get(f"/api/games/{game_id}/state").json()
+    mover, waiting = state["active"], 1 - state["active"]
+    asked = SimpleNamespace(decision=SimpleNamespace(seat=waiting, prompt="Discard a card (Tarah attacks)."),
+                            turn=state["turn"], active=mover, result=None)
+    monkeypatch.setattr(routes.play, "build", lambda game: asked)
+    with open_session() as db:
+        game = db.get(Game, game_id)
+        email = routes.waiting_email(db, game, mover, state["turn"], mover)
+        assert email is not None
+        to, subject, body = email
+        assert to == players[waiting].get("/api/auth/me").json()["email"]
+        assert "needs a decision from you" in subject and "Discard a card (Tarah attacks)." in body
+        assert routes.waiting_email(db, game, mover, state["turn"], mover) is None  # already told
+        routes.waiting_email(db, game, waiting, state["turn"], mover)  # they moved...
+        assert routes.waiting_email(db, game, mover, state["turn"], mover) is not None  # ...so the next one is sent

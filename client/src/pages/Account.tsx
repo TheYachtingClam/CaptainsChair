@@ -16,6 +16,7 @@ export function AccountPage() {
       </div>
       <p className="muted">Signed in as {account.email}.</p>
       <ChangeName current={account.display_name} />
+      <Notifications on={account.turn_emails} />
       <ChangePassword />
     </main>
   );
@@ -58,6 +59,40 @@ function ChangeName({ current }: { current: string }) {
         <button type="submit" disabled={busy || !trimmed || trimmed === current}>Save name</button>
       </div>
     </form>
+  );
+}
+
+/** Whether to get an email when a two-player game is waiting for you (REQ-USER-25). Saved as soon as it changes. */
+function Notifications({ on }: { on: boolean }) {
+  const queryClient = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function change(next: boolean) {
+    setBusy(true);
+    setError(null);
+    try {
+      queryClient.setQueryData(["me"], await api.setTurnEmails(next));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save the setting");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="card stack">
+      <h2>Emails</h2>
+      <label className="inline">
+        <input type="checkbox" checked={on} disabled={busy} onChange={(e) => change(e.target.checked)} />
+        Email me when a two-player game is waiting for me
+      </label>
+      <p className="muted">
+        When it becomes your turn, or the other player's move needs a decision from you (a Reaction, an attack, a
+        choice they force on you), and you don't have the game open. One email until you make a move.
+      </p>
+      {error && <p className="error" role="alert">{error}</p>}
+    </section>
   );
 }
 

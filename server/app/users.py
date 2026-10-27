@@ -215,4 +215,5 @@ def any_admin(db: Session) -> bool:
 
 
 def public(user: User) -> dict:
-    return {"id": user.id, "email": user.email, "display_name": user.display_name, "is_admin": user.is_admin}
+    return {"id": user.id, "email": user.email, "display_name": user.display_name, "is_admin": user.is_admin,
+            "turn_emails": user.turn_emails}

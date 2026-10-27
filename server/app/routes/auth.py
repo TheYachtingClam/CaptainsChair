@@ -55,16 +55,21 @@ def me(request: Request, db: Session = Depends(get_db)) -> dict:
 
 
 class ProfileChange(BaseModel):
-    display_name: str = Field(max_length=200)
+    """Either or both: the display name, and whether to get turn emails (REQ-USER-25)."""
+    display_name: str | None = Field(default=None, max_length=200)
+    turn_emails: bool | None = None
 
 
 @router.patch("/me")
 def change_profile(body: ProfileChange, request: Request, db: Session = Depends(get_db)) -> dict:
     user = _me(request, db)
-    try:
-        user.display_name = users.clean_name(body.display_name)
-    except users.UserError as err:
-        raise HTTPException(422, str(err)) from err
+    if body.display_name is not None:
+        try:
+            user.display_name = users.clean_name(body.display_name)
+        except users.UserError as err:
+            raise HTTPException(422, str(err)) from err
+    if body.turn_emails is not None:
+        user.turn_emails = body.turn_emails
     db.commit()
     return users.public(user)
 
