@@ -83,6 +83,7 @@ class GameSummary(BaseModel):
     open_seats: int
     bot: BotChoice | None = None
     campaign_id: str | None = None
+    tutorial: str | None = None
 
 
 class GameView(GameSummary):

@@ -85,13 +85,21 @@ Changed from the first outline while drafting:
 - Strange New Worlds would log Verex III just after it is taken, which confuses at this point, so it became a free-play tip. Developments too: they are only offered once the Reserve deck is empty (REQ-DK-10), which happens in free play.
 - The deck runs out during turn 2's Clean-up, so deck cycling and the Reserve are explained at the start of turn 3; Type 7 Shuttlecraft, the enlisted Reserve card, is then drawn and played.
 
-### Step 2: Stacked setup and the tutorial on the server
+### Step 2: Stacked setup and the tutorial on the server (done)
 
 - `new_game(..., stack=…)`; the tutorial's setup stored with the game.
 - `app/tutorial.py`, the `tutorial` view block, move filtering, and an endpoint to start a tutorial game.
 - Tests: the scripted moves replay to the end of turn 3 with the stacked decks; a move the step does not allow is refused; undo goes back a step; the stacking does not change ordinary games.
 
 **You test:** start the tutorial through the API and step through it with the existing table (no coach yet).
+
+What was done:
+- Engine: `new_game(..., stack=…)` (`setup._apply_stack`) orders the first player's hand and Draw deck, Reserve deck, face-up Market cards, the top of Market decks, the Neutral Zone (swapping a Location already in another slot) and the top of the Incident deck. It uses no randomness, so later shuffles follow the seed (a test checks the RNG count is unchanged).
+- Server: `Game.tutorial` holds the script's id, seed and stack, so a tutorial starts with the script's seed and replays with the stack it began with. `app/tutorial.py` loads the scripts, works out the step from the moves (`progress`), translates `expect` into the real answer (`resolve`), and gives the allowed answers (`allowed`) and the coach's block for the view (`block`). Next and Let me play are stored as moves (`tutorial:next`, `tutorial:free`) that the engine never sees (`play.coaching`), so undo steps the coach back.
+- API: `GET /api/tutorials`, `POST /api/tutorials/{id}` (starts a game), `POST /api/games/{id}/tutorial/next|free`. A move the coach is not waiting for is refused with 409; the view marks such answers `disabled` and adds `tutorial`: title, step index and total, the step's text, what to show, whether it needs Next, and whether the rails have ended. Game summaries carry `tutorial` (the script id).
+- Tests (`tests/test_tutorial.py`): the Picard script played through the API exactly as a client would, all 63 steps, ending in free play on turn 4 with the expected table; other moves refused and Next refused on a move step; undo steps back; Let me play; ordinary games have no coach; stacking.
+
+The existing table cannot show the coach yet (it has no Next button), so the tutorial is only playable through the API until Step 3.
 
 ### Step 3: The coach on the table
 

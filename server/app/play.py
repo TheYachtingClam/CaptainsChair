@@ -26,12 +26,24 @@ def forget(game_id: str) -> None:
 
 
 def start(game: Game) -> None:
-    game.seed = secrets.randbits(63)
+    # A tutorial's script was written against its own seed (REQ-TUT-11).
+    game.seed = int((game.tutorial or {}).get("seed") or secrets.randbits(63))
     game.commands = []
     game.status = "active"
     # Validate setup now rather than on the first view. The game id may not exist yet, so no caching.
     new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game), game.box,
-                     game.promo_sets)
+                     game.promo_sets, stack_of(game))
+
+
+def stack_of(game: Game) -> dict | None:
+    """A tutorial's stacked decks, as stored when the game started (REQ-TUT-12)."""
+    return (game.tutorial or {}).get("stack")
+
+
+def coaching(command: dict) -> bool:
+    """A tutorial's own move (Next, Let me play): stored like a move so undo steps the coach back, but never sent to
+    the engine (REQ-TUT-24)."""
+    return str(command.get("option", "")).startswith("tutorial:")
 
 
 def seat_setups(game: Game) -> list[SeatSetup]:
@@ -71,14 +83,14 @@ def build(game: Game) -> GameState:
     if cached and cached[0] == key:
         return copy.deepcopy(cached[1])
     state = new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game), game.box,
-                     game.promo_sets)
+                     game.promo_sets, stack_of(game))
     advance(state, flag_irreversible=False)
     # Replay without the can't-be-undone flagging (it tries every option on a copy), then flag the last question.
     for i, command in enumerate(game.commands):
         if "note" in command:
             state.emit(command["note"])
             continue
-        if not _live(command):
+        if not _live(command) or coaching(command):
             continue
         state.weekday = command.get("weekday")  # REQ-SRV-52: the day it was played, never today's
         try:
@@ -126,6 +138,15 @@ def view(game: Game, seat: int | None) -> dict:
     from app.config import get_settings
 
     out["dev_tools"] = get_settings().dev_tools
+    if game.tutorial:
+        from app import tutorial
+
+        out["tutorial"] = tutorial.block(game, state)
+        ok = tutorial.allowed(game, state) if seat == 0 else None
+        if ok is not None and out.get("decision") and out["decision"].get("options"):
+            for option in out["decision"]["options"]:
+                if option["id"] not in ok:
+                    option["disabled"] = True  # REQ-TUT-23: shown, but not until the coach asks for it
     return out
 
 
@@ -140,6 +161,16 @@ def apply(db: Session, game: Game, seat: int, option: str) -> None:
                                           "turn": state.turn, "weekday": weekday}]
         if state.step == "over":
             game.status = "finished"
+        flag_modified(game, "commands")
+        db.commit()
+
+
+def apply_coaching(db: Session, game: Game, seat: int, action: str) -> None:
+    """A tutorial's Next or Let me play, stored as a move of its own (REQ-TUT-24)."""
+    with _lock:
+        state = build(game)
+        game.commands = [*game.commands, {"seat": seat, "option": f"tutorial:{action}", "irreversible": False,
+                                          "turn": state.turn, "weekday": today()}]
         flag_modified(game, "commands")
         db.commit()
 

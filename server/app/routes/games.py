@@ -5,7 +5,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app import bugs, content, mail, play
+from app import bugs, content, mail, play, tutorial
 from app.auth import require_session, viewer_id
 from app.config import get_settings
 from app.db import get_db
@@ -45,6 +45,7 @@ def summarize(game: Game) -> dict:
         "open_seats": seat_count(game) - len(game.seats),
         "bot": game.bot,
         "campaign_id": (game.campaign or {}).get("id"),
+        "tutorial": (game.tutorial or {}).get("id"),
     }
 
 
@@ -209,6 +210,11 @@ async def command(game_id: str, body: CommandRequest, background: BackgroundTask
         raise HTTPException(409, "The game is not in progress")
     before = play.build(game)
     turn_before, active_before = before.turn, before.active
+    if game.tutorial:
+        try:
+            tutorial.check(game, before, body.option)
+        except tutorial.TutorialError as err:
+            raise HTTPException(409, str(err)) from err
     try:
         play.apply(db, game, seat, body.option)
     except play.IllegalCommand as err:
@@ -218,6 +224,26 @@ async def command(game_id: str, body: CommandRequest, background: BackgroundTask
     email = waiting_email(db, game, seat, turn_before, active_before)
     if email:
         background.add_task(mail.send, *email)
+    return play.view(game, seat)
+
+
+@router.post("/{game_id}/tutorial/{action}")
+async def coach(game_id: str, action: str, db: Session = Depends(get_db), viewer: str = Depends(viewer_id)) -> dict:
+    """The tutorial's Next (past an explanation) and Let me play (leave the rails), REQ-TUT-24, -25."""
+    game = load_game(db, game_id)
+    seat = seat_or_403(game, viewer)
+    if not game.tutorial or game.status != "active":
+        raise HTTPException(409, "This is not a tutorial in progress")
+    if action not in ("next", "free"):
+        raise HTTPException(404, "Unknown tutorial action")
+    index, free = tutorial.progress(game)
+    if free:
+        raise HTTPException(409, "The tutorial's guided part is over")
+    step = tutorial.script(game.tutorial["id"])["steps"][index]
+    if action == "next" and step.get("expect") is not None:
+        raise HTTPException(409, "This step waits for a move, not Next")
+    play.apply_coaching(db, game, seat, action)
+    await hub.broadcast(game.id, {"type": "state_changed"})
     return play.view(game, seat)
 
 

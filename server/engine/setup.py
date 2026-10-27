@@ -87,7 +87,8 @@ def common_cards(data, box: str, expansions: list[str], promos) -> list[Card]:
 
 
 def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str] | None = None, promos: bool = False,
-             bot: BotSetup | None = None, box: str = DEFAULT_BOX, promo_sets=None) -> GameState:
+             bot: BotSetup | None = None, box: str = DEFAULT_BOX, promo_sets=None,
+             stack: dict | None = None) -> GameState:
     if box not in BOXES:
         raise SetupError(f"Unknown box {box!r}")
     if mode not in STARDATE_MODE:
@@ -146,8 +147,59 @@ def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str]
             draw(state, player, hand_size(state, player), announce=False)
     if any(p.boosts for p in state.players):
         state.step = "setup"  # Boosts run around drawing the starting hand (game.step_setup)
+    if stack:
+        _apply_stack(state, stack)
     state.emit(f"{state.players[state.first_seat].name} takes the Starting Player token.")
     return state
+
+
+def _apply_stack(state: GameState, stack: dict) -> None:
+    """A tutorial's stacked decks (requirements/24-tutorials.md REQ-TUT-10, -11): the first player's starting hand and
+    Draw deck in order, their Reserve deck, face-up Market cards, the top cards of Market decks, the Neutral Zone and
+    the top of the Incident deck. It uses no randomness, so later shuffles still follow the seed."""
+
+    def pull(cards: list[Inst], card_id: str) -> Inst:
+        found = next((i for i in cards if i.card == card_id), None)
+        if found is None:
+            raise SetupError(f"Stacked card {card_id} is not where the setup expects it")
+        cards.remove(found)
+        return found
+
+    player = state.players[0]
+    if "hand" in stack or "draw" in stack:
+        size = len(player.hand)
+        pool = player.hand + player.draw
+        hand = [pull(pool, c) for c in stack.get("hand", [])]
+        draw = [pull(pool, c) for c in stack.get("draw", [])]
+        fill = pool[:max(0, size - len(hand))]  # unnamed cards keep the hand at its size; the rest go under the deck
+        player.hand = hand + fill
+        player.draw = draw + pool[len(fill):]
+    if "reserve" in stack:
+        pool = list(player.reserve)
+        player.reserve = [pull(pool, c) for c in stack["reserve"]] + pool
+    for suit, card_id in (stack.get("market") or {}).items():
+        if state.market.get(suit) is not None and state.market[suit].card == card_id:
+            continue
+        new = pull(state.market_decks[suit], card_id)
+        if state.market.get(suit) is not None:
+            state.market_decks[suit].insert(0, state.market[suit])
+        state.market[suit] = new
+    for suit, card_ids in (stack.get("market_decks") or {}).items():
+        deck = state.market_decks[suit]
+        for card_id in reversed(card_ids):
+            deck.insert(0, pull(deck, card_id))
+    for slot, card_id in enumerate(stack.get("neutral") or []):
+        if state.neutral[slot].card == card_id:
+            continue
+        other = next((k for k, i in enumerate(state.neutral) if i.card == card_id), None)
+        if other is not None:  # already in another Neutral Zone slot: swap the two
+            state.neutral[slot], state.neutral[other] = state.neutral[other], state.neutral[slot]
+            continue
+        location = pull(state.location_deck, card_id)
+        state.location_deck.insert(0, state.neutral[slot])
+        state.neutral[slot] = location
+    for card_id in reversed(stack.get("incident") or []):
+        state.incident.insert(0, pull(state.incident, card_id))
 
 
 # --------------------------------------------------------------------------- central

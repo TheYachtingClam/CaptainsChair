@@ -32,6 +32,8 @@ class Game(Base):
     # A Five-Year Mission assignment: {"id": campaign id, "assignment": number, "reinforcement": [card ids],
     # "setup": CampaignSetup fields (Boosts and challenges)}.
     campaign: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # A tutorial game (requirements/24-tutorials.md): {"id": script id, "stack": the stacked decks it started with}.
+    tutorial: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="waiting")
 
     seats: Mapped[list["Seat"]] = relationship(
