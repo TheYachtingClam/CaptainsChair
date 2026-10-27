@@ -3,6 +3,7 @@
 #
 #   scripts/start.sh            build the client and run the server locally on http://localhost:8000
 #   scripts/start.sh --dev      run the API with auto-reload and the Vite dev server on http://localhost:5173
+#   scripts/start.sh --dev --host   the same, and reachable from a phone on the same Wi-Fi (plans/phone.md)
 #   scripts/start.sh --docker   build and run everything with docker compose
 #   scripts/start.sh --test     run the server tests
 set -euo pipefail
@@ -59,7 +60,7 @@ case "$MODE" in
     API_PID=$!
     trap 'kill $API_PID 2>/dev/null || true' EXIT
     echo "API on http://localhost:8000, client on http://localhost:5173"
-    cd client && npm run dev
+    cd client && npm run dev -- "${@:2}"  # --host also serves the client on this computer's network address
     ;;
   --docker)
     ensure_env
@@ -71,7 +72,7 @@ case "$MODE" in
     cd server && exec uv run pytest -q
     ;;
   *)
-    sed -n '2,8p' "$0"
+    sed -n '2,9p' "$0"
     exit 1
     ;;
 esac

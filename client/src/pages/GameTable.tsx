@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { MODE_LABELS, api } from "../api";
+import { AuthError, MODE_LABELS, api } from "../api";
 import { Board } from "../components/Board";
 import { DevPanel } from "../components/DevPanel";
 
@@ -83,7 +83,21 @@ export function GameTable() {
       };
       ws.onclose = () => {
         setSocket("closed");
-        if (!stopped) retry = window.setTimeout(connect, 2000); // reconnect (REQ-SRV-43)
+        if (stopped) return;
+        // Reconnect (REQ-SRV-43), but only while the game exists and this account still has a seat in it: the server
+        // refuses the socket otherwise, and retrying would never end.
+        retry = window.setTimeout(async () => {
+          // A network error (offline, server restarting) keeps retrying; a deleted game, a lost seat or an ended session stops.
+          const current = await api.game(gameId).catch((err: Error) =>
+            err instanceof AuthError || err.message === "Game not found" ? null : undefined);
+          if (stopped) return;
+          if (current === null || (current && current.your_seat == null)) {
+            stopped = true;
+            queryClient.invalidateQueries({ queryKey: ["game", gameId] });
+            return;
+          }
+          connect();
+        }, 2000);
       };
     };
     connect();

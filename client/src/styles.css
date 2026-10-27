@@ -226,6 +226,15 @@ a.button { text-decoration: none; display: inline-block; }
   }
 }
 @media (max-width: 480px) { .mat { --cw: 64px; padding: 10px; } }
+/* Narrow screens: the left column spans the mat, so the Crew board would fill the screen. Draw it small beside the
+   tokens; a tap shows it full size (REQ-CLI-30). */
+@media (max-width: 900px) {
+  .mat-left { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; }
+  .mat-left .crew-board { flex: 0 0 auto; width: min(240px, 46%); order: -1; }
+  .mat-left .tokens { flex: 1 1 140px; }
+}
+.board-viewer { cursor: zoom-out; }
+.board-viewer img { width: min(1000px, 96vw); max-height: 90vh; object-fit: contain; border-radius: 12px; }
 /* Reserve card space before images load, so lazy-loaded cards never collapse. */
 .gcard img { aspect-ratio: 63 / 88; object-fit: cover; }
 .hand { padding-top: 12px; }

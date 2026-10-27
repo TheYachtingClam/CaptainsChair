@@ -178,8 +178,20 @@ All endpoints except login and health require a valid session (see §5).
 - **REQ-CLI-15** When a Reaction becomes available on the opponent's turn, the player gets a clear prompt with a way to use it or decline.
 - **REQ-CLI-16** An action log lists every public event in plain words.
 - **REQ-CLI-17** A turn indicator shows whose turn it is, the current step, and whether a Resolution has been triggered with how many turns remain.
-- **REQ-CLI-18** The table works on a laptop screen. Tablet support is desirable. Phone support is not required.
+- **REQ-CLI-18** The table works on a laptop screen, a tablet, and a phone held upright, from 375 pixels wide (§4.4). Turning a phone sideways must not break the table, but it gets no layout of its own.
 - **REQ-CLI-19** In a two-player game each player can step through the other player's latest turn, as with a Bot's turn (REQ-SOLO-56): the same panel with Previous, Next, Auto-play, Skip to end and Done, showing each log line of that turn and, where a line is about a card (played, used, deployed, gained, logged, taken control of and so on), that card. Only lines the viewer may see are shown. It follows the other player's turn live as it happens. Unlike a Bot's turn, the player's own turn does not wait for Done.
+
+### 4.4 Phones
+
+A phone is a screen narrower than 700 pixels, or one without a mouse (no hover). The plan is [plans/phone.md](../plans/phone.md).
+
+- **REQ-CLI-30** Nothing needs hover. Anything shown on hover with a mouse, such as the enlarged card, the cards beamed to it, and the name of a Ship or Away Team token, can be reached by touch too.
+- **REQ-CLI-31** **Inspecting a card.** Pressing and holding any visible card, including the opponent's, the Market's and a Location's, opens a full-screen viewer: the card, the cards beamed to it, and its tokens. A tap anywhere closes it. A short tap keeps its usual meaning: select the card, or answer a question with it. The first time a player opens a game on a phone, a one-line hint says that pressing and holding shows a card.
+- **REQ-CLI-32** **One area at a time.** On a phone, the table shows one area at a time, chosen from a bar at the bottom of the screen: **You** (your mat and hand), **Centre** (Market, Junk, decks, Stardate, Neutral Zone), **Opponent** (their mat, or the Bot's) and **Log**. A tab shows a mark when something changed there since it was last shown. When a question asks for cards in one area, that area is shown.
+- **REQ-CLI-33** **Your hand** is one row that scrolls sideways, with cards large enough to tap.
+- **REQ-CLI-34** **Questions and panels.** On a phone the question box, the card's action panel and the turn playback panel (REQ-SOLO-56, REQ-CLI-19) open as one sheet from the bottom of the screen. It can be collapsed to a single line that still says what is asked, so the table behind it can be seen, and expanded again with a tap.
+- **REQ-CLI-35** Buttons and other tap targets are at least 44 by 44 pixels on a phone. The page never scrolls sideways, except a row of cards that is meant to.
+- **REQ-CLI-36** The lobby, new game, campaign, account, sign-in and Admin pages work at 375 pixels wide.
 
 ## 5. Access control: user accounts
 

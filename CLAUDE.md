@@ -22,6 +22,7 @@ An online version of the board game *Star Trek: Captain's Chair*.
 ```bash
 scripts/start.sh --test     # server tests (run after every server change)
 scripts/start.sh --dev      # API with reload on :8000, client on :5173
+scripts/start.sh --dev --host  # the same, reachable from a phone on the same Wi-Fi
 cd client && npm run build  # type-check and build the client
 scripts/process_scans.py    # raw scans -> server/content/images/<same folders>/<id>.webp
 scripts/build_content.py    # card and board specs -> server/content/cards/*.yaml and boards.yaml

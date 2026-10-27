@@ -18,8 +18,16 @@ function CrewBoard({ p }: { p: PlayerView }) {
   const hasTracks = !traits;
   const marked = traits?.filter((t) => t.marked).length ?? 0;
   const preview = usePreviewHandlers(p.board, true);
+  // On a narrow screen the board is drawn small; a tap shows it full size, since a phone has no hover (REQ-CLI-30).
+  const [enlarged, setEnlarged] = useState(false);
   return (
-    <div className="crew-board" {...preview} title={`${p.name}'s Crew board`}>
+    <div className="crew-board" {...preview} title={`${p.name}'s Crew board`} role="button" tabIndex={0}
+      onClick={() => setEnlarged(true)} onKeyDown={(e) => e.key === "Enter" && setEnlarged(true)}>
+      {enlarged && (
+        <div className="modal-backdrop board-viewer" onClick={(e) => { e.stopPropagation(); setEnlarged(false); }}>
+          <img src={imageUrl(p.board)} alt={`${p.name}'s Crew board`} />
+        </div>
+      )}
       <img src={imageUrl(p.board)} alt={`${p.name}'s Crew board`} />
       {traits?.map((t, i) => (
         <img
