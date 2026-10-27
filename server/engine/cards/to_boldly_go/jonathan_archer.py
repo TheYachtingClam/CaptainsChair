@@ -9,9 +9,11 @@ from ._util import ctx_for, earth_of, ships
 @operation("2ARC01", 0, uses=[A.EXHAUST, A.GAIN_RESOURCE])
 def homeworld_support(ctx, actions):
     """RESUPPLY: If you have a deployed Ship and 3+ resources at Earth, you may exhaust this card to gain 3 resources
-    from Earth."""
+    from Earth. The Ship must be warped to Earth (ruling in the spec)."""
     earth = earth_of(ctx.me)
-    if earth is None or not ships(ctx) or sum(earth.res.values()) < 3 or ctx.me.captain.exhausted:
+    if earth is None or sum(earth.res.values()) < 3 or ctx.me.captain.exhausted:
+        return
+    if not any(s.at == earth.uid for s in ships(ctx)):
         return
     if not (yield from actions.may("Exhaust Archer to gain 3 resources from Earth?")):
         return

@@ -206,8 +206,9 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system }: {
   const playable = new Set(
     (d?.options ?? []).filter((o) => /^(play|activate):/.test(o.id)).map((o) => o.id.split(":")[1]),
   );
+  // Where a Ship can be warped: Locations, and table cards Ships can warp to such as Archer's Earth (a Status card).
   const locationNames: Record<string, string> = Object.fromEntries(
-    [...view.neutral_zone, ...view.players.flatMap((p) => p.locations)].map((l) => [l.uid, l.name]),
+    [...view.neutral_zone, ...view.players.flatMap((p) => [...p.locations, ...p.status])].map((l) => [l.uid, l.name]),
   );
 
   function pick(o: OptionView) {

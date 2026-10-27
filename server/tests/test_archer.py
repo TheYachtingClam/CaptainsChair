@@ -99,12 +99,24 @@ def test_archer_endgame_counts_unique_traits():
     assert registry.ENDGAME["2ARC01"](s, me(s)) == len(traits) // 3
 
 
+def test_archer_resupply_needs_a_ship_warped_to_earth():
+    """Ruling (2ARC01 spec): "a deployed Ship ... at Earth" means the Ship is warped to Earth."""
+    from engine.ops import start
+
+    s = archer()
+    earth(s).res = {"dilithium": 2, "latinum": 2}
+    me(s).fleet[0].at = s.neutral[0].uid  # deployed, but not at Earth
+    start(s, OpRef(mode="op", seat=0, uid=me(s).captain.uid, card="2ARC01", index=0))
+    resolve_all(s, prefer=("Yes", "Dilithium"))
+    assert not me(s).captain.exhausted and sum(earth(s).res.values()) == 4
+
+
 def test_archer_resupply_takes_three_from_earth():
     s = archer()
     e = earth(s)
     e.res = {"dilithium": 2, "latinum": 2}
     ship = me(s).fleet[0]
-    ship.at = s.neutral[0].uid
+    ship.at = e.uid  # warped to Earth
     dil, lat = me(s).dilithium, me(s).latinum
     from engine.ops import start
 

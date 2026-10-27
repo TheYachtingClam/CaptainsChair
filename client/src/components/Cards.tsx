@@ -250,6 +250,8 @@ export function Card({ card, badges, style, tokens = true, mini = false }: {
     setPreview(null);
     inspect(inspectOf(card));
   });
+  // A card that is not a Location can still have Ships warped to it (Archer's Earth): it shows them too.
+  const shipsHere = useContext(PlayersContext).some((p) => p.fleet.some((s) => s.at === card.uid));
   const playable = useContext(PlayableContext).has(card.uid);
   const { selected, toggle } = useContext(SelectContext);
   const { targets, answer } = useContext(TargetContext);
@@ -298,7 +300,7 @@ export function Card({ card, badges, style, tokens = true, mini = false }: {
     >
       <img src={imageUrl(card.image)} alt={card.name} loading="lazy" />
       {resourceText && !mini ? <span className="badge">{resourceText}</span> : null}
-      {card.suit === "Location" && tokens && !mini && <LocationTokens loc={card} compact />}
+      {(card.suit === "Location" || shipsHere) && tokens && !mini && <LocationTokens loc={card} compact />}
       {badges}
     </div>
   );
