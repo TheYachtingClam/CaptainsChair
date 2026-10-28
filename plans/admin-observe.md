@@ -145,11 +145,16 @@ What was done:
 - The Admin page's games table has a Watch button for every game that has started.
 - Checked with Playwright against a real server with a solo game and a two-player game of 120 random moves each (`node check.js`, kept out of the repository): Watch opens the game live; ← three times is 3 moves behind and the address holds it; Home, Page Down; Go to a Bot turn opens it with the playback; nothing can be answered; the move list; a reload keeps the position and View as; Everything shows both hands and as Ann only hers; a player's move appears live; Copy from here opens a playable copy; on a 375-pixel phone there is no sideways scroll, ▶ steps, ⋯ opens the rest, and the bar stays at the top when the table scrolls; no page errors. Three fixes came from it: quick key presses each taking a step, View as keeping its choice through a reload, and an effect that returned `scrollIntoView`'s Promise (newer browsers) and crashed the move list.
 
-### Step 6: Test pass and deploy
+### Step 6: Test pass and deploy (the test pass done; the deploy is yours)
 
 - `scripts/start.sh --test`, the client build, and a final look at the Admin page.
 
 **You test:** use it on the real server.
+
+What was done:
+- The full server suite and the client build pass. The Admin page was checked at laptop and phone widths: a Watch button on every started game, no sideways scroll, no page errors. The Watch button had pushed a two-player game's row of buttons past the card's edge on a laptop, so the admin tables' action buttons are a little more compact and fit on one line again.
+- §7 of the requirements (out of scope) now says that only the admin can watch, like the README.
+- The deploy is to Fly.io (REQ-OPS-07), from a machine with `fly` signed in: this container has neither `fly` nor a running Docker. Nothing in this feature changes the database, the settings or `fly.toml`, so a plain `fly deploy` from the branch (or from `main` once merged) is enough.
 
 ## Risks and notes
 

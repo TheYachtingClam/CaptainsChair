@@ -306,5 +306,5 @@ A player who sees something wrong can report it from the game table. The report 
 
 - Profiles, statistics and match history per person (accounts exist, §5).
 - Matchmaking with strangers.
-- Spectators.
+- Spectators. Only the admin can watch a game without a seat (§5.6, REQ-ADMIN-07 to -12).
 - Turn timers.

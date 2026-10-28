@@ -489,6 +489,8 @@ label.challenge { align-items: flex-start; }
 .admin-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
 .admin-table th, .admin-table td { text-align: left; padding: 0.3rem 0.5rem; border-bottom: 1px solid #ccc4; vertical-align: middle; }
 .admin-actions { text-align: right; white-space: nowrap; }
+/* Compact, so a row's buttons (Watch, Take, Delete) fit on one line within the card. */
+.admin-actions :is(button, .button) { padding: 0.35rem 0.6rem; }
 .admin-actions .confirm-delete { justify-content: flex-end; gap: 0.4rem; flex-wrap: wrap; }
 .lobby-footer { margin-top: 2rem; font-size: 0.85rem; }
 .pile-note { margin: 0.25rem 0 0.75rem; padding: 0.5rem 0.75rem; border-left: 3px solid var(--accent); background: rgb(127 127 127 / 0.12); font-weight: 600; }
