@@ -110,7 +110,7 @@ What was done:
 - `bugs.setup(game)` is the setup part of a bundle, shared by bug reports and copies. It now includes a tutorial's setup (script, seed, stacked decks), which `bugs.as_game` restores. Before, a bug report from a tutorial game was rebuilt without its stacked decks and dealt different cards; REQ-BUG-03 now says so.
 - Tests (`tests/test_observe.py`, 7 more): the three endpoints need the admin; everything is shown with `as=all`; `as=0` matches exactly what that player gets and hides the other hand; `as=watcher` matches a seatless account's view; positions, `live` and out-of-range errors; watching leaves the commands, status and seats untouched; Copy from here gives the game at that position with every seat the admin's, playable at once; a campaign game's copy has no campaign id; a tutorial's copy deals the same cards (checked to fail without the fix).
 
-### Step 4: Live follow without being seen
+### Step 4: Live follow without being seen (done)
 
 - The observer socket in `ws.py` and `hub.py`.
 - Tests:
@@ -120,6 +120,14 @@ What was done:
   - an account that is neither seated nor admin is still refused.
 
 **You test:** watch a game from the Admin page in one browser and play it in another.
+
+What was done:
+- `ws.py`: an admin without a seat, or any admin who asks with `?watch=1`, is accepted as a watcher. The `hello` message adds `"watching": true` with `your_seat` null; a player's `hello` is unchanged. Everyone else without a seat is still refused, and so is `?watch=1` from a player who is not admin.
+- `hub.py`: watchers are kept apart from the seats (`watch`, `unwatch`). They get every broadcast (`state_changed`, `game_updated`, `game_deleted`), but `connected_seats` and the presence message never count them, so the waiting email (REQ-USER-25) still goes out while only the admin has the game open. `auth.websocket_admin` tells the socket whether the account is an admin.
+- REQ-SRV-40 now mentions `?watch=1`.
+- Tests (`tests/test_observe.py`, 4 more): the admin is told of a player's move while the player sees no new connection and presence is unchanged; the waiting email goes out while the admin watches; a stranger, a stranger with `?watch=1` and a player with `?watch=1` are refused; a seated admin watches with `?watch=1` without counting as connected, and connects in their seat without it.
+
+You can only try this by hand once the Observe page exists (Step 5).
 
 ### Step 5: The Observe page
 

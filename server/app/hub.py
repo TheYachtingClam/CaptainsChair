@@ -9,6 +9,8 @@ from fastapi import WebSocket
 class GameHub:
     def __init__(self) -> None:
         self._connections: dict[str, dict[int, set[WebSocket]]] = defaultdict(lambda: defaultdict(set))
+        # A watching admin (REQ-ADMIN-11): told of every change, never counted as connected.
+        self._watchers: dict[str, set[WebSocket]] = defaultdict(set)
         self._lock = asyncio.Lock()
 
     async def connect(self, game_id: str, seat: int, ws: WebSocket) -> None:
@@ -26,6 +28,18 @@ class GameHub:
                 if not seats:
                     del self._connections[game_id]
         await self.broadcast_presence(game_id)
+
+    async def watch(self, game_id: str, ws: WebSocket) -> None:
+        async with self._lock:
+            self._watchers[game_id].add(ws)
+
+    async def unwatch(self, game_id: str, ws: WebSocket) -> None:
+        async with self._lock:
+            watchers = self._watchers.get(game_id)
+            if watchers is not None:
+                watchers.discard(ws)
+                if not watchers:
+                    del self._watchers[game_id]
 
     async def close_seat(self, game_id: str, seat: int, reason: str) -> None:
         """Disconnect everyone connected as this seat, e.g. after the admin took it over (REQ-ADMIN-06)."""
@@ -45,6 +59,7 @@ class GameHub:
 
     async def broadcast(self, game_id: str, message: dict) -> None:
         sockets = [ws for conns in self._connections.get(game_id, {}).values() for ws in conns]
+        sockets += list(self._watchers.get(game_id, ()))
         for ws in sockets:
             try:
                 await ws.send_json(message)

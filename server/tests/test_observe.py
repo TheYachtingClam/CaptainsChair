@@ -321,3 +321,66 @@ def test_a_copy_of_a_tutorial_keeps_its_stacked_decks(admin):
     copied = admin.get(f"/api/games/{copy_id}/state").json()
     assert copied["players"][0]["hand"] == original["players"][0]["hand"]
     assert copied["market"] == original["market"]
+
+
+# ------------------------------------------------------------------ live follow, unseen (REQ-ADMIN-11)
+
+def test_the_admin_watches_live_without_being_seen(admin):
+    from app.hub import hub
+
+    game_id, players = two_player_game(admin, moves=0)
+    seat = admin.get(f"/api/admin/games/{game_id}/observe").json()["decision"]["seat"]
+    with players[1 - seat].websocket_connect(f"/api/games/{game_id}/ws") as player:
+        assert player.receive_json()["type"] == "hello"
+        assert player.receive_json() == {"type": "presence", "connected": [1 - seat]}
+        with admin.websocket_connect(f"/api/games/{game_id}/ws") as watcher:
+            assert watcher.receive_json() == {"type": "hello", "your_seat": None, "watching": True}
+            assert hub.connected_seats(game_id) == [1 - seat]
+            option = players[seat].get(f"/api/games/{game_id}/state").json()["decision"]["options"][0]["id"]
+            assert players[seat].post(f"/api/games/{game_id}/commands", json={"option": option}).status_code == 200
+            assert watcher.receive_json() == {"type": "state_changed"}
+            # The player was told of the move, and of no new connection.
+            assert player.receive_json() == {"type": "state_changed"}
+        assert hub.connected_seats(game_id) == [1 - seat]
+
+
+def test_a_waiting_email_is_sent_while_only_the_admin_watches(admin):
+    from app import mail
+    from tests.test_games import finish_turn
+
+    game_id, players = two_player_game(admin, moves=0)
+    active = admin.get(f"/api/admin/games/{game_id}/observe").json()["active"]
+    other_email = players[1 - active].get("/api/auth/me").json()["email"]
+    mail.OUTBOX.clear()
+    with admin.websocket_connect(f"/api/games/{game_id}/ws") as watcher:
+        watcher.receive_json()
+        finish_turn(players[active], game_id)
+    assert [m["to"] for m in mail.OUTBOX] == [other_email]
+
+
+def test_only_a_seated_player_or_the_admin_may_connect(admin):
+    from starlette.websockets import WebSocketDisconnect
+
+    from tests.conftest import another_browser, sign_in_as
+
+    game_id, players = two_player_game(admin, moves=0)
+    stranger = sign_in_as(another_browser(admin), "eve@example.com", "Eve")
+    for client, url in ((stranger, ""), (stranger, "?watch=1"), (players[0], "?watch=1")):
+        with pytest.raises(WebSocketDisconnect):
+            with client.websocket_connect(f"/api/games/{game_id}/ws{url}") as ws:
+                ws.receive_json()
+
+
+def test_the_admin_can_watch_a_game_they_play_in(admin):
+    from app.hub import hub
+    from tests.conftest import another_browser, sign_in_as
+
+    game_id = admin.post("/api/games", json={"deck_id": "georgiou", "mode": "two_player"}).json()["game"]["id"]
+    bob = sign_in_as(another_browser(admin), "bob@example.com", "Bob")
+    bob.post(f"/api/games/{game_id}/join", json={"deck_id": "soval"})
+    with admin.websocket_connect(f"/api/games/{game_id}/ws?watch=1") as watcher:
+        assert watcher.receive_json()["watching"] is True
+        assert hub.connected_seats(game_id) == []
+    with admin.websocket_connect(f"/api/games/{game_id}/ws") as seated:
+        assert seated.receive_json() == {"type": "hello", "your_seat": 0}
+        assert hub.connected_seats(game_id) == [0]

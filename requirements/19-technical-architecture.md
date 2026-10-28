@@ -129,7 +129,7 @@ All endpoints except login and health require a valid session (see §5).
 
 ### 3.6 WebSocket
 
-- **REQ-SRV-40** Each client opens one WebSocket per game at `/api/games/{id}/ws`, authenticated with the session. The server finds the seat from the signed-in user; an account without a seat in the game is refused, except the admin, who connects as an unseen watcher (REQ-ADMIN-11) and is told of every change like a player.
+- **REQ-SRV-40** Each client opens one WebSocket per game at `/api/games/{id}/ws`, authenticated with the session. The server finds the seat from the signed-in user; an account without a seat in the game is refused, except the admin, who connects as an unseen watcher (REQ-ADMIN-11) and is told of every change like a player. With `?watch=1` the admin watches even a game they hold a seat in, so watching it does not count as being connected in that seat.
 - **REQ-SRV-41** After any accepted command, the server pushes each connected player their own updated view, plus the new events for animation and the action log.
 - **REQ-SRV-42** Commands may be sent over the WebSocket or over REST. The server processes one command per game at a time, in arrival order.
 - **REQ-SRV-43** When a player reconnects, the server sends the full current view.
