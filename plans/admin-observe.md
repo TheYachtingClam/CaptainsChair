@@ -68,7 +68,7 @@ A **position** `p` (0 to `n`) is the state after the first `p` live moves; posit
 
 What was done: `requirements/19-technical-architecture.md` §5.6 has a new part, "Watching a game", with REQ-ADMIN-07 (the Watch button and the read-only Observe page), -08 (everything shown, View as), -09 (positions, moves, stepping, the move list, keys, the address), -10 (Go to turn and Bot turns), -11 (live follow, unseen) and -12 (Copy from here). Also updated: the three endpoints (§3.5), REQ-SRV-40 (the admin may open the socket without a seat) and -44 (a watching admin is never counted as connected), the Observe page in the screens table (§4.2), and the README's note that spectators are out of scope (only the admin can watch).
 
-### Step 2: Replay one move at a time on the server
+### Step 2: Replay one move at a time on the server (done)
 
 - `play.replay(...)` shared by `build` and `observe`; `observe.timeline` and `observe.state_at` with checkpoints and the cache.
 - A line in `CLAUDE.md` under the engine's server bullets pointing at `app/observe.py`.
@@ -83,6 +83,13 @@ What was done: `requirements/19-technical-architecture.md` §5.6 has a new part,
   - extending the timeline after a new move gives the same result as building it fresh.
 
 **You test:** nothing to click yet; the tests and a timing print for a long game.
+
+What was done:
+- `play.replay(commands, state, start)` is the one replay loop. It yields each move's index just before applying it, so a caller stops at any position by stopping the loop, and raises `StaleMove` for a move that no longer applies. `play.build` uses it and still drops such moves; `play.initial` is the state just after setup; `play.is_move` says which stored commands are moves.
+- `app/observe.py`: `timeline(game)` gives `last` (the last position), `moves` (per move: the position it reaches, its command index, turn, seat, the question and the label of the answer, irreversible, developer), `turns` (per turn: number, seat, name, whether it is the Bot's, and the position it opens at) and `stopped`. `state_at(game, at)` gives a copy of the state at a position. Checkpoints are kept at the start of each turn and every 40 moves within a long turn; the last 4 games are cached, and a game that has only gained moves is extended rather than replayed. `play.forget` forgets the timeline too.
+- The design's `bot_turn` per move became `bot` on each turn in `turns`: a Bot's turn opens at the position after the human move that ran it.
+- Tests (`tests/test_observe.py`, 12): every 5th position of random two-player, solo and Cadet games equals a plain replay, and the last equals `play.build`; labels; turns open before their first move and alternate; a solo Bot turn opens after the move that ran it, with its playback in the view; undone, dropped, tutorial and note entries are not moves; a move that no longer applies ends the timeline and leaves the commands untouched; extending equals a fresh build; an undo rebuilds; checkpoint spacing; the cache keeps 4 games.
+- Timing on a random 405-move, 26-turn two-player game: the timeline is built in 0.57 s (once; then cached), and the slowest of 40 random positions took 0.06 s.
 
 ### Step 3: The view and the endpoints
 
