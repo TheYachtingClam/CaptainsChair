@@ -130,7 +130,10 @@ function Section({ label, cards, place }: { label: string; cards: CardView[]; pl
 }
 
 export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, onMission, highlight, onSoloRules,
-  onUndo }: {
+  onUndo, ordered = false }: {
+  /** The admin's view of everything (REQ-ADMIN-08): the Draw and Reserve decks open in order, top first, and the
+   *  Bot's facedown cards show their faces. */
+  ordered?: boolean;
   /** The Bot: opens the solo rules aid, linked under its command cards. */
   onSoloRules?: () => void;
   /** Your own mat: undo your last move, when it can be undone. */
@@ -152,8 +155,9 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
     discard: ["Discard pile", p.discard],
     development: ["Development pile", p.development],
     log: ["Captain's Log", p.log],
-    draw: ["Draw deck (face-up, top first)", p.draw ?? []],
-    reserve: ["Reserve deck contents", p.reserve ?? []],
+    draw: [ordered ? `${p.bot ? "Bot deck" : "Draw deck"} (in order, top first)` : "Draw deck (face-up, top first)", p.draw ?? []],
+    reserve: [ordered ? `${p.bot ? "Supplement deck" : "Reserve deck"} (in order, top first)` : "Reserve deck contents",
+      p.reserve ?? []],
   } as const;
   const topDiscard = p.discard[p.discard.length - 1];
 
@@ -217,7 +221,8 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
           <div className="row top" data-tutorial="reserve">
             <CardBack label={p.bot ? "Supplement" : "Reserve"} count={p.reserve_count}
               onClick={p.reserve ? () => setViewing("reserve") : undefined}
-              title={p.reserve ? "See what is in your Reserve deck (not its order)" : undefined} />
+              title={ordered ? "See the deck in order (only the admin sees this)"
+                : p.reserve ? "See what is in your Reserve deck (not its order)" : undefined} />
             {p.status.map((c) => <Card key={c.uid} card={c} />)}
           </div>
           {p.bot ? <CommandCards bot={p.bot} highlight={highlight} onSoloRules={onSoloRules} /> : (
@@ -265,7 +270,11 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
 
         {/* Draw deck, Staging Area, Discard pile (items 5, 10) */}
         <div className="cell draw" data-tutorial="deck">
-          {p.draw && p.draw.length ? (
+          {ordered ? (
+            <CardBack label={p.bot ? "Bot deck" : "Draw deck"} count={p.draw_count}
+              onClick={p.draw?.length ? () => setViewing("draw") : undefined}
+              title="See the deck in order (only the admin sees this)" />
+          ) : p.draw && p.draw.length ? (
             <button type="button" className="discard-pile" onClick={() => setViewing("draw")}
               aria-label={`Face-up Draw deck: ${p.draw.length} card(s)`} title="The Draw deck is face-up (Gluonic Distortion)">
               <img src={imageUrl(p.draw[0].image)} alt="" />
@@ -283,7 +292,11 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
           )}
           {p.staging.length ? (
             <div className="lane">
-              {p.staging.map((c) => (c.facedown
+              {p.staging.map((c) => (c.facedown && c.id
+                ? <div key={c.uid} className="facedown-seen" title="Facedown: not resolved yet (only the admin sees it)">
+                    <Card card={c} />
+                  </div>
+                : c.facedown
                 ? <div key={c.uid} className="card-back" aria-label="A facedown Bot card" title="Not resolved yet" />
                 : <Card key={c.uid} card={c} />))}
             </div>
@@ -303,7 +316,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
       {!phone && hand}
 
       {viewing && <PileViewer title={piles[viewing][0]} cards={[...piles[viewing][1]]} onClose={() => setViewing(null)}
-        note={viewing === "reserve"
+        note={ordered ? undefined : viewing === "reserve"
           ? "These are the cards in your Reserve deck, sorted by name. This is not the order they are in: the deck's order stays hidden, even from you."
           : undefined} />}
     </section>

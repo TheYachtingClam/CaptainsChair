@@ -317,6 +317,7 @@ function AdminGames() {
                 <td>{g.players.join(", ") || "—"}</td>
                 <td>{g.moves}</td>
                 <td className="admin-actions">
+                  {g.status !== "waiting" && <><Link className="button secondary" to={`/admin/games/${g.id}/observe`}>Watch</Link>{" "}</>}
                   <TakeSeat game={g} />{" "}
                   <ConfirmDelete what="this game for everyone" busy={remove.isPending} onDelete={() => remove.mutate(g.id)} />
                 </td>

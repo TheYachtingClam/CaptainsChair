@@ -89,6 +89,12 @@ def websocket_user(websocket: WebSocket) -> str | None:
     return signed_in[0] if signed_in is not None else None
 
 
+def websocket_admin(websocket: WebSocket) -> bool:
+    """Whether a WebSocket connection comes from an admin account, who may watch any game (REQ-ADMIN-11)."""
+    signed_in = _signed_in(websocket.cookies)
+    return bool(signed_in and signed_in[1])
+
+
 class LoginRateLimiter:
     """In-memory, per-IP limit on sign-in and similar attempts (REQ-USER-12, -20)."""
 

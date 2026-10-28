@@ -108,6 +108,9 @@ All endpoints except login and health require a valid session (see §5).
 | `GET /api/admin/games` | Admin: every game, in any state, with its players |
 | `DELETE /api/admin/games/{id}` | Admin: delete any game; connected players get `game_deleted` |
 | `POST /api/admin/games/{id}/seats/{index}/take` | Admin: take over a seat; it moves to the admin's account (REQ-ADMIN-06) |
+| `GET /api/admin/games/{id}/timeline` | Admin: the game's positions, each move's label and turn, and where each turn starts (REQ-ADMIN-09, -10) |
+| `GET /api/admin/games/{id}/observe?at=&as=` | Admin: the game at a position, showing everything or as a seat or a watcher sees it (REQ-ADMIN-07, -08) |
+| `POST /api/admin/games/{id}/copy` | Admin: a playable copy of the game at a position (REQ-ADMIN-12) |
 | `GET /api/admin/campaigns`, `DELETE /api/admin/campaigns/{id}` | Admin: list or delete Five-Year Mission campaigns |
 | `GET /api/games/{id}` | Current view of the game for this player |
 | `POST /api/games/{id}/commands` | Submit a command |
@@ -126,11 +129,11 @@ All endpoints except login and health require a valid session (see §5).
 
 ### 3.6 WebSocket
 
-- **REQ-SRV-40** Each client opens one WebSocket per game at `/api/games/{id}/ws`, authenticated with the session. The server finds the seat from the signed-in user; an account without a seat in the game is refused.
+- **REQ-SRV-40** Each client opens one WebSocket per game at `/api/games/{id}/ws`, authenticated with the session. The server finds the seat from the signed-in user; an account without a seat in the game is refused, except the admin, who connects as an unseen watcher (REQ-ADMIN-11) and is told of every change like a player. With `?watch=1` the admin watches even a game they hold a seat in, so watching it does not count as being connected in that seat.
 - **REQ-SRV-41** After any accepted command, the server pushes each connected player their own updated view, plus the new events for animation and the action log.
 - **REQ-SRV-42** Commands may be sent over the WebSocket or over REST. The server processes one command per game at a time, in arrival order.
 - **REQ-SRV-43** When a player reconnects, the server sends the full current view.
-- **REQ-SRV-44** The server tells each player when their opponent connects or disconnects.
+- **REQ-SRV-44** The server tells each player when their opponent connects or disconnects. A watching admin is never counted (REQ-ADMIN-11).
 
 ### 3.7 Persistence
 
@@ -165,6 +168,7 @@ All endpoints except login and health require a valid session (see §5).
 | New game | Choose mode (two-player, solo against the Bot, Cadet Training), box (Core Box, To Boldly Go or both), expansions, promo cards, Crew deck (with complexity and summary) and board side; the display name comes from the account. Solo adds Bot Crew, difficulty and Ticking Clock |
 | Campaign | Five-Year Mission log, rank, upgrades, challenges and the next assignment |
 | Game table | The main play screen (§4.3), with a Report a bug button (§5.5) |
+| Observe | Admin only: the game table, read-only, with an observer bar to step through the game, go to a turn and follow it live (§5.6, REQ-ADMIN-07 to -12) |
 | Score screen | Final score breakdown per player, following [13-final-scoring.md](13-final-scoring.md) |
 | Reference | Keyword glossary, icon reference and common card list |
 
@@ -249,6 +253,17 @@ These keep their numbers; REQ-ADMIN-01 and -02, about the admin password, are re
 - **REQ-ADMIN-05** Apart from the admin, only a player seated in a game can delete it. A game still waiting for an opponent therefore can be deleted only by the player who created it.
 - **REQ-ADMIN-06** The admin can take over any seat of any game from the Admin page, after a confirmation. The seat moves to the admin's account, and the admin is taken to the game in that seat. The player who held it is locked out for good: they can no longer act in it, any page they have open is told and disconnected, and they can still watch. The game itself is unchanged and carries on from where it was.
 
+#### Watching a game
+
+The admin can watch any game without a seat, step through it and go to any turn, to follow a game or to find where something went wrong. The plan is [plans/admin-observe.md](../plans/admin-observe.md).
+
+- **REQ-ADMIN-07** The Admin page has a **Watch** button for every game that has started, finished or not. It opens the **Observe** page: the game table, read-only. Watching takes no seat and stores nothing: no command, no change to the game's row, and no moves dropped when the rules have changed (REQ-SRV-14). The table has no answer buttons, End Turn, Undo, Report a bug or developer panel; a pending decision is shown with its options greyed and "<player> is deciding". The observer bar stays at the top of the screen while the table scrolls. The page works at 375 pixels wide (REQ-CLI-36): there the bar shows the step buttons and the position, and ⋯ opens the rest.
+- **REQ-ADMIN-08** By default the admin sees everything: both hands, the order of every Draw deck, the Bot's facedown cards, every private log line and the options of the pending decision. **View as** shows the table as a chosen seat sees it, or as a watcher without a seat sees it (no hidden cards, no options). Only the admin can get the view that shows everything.
+- **REQ-ADMIN-09** A **position** is the game after a number of moves, from 0 (the table just after setup) to the last move. A move is one stored command: a player's answer to a decision, or a developer command. Undone and dropped commands, notes and a tutorial's own moves (REQ-TUT-24) are not moves. Each move replays with its stored weekday (REQ-SRV-52). The observer bar steps one move back or forward, jumps to the first or last position, and has a slider over all positions and a list of the moves, each with the label of the option chosen, grouped by turn; clicking one goes to it. On a laptop ← and → step a move, Page Up and Page Down a turn, and End goes to the last position. The page's address holds the position and the View as choice, so a reload opens the same moment. If the rules have changed so that a stored move no longer applies, the positions end before it and the page says so.
+- **REQ-ADMIN-10** **Go to turn** takes a turn number as the table shows it (the first turn of the game is 1; in a two-player game the players' turns alternate, and in a solo game the Bot's turns count). It opens the position just before that turn's first move, and the bar also steps a whole turn back or forward. A Bot's turn has no moves of its own: it runs inside the move that ended the player's turn before it, so going to a Bot's turn opens the position after that move, and the Bot playback panel (REQ-SOLO-56) plays the Bot's turn back.
+- **REQ-ADMIN-11** At the last position the page follows the game live: each new move is shown as it is played. Stepping back stops following and the bar shows "N moves behind" with **Back to live**. The admin watches unseen: the players' presence (REQ-SRV-44) does not list a watching admin, and a watching admin does not stop a waiting email (REQ-USER-25).
+- **REQ-ADMIN-12** **Copy from here** makes a playable copy of the game as it is at the shown position, as Recreate does for a bug report (REQ-BUG-07): every seat of the copy is the admin's, the original game is not touched, and a copy of a campaign assignment never counts for the campaign. The admin is taken to the copy.
+
 ### 5.7 Limits
 
 Accounts identify people, but the site is still meant for a small private group: there is no email verification beyond the invitation, no two-step sign-in, and no way for players to delete their own account (the admin disables it). The email address is visible only to the admin; other players see display names.
@@ -259,7 +274,7 @@ A player who sees something wrong can report it from the game table. The report 
 
 - **REQ-BUG-01** The game table has a **Report a bug** button for a seated player once the game has started, also after it is over. It is not shown to someone without a seat.
 - **REQ-BUG-02** The button opens a dialog that asks what the player saw and what they expected (required, up to 4000 characters). Sending it does not change or interrupt the game; the dialog confirms that the report was saved.
-- **REQ-BUG-03** The server saves the description with a **bundle**: the game's mode, box, expansions, promo sets, seed, Bot choice, campaign setup, seats (name, Crew deck, board side) and every stored command so far, including undone and dropped ones and each command's weekday (REQ-SRV-52). Because a game is rebuilt from exactly these (REQ-SRV-14), the bundle recreates the game as it was, and any earlier moment by replaying fewer commands.
+- **REQ-BUG-03** The server saves the description with a **bundle**: the game's mode, box, expansions, promo sets, seed, Bot choice, campaign setup, a tutorial's setup (its script, seed and stacked decks, REQ-TUT-12), seats (name, Crew deck, board side) and every stored command so far, including undone and dropped ones and each command's weekday (REQ-SRV-52). Because a game is rebuilt from exactly these (REQ-SRV-14), the bundle recreates the game as it was, and any earlier moment by replaying fewer commands.
 - **REQ-BUG-04** The bundle also records what the reporter was looking at, for reading without a replay: the turn, step and active seat, the pending decision with its options, the last 60 log lines, and the reporter's own view of the game.
 - **REQ-BUG-05** Only the admin can read reports, because a bundle holds both players' hidden cards. The Admin page lists them, newest first, with the reporter, the game and the description, and can mark one resolved, reopen it or delete it.
 - **REQ-BUG-06** The admin can download a report as a JSON file, written by the server (`GET /api/admin/bugs/{id}/download`) so that no number passes through the browser; the seed is also stored as text, because JavaScript rounds a 63-bit seed and the game would no longer replay. `scripts/replay_bug.py` rebuilds the game from that file with the rules of the current checkout and prints where it stands: the last log lines and the pending decision. `--moves N` and `--back N` stop earlier; `--state` writes the whole engine state.
@@ -291,5 +306,5 @@ A player who sees something wrong can report it from the game table. The report 
 
 - Profiles, statistics and match history per person (accounts exist, §5).
 - Matchmaking with strangers.
-- Spectators.
+- Spectators. Only the admin can watch a game without a seat (§5.6, REQ-ADMIN-07 to -12).
 - Turn timers.

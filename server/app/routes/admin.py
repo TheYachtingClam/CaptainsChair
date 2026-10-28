@@ -1,17 +1,18 @@
 """The admin (requirements/19-technical-architecture.md §5.4, §5.6): accounts and invitations, every game and
 campaign, and bug reports. Every endpoint here needs an admin account (REQ-USER-32)."""
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app import bugs, play
+from app import bugs, observe, play
 from app.auth import require_admin, require_session, session_user, viewer_id
 from app.db import get_db
 from app.hub import hub
 from app.models import BugReport, Campaign, Game
 from app.schemas import BugStatus
+from engine.views import game_view
 
 router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(require_session)])
 
@@ -66,6 +67,88 @@ async def take_seat(game_id: str, seat_index: int, db: Session = Depends(get_db)
     await hub.broadcast(game_id, {"type": "seat_taken", "seat": seat_index})
     await hub.close_seat(game_id, seat_index, "The admin took over this seat")
     return {"game_id": game_id, "seat_index": seat_index, "display_name": seat.display_name}
+
+
+# ------------------------------------------------------------------ watching a game (REQ-ADMIN-07 to -12)
+
+def _started(db: Session, game_id: str) -> Game:
+    from app.routes.games import load_game
+
+    game = load_game(db, game_id)
+    if game.seed is None:
+        raise HTTPException(409, "The game has not started yet")
+    return game
+
+
+@router.get("/games/{game_id}/timeline", dependencies=[Depends(require_admin)])
+def game_timeline(game_id: str, db: Session = Depends(get_db)) -> dict:
+    """The game's positions: each move with its label and turn, and where each turn opens (REQ-ADMIN-09, -10)."""
+    return observe.timeline(_started(db, game_id))
+
+
+@router.get("/games/{game_id}/observe", dependencies=[Depends(require_admin)])
+def observe_game(game_id: str, at: int | None = None, view_as: str = Query("all", alias="as"),
+                 db: Session = Depends(get_db)) -> dict:
+    """The game at position `at` (the last when left out), read-only (REQ-ADMIN-07): showing everything (`all`), as a
+    seat sees it (`0`, `1`) or as a watcher without a seat sees it (`watcher`), REQ-ADMIN-08. Stores nothing."""
+    game = _started(db, game_id)
+    try:
+        state = observe.state_at(game, at)
+    except ValueError as err:
+        raise HTTPException(422, str(err)) from err
+    if view_as == "all":
+        out = game_view(state, None, omniscient=True)
+    elif view_as == "watcher":
+        out = game_view(state, None)
+    elif view_as.isdigit() and int(view_as) < len(state.players):
+        out = game_view(state, int(view_as))
+    else:
+        raise HTTPException(422, "View as all, watcher or a seat number")
+    last = observe.last(game)
+    at = last if at is None else at
+    out["can_undo"] = False
+    out["dev_tools"] = False
+    out["observe"] = {"at": at, "last": last, "live": at == last, "as": view_as}
+    return out
+
+
+class CopyRequest(BaseModel):
+    moves: int  # the position to copy
+
+
+@router.post("/games/{game_id}/copy", dependencies=[Depends(require_admin)])
+def copy_game(game_id: str, body: CopyRequest, db: Session = Depends(get_db), viewer: str = Depends(viewer_id)) -> dict:
+    """A playable copy of the game at a position, every seat the admin's (REQ-ADMIN-12). The game is not touched."""
+    game = _started(db, game_id)
+    try:
+        commands = observe.cut(game, body.moves)
+    except ValueError as err:
+        raise HTTPException(422, str(err)) from err
+    data = {"game": bugs.setup(game), "commands": [dict(c) for c in game.commands or []]}
+    return {"game_id": _copy(db, data, commands, viewer).id}
+
+
+def _copy(db: Session, data: dict, moves: int | None, owner: str) -> Game:
+    """A new game from a setup and its commands (a bug report's bundle, or a game being watched), keeping only the
+    first `moves` commands when given. Every seat is `owner`'s, and a copy never counts for a campaign (REQ-BUG-07)."""
+    game = bugs.as_game(data, moves=moves, owner=owner)
+    game.status = "active" if moves is not None else game.status
+    if game.campaign:  # a copy must never count for the campaign it came from
+        game.campaign = {k: v for k, v in game.campaign.items() if k in ("reinforcement", "setup")}
+    db.add(game)
+    db.commit()
+    try:
+        state = play.build(game)  # replays with today's rules; moves that no longer apply are dropped and noted
+    except Exception as err:  # the setup itself no longer works: report it, and do not leave a broken game behind
+        db.delete(game)
+        db.commit()
+        raise HTTPException(409, f"The game cannot be recreated with the current rules: {err}") from err
+    if state.step == "over":
+        game.status = "finished"
+    elif game.status == "finished":
+        game.status = "active"
+    db.commit()
+    return game
 
 
 @router.get("/campaigns", dependencies=[Depends(require_admin)])
@@ -177,23 +260,7 @@ def recreate_bug(bug_id: str, body: Recreate | None = None, db: Session = Depend
     moves = body.moves if body else None
     if moves is not None and not 0 <= moves <= len(report.bundle["commands"]):
         raise HTTPException(422, "There are not that many moves in the report")
-    game = bugs.as_game(report.bundle, moves=moves, owner=viewer)
-    game.status = "active" if moves is not None else game.status
-    if game.campaign:  # a copy must never count for the campaign it came from
-        game.campaign = {k: v for k, v in game.campaign.items() if k in ("reinforcement", "setup")}
-    db.add(game)
-    db.commit()
-    try:
-        state = play.build(game)  # replays with today's rules; moves that no longer apply are dropped and noted
-    except Exception as err:  # the setup itself no longer works: report it, and do not leave a broken game behind
-        db.delete(game)
-        db.commit()
-        raise HTTPException(409, f"The game cannot be recreated with the current rules: {err}") from err
-    if state.step == "over":
-        game.status = "finished"
-    elif game.status == "finished":
-        game.status = "active"
-    db.commit()
+    game = _copy(db, report.bundle, moves, viewer)
     return {"game_id": game.id, "reporter_seat": report.seat}
 
 

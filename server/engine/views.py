@@ -2,6 +2,9 @@
 
 Hidden: the opponent's hand (count only), every facedown deck (count only), the seed and RNG.
 Public: Market, Junk, Discard piles, Development piles, Captain's Logs (REQ-LOG-10), play areas.
+
+The admin watching a game may see everything (`omniscient`, REQ-ADMIN-08): every hand, every deck in order, the Bot's
+facedown cards, every log line and the pending decision's options.
 """
 
 from __future__ import annotations
@@ -28,8 +31,8 @@ def card_view(inst: Inst) -> dict:
     return out
 
 
-def player_view(state: GameState, player: Player, viewer: int | None) -> dict:
-    mine = viewer == player.seat
+def player_view(state: GameState, player: Player, viewer: int | None, omniscient: bool = False) -> dict:
+    mine = viewer == player.seat or omniscient
     return {
         "seat": player.seat,
         "name": player.name,
@@ -42,14 +45,17 @@ def player_view(state: GameState, player: Player, viewer: int | None) -> dict:
         "hand_size": hand_size(state, player),
         "draw_count": len(player.draw),
         # Gluonic Distortion: the Draw deck is face-up, so both players see it, in order (REQ-SRV-20).
-        "draw": [card_view(i) for i in player.draw] if deck_face_up(player) else None,
+        "draw": [card_view(i) for i in player.draw] if deck_face_up(player) or omniscient else None,
         "reserve_count": len(player.reserve),
         # The owner may see what is in their Reserve deck, never its order (REQ-INF-05): sorted by name, with stand-in
         # uids so nothing about the real order can be read from them.
-        "reserve": _reserve_contents(player) if mine and player.bot is None else None,
+        # The admin sees it in order (REQ-ADMIN-08), the Bot's Supplement deck too.
+        "reserve": [card_view(i) for i in player.reserve] if omniscient
+        else _reserve_contents(player) if mine and player.bot is None else None,
         "discard": [card_view(i) for i in player.discard],
         "development": [card_view(i) for i in player.development],
-        "staging": [card_view(i) if not _facedown(player, i) else {"uid": i.uid, "facedown": True}
+        "staging": [card_view(i) if not _facedown(player, i)
+                    else {**card_view(i), "facedown": True} if omniscient else {"uid": i.uid, "facedown": True}
                     for i in player.staging + player.received_stardates],
         "fleet": [card_view(i) for i in player.fleet],
         "locations": [card_view(i) for i in player.locations],
@@ -136,12 +142,12 @@ def _bot_view(player: Player) -> dict | None:
     }
 
 
-def _bot_turn(state: GameState, viewer: int | None) -> dict | None:
+def _bot_turn(state: GameState, viewer: int | None, omniscient: bool = False) -> dict | None:
     """The latest Bot turn as steps the client can play back one at a time (REQ-SOLO-56): every log line from the
     start of that turn, with the card it is about and the Automated Command row it matched. `start` is the turn's
     position in the whole log, so the client knows which turn it has already watched."""
     bot = next((p for p in state.players if p.bot is not None), None)
-    return None if bot is None else _turn_steps(state, bot.seat, viewer)
+    return None if bot is None else _turn_steps(state, bot.seat, viewer, omniscient)
 
 
 def _opponent_turn(state: GameState, viewer: int | None) -> dict | None:
@@ -153,7 +159,7 @@ def _opponent_turn(state: GameState, viewer: int | None) -> dict | None:
     return None if other is None else _turn_steps(state, other.seat, viewer)
 
 
-def _turn_steps(state: GameState, seat: int, viewer: int | None) -> dict | None:
+def _turn_steps(state: GameState, seat: int, viewer: int | None, omniscient: bool = False) -> dict | None:
     start = next((i for i in range(len(state.log) - 1, -1, -1)
                   if state.log[i].tag == "turn" and state.log[i].seat == seat), None)
     if start is None:
@@ -162,7 +168,7 @@ def _turn_steps(state: GameState, seat: int, viewer: int | None) -> dict | None:
     cards = content().cards
     steps = []
     for e in state.log[start:end]:
-        if e.private_to not in (None, viewer):
+        if e.private_to not in (None, viewer) and not omniscient:
             continue
         step = {"text": e.text}
         if e.card:
@@ -173,14 +179,16 @@ def _turn_steps(state: GameState, seat: int, viewer: int | None) -> dict | None:
     return {"start": start, "finished": end < len(state.log) or state.step == "over", "steps": steps}
 
 
-def game_view(state: GameState, viewer: int | None) -> dict:
+def game_view(state: GameState, viewer: int | None, *, omniscient: bool = False) -> dict:
     decision = None
     if state.decision is not None:
         d = state.decision
         decision = {"seat": d.seat, "kind": d.kind, "prompt": d.prompt}
-        if d.seat == viewer:
+        if d.seat == viewer or omniscient:
             decision["options"] = [o.model_dump() for o in d.options]
             decision["cards"] = [card_view(i) for i in d.cards]
+        if omniscient:
+            decision["observe"] = True  # shown, never answered (REQ-ADMIN-07)
     top = state.stardates[0] if state.stardates else None
     return {
         "mode": state.mode,
@@ -191,7 +199,7 @@ def game_view(state: GameState, viewer: int | None) -> dict:
         "step": state.step,
         "substep": state.substep,
         "you": viewer,
-        "players": [player_view(state, p, viewer) for p in state.players],
+        "players": [player_view(state, p, viewer, omniscient) for p in state.players],
         "market": {suit: card_view(i) if i else None for suit, i in state.market.items()},
         "market_deck_counts": {suit: len(d) for suit, d in state.market_decks.items()},
         "neutral_zone": [
@@ -207,8 +215,8 @@ def game_view(state: GameState, viewer: int | None) -> dict:
         "resolution": state.resolution,
         "last_turn": state.last_turn + 1 if state.last_turn is not None else None,
         "decision": decision,
-        "log": [e.text for e in state.log[-60:] if e.private_to in (None, viewer)],
-        "bot_turn": _bot_turn(state, viewer),
+        "log": [e.text for e in state.log[-60:] if e.private_to in (None, viewer) or omniscient],
+        "bot_turn": _bot_turn(state, viewer, omniscient),
         "opponent_turn": _opponent_turn(state, viewer),
         "result": state.result,
     }

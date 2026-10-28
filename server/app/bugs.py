@@ -15,27 +15,34 @@ VERSION = 1
 RECENT_LOG = 60  # log lines kept for reading at a glance (REQ-BUG-04)
 
 
+def setup(game: Game) -> dict:
+    """The game's setup: with its commands, everything needed to rebuild it (REQ-BUG-03)."""
+    return {
+        "id": game.id,
+        "mode": game.mode,
+        "box": game.box,
+        "expansions": list(game.expansions or []),
+        "promos": bool(game.promos),
+        "promo_sets": None if game.promo_sets is None else list(game.promo_sets),
+        # As text: a 63-bit seed does not survive a JavaScript number (it rounds above 2**53).
+        "seed": str(game.seed),
+        "bot": game.bot,
+        "campaign": game.campaign,
+        # A tutorial's stacked decks are part of its setup (REQ-TUT-12).
+        "tutorial": game.tutorial,
+        "status": game.status,
+        "seats": [{"index": s.index, "display_name": s.display_name, "deck_id": s.deck_id,
+                   "board_side": s.board_side} for s in sorted(game.seats, key=lambda s: s.index)],
+    }
+
+
 def bundle(game: Game, seat: int) -> dict:
     """Everything needed to recreate `game` as it is now, and what the reporter at `seat` was looking at."""
     state = play.build(game)
     decision = state.decision
     return {
         "version": VERSION,
-        "game": {
-            "id": game.id,
-            "mode": game.mode,
-            "box": game.box,
-            "expansions": list(game.expansions or []),
-            "promos": bool(game.promos),
-            "promo_sets": None if game.promo_sets is None else list(game.promo_sets),
-            # As text: a 63-bit seed does not survive a JavaScript number (it rounds above 2**53).
-            "seed": str(game.seed),
-            "bot": game.bot,
-            "campaign": game.campaign,
-            "status": game.status,
-            "seats": [{"index": s.index, "display_name": s.display_name, "deck_id": s.deck_id,
-                       "board_side": s.board_side} for s in sorted(game.seats, key=lambda s: s.index)],
-        },
+        "game": setup(game),
         "commands": [dict(c) for c in game.commands or []],
         "reporter_seat": seat,
         "turn": state.turn,
@@ -57,7 +64,7 @@ def as_game(data: dict, *, moves: int | None = None, owner: str = "") -> Game:
     commands = [dict(c) for c in data["commands"]]
     game = Game(id=str(uuid.uuid4()), mode=g["mode"], box=g.get("box", "to_boldly_go"), expansions=g["expansions"],
                 promos=g["promos"], promo_sets=g.get("promo_sets"), seed=int(g["seed"]), bot=g.get("bot"),
-                campaign=g.get("campaign"), status=g.get("status", "active"),
+                campaign=g.get("campaign"), tutorial=g.get("tutorial"), status=g.get("status", "active"),
                 commands=commands if moves is None else commands[:moves])
     for s in g["seats"]:
         game.seats.append(Seat(index=s["index"], display_name=s["display_name"], deck_id=s["deck_id"],

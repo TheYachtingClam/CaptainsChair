@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import secrets
 import threading
+from collections.abc import Iterator
 
 from sqlalchemy.orm import Session, object_session
 from sqlalchemy.orm.attributes import flag_modified
@@ -23,6 +24,9 @@ _lock = threading.Lock()  # one command per game at a time (REQ-SRV-42)
 def forget(game_id: str) -> None:
     """Drop a deleted game's cached state."""
     _cache.pop(game_id, None)
+    from app import observe
+
+    observe.forget(game_id)
 
 
 def start(game: Game) -> None:
@@ -77,30 +81,62 @@ def _live(command: dict) -> bool:
     return not command.get("undone") and not command.get("dropped") and "note" not in command
 
 
-def build(game: Game) -> GameState:
-    key = (len(game.commands), sum(1 for c in game.commands if _live(c)))
-    cached = _cache.get(game.id)
-    if cached and cached[0] == key:
-        return copy.deepcopy(cached[1])
+def is_move(command: dict) -> bool:
+    """A stored command that the engine replays: live, and not a tutorial's own move (REQ-ADMIN-09)."""
+    return _live(command) and not coaching(command)
+
+
+def initial(game: Game) -> GameState:
+    """The game just after setup, before any stored command."""
     state = new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game), game.box,
                      game.promo_sets, stack_of(game))
     advance(state, flag_irreversible=False)
-    # Replay without the can't-be-undone flagging (it tries every option on a copy), then flag the last question.
-    for i, command in enumerate(game.commands):
+    return state
+
+
+class StaleMove(Exception):
+    """A stored move that no longer applies, because the rules engine changed since it was saved."""
+
+    def __init__(self, index: int, error: Exception) -> None:
+        super().__init__(str(error))
+        self.index = index
+
+
+def replay(commands: list[dict], state: GameState, start: int = 0) -> Iterator[int]:
+    """Applies the stored commands from index `start` on to `state`, yielding each move's index just before it is
+    applied: stop iterating to leave `state` before that move. Notes are logged on the way. Raises StaleMove for a move
+    that no longer applies; `state` may then be part way through it.
+
+    Replays without the can't-be-undone flagging (it tries every option on a copy); `build` flags the last question."""
+    for i in range(start, len(commands)):
+        command = commands[i]
         if "note" in command:
             state.emit(command["note"])
             continue
-        if not _live(command) or coaching(command):
+        if not is_move(command):
             continue
+        yield i
         state.weekday = command.get("weekday")  # REQ-SRV-52: the day it was played, never today's
         try:
             if "dev" in command:
                 dev.apply(state, command["seat"], command["dev"], flag_irreversible=False)
             else:
                 choose(state, command["seat"], command["option"], flag_irreversible=False)
-        except (IllegalCommand, dev.DevCommandError):
-            _drop_from(game, i, state)
-            break
+        except (IllegalCommand, dev.DevCommandError) as err:
+            raise StaleMove(i, err) from err
+
+
+def build(game: Game) -> GameState:
+    key = (len(game.commands), sum(1 for c in game.commands if _live(c)))
+    cached = _cache.get(game.id)
+    if cached and cached[0] == key:
+        return copy.deepcopy(cached[1])
+    state = initial(game)
+    try:
+        for _ in replay(game.commands, state):
+            pass
+    except StaleMove as stale:
+        _drop_from(game, stale.index, state)
     if state.decision is not None:
         _flag_irreversible(state)
     key = (len(game.commands), sum(1 for c in game.commands if _live(c)))
