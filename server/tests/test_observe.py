@@ -188,3 +188,136 @@ def test_only_a_few_games_are_kept():
         game, _ = played("cadet", 3, seed=seed)
         observe.timeline(game)
     assert len(observe._cache) == observe.KEEP
+
+
+# ------------------------------------------------------------------ the endpoints (REQ-ADMIN-07, -08, -12)
+
+def two_player_game(admin, moves=8):
+    """Ann and Bob play a few moves; the admin holds no seat."""
+    from tests.conftest import another_browser, sign_in_as
+
+    ann = sign_in_as(another_browser(admin), "ann@example.com", "Ann")
+    bob = sign_in_as(another_browser(admin), "bob@example.com", "Bob")
+    game_id = ann.post("/api/games", json={"deck_id": "georgiou", "mode": "two_player"}).json()["game"]["id"]
+    bob.post(f"/api/games/{game_id}/join", json={"deck_id": "soval"})
+    players = {0: ann, 1: bob}
+    for _ in range(moves):
+        seat = ann.get(f"/api/games/{game_id}/state").json()["decision"]["seat"]
+        options = players[seat].get(f"/api/games/{game_id}/state").json()["decision"]["options"]
+        pick = next((o for o in options if o["id"].startswith("play:")), options[0])
+        assert players[seat].post(f"/api/games/{game_id}/commands", json={"option": pick["id"]}).status_code == 200
+    return game_id, players
+
+
+def stored(game_id):
+    from app.db import get_db
+
+    db = next(get_db())
+    game = db.get(Game, game_id)
+    return game, db
+
+
+def test_watching_needs_the_admin(admin):
+    game_id, players = two_player_game(admin, moves=2)
+    for client in players.values():
+        assert client.get(f"/api/admin/games/{game_id}/timeline").status_code == 403
+        assert client.get(f"/api/admin/games/{game_id}/observe").status_code == 403
+        assert client.post(f"/api/admin/games/{game_id}/copy", json={"moves": 0}).status_code == 403
+    waiting = players[0].post("/api/games", json={"deck_id": "kirk", "mode": "two_player"}).json()["game"]["id"]
+    assert admin.get(f"/api/admin/games/{waiting}/timeline").status_code == 409
+    assert admin.get("/api/admin/games/no-such-game/observe").status_code == 404
+
+
+def test_the_admin_sees_everything_or_as_a_seat_sees_it(admin):
+    game_id, players = two_player_game(admin)
+    everything = admin.get(f"/api/admin/games/{game_id}/observe").json()
+    assert all(p["hand"] is not None and p["draw"] is not None and p["reserve"] is not None
+               for p in everything["players"])
+    assert everything["decision"]["options"] and everything["decision"]["observe"] is True
+    assert everything["you"] is None and everything["can_undo"] is False and everything["dev_tools"] is False
+
+    as_ann = admin.get(f"/api/admin/games/{game_id}/observe?as=0").json()
+    assert as_ann["players"][0]["hand"] is not None and as_ann["players"][1]["hand"] is None
+    assert as_ann["players"][1]["draw"] is None and "observe" not in as_ann["decision"]
+    ann_own = players[0].get(f"/api/games/{game_id}/state").json()
+    assert as_ann["players"] == ann_own["players"] and as_ann["decision"] == ann_own["decision"]
+
+    watcher = admin.get(f"/api/admin/games/{game_id}/observe?as=watcher").json()
+    seatless = admin.get(f"/api/games/{game_id}/state").json()  # the admin holds no seat here
+    assert watcher["players"] == seatless["players"] and watcher["log"] == seatless["log"]
+    assert all(p["hand"] is None for p in watcher["players"]) and "options" not in watcher["decision"]
+
+    assert admin.get(f"/api/admin/games/{game_id}/observe?as=5").status_code == 422
+    assert admin.get(f"/api/admin/games/{game_id}/observe?as=nobody").status_code == 422
+
+
+def test_positions_and_the_timeline(admin):
+    game_id, _ = two_player_game(admin)
+    t = admin.get(f"/api/admin/games/{game_id}/timeline").json()
+    assert t["last"] == 8 and len(t["moves"]) == 8 and t["turns"][0]["turn"] == 1 and t["stopped"] is None
+    start = admin.get(f"/api/admin/games/{game_id}/observe?at=0").json()
+    assert start["observe"] == {"at": 0, "last": 8, "live": False, "as": "all"} and start["turn"] == 1
+    assert admin.get(f"/api/admin/games/{game_id}/observe").json()["observe"]["live"] is True
+    assert admin.get(f"/api/admin/games/{game_id}/observe?at=8").json()["observe"]["live"] is True
+    assert admin.get(f"/api/admin/games/{game_id}/observe?at=9").status_code == 422
+    assert admin.get(f"/api/admin/games/{game_id}/observe?at=-1").status_code == 422
+
+
+def test_watching_stores_nothing(admin):
+    game_id, _ = two_player_game(admin)
+    game, db = stored(game_id)
+    before = (copy.deepcopy(game.commands), game.status, [(s.index, s.user_id) for s in game.seats])
+    db.close()
+    admin.get(f"/api/admin/games/{game_id}/timeline")
+    for at in range(9):
+        admin.get(f"/api/admin/games/{game_id}/observe?at={at}")
+    game, db = stored(game_id)
+    assert (game.commands, game.status, [(s.index, s.user_id) for s in game.seats]) == before
+    db.close()
+
+
+def test_copy_from_here_makes_a_playable_copy(admin):
+    game_id, _ = two_player_game(admin)
+    r = admin.post(f"/api/admin/games/{game_id}/copy", json={"moves": 3})
+    assert r.status_code == 200
+    copy_id = r.json()["game_id"]
+    copied, db = stored(copy_id)
+    original, _ = stored(game_id)
+    assert copied.status == "active" and len(copied.commands) == 3 and len(original.commands) == 8
+    owners = {s.user_id for s in copied.seats}
+    assert len(owners) == 1 and owners.isdisjoint(s.user_id for s in original.seats) and "" not in owners
+    assert [s.display_name for s in copied.seats] == ["Ann", "Bob"]
+    db.close()
+    # It is the game at position 3, and the admin plays it from there in the seat that must decide.
+    watched = admin.get(f"/api/admin/games/{game_id}/observe?at=3").json()
+    view = admin.get(f"/api/games/{copy_id}/state").json()
+    assert view["you"] == view["decision"]["seat"] == watched["decision"]["seat"]
+    assert view["players"][view["you"]]["hand"] == watched["players"][view["you"]]["hand"]
+    option = view["decision"]["options"][0]["id"]
+    assert admin.post(f"/api/games/{copy_id}/commands", json={"option": option}).status_code == 200
+    assert admin.post(f"/api/admin/games/{game_id}/copy", json={"moves": 9}).status_code == 422
+
+
+def test_a_copy_of_a_campaign_game_never_counts_for_the_campaign(admin):
+    r = admin.post("/api/games", json={"deck_id": "kirk", "mode": "solo",
+                                       "bot": {"deck_id": "soval", "difficulty": "ensign"}})
+    game_id = r.json()["game"]["id"]
+    game, db = stored(game_id)
+    game.campaign = {"id": "some-campaign", "assignment": 1, "reinforcement": []}
+    db.commit()
+    db.close()
+    copy_id = admin.post(f"/api/admin/games/{game_id}/copy", json={"moves": 0}).json()["game_id"]
+    copied, db = stored(copy_id)
+    assert copied.campaign == {"reinforcement": []}
+    db.close()
+
+
+def test_a_copy_of_a_tutorial_keeps_its_stacked_decks(admin):
+    """The stack is part of a tutorial's setup (REQ-TUT-12), so a copy deals the same cards (and so does a bug report's
+    copy, which shares the setup)."""
+    game_id = admin.post("/api/tutorials/picard-basics").json()["game"]["id"]
+    copy_id = admin.post(f"/api/admin/games/{game_id}/copy", json={"moves": 0}).json()["game_id"]
+    original = admin.get(f"/api/games/{game_id}/state").json()
+    copied = admin.get(f"/api/games/{copy_id}/state").json()
+    assert copied["players"][0]["hand"] == original["players"][0]["hand"]
+    assert copied["market"] == original["market"]

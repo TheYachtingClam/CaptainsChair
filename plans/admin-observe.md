@@ -91,7 +91,7 @@ What was done:
 - Tests (`tests/test_observe.py`, 12): every 5th position of random two-player, solo and Cadet games equals a plain replay, and the last equals `play.build`; labels; turns open before their first move and alternate; a solo Bot turn opens after the move that ran it, with its playback in the view; undone, dropped, tutorial and note entries are not moves; a move that no longer applies ends the timeline and leaves the commands untouched; extending equals a fresh build; an undo rebuilds; checkpoint spacing; the cache keeps 4 games.
 - Timing on a random 405-move, 26-turn two-player game: the timeline is built in 0.57 s (once; then cached), and the slowest of 40 random positions took 0.06 s.
 
-### Step 3: The view and the endpoints
+### Step 3: The view and the endpoints (done)
 
 - `game_view(..., omniscient=True)` and the three admin endpoints.
 - Tests:
@@ -102,6 +102,13 @@ What was done:
   - Copy from here makes an active game with `p` moves and the admin in every seat, and a campaign copy carries no campaign id.
 
 **You test:** call the endpoints from the browser's address bar while signed in as admin.
+
+What was done:
+- `game_view(state, viewer, omniscient=True)`: every hand, every Draw deck and Reserve deck (and the Bot's Supplement deck) in order, the Bot's facedown cards with their faces and `"facedown": true`, every log line and Bot playback step, and the pending decision's options and cards with `"observe": true`. The ordinary views are unchanged.
+- `GET /api/admin/games/{id}/timeline` (the Step 2 timeline), `GET /api/admin/games/{id}/observe?at=&as=` (`as` is `all`, `watcher` or a seat number; the view adds `observe: {at, last, live, as}`, with `can_undo` and `dev_tools` false) and `POST /api/admin/games/{id}/copy {"moves": p}`. A game that has not started gives 409, a position outside the timeline or an unknown `as` 422.
+- `observe.cut(game, at)` gives how many stored commands make up position `at`; the copy keeps exactly those. Recreate and Copy from here share one helper (`_copy` in `routes/admin.py`).
+- `bugs.setup(game)` is the setup part of a bundle, shared by bug reports and copies. It now includes a tutorial's setup (script, seed, stacked decks), which `bugs.as_game` restores. Before, a bug report from a tutorial game was rebuilt without its stacked decks and dealt different cards; REQ-BUG-03 now says so.
+- Tests (`tests/test_observe.py`, 7 more): the three endpoints need the admin; everything is shown with `as=all`; `as=0` matches exactly what that player gets and hides the other hand; `as=watcher` matches a seatless account's view; positions, `live` and out-of-range errors; watching leaves the commands, status and seats untouched; Copy from here gives the game at that position with every seat the admin's, playable at once; a campaign game's copy has no campaign id; a tutorial's copy deals the same cards (checked to fail without the fix).
 
 ### Step 4: Live follow without being seen
 

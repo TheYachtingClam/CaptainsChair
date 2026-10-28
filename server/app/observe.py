@@ -140,6 +140,24 @@ def timeline(game: Game) -> dict:
                 "stopped": dict(t.stopped) if t.stopped else None}
 
 
+def last(game: Game) -> int:
+    """The last position: the number of moves the timeline has."""
+    with _lock:
+        return len(_timeline(game).moves)
+
+
+def cut(game: Game, at: int) -> int:
+    """How many stored commands make up the game at position `at`: the commands before the next move, or before the
+    move that no longer applies, or all of them. Raises ValueError outside the timeline."""
+    with _lock:
+        t = _timeline(game)
+        if not 0 <= at <= len(t.moves):
+            raise ValueError(f"There is no position {at}: the game has {len(t.moves)} moves")
+        if at < len(t.moves):
+            return t.moves[at]["index"]
+        return t.stopped["index"] if t.stopped else len(game.commands or [])
+
+
 def state_at(game: Game, at: int | None = None) -> GameState:
     """A copy of the game at position `at` (the last position when None). Raises ValueError outside the timeline."""
     with _lock:
