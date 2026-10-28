@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CardView, GameStateView } from "../api";
-import { Card, CardBack, LocationTokens, PileViewer, imageUrl } from "./Cards";
+import { Card, CardBack, LocationTokens, PileViewer, awayTokenImage, imageUrl } from "./Cards";
 import { usePhone } from "./Sheet";
 
 const SUITS = ["Person", "Cargo", "Ship", "Ally"] as const;
@@ -84,7 +84,11 @@ export function CenterMat({ view }: { view: GameStateView }) {
 
 /** The three neutral Locations with each player's tokens there. `compact` is the phone's form (REQ-CLI-32): the three
  *  side by side, each player's tokens as icons without their name, and a secured Location's line in green. It is
- *  shown on the You tab too, for planning your turn. */
+ *  shown on the You tab too, for planning your turn. In Cadet Training the practice opponent's Away Team, always one
+ *  at every neutral Location (REQ-CTM-12), is shown too, since securing has to beat it. */
+const VIRTUAL_TEAM = "The practice opponent always has 1 Away Team at every neutral Location. "
+  + "To secure one you need 3+ tokens there, 2 more than its 1.";
+
 export function NeutralZone({ view, compact = false }: { view: GameStateView; compact?: boolean }) {
   const shipsAt = (uid: string, seat: number) => view.players[seat].fleet.filter((s) => s.at === uid).length;
   return (
@@ -107,9 +111,18 @@ export function NeutralZone({ view, compact = false }: { view: GameStateView; co
                 </li>
               );
             })}
+            {view.mode === "cadet" && (
+              <li className="virtual" title={VIRTUAL_TEAM}>
+                {!compact && <><strong>Practice opponent</strong> <span className="muted">always</span>{" "}</>}
+                <span className={`tokens ${compact ? "compact" : ""}`}><span className="away-token">
+                  <img src={imageUrl(awayTokenImage(1))} alt="The practice opponent's Away Team" />
+                </span></span>
+              </li>
+            )}
           </ul>
         </div>
       ))}
+      {view.mode === "cadet" && <p className="nz-virtual muted">{VIRTUAL_TEAM}</p>}
     </div>
   );
 }

@@ -745,3 +745,8 @@ button.option:disabled { opacity: 0.45; }
 .guide-rows > div { display: grid; grid-template-columns: minmax(6rem, 30%) 1fr; gap: 0.6rem; }
 .guide-rows dt { font-weight: 600; }
 .guide-rows dd { margin: 0; }
+
+/* Cadet Training: the practice opponent's permanent Away Team at each neutral Location (REQ-CTM-12), small and faded. */
+.nz-tokens li.virtual { opacity: 0.8; }
+.nz-tokens li.virtual .away-token img { height: 22px; }
+.nz-virtual { grid-column: 1 / -1; margin: 0; font-size: 0.78rem; text-align: center; }

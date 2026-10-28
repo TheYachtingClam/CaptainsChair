@@ -214,7 +214,7 @@ steps:
   - id: draw-up
     say: |
       Last, you may discard cards from your hand, then you **draw up** to five. Discarding is usually good: you draw
-      fresh cards and get through your deck sooner. Keep **Will Riker**: he has a plan for next turn. Tap **Done**.
+      fresh cards and get through your deck sooner. Keep **Will Riker**: we have a plan for him next turn. Tap **Done**.
     more: |
       Keep a card only when you know how you'll use it next turn. Riker's PLAY will take two cards back from your
       Discard pile and send an Away Team.
@@ -233,7 +233,8 @@ steps:
       at least 2 more than your opponent. Play **Worf**: he sends 2 [Away Team] **Away Teams** to a neutral Location.
     more: |
       At the start of your next turn, in the Control step, you may take control of one secured Location. Here, the
-      practice game's opponent has 1 token everywhere, which 3 of yours beat by 2.
+      practice opponent always has 1 Away Team at every neutral Location (shown under each one), so 3 of yours beat it
+      by 2.
     show: card:1PIC23
     expect: play:1PIC23:0
   - id: worf-where
