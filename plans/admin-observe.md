@@ -61,16 +61,17 @@ A **position** `p` (0 to `n`) is the state after the first `p` live moves; posit
 
 ## Steps
 
-### Step 1: Requirements
+### Step 1: Requirements (done, awaiting your review)
 
 - `requirements/19-technical-architecture.md` §5.6: new REQ-ADMIN-07 to -12 for watching (open any game, the view and what it hides, positions and stepping, going to a turn, live follow and invisibility, Copy from here, read-only). Add the three endpoints to the endpoint table and the Observe page to the screens table.
-- A line in `CLAUDE.md` under the engine's server bullets pointing at `app/observe.py`.
-
 **You test:** read REQ-ADMIN-07 to -12 and correct anything that is not what you want.
+
+What was done: `requirements/19-technical-architecture.md` §5.6 has a new part, "Watching a game", with REQ-ADMIN-07 (the Watch button and the read-only Observe page), -08 (everything shown, View as), -09 (positions, moves, stepping, the move list, keys, the address), -10 (Go to turn and Bot turns), -11 (live follow, unseen) and -12 (Copy from here). Also updated: the three endpoints (§3.5), REQ-SRV-40 (the admin may open the socket without a seat) and -44 (a watching admin is never counted as connected), the Observe page in the screens table (§4.2), and the README's note that spectators are out of scope (only the admin can watch).
 
 ### Step 2: Replay one move at a time on the server
 
 - `play.replay(...)` shared by `build` and `observe`; `observe.timeline` and `observe.state_at` with checkpoints and the cache.
+- A line in `CLAUDE.md` under the engine's server bullets pointing at `app/observe.py`.
 - Tests (`tests/test_observe.py`):
   - position 0 is the setup;
   - the last position equals `play.build`;
