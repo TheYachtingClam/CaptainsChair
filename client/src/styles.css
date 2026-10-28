@@ -750,3 +750,27 @@ button.option:disabled { opacity: 0.45; }
 .nz-tokens li.virtual { opacity: 0.8; }
 .nz-tokens li.virtual .away-token img { height: 22px; }
 .nz-virtual { grid-column: 1 / -1; margin: 0; font-size: 0.78rem; text-align: center; }
+
+/* Watching a game (REQ-ADMIN-07 to -11): the observer bar stays at the top while the table scrolls under it. */
+.observer-bar { position: sticky; top: 0; z-index: 20; display: grid; gap: 0.5rem; padding: 0.6rem 0.8rem; }
+.observer-bar .row { flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.observe-steps button { min-width: 2.75rem; padding: 0.4rem 0.6rem; }
+.observe-where { margin-left: 0.25rem; }
+.live-mark { color: var(--ok); }
+.observe-slider { width: 100%; }
+.observe-move { margin: 0; overflow-wrap: anywhere; }
+.observe-turn input { width: 5rem; }
+.observe-loading { opacity: 0.6; transition: opacity 0.15s; }
+.move-list { max-height: 40vh; overflow-y: auto; margin: 0; padding-left: 1.25rem; border-top: 1px solid var(--border); }
+.move-list ol { padding-left: 1.25rem; }
+.move-list button.link { text-align: left; padding: 0.1rem 0.25rem; font-weight: normal; overflow-wrap: anywhere; }
+.move-list button.move-turn { font-weight: 600; }
+.move-list button.current { background: var(--accent); color: var(--accent-text); border-radius: 4px; }
+.observe-decision .options button:disabled { opacity: 0.7; }
+/* A Bot card the player sees facedown: the admin sees its face, dimmed. */
+.facedown-seen { opacity: 0.65; outline: 2px dashed var(--muted); outline-offset: 2px; border-radius: 6px; }
+@media (max-width: 640px) {
+  .observer-bar { padding: 0.5rem; }
+  .observe-steps button { min-width: 2.5rem; padding: 0.3rem 0.4rem; }
+  .observe-where { flex-basis: 100%; margin: 0; font-size: 0.9rem; }
+}

@@ -127,7 +127,7 @@ const SCORE_PART: Record<string, string> = {
   traits: "Marked traits (3 each)",
 };
 
-export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }: {
+export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach, readOnly = false }: {
   gameId: string;
   view: GameStateView;
   onChoose: (option: string) => void;
@@ -138,6 +138,8 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }:
   system?: React.ReactNode;
   /** A tutorial's Next and Let me play (REQ-TUT-24, -25). */
   onCoach?: (action: "next" | "free" | "tip") => void;
+  /** The admin watching (REQ-ADMIN-07): nothing can be answered, and the pending question is shown greyed. */
+  readOnly?: boolean;
 }) {
   const [pending, setPending] = useState<OptionView | null>(null);
   const [preview, setPreview] = useState<Preview>(null);
@@ -204,8 +206,8 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }:
   const botTurn = bot ? view.bot_turn : null;
   const [botDone, setBotDone] = useState<number | null>(() =>
     botTurn && botTurnClosed(gameId, botTurn) ? botTurn.start : null);
-  const botHold = !!botTurn && botTurn.finished && botTurn.steps.length > 0 && botDone !== botTurn.start && !view.result;
-  const d = botHold ? null : view.decision;
+  const botHold = !readOnly && !!botTurn && botTurn.finished && botTurn.steps.length > 0 && botDone !== botTurn.start && !view.result;
+  const d = botHold || readOnly ? null : view.decision;
   // A tutorial's rails disable some answers (REQ-TUT-23): the table offers only the usable ones.
   const usable = (o: OptionView) => !o.disabled;
   const endOption = d?.kind === "action" ? d.options?.find((o) => o.id === "end" && usable(o)) : undefined;
@@ -277,7 +279,8 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }:
     ...(mine ? [{ id: "you" as Area, label: "You", signature: JSON.stringify(mine) }] : []),
     { id: "centre", label: "Centre", signature: JSON.stringify([view.market, view.neutral_zone, view.junk.length, view.stardate,
       view.market_deck_counts, view.location_deck_count, view.encounter_count, view.incident_count]) },
-    ...(others.length ? [{ id: "opponent" as Area, label: others[0].bot ? "Bot" : "Opponent", signature: JSON.stringify(others) }] : []),
+    ...(others.length ? [{ id: "opponent" as Area, label: others.length > 1 ? "Players" : others[0].bot ? "Bot" : "Opponent",
+      signature: JSON.stringify(others) }] : []),
     { id: "log", label: "System", signature: String(view.log.length) },
   ];
   const seen = useRef<Partial<Record<Area, string>>>({});
@@ -417,6 +420,10 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }:
   const showDock = !!d?.options && d.kind !== "action" && !view.result && !selection && !pending;
   // Someone else's decision (the other player in a two-player game): a quiet note in the same place.
   const waiting = !view.result && d && !d.options ? `Waiting for ${view.players[d.seat]?.name ?? "…"}: ${d.prompt}` : null;
+  // Watching: whoever must answer, and the answers they have, greyed (REQ-ADMIN-07).
+  const deciding = readOnly && !view.result ? view.decision : null;
+  // The admin's view of everything shows each deck in order and the Bot's facedown cards (REQ-ADMIN-08).
+  const ordered = readOnly && view.observe?.as === "all";
 
   return (
     <PreviewContext.Provider value={setPreview}>
@@ -441,7 +448,8 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }:
             {view.mode === "cadet" && view.result.reason === "burn" && <p>The Burn ends Cadet Training: you lose.</p>}
             {view.mode === "solo" && (
               <p><strong>
-                {view.result.winners.includes(view.you ?? -1) ? "You beat the Bot!"
+                {view.you == null ? (view.result.winners.includes(0) ? `${view.players[0].name} beat the Bot.` : "The Bot wins.")
+                  : view.result.winners.includes(view.you) ? "You beat the Bot!"
                   : view.result.reason === "burn" ? "The Burn: the Bot wins."
                   : view.result.reason === "only_ship" ? "Your only Ship left play: the assignment fails."
                   : "The Bot wins. (A tie counts as a loss.)"}
@@ -465,7 +473,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }:
       )}
 
       {showArea("opponent") && others.map((p) => (
-        <PlayerMat key={p.seat} p={p} you={false} active={view.active === p.seat} locationNames={locationNames}
+        <PlayerMat key={p.seat} p={p} you={false} active={view.active === p.seat} locationNames={locationNames} ordered={ordered}
           highlight={p.bot ? botRow : undefined} onSoloRules={p.bot ? () => setAid(true) : undefined} />
       ))}
 
@@ -478,7 +486,7 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }:
         </section>
       )}
       {mine && showArea("you") && (
-        <PlayerMat p={mine} you active={view.active === mine.seat} locationNames={locationNames}
+        <PlayerMat p={mine} you active={view.active === mine.seat} locationNames={locationNames} ordered={ordered}
           onEndTurn={endOption && !busy ? () => pick(endOption) : null}
           onUndo={view.can_undo && !busy && !showDock ? onUndo : null}
           missions={d?.kind === "action" && d.seat === view.you ? (d.options ?? []).filter((o) => usable(o) && o.id.startsWith("mission:")) : []}
@@ -502,8 +510,8 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }:
           onBack={onUndo} onFree={() => onCoach("free")} onTip={() => onCoach("tip")} />
       )}
       {bot && (
-        <BotPlayback gameId={gameId} turn={view.bot_turn} botName={bot.name} rowText={rowText} onHighlight={setBotRow}
-          onDone={setBotDone} />
+        <BotPlayback gameId={readOnly ? `observe.${gameId}` : gameId} turn={view.bot_turn} botName={bot.name} rowText={rowText}
+          onHighlight={setBotRow} onDone={setBotDone} holdsTurn={!readOnly} />
       )}
       {/* Two-player games: step through the other player's turn the same way (REQ-CLI-19). */}
       {!bot && view.opponent_turn && others[0] && (
@@ -521,13 +529,34 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach }:
         </Sheet>
       )}
       {waiting && <div className="decision-dock waiting-note card" role="status">{waiting}</div>}
+      {deciding && (
+        <Sheet className="decision-dock card observe-decision" role="status" label="The pending decision"
+          summary={`${view.players[deciding.seat]?.name ?? "…"} is deciding`}>
+          <p><strong>{view.players[deciding.seat]?.name ?? "…"} is deciding:</strong> <IconText text={deciding.prompt} /></p>
+          {deciding.options && (() => {
+            const options = (
+              <div className="options">
+                {deciding.options.map((o) => (
+                  <button key={o.id} className="option secondary" disabled title="Watching: the player answers this">
+                    <IconText text={o.label} />
+                  </button>
+                ))}
+              </div>
+            );
+            // The Action Step offers every playable card: folded away, so the table stays in sight.
+            return deciding.kind === "action"
+              ? <details><summary>Their {deciding.options.length} choices</summary>{options}</details>
+              : options;
+          })()}
+        </Sheet>
+      )}
       {botHold && (
         <div className="decision-dock waiting-note card" role="status">
           The Bot's turn is over. Press <strong>Done</strong> on its turn panel to start your turn.
         </div>
       )}
       {selection && (
-        <CardPanel selection={selection} view={botHold ? { ...view, decision: null } : view} onClose={deselect}
+        <CardPanel selection={selection} view={botHold || readOnly ? { ...view, decision: null } : view} onClose={deselect}
           onChoose={(o) => { setSelection(null); pick(o); }} />
       )}
       {phone && (

@@ -129,12 +129,21 @@ What was done:
 
 You can only try this by hand once the Observe page exists (Step 5).
 
-### Step 5: The Observe page
+### Step 5: The Observe page (done)
 
 - `pages/Observe.tsx`, the observer bar, `Board`'s `readOnly`, the Watch button, keyboard keys and the phone layout.
 - `cd client && npm run build` must pass. Check with Playwright on a laptop and a phone width: step through a whole solo game, go to a turn, play a Bot turn back, switch View as, follow live, and make a copy.
 
 **You test:** watch one of your own finished games from turn 1 to the end, and jump to a turn you remember.
+
+What was done:
+- `pages/Observe.tsx` at `/admin/games/:gameId/observe?at=&as=`: the game's title and players, the observer bar, and the ordinary table drawn read-only. Leaving out `at` follows the game live; stepping onto the last position does the same. It watches with the `?watch=1` socket and refreshes on every change; a deleted game says so; a timeline that ends early says why. The positions either side of the one shown are fetched ahead.
+- The observer bar: |◀ ◀◀ ◀ ▶ ▶▶ ▶|, "Move n of N · turn t", live or "N moves behind" with Back to live, a slider, the last move (who, the question and the answer), Turn with Go, View as (Everything, each seat, a watcher without a seat), Copy from here and the move list (grouped by turn; a Bot's turn is marked as played inside the move before). Keys: ← → a move, Page Up and Page Down a turn, Home the start, End live. A step counts from the position just asked for, so quick presses each take a step while the table catches up.
+- Changed from the design: the bar sticks to the top of the screen on both laptop and phone, rather than sitting above the bottom sheet, so it never competes with the sheet's panels. On a phone it shows ◀◀ ◀ ▶ ▶▶ ⋯ and the position; ⋯ opens the last move, Turn, View as, Copy from here and Moves. REQ-ADMIN-07 now says so.
+- `Board` has `readOnly`: no answers, End Turn, Undo or card actions, no hold after a Bot turn, and a "<player> is deciding" panel with the options greyed (the Action Step's are folded under "Their N choices", so the table stays in sight on a phone). The Bot playback keeps its own watched-turn memory for watching (`observe.<game id>`), apart from the player's. The solo result line names the human when no one is "you".
+- `PlayerMat` has `ordered` for the admin's view of everything: the Draw and Reserve (or Bot and Supplement) decks open in order, top first, and a Bot card the player sees facedown shows its face, dimmed with a dashed outline.
+- The Admin page's games table has a Watch button for every game that has started.
+- Checked with Playwright against a real server with a solo game and a two-player game of 120 random moves each (`node check.js`, kept out of the repository): Watch opens the game live; ← three times is 3 moves behind and the address holds it; Home, Page Down; Go to a Bot turn opens it with the playback; nothing can be answered; the move list; a reload keeps the position and View as; Everything shows both hands and as Ann only hers; a player's move appears live; Copy from here opens a playable copy; on a 375-pixel phone there is no sideways scroll, ▶ steps, ⋯ opens the rest, and the bar stays at the top when the table scrolls; no page errors. Three fixes came from it: quick key presses each taking a step, View as keeping its choice through a reload, and an effect that returned `scrollIntoView`'s Promise (newer browsers) and crashed the move list.
 
 ### Step 6: Test pass and deploy
 

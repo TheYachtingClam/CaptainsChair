@@ -179,7 +179,9 @@ export interface CardView {
   away_teams?: Record<string, number>;
   secured_by?: number[];
   token?: string; // a Ship's token image, shown where the Ship is warped
-  facedown?: boolean; // a Bot card drawn this turn and not yet flipped; only uid is set
+  /** A Bot card drawn this turn and not yet flipped. Only uid is set, except in the admin's view of everything,
+   *  which shows its face too (REQ-ADMIN-08). */
+  facedown?: boolean;
 }
 
 export interface OptionView {
@@ -297,7 +299,8 @@ export interface GameStateView {
   stardate: { top: CardView | null; glory: number; remaining: number };
   resolution: boolean;
   last_turn: number | null;
-  decision: { seat: number; kind: string; prompt: string; options?: OptionView[]; cards?: CardView[] } | null;
+  /** `observe`: the admin's view of everything shows the options, never to be answered (REQ-ADMIN-07). */
+  decision: { seat: number; kind: string; prompt: string; options?: OptionView[]; cards?: CardView[]; observe?: boolean } | null;
   log: string[];
   bot_turn: BotTurnView | null;
   /** Two-player games: the other player's latest turn, played back like a Bot turn (REQ-CLI-19). */
@@ -307,6 +310,22 @@ export interface GameStateView {
   dev_tools?: boolean;
   /** A tutorial game's coach (requirements/24-tutorials.md). */
   tutorial?: TutorialView;
+  /** The admin watching: the position shown, the last one, and how the table is seen (REQ-ADMIN-07 to -09). */
+  observe?: { at: number; last: number; live: boolean; as: ViewAs };
+}
+
+/** How the admin sees a watched game: everything, as a seat, or as a watcher without a seat (REQ-ADMIN-08). */
+export type ViewAs = "all" | "watcher" | `${number}`;
+
+/** A watched game's positions: each move, and where each turn opens (REQ-ADMIN-09, -10). */
+export interface Timeline {
+  /** The last position: the number of moves. */
+  last: number;
+  moves: { at: number; index: number; turn: number; seat: number; prompt: string; move: string; irreversible: boolean;
+    dev: boolean }[];
+  turns: { turn: number; seat: number; name: string; bot: boolean; at: number }[];
+  /** A stored move that no longer applies ends the timeline early. */
+  stopped: { at: number; index: number; reason: string } | null;
 }
 
 /** The coach's part of a tutorial game's view (REQ-TUT-40). */
@@ -473,6 +492,12 @@ export const adminApi = {
   takeSeat: (id: string, seat: number) =>
     request<{ game_id: string; seat_index: number; display_name: string }>(
       `/api/admin/games/${id}/seats/${seat}/take`, { method: "POST" }),
+  /** Watching a game (REQ-ADMIN-07 to -12). */
+  timeline: (id: string) => request<Timeline>(`/api/admin/games/${id}/timeline`),
+  observe: (id: string, at: number | null, as: ViewAs) =>
+    request<GameStateView>(`/api/admin/games/${id}/observe?${at == null ? "" : `at=${at}&`}as=${as}`),
+  copyGame: (id: string, moves: number) =>
+    request<{ game_id: string }>(`/api/admin/games/${id}/copy`, { method: "POST", body: JSON.stringify({ moves }) }),
   campaigns: () => request<AdminCampaign[]>("/api/admin/campaigns"),
   deleteCampaign: (id: string) => request<null>(`/api/admin/campaigns/${id}`, { method: "DELETE" }),
 };
