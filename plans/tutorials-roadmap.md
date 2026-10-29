@@ -23,7 +23,7 @@ The same four steps as the Picard tutorial, each tutorial on its own:
 
 ## Shared framework work
 
-Built with the first tutorial that needs each part.
+Built with the first tutorial that needs each part. F1 to F5 are done (2026-10-29); F4 needed no new form, since Khan's mark answers have plain ids such as `ambassador|Ambassador`.
 
 | # | What | Needed by |
 |---|---|---|

@@ -6,6 +6,7 @@
 id: picard-basics
 title: Learn to play with Picard
 order: 1
+group: learn
 summary: Play a practice game with Jean-Luc Picard while a coach explains each part of the game.
 
 setup:

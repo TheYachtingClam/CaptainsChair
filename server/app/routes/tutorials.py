@@ -24,7 +24,8 @@ def all_tutorials(db: Session = Depends(get_db), viewer: str = Depends(viewer_id
     for s in tutorial.scripts().values():
         mine = [g for g in games if (g.tutorial or {}).get("id") == s["id"]]
         playing = next((g.id for g in mine if g.status == "active"), None)
-        out.append({"id": s["id"], "title": s["title"], "summary": s["summary"],
+        out.append({"id": s["id"], "title": s["title"], "summary": s["summary"], "group": s.get("group", "learn"),
+                    "captain": s.get("captain"),
                     "finished": any(g.status == "finished" for g in mine), "game_id": playing})
     return out
 

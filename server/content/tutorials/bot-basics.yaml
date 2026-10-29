@@ -4,6 +4,7 @@
 id: bot-basics
 title: Playing against a Bot
 order: 2
+group: learn
 summary: A solo game against Koloth's Bot. Learn to read its turns, contest Locations and answer its attacks.
 
 setup:

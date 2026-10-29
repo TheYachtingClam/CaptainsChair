@@ -190,19 +190,28 @@ function Tutorials() {
     <section className={`card stack learn-to-play ${learning ? "featured" : ""}`}>
       <h2>{learning ? "Learn to play" : "Tutorials"}</h2>
       {learning && <p className="muted">New to Captain&apos;s Chair? Play a practice game with a coach beside you.</p>}
-      {list.map((t) => (
-        <div key={t.id} className="row between tutorial-row">
-          <div>
-            <strong>{t.title}</strong>{t.finished && <span className="pill">Finished</span>}
-            <p className="muted">{t.summary}</p>
+      {(["learn", "captains"] as const).map((group) => {
+        const shown = list.filter((t) => t.group === group);
+        if (!shown.length) return null;
+        return (
+          <div key={group} className="stack">
+            {group === "captains" && <h3>Captains</h3>}
+            {shown.map((t) => (
+              <div key={t.id} className="row between tutorial-row">
+                <div>
+                  <strong>{t.title}</strong>{t.finished && <span className="pill">Finished</span>}
+                  <p className="muted">{t.summary}</p>
+                </div>
+                <div className="row">
+                  {t.game_id && <Link className="button" to={`/games/${t.game_id}`}>Continue</Link>}
+                  <button className={t.game_id || t.finished ? "secondary" : undefined} disabled={start.isPending}
+                    onClick={() => start.mutate(t.id)}>{t.game_id || t.finished ? "Start again" : "Start"}</button>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="row">
-            {t.game_id && <Link className="button" to={`/games/${t.game_id}`}>Continue</Link>}
-            <button className={t.game_id || t.finished ? "secondary" : undefined} disabled={start.isPending}
-              onClick={() => start.mutate(t.id)}>{t.game_id || t.finished ? "Start again" : "Start"}</button>
-          </div>
-        </div>
-      ))}
+        );
+      })}
       {start.error && <p className="error" role="alert">{start.error.message}</p>}
     </section>
   );

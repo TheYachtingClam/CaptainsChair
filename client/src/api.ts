@@ -353,6 +353,10 @@ export interface TutorialInfo {
   id: string;
   title: string;
   summary: string;
+  /** "learn" (the basics, in order) or "captains" (one Captain's deck). */
+  group: "learn" | "captains";
+  /** A Captain tutorial's Crew deck id, for the hint on the New Game screen. */
+  captain: string | null;
   /** This account has played it to the end (REQ-TUT-51). */
   finished: boolean;
   /** Its game in progress, to continue (REQ-TUT-42). */

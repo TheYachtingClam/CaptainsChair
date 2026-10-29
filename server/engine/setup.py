@@ -157,7 +157,8 @@ def _apply_stack(state: GameState, stack: dict) -> None:
     """A tutorial's stacked decks (requirements/24-tutorials.md REQ-TUT-10, -11): the first player's starting hand and
     Draw deck in order, their Reserve deck, face-up Market cards, the top cards of Market decks, the Neutral Zone and
     the tops of the Incident, Encounter and Location decks, and in solo games the tops of the Bot deck and its
-    Supplement deck. It uses no randomness, so later shuffles still follow the seed."""
+    Supplement deck, and Khan's rival Captain in Cadet Training. It uses no randomness, so later shuffles still follow
+    the seed."""
 
     def pull(cards: list[Inst], card_id: str) -> Inst:
         found = next((i for i in cards if i.card == card_id), None)
@@ -204,6 +205,13 @@ def _apply_stack(state: GameState, stack: dict) -> None:
     for key, deck in (("encounter", state.encounter), ("location_deck", state.location_deck)):
         for card_id in reversed(stack.get(key) or []):
             deck.insert(0, pull(deck, card_id))
+    if stack.get("rival_captain"):  # Khan in Cadet Training: the Captain for his two opponent entries (REQ-CD-KHN-10)
+        if not player.rival_captain:
+            raise SetupError("Only Khan in Cadet Training has a rival Captain to stack")
+        player.rival_captain = stack["rival_captain"]
+        line = next(e for e in state.log if e.text.startswith(f"{player.name}'s two Opponent's Captain entries"))
+        line.text = (f"{player.name}'s two Opponent's Captain entries use the traits of "
+                     f"{content().cards[player.rival_captain].name}.")
     if len(state.players) > 1 and state.players[1].bot:  # solo: the top of the Bot deck and of its Supplement deck
         bot = state.players[1]
         for key, zone in (("bot_draw", "draw"), ("bot_supplement", "reserve")):

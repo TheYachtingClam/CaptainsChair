@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { useAccount } from "../account";
 import { BoardSide, Deck, SeatChoice, api, byComplexity, deckLabel } from "../api";
 
@@ -35,6 +36,7 @@ export function SeatForm({ value, onChange, sets, takenDecks = [] }: Props) {
         </select>
       </label>
       {selected && <p className="muted">{selected.summary}</p>}
+      {selected && <TutorialHint deck={selected} />}
       <fieldset>
         <legend>Crew board side</legend>
         {(["basic", "advanced"] as BoardSide[]).map((side) => (
@@ -50,5 +52,25 @@ export function SeatForm({ value, onChange, sets, takenDecks = [] }: Props) {
         ))}
       </fieldset>
     </div>
+  );
+}
+
+/** "New to Khan? Try the tutorial" beside a Captain that has one (plans/tutorials-roadmap.md F5). */
+function TutorialHint({ deck }: { deck: Deck }) {
+  const tutorials = useQuery({ queryKey: ["tutorials"], queryFn: api.tutorials });
+  const navigate = useNavigate();
+  const start = useMutation({
+    mutationFn: (id: string) => api.startTutorial(id),
+    onSuccess: (grant) => navigate(`/games/${grant.game.id}`),
+  });
+  const tutorial = tutorials.data?.find((t) => t.captain === deck.id);
+  if (!tutorial) return null;
+  return (
+    <p className="muted">
+      New to {deck.captain}?{" "}
+      <button type="button" className="link" disabled={start.isPending} onClick={() => start.mutate(tutorial.id)}>
+        Try the tutorial
+      </button>
+    </p>
   );
 }

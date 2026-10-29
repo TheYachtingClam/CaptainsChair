@@ -34,16 +34,16 @@ Khan is complexity 9 of 10: his deck replaces core rules ([requirements/15-crew-
 
 ## Steps
 
-1. **Script** (for your review). Play the stacked game through, then write the steps, More texts and tips:
+1. ✅ **Script** (for your review; `server/content/tutorials/khan-basics.yaml`). Ceti Alpha V's flip comes in free play, as a tip: in the guided turns it would pull the Away Teams off Babel One, so turn 3 takes Babel One at once with Ceti Alpha VI instead. Play the stacked game through, then write the steps, More texts and tips:
    - the first opponent-slot mark;
    - Devastated Ceti Alpha V;
    - the mission's goal;
    - becoming Wrathful;
    - final scoring with marked traits.
-2. **Framework:**
-   - F2: the rival Captain, and the Development order if a step uses it;
-   - F4: an `expect` form for a mark, written from the engine's option ids;
+2. ✅ **Framework:**
+   - F2: the rival Captain (the Development order was not needed);
+   - F4: none needed: the mark answers have plain ids;
    - F5: the lobby's Captains group, and the link on the New Game screen;
-   - the coach's `show` targets for the trait board's slots.
+   - slot targets were not needed: the steps point at the whole Crew board.
 3. **Check** on phone and laptop. The trait board is small on a phone, so the slot highlights get their own look.
 4. **Deploy** on your word.

@@ -1,0 +1,366 @@
+# Tutorial: Khan (plans/tutorial-khan.md, requirements/24-tutorials.md).
+# Cadet Training with Khan's deck. Every expected move was played through in the engine with this setup;
+# tests/test_tutorial.py replays it. Text conventions as in picard-basics.yaml.
+id: khan-basics
+title: Playing Khan
+order: 3
+group: captains
+captain: khan
+summary: Khan changes the rules. Learn his trait board, Ceti Alpha V and VI, and how he turns Incidents into weapons.
+
+setup:
+  mode: cadet
+  box: to_boldly_go
+  deck: khan
+  board: basic
+  seed: 7
+  stack:
+    rival_captain: 2ARC01                                    # Archer: NX-01, Pilot, Human, Starfleet
+    hand: [2KHA18, 2KHA17, 2KHA13, 2KHA16, 2KHA21, 2KHA19]   # Joachim, Wajahut, Marla McGivers, S.S. Botany Bay, two Incidents
+    draw: [2KHA15, 2KHA14, 2KHA12, 2KHA20]                   # Salvage, Mutara Nebula, Vacated Regula I, an Incident
+    market_decks: {Person: [2PER14]}                         # Phlox on top of the Person deck
+    neutral: [2LOC12, 2LOC02, 2LOC01]                        # Babel One, Archer IV, Ancient Relay Station
+
+steps:
+  # ---------------------------------------------------------------- Welcome
+  - id: welcome
+    say: |
+      Welcome, Captain. **Khan** plays by different rules from every other Captain. This practice game shows you what
+      changes; everything else works as in the Picard tutorial.
+    more: |
+      Khan is the most complex Captain in the game (9 of 10). If you haven't played **Learn to play with Picard**
+      yet, start there: this tutorial doesn't explain the turn, the Market or securing Locations again.
+    next: button
+  - id: no-tracks
+    say: |
+      Look at Khan's Crew board: there are **no Specialty tracks**. "Gain 1 [Research]" and the like do nothing for him,
+      and he can't meet Specialty requirements, until he becomes **Wrathful**.
+    more: |
+      His Focus icons score nothing until then either. Wrathful Khan ignores every Specialty requirement and scores
+      his Focus cards at the end.
+    show: zone:tracks
+    next: button
+  - id: marking
+    say: |
+      Instead, the board has 12 **trait slots**. After you **gain** a card, you may **mark** one of its traits that has
+      a slot. You may also mark one before the CONTROL of a Location you take. Each trait is marked once.
+    more: |
+      **Taking** a card, such as an Encounter or an Incident, never marks. A Wildcard counts as any one trait. The
+      choice is made at once and can't be changed.
+    show: zone:tracks
+    next: button
+  - id: opponent-slots
+    say: |
+      The last two slots use your opponent's Captain. In a practice game that's a random Captain: here, **Archer**.
+      You can mark two **different** traits of his: NX-01, Pilot or Starfleet (not Human).
+    more: |
+      One of the two may repeat a trait already printed on the board. A card that marked one of these slots can't mark
+      the other.
+    show: zone:tracks
+    next: button
+  - id: missions
+    say: |
+      Khan's missions count marked traits: 6, 9, then all 12. The second one turns him into **Wrathful Khan**.
+    show: zone:tracks
+    next: button
+  - id: ceti
+    say: |
+      Khan starts with two Locations. **Ceti Alpha V** raises your hand size to 6. **Ceti Alpha VI** gets 2
+      [Dilithium] each time your deck cycles; at 4, your next Resupply flips Ceti Alpha V.
+    more: |
+      Flipped, it becomes **Devastated Ceti Alpha V**: your hand size goes back to 5, all your Away Teams go there,
+      and its Reaction draws a card and may enlist a Development whenever you put an Augment into play.
+    show: zone:locations
+    next: button
+  - id: no-reserve
+    say: |
+      Khan has **no Reserve**, and cycling your deck enlists nothing. His Developments come mostly through Devastated
+      Ceti Alpha V.
+    show: zone:development
+    next: button
+
+  # ---------------------------------------------------------------- Turn 1
+  - id: joachim
+    say: |
+      Play **Joachim**'s first effect: take an Incident to gain the top card of the Person deck.
+    show: card:2KHA18
+    expect: play:2KHA18:0
+  - id: phlox-where
+    say: You gained **Phlox**. Put it in your Discard pile.
+    show: question
+    expect: discard
+  - id: mark-phlox
+    say: |
+      Now **mark a trait**. Phlox is a Doctor, and NX-01, one of Archer's traits. Mark **NX-01**: few cards share your
+      opponent's traits, so take that slot while you can.
+    show: question
+    expect: captain-trait|NX-01
+  - id: wajahut
+    say: |
+      Play **Wajahut**'s second effect: send an [Away Team] to a neutral Location. With Ceti Alpha VI and Joachim in
+      play, you also gain an [Action].
+    show: card:2KHA17
+    expect: play:2KHA17:1
+  - id: wajahut-where
+    say: |
+      To **Babel One**. It's an Ambassador: when you take control of it, you can mark that trait.
+    show: card:2LOC12
+    expect: 2LOC12
+  - id: i-spit
+    say: |
+      You have an extra action. Khan's own **Incidents** are weapons: play **I Spit My Last Breath at Thee!** to put it
+      on your opponent.
+    more: |
+      You reveal a card from your hand and put it on top of your deck. If it shares a non-Human trait with your
+      opponent's Captain, you gain 1 Glory. In a practice game, giving the opponent an Incident returns it to the
+      Incident deck and gains you 1 Glory more.
+    show: card:2KHA21
+    expect: play:2KHA21:0
+  - id: reveal-marla
+    say: Reveal **Marla McGivers**. She's Starfleet, like Archer.
+    show: question
+    expect: 2KHA13
+  - id: to-the-last
+    say: |
+      Two Glory, and one Incident fewer. Do it again with **To the Last, I Will Grapple with Thee!**
+    show: card:2KHA19
+    expect: play:2KHA19:0
+  - id: reveal-botany
+    say: |
+      Reveal **S.S. Botany Bay**. It's only Human, so no bonus Glory this time, but the Incident is still gone.
+    show: question
+    expect: 2KHA16
+  - id: end-turn-1
+    say: |
+      That's your four actions. **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: wipe-1
+    say: Wipe **Arin'sen**. A Klingon has no slot on your board.
+    show: zone:market:Ally
+    expect: wipe:Ally
+  - id: glory-1
+    say: |
+      Put the Glory on **President Rillak**. She's an Ambassador, so she's worth gaining for you.
+    show: zone:market:Person
+    expect: glory:Person
+  - id: discard-1
+    say: Discard **Trade Embargo**, the Incident Joachim made you take.
+    show: question
+    expect: discard:2INC06
+  - id: draw-up-1
+    say: "Then tap **Done** to draw up to **6**: Ceti Alpha V's bonus."
+    show: question
+    expect: done
+
+  # ---------------------------------------------------------------- Turn 2
+  - id: ceti-latinum
+    say: |
+      Use **Ceti Alpha VI**'s Activation to gain 1 Latinum. You'll spend it this turn, and keep the 1 you have for
+      next turn.
+    show: card:2KHA03
+    expect: activate:2KHA03:1
+  - id: mutara
+    say: |
+      Play **Mutara Nebula**, a Location from your deck. It junks a Market card, and you'll gain that card back to mark
+      it.
+    show: card:2KHA14
+    expect: play:2KHA14:0
+  - id: junk-horta
+    say: Junk **Horta**, a Creature.
+    show: question
+    expect: 2CAR08
+  - id: mutara-cost-1
+    say: Mutara also makes you discard 2 cards. Discard **Vacated Regula I**…
+    show: question
+    expect: 2KHA12
+  - id: mutara-cost-2
+    say: …and **S.S. Botany Bay**.
+    show: question
+    expect: 2KHA16
+  - id: mutara-control
+    say: |
+      You took control of Mutara Nebula, but no mark was offered: its trait, Anomaly, has no slot on your board.
+    show: zone:locations
+    next: button
+  - id: salvage
+    say: |
+      Now play **Salvage**'s second effect: spend 1 Latinum to gain a card **from the Junk**.
+    show: card:2KHA15
+    expect: play:2KHA15:1
+  - id: salvage-horta
+    say: Gain **Horta** back.
+    show: question
+    expect: junk:2CAR08
+  - id: horta-where
+    say: Into your Discard pile.
+    show: question
+    expect: discard
+  - id: mark-creature
+    say: |
+      You gained it, so mark **Creature**. That's 2 of 12. The Junk is a second Market for Khan.
+    show: question
+    expect: creature|Creature
+  - id: marla
+    say: |
+      Play **Marla McGivers**: 1 Dilithium for each Starfleet card you have in play and for each Location you control.
+    show: card:2KHA13
+    expect: play:2KHA13:0
+  - id: khan-activate
+    say: |
+      Your actions are spent, but your Captain's Activation is free. Discard an Incident to draw 2 cards and discard
+      one of them.
+    show: zone:captain
+    expect: activate:2KHA01A:0
+  - id: khan-discard
+    say: Discard **From Hell's Heart, I Stab at Thee!**
+    show: question
+    expect: 2KHA20
+  - id: cycle
+    say: |
+      Your deck ran out and your Discard pile became a new deck. Nothing was **enlisted**, but **Ceti Alpha VI** got 2
+      [Dilithium].
+    show: card:2KHA03
+    next: button
+  - id: end-turn-2
+    say: |
+      **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: wipe-2
+    say: Wipe the **Xindi-Aquatic Cruiser**.
+    show: zone:market:Ship
+    expect: wipe:Ship
+  - id: glory-2
+    say: Glory on **President Rillak** again.
+    show: zone:market:Person
+    expect: glory:Person
+  - id: draw-up-2
+    say: Tap **Done**.
+    show: question
+    expect: done
+
+  # ---------------------------------------------------------------- Turn 3
+  - id: wajahut-2
+    say: |
+      Time to claim Babel One. Play **Wajahut** again to send an Away Team…
+    show: card:2KHA17
+    expect: play:2KHA17:1
+  - id: wajahut-where-2
+    say: …to **Babel One**.
+    show: card:2LOC12
+    expect: 2LOC12
+  - id: joachim-2
+    say: |
+      Now **Joachim**'s second effect, another Away Team. Wajahut is in play, so you gain an action again.
+    show: card:2KHA18
+    expect: play:2KHA18:1
+  - id: joachim-where
+    say: To **Babel One**.
+    show: card:2LOC12
+    expect: 2LOC12
+  - id: ceti-take
+    say: |
+      Babel One is **secured**. Don't wait for your Control step: **Ceti Alpha VI** can take it now, for 1 Dilithium
+      from the card, 1 Latinum and an Incident.
+    more: |
+      Why now? Ceti Alpha VI is close to 4 Dilithium. When Ceti Alpha V flips, at your Resupply, all your Away Teams go
+      to it, including the ones at Babel One, before your Control step.
+    show: card:2KHA03
+    expect: activate:2KHA03:2
+  - id: mark-ambassador
+    say: |
+      Before Babel One's CONTROL you may **mark** one of its traits: **Ambassador**. 3 of 12.
+    show: question
+    expect: ambassador|Ambassador
+  - id: phlox
+    say: |
+      Play **Phlox** to return an Incident from your hand.
+    show: card:2PER14
+    expect: play:2PER14:0
+  - id: return
+    say: Return **Trade Embargo**.
+    show: question
+    expect: 2INC06
+  - id: horta
+    say: |
+      Last action: play **Horta**. It junks a Market card and deploys itself.
+    show: card:2CAR08
+    expect: play:2CAR08:0
+  - id: horta-junk
+    say: |
+      Junk any of them. Remember, Salvage can gain a card back from the Junk.
+    show: question
+    expect: [2CAR14, 2SHI04, 2ALL16]
+  - id: end-turn-3
+    say: |
+      **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: wipe-3
+    say: Wipe any Market card.
+    show: zone:market
+    expect: [wipe:Person, wipe:Cargo, wipe:Ship, wipe:Ally]
+  - id: glory-3
+    say: Place the Glory on any Market card.
+    show: zone:market
+    expect: [glory:Person, glory:Cargo, glory:Ship, glory:Ally]
+  - id: draw-up-3
+    say: Discard what you have no plan for, then tap **Done**.
+    show: question
+    expect: done
+  - id: free-play
+    say: |
+      The rest is yours, Captain. Mark traits toward your missions, use your Incidents against your opponent, and
+      watch Ceti Alpha VI. I'll add a tip when something new comes up.
+    next: button
+
+tips:
+  - id: devastated
+    when: {in_play: 2KHA02B}
+    say: |
+      Ceti Alpha V has become **Devastated Ceti Alpha V**. Your hand size is 5 again and your Away Teams are all
+      there. From now on, each Augment you put into play draws a card and may enlist a Development.
+    show: zone:locations
+  - id: mission-ready
+    when: {question: mission}
+    say: |
+      A **mission** is complete! Claim it from the mission button on your Crew board.
+    show: zone:tracks
+  - id: develop
+    when: {question: develop}
+    say: |
+      You can **enlist a Development**: pay its cost to put one of Khan's stronger cards on top of your deck.
+    show: zone:development
+  - id: wrathful
+    when: {in_play: 2KHA01B}
+    say: |
+      Khan is **Wrathful**! He now meets every Specialty requirement, and at the end each Focus card scores 1 VP, or
+      3 VP each if all 12 traits are marked.
+    show: zone:captain
+  - id: incident-in-hand
+    when: {event: take_incident}
+    say: |
+      An Incident in hand: −2 VP at the end. Khan's own Incidents can be given to your opponent; others can be
+      returned by cards like Phlox. If the Incident deck runs out, you lose the practice game.
+    show: zone:incident
+  - id: stardate
+    when: {moment: stardate-empties}
+    say: |
+      The first **Stardate** card ran out of Glory. Next turn the Market is wiped, and if the card says so, so are the
+      neutral Locations with no tokens on them. Then the second Stardate starts.
+    show: zone:stardate
+  - id: last-turn
+    when: {moment: last-turn}
+    say: |
+      This is your **last turn**. Spend everything: leftover Dilithium and Latinum score nothing.
+  - id: final-scoring
+    when: {moment: final-scoring}
+    say: |
+      **Final scoring** for Khan: your Glory, your tokens on neutral Locations, the VP printed on your cards
+      (Incidents −2), your completed missions, and ENDGAME abilities such as Wrathful Khan's Focus cards.
+  - id: next
+    when: {moment: game-over}
+    say: |
+      Well done, Captain! Try Khan against a Bot next: its Captain's traits fill your two opponent slots.
+    link: {label: New game, to: /new}

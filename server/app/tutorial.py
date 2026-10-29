@@ -173,6 +173,9 @@ def _triggered(when: dict, state: GameState) -> bool:
         return mine and QUESTION_WORDS.get(kind, kind) in decision.prompt.lower()
     if "playable" in when:
         return mine and any(resolve(state, f"play:{when['playable']}:{n}") for n in range(4))
+    if "in_play" in when:  # a card on your table, such as a flipped double-sided card
+        table = [me.captain, *me.status, *me.fleet, *me.locations, *me.duty]
+        return any(i.card == when["in_play"] for i in table)
     if "track_at_least" in when:
         return any(v >= when["track_at_least"] for v in me.tracks.values())
     if "event" in when:

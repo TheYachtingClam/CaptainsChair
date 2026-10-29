@@ -34,7 +34,7 @@ A tutorial is a real game with a coach: it explains each part of *Captain's Chai
 
 - **REQ-TUT-30** A tip has an id, the coach's text, what to show, and a trigger: an event (`event: take_incident`, `event: cycle`, …), a kind of question (`question: mission`, `question: develop`, …) or a game moment (`moment: stardate-empties`, `moment: resolution`, `moment: final-scoring`).
 - **REQ-TUT-31** Each tip appears once per game, the first time its trigger holds after the rails end, and stays until the player taps **Got it** (stored like Next, so undo brings it back). It never blocks a move. One tip shows at a time, in the script's order. A tip may carry a link (the last one: Play against a Bot).
-- **REQ-TUT-32** Triggers look at the game as it is: a question (`question: mission` when a mission can be claimed, `encounter` or `develop` by the question's words), a card that can be played (`playable: <card id>`), a track at a value (`track_at_least: n`), an Incident in hand (`event: take_incident`), or a moment (`stardate-empties`: the first Stardate is used up; `last-turn`; `final-scoring` and `game-over`: the game has ended).
+- **REQ-TUT-32** Triggers look at the game as it is: a question (`question: mission` when a mission can be claimed, `encounter` or `develop` by the question's words), a card that can be played (`playable: <card id>`), a track at a value (`track_at_least: n`), a card on your table (`in_play: <card id>`, such as a flipped double-sided card), an Incident in hand (`event: take_incident`), or a moment (`stardate-empties`: the first Stardate is used up; `last-turn`; `final-scoring` and `game-over`: the game has ended).
 
 ### 1.5 The coach on screen
 
@@ -61,4 +61,11 @@ A tutorial is a real game with a coach: it explains each part of *Captain's Chai
 - **REQ-TUT-71** Turns 1 to 3 are on rails, each followed by the Bot's turn explained in steps beside its turn panel; then free play with tips.
 - **REQ-TUT-72** It teaches, in this order: the Bot's deck, Supplement deck and command cards; how a card is resolved (TRAITS rows, then the SUITS row); Bot actions on the Stardate card; reading the Bot's turn panel; exploring and engaging; the Bot's Duty Officer flipping the SUITS card; deploying an Ongoing card; junking; an attack and a "when you would be attacked" Reaction; securing against the Bot's tokens; taking control dismissing the Bot's Ship and giving it Glory; the rule that Away Teams cannot go where the opponent has more Ships; and contesting a Location the Bot has secured. Tips cover taking control with your own Ship there, Incidents and the Burn, the mission, the Stardate emptying, the last turn and the Bot's final scoring.
 - **REQ-TUT-73** While the Bot's turn panel is open on a laptop, the coach sits below it, not on top of it.
+
+## 4. Captain tutorials: "Playing Khan"
+
+- **REQ-TUT-80** Cadet Training with Khan's deck, To Boldly Go only. The rival Captain for his two opponent entries is stacked as **Archer**, so the coach can name the traits.
+- **REQ-TUT-81** Turns 1 to 3 are on rails; then free play with tips. It assumes the Picard tutorial and explains only what Khan changes.
+- **REQ-TUT-82** It teaches, in this order: no Specialty tracks; the trait board and marking after a gain and before a CONTROL; the two opponent entries; the missions by traits marked; Ceti Alpha V and VI and the flip; no Reserve; marking an opponent entry (Phlox, NX-01); the Joachim and Wajahut extra action; giving Khan's own Incidents to the opponent; the Junk as a second Market (Mutara Nebula and Salvage); a Location whose trait has no slot; his Captain's Activation and a deck cycle that enlists nothing but feeds Ceti Alpha VI; taking a secured Location at once with Ceti Alpha VI, and marking before its CONTROL. Tips cover Devastated Ceti Alpha V, the missions, enlisting a Development, becoming Wrathful, Incidents, the Stardate, the last turn and his final scoring.
+- **REQ-TUT-83** Tutorials are listed in two groups, *Learn to play* and *Captains* (a script's `group`). Choosing a Captain on the New Game screen offers that Captain's tutorial when there is one (a script's `captain`).
 
