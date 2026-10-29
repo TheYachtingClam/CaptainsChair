@@ -1,0 +1,314 @@
+# Tutorial: Rebner (plans/tutorial-rebner.md, requirements/24-tutorials.md).
+# Cadet Training with Rebner's deck. Every expected move was played through in the engine with this setup;
+# tests/test_tutorial.py replays it. Text conventions as in picard-basics.yaml.
+id: rebner-basics
+title: Playing Rebner
+order: 4
+group: captains
+captain: rebner
+summary: Rebner's Pakleds want Helmets. Learn his hand of 3, wearing Helmets, his Ongoing Directives and Rebelution.
+
+setup:
+  mode: cadet
+  box: to_boldly_go
+  deck: rebner
+  board: basic
+  seed: 7
+  stack:
+    hand: [2REB20, 2REB19, 2REB22]           # Pakled Planet, Grebnedlog, Big Helmet
+    draw: [2REB16, 2REB17, 2REB18, 2REB21]   # Pakled Decree, Salvage, Samaritan Snare, Big Helmet
+
+steps:
+  # ---------------------------------------------------------------- Welcome
+  - id: welcome
+    say: |
+      Welcome, Captain. **Rebner** leads the Pakleds: they look for things to make them strong, and they find them in
+      **Helmets**. This practice game shows what his deck does differently.
+    more: |
+      Rebner is complexity 8 of 10. This tutorial assumes you've played **Learn to play with Picard**: the turn, the
+      Market and securing Locations aren't explained again.
+    next: button
+  - id: hand-3
+    say: |
+      Rebner's **hand size is 3**, not 5. His Captain makes up for it: an Activation that draws 2 cards when your hand
+      is empty, and one that draws 2 for 1 Latinum.
+    more: |
+      With so few cards your deck cycles nearly every turn, and each cycle enlists a Reserve card, so his best cards
+      arrive quickly.
+    show: zone:hand
+    next: button
+  - id: tracks
+    say: |
+      His Crew board has only one track that scores: **[Military]**. Research and Influence multiply your Focus cards
+      by 0, so climb them only to meet requirements.
+    show: zone:tracks
+    next: button
+  - id: helmets
+    say: |
+      **Helmets** are Cargo cards. Beamed to your Duty Officer, a Helmet is **worn**, and many Pakleds get stronger
+      while wearing one. Rebner's Directives and Location also spend Helmets for other rewards.
+    more: |
+      A Duty Officer can wear only one Helmet. If the Duty Officer leaves play, the Helmet goes with them. A Helmet
+      beamed to a Location or a Directive stays there until **Rebelution** dismisses every Helmet.
+    show: zone:hand
+    next: button
+
+  # ---------------------------------------------------------------- Turn 1
+  - id: promote
+    say: |
+      First, a Duty Officer. Your Ship **Mondor** has a free Activation: promote a Person from your hand. Use it on
+      **Grebnedlog**.
+    show: card:2REB02
+    expect: activate:2REB02:3
+  - id: planet
+    say: |
+      Play **Pakled Planet**: you take control of it, and its CONTROL finds a Helmet.
+    show: card:2REB20
+    expect: play:2REB20:0
+  - id: find-helmet
+    say: Find the **Big Helmet** in your Draw deck, and keep the one in your hand.
+    show: question
+    expect: draw:2REB21
+  - id: beam-helmet
+    say: |
+      Now use Pakled Planet's last Activation: beam a Helmet to your Duty Officer.
+    show: card:2REB20
+    expect: activate:2REB20:3
+  - id: beam-which
+    say: Beam the Big Helmet you just found.
+    show: question
+    expect: 2REB21
+  - id: wearing
+    say: |
+      Grebnedlog is **wearing** the Big Helmet. Read his Activation: "If Grebnedlog is wearing a Helmet, gain 1
+      [Military]". You'll use it next turn.
+    show: zone:duty
+    next: button
+  - id: big-helmet
+    say: |
+      Your other **Big Helmet** has free PLAY effects. Play the first: gain 1 Latinum.
+    show: card:2REB22
+    expect: play:2REB22:0
+  - id: rebner-draw
+    say: |
+      Your hand is empty, so use **Rebner**'s Activation: draw 2 cards, free.
+    show: zone:captain
+    expect: activate:2REB01:1
+  - id: decree
+    say: |
+      Play **Pakled Decree**: it's **Ongoing**, so it deploys to your Fleet Area and stays. Its Activation spends a
+      Helmet to gain a Cargo.
+    show: card:2REB16
+    expect: play:2REB16:0
+  - id: snare
+    say: |
+      And **Samaritan Snare**, another Ongoing card. It spends a Helmet to gain a Ship or Ally, or turns an Incident
+      into Military.
+    show: card:2REB18
+    expect: play:2REB18:0
+  - id: end-turn-1
+    say: |
+      **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: wipe-1
+    say: Wipe **Arin'sen**.
+    show: zone:market:Ally
+    expect: wipe:Ally
+  - id: glory-1
+    say: |
+      Put the Glory on **Horta**, a Cargo. Rebner's ENDGAME scores 1 VP for every 2 Cargo cards that aren't Helmets.
+    show: zone:market:Cargo
+    expect: glory:Cargo
+  - id: draw-up-1
+    say: |
+      Tap **Done** to draw 3. Your deck runs out, so it cycles and **enlists** a Reserve card.
+    show: question
+    expect: done
+
+  # ---------------------------------------------------------------- Turn 2
+  - id: grebnedlog
+    say: |
+      Use **Grebnedlog**'s Activation: discard a Person to gain 3 Dilithium.
+    show: zone:duty
+    expect: activate:2REB19:3
+  - id: grebnedlog-discard
+    say: |
+      Discard **Reginod**. He's an Engineer, so you gain 1 Glory, and Grebnedlog is wearing a Helmet, so 1 [Military].
+    show: question
+    expect: 2REB13
+  - id: snare-incident
+    say: |
+      **Samaritan Snare**'s free Activation: discard your Incident, **Red Alarm**, to gain 1 [Military].
+    show: card:2REB18
+    expect: activate:2REB18:2
+  - id: rebner-latinum
+    say: |
+      Now Rebner's other Activation: spend 1 Latinum to draw 2 cards.
+    show: zone:captain
+    expect: activate:2REB01:2
+  - id: decree-use
+    say: |
+      You drew a **Big Helmet**. Use **Pakled Decree**: beam the Helmet to it to gain a Cargo.
+    show: card:2REB16
+    expect: activate:2REB16:1
+  - id: decree-gain
+    say: Gain **Horta**, with the Glory on it.
+    show: question
+    expect: market:Cargo
+  - id: decree-where
+    say: Into your Discard pile.
+    show: question
+    expect: discard
+  - id: rebelution
+    say: |
+      Two Helmets are stuck: one on Grebnedlog, one on Pakled Decree. Play **Rebelution**: gain 1 Glory and
+      **dismiss every Helmet**, so they go back to your Discard pile and into your deck again.
+    show: card:2REB15
+    expect: play:2REB15:0
+  - id: salvage
+    say: |
+      Play **Salvage**'s free effect: junk a Market card to draw a card. Rebner gains from the Junk, so junk a Cargo you
+      might want later.
+    show: card:2REB17
+    expect: play:2REB17:0
+  - id: salvage-junk
+    say: Junk **Phasers**.
+    show: question
+    expect: 2CAR14
+  - id: clumpship
+    say: |
+      The cycle enlisted **The Clumpship Pakled** and you drew it. Play it: it deploys, and draws a card for each Ship
+      your opponent has.
+    show: card:2REB11
+    expect: play:2REB11:0
+  - id: end-turn-2
+    say: |
+      **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: wipe-2
+    say: Wipe the **Xindi-Aquatic Cruiser**.
+    show: zone:market:Ship
+    expect: wipe:Ship
+  - id: glory-2
+    say: Glory on **President Rillak**.
+    show: zone:market:Person
+    expect: glory:Person
+  - id: draw-up-2
+    say: Tap **Done**.
+    show: question
+    expect: done
+
+  # ---------------------------------------------------------------- Turn 3
+  - id: warp
+    say: |
+      Helmets can buy Away Teams too. First, use **Mondor**'s Activation to warp it to a neutral Location.
+    show: card:2REB02
+    expect: activate:2REB02:1
+  - id: warp-where
+    say: To **Archer IV**.
+    show: card:2LOC02
+    expect: 2LOC02
+  - id: planet-away
+    say: |
+      Now **Pakled Planet**: beam your Big Helmet to it to send an [Away Team] to a Location. Where you have a Ship, you
+      gain 1 Glory as well.
+    show: card:2REB20
+    expect: activate:2REB20:2
+  - id: planet-where
+    say: Send it to **Archer IV**, where Mondor is.
+    show: question
+    expect: 2LOC02
+  - id: snare-incident-2
+    say: "Samaritan Snare again for **Red Alarm**: 1 more [Military]. That's 3, your first multiplier step."
+    show: card:2REB18
+    expect: activate:2REB18:2
+  - id: rebner-latinum-2
+    say: Spend 1 Latinum with **Rebner** to draw 2 cards.
+    show: zone:captain
+    expect: activate:2REB01:2
+  - id: decree-use-2
+    say: Use **Pakled Decree** on your other Big Helmet.
+    show: card:2REB16
+    expect: activate:2REB16:1
+  - id: decree-gain-2
+    say: |
+      Gain the **Medical Diagnostic Hat**. It's a Helmet itself, so one Helmet has bought you another.
+    show: question
+    expect: market:Cargo
+  - id: decree-where-2
+    say: Into your Discard pile.
+    show: question
+    expect: discard
+  - id: reginod
+    say: |
+      Last action: play **Reginod**. You can discard a Cargo to gain 4 Dilithium.
+    show: card:2REB13
+    expect: play:2REB13:0
+  - id: reginod-discard
+    say: Discard **Horta**.
+    show: question
+    expect: 2CAR08
+  - id: end-turn-3
+    say: |
+      **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: wipe-3
+    say: Wipe any Market card.
+    show: zone:market
+    expect: [wipe:Person, wipe:Cargo, wipe:Ship, wipe:Ally]
+  - id: glory-3
+    say: Place the Glory on any Market card.
+    show: zone:market
+    expect: [glory:Person, glory:Cargo, glory:Ship, glory:Ally]
+  - id: draw-up-3
+    say: Tap **Done**.
+    show: question
+    expect: done
+  - id: free-play
+    say: |
+      The rest is yours, Captain. Keep a Helmet on your Duty Officer, spend the others on your Directives, and play
+      Rebelution when too many are stuck. I'll add a tip when something new comes up.
+    next: button
+
+tips:
+  - id: mission-ready
+    when: {question: mission}
+    say: |
+      Rebner's **mission** is complete! Claim it from the mission button on your Crew board.
+    show: zone:tracks
+  - id: develop
+    when: {question: develop}
+    say: |
+      Your Reserve is empty, so this cycle lets you **enlist a Development**: pay its cost to put one of Rebner's
+      stronger cards on top of your deck.
+    show: zone:development
+  - id: incident-in-hand
+    when: {event: take_incident}
+    say: |
+      An Incident in hand: −2 VP at the end. **Samaritan Snare** turns one into 1 [Military]; it still stays in your
+      deck. If the Incident deck runs out, you lose the practice game.
+    show: zone:incident
+  - id: stardate
+    when: {moment: stardate-empties}
+    say: |
+      The first **Stardate** card ran out of Glory. Next turn the Market is wiped, and if the card says so, so are the
+      neutral Locations with no tokens on them. Then the second Stardate starts.
+    show: zone:stardate
+  - id: last-turn
+    when: {moment: last-turn}
+    say: |
+      This is your **last turn**. Spend everything: leftover Dilithium and Latinum score nothing.
+  - id: final-scoring
+    when: {moment: final-scoring}
+    say: |
+      **Final scoring** for Rebner: your Glory, your tokens on neutral Locations, the VP printed on your cards
+      (Incidents −2), your Military track's multiplier on your Military Focus cards if you completed the mission, and
+      his ENDGAME: 1 VP for every 2 Cargo cards that aren't Helmets.
+  - id: next
+    when: {moment: game-over}
+    say: |
+      Well done, Captain! Try Rebner against a Bot next, or another Captain's tutorial.
+    link: {label: New game, to: /new}

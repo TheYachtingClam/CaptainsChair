@@ -26,11 +26,11 @@ Rebner is complexity 8 of 10 ([requirements/15-crew-decks.md](../requirements/15
 
 ## Steps
 
-1. **Script** (for your review), with tips for:
+1. ✅ **Script** (for your review; `server/content/tutorials/rebner-basics.yaml`). The guided turns cover Rebelution, Helmets stuck on a Location and a Directive, and the Junk, so the tips cover the mission, Developments, Incidents and scoring instead. Planned tips:
    - *Rebelution*;
    - the first Helmet stuck on a Location;
    - his tracks at final scoring;
    - the Junk growing.
-2. **Framework:** F2 if the Junk needs stacking (the Junk at setup is empty, so probably not). Showing which Person wears which Helmet on a phone may need a clearer beamed-card display.
+2. ✅ **Framework:** none needed. F2 if the Junk needs stacking (the Junk at setup is empty, so probably not). Showing which Person wears which Helmet on a phone may need a clearer beamed-card display.
 3. **Check** on phone and laptop.
 4. **Deploy** on your word.

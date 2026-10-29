@@ -214,3 +214,22 @@ def test_the_khan_script_plays_through_its_guided_turns(authed):
     me = view["players"][0]
     assert [t["trait"] for t in me["traits"] if t["marked"]] == ["Ambassador", "Creature", "NX-01"]
     assert {l["name"] for l in me["locations"]} >= {"Ceti Alpha V", "Ceti Alpha VI", "Mutara Nebula", "Babel One"}
+
+
+def test_the_rebner_script_plays_through_its_guided_turns(authed):
+    """plans/tutorial-rebner.md: three guided turns of Rebner in Cadet Training, built around his Helmets."""
+    game_id = start(authed, "rebner-basics")
+    view = state(authed, game_id)
+    seen = []
+    for _ in range(200):
+        if view["tutorial"]["free"]:
+            break
+        seen.append(view["tutorial"]["step"]["id"])
+        r = follow(authed, game_id, view)
+        assert r.status_code == 200, (seen[-1], r.text)
+        view = r.json()
+    assert view["tutorial"]["free"] and len(seen) == view["tutorial"]["total"]
+    me = view["players"][0]
+    assert [d["name"] for d in me["duty"]] == ["Grebnedlog"] and me["tracks"]["military"] == 3
+    planet = next(l for l in me["locations"] if l["name"] == "Pakled Planet")
+    assert [b["name"] for b in planet["beamed"]] == ["Big Helmet"]  # a Helmet spent on an Away Team stays there
