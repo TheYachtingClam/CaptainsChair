@@ -132,6 +132,8 @@ Done so far: a Playwright player started the tutorial from the lobby's Learn to 
 
 ## Later tutorials
 
+The plans for the next tutorials (the Bot, Khan, Rebner, Burnham and Captain primers) are in [tutorials-roadmap.md](tutorials-roadmap.md).
+
 A new tutorial is a new YAML file: its setup (Captain, box, stacked decks, mode) and its steps. The framework's step kinds, tips and coach serve all of them. A tutorial that needs an opponent (attacks, contested Locations) uses solo mode against a Bot instead of Cadet Training; the script then also covers the Bot's turns.
 
 ## Risks and notes

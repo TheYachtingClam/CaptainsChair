@@ -715,6 +715,7 @@ html { touch-action: manipulation; }
   position: fixed; right: 1rem; top: 4.5rem; width: min(24rem, calc(100vw - 2rem)); z-index: 45;
   border: 2px solid var(--accent); box-shadow: 0 8px 28px rgb(0 0 0 / 0.35); display: grid; gap: 0.5rem;
 }
+body:has(.bot-playback) .coach { top: auto; bottom: 1rem; } /* beside the Bot's turn panel, not on top of it */
 .coach-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
 .coach-progress { height: 4px; border-radius: 2px; background: var(--border); overflow: hidden; }
 .coach-progress span { display: block; height: 100%; background: var(--accent); transition: width 0.3s; }

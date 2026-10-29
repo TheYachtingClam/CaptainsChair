@@ -324,7 +324,8 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach, r
         && !(mine && areaCards(mine).size && [...withBeamed([mine.captain, ...mine.status, ...mine.fleet, ...mine.locations,
           ...mine.duty, ...mine.staging, ...(mine.hand ?? [])])].some((c) => c.id === name))
       : false;
-    if (kind !== "question") setTab(inCentre ? "centre" : "you");
+    if (kind === "bot" || coachShow === "bot-row") setTab("opponent");  // the Bot's own area and command cards
+    else if (kind !== "question" && coachShow !== "bot-panel") setTab(inCentre ? "centre" : "you");
   }, [coachStep, phone]); // eslint-disable-line react-hooks/exhaustive-deps
   const scrolledFor = useRef<string | null>(null);
   useEffect(() => {
@@ -338,13 +339,15 @@ export function Board({ gameId, view, onChoose, onUndo, busy, system, onCoach, r
     buttons.forEach((b) => b.classList.add("coach-target"));
     let timer: number | undefined;
     if (scrolledFor.current !== coachStep) {  // once per step, so looking around is not interrupted
-      scrolledFor.current = coachStep;
-      // After the question's own scroll to its cards, so the coach's target is where the eye lands.
+      // After the question's own scroll to its cards, and after a tab switch, so the coach's target is where the eye
+      // lands. Marked done only once it has scrolled: a tab switch re-runs this effect and cancels the timer.
       timer = window.setTimeout(() => {
+        scrolledFor.current = coachStep;
+        const target = coachTarget(coachShow) ?? el;
         // Centre it in the part of the screen the coach and the bottom sheet leave free (REQ-TUT-41).
         const sheet = document.querySelector(".sheet-stack")?.getBoundingClientRect();
         const bottom = sheet && sheet.height > 0 ? sheet.top : window.innerHeight;
-        const r = el.getBoundingClientRect();
+        const r = target.getBoundingClientRect();
         const middle = r.height > bottom ? r.top : r.top + r.height / 2 - bottom / 2;
         window.scrollBy({ top: middle, behavior: "smooth" });
       }, 150);

@@ -156,7 +156,8 @@ def new_game(seed: int, mode: str, seats: list[SeatSetup], expansions: list[str]
 def _apply_stack(state: GameState, stack: dict) -> None:
     """A tutorial's stacked decks (requirements/24-tutorials.md REQ-TUT-10, -11): the first player's starting hand and
     Draw deck in order, their Reserve deck, face-up Market cards, the top cards of Market decks, the Neutral Zone and
-    the top of the Incident deck. It uses no randomness, so later shuffles still follow the seed."""
+    the tops of the Incident, Encounter and Location decks, and in solo games the tops of the Bot deck and its
+    Supplement deck. It uses no randomness, so later shuffles still follow the seed."""
 
     def pull(cards: list[Inst], card_id: str) -> Inst:
         found = next((i for i in cards if i.card == card_id), None)
@@ -200,6 +201,15 @@ def _apply_stack(state: GameState, stack: dict) -> None:
         state.neutral[slot] = location
     for card_id in reversed(stack.get("incident") or []):
         state.incident.insert(0, pull(state.incident, card_id))
+    for key, deck in (("encounter", state.encounter), ("location_deck", state.location_deck)):
+        for card_id in reversed(stack.get(key) or []):
+            deck.insert(0, pull(deck, card_id))
+    if len(state.players) > 1 and state.players[1].bot:  # solo: the top of the Bot deck and of its Supplement deck
+        bot = state.players[1]
+        for key, zone in (("bot_draw", "draw"), ("bot_supplement", "reserve")):
+            deck = getattr(bot, zone)
+            for card_id in reversed(stack.get(key) or []):
+                deck.insert(0, pull(deck, card_id))
 
 
 # --------------------------------------------------------------------------- central

@@ -27,6 +27,7 @@ def follow(client, game_id, view):
 def test_tutorials_are_listed_with_progress(authed):
     """REQ-TUT-42, -50: each tutorial, whether it is finished, and the game in progress."""
     listed = authed.get("/api/tutorials").json()
+    assert [t["id"] for t in listed][:2] == ["picard-basics", "bot-basics"]  # the first tutorial first
     first = next(t for t in listed if t["id"] == "picard-basics")
     assert first["title"] == "Learn to play with Picard" and not first["finished"] and first["game_id"] is None
     game_id = start(authed)
@@ -147,7 +148,8 @@ def test_the_end_of_game_moments():
     from app.tutorial import _triggered
 
     me = SimpleNamespace(tracks={"research": 4, "influence": 0, "military": 0}, hand=[])
-    game = SimpleNamespace(players=[me], decision=None, stardates=[1, 2], result=None, last_turn=None, turn=3)
+    game = SimpleNamespace(players=[me], decision=None, stardates=[1, 2], result=None, last_turn=None, turn=3,
+                           mode="cadet")
     assert _triggered({"track_at_least": 4}, game) and not _triggered({"moment": "stardate-empties"}, game)
     game.stardates = [1]
     assert _triggered({"moment": "stardate-empties"}, game) and not _triggered({"moment": "last-turn"}, game)
@@ -171,3 +173,26 @@ def test_more_and_the_how_cards_work_sheet(authed):
     assert all(r["term"] and r["means"] for s in guide["sections"] for r in s["rows"])
     assert authed.get("/api/tutorials/guides/nothing").status_code == 404
     assert authed.get("/api/tutorials/guides/..%2Fsecrets").status_code == 404
+
+
+def test_the_bot_script_plays_through_its_guided_turns(authed):
+    """plans/tutorial-bot.md: three guided turns against an Ensign Koloth Bot, its turns fixed by the stacked deck."""
+    game_id = start(authed, "bot-basics")
+    view = state(authed, game_id)
+    assert view["mode"] == "solo" and view["players"][1]["bot"]
+    seen = []
+    for _ in range(200):
+        if view["tutorial"]["free"]:
+            break
+        seen.append(view["tutorial"]["step"]["id"])
+        r = follow(authed, game_id, view)
+        assert r.status_code == 200, (seen[-1], r.text)
+        view = r.json()
+    assert view["tutorial"]["free"] and len(seen) == view["tutorial"]["total"]
+    me, bot = view["players"]
+    assert {l["name"] for l in me["locations"]} == {"Amargosa Observatory", "Farpoint Station"}
+    assert [d["name"] for d in me["duty"]] == ["Will Riker"]
+    archer = next(l for l in view["neutral_zone"] if l["name"] == "Archer IV")
+    assert archer["away_teams"] == {"0": 3, "1": 1} and archer["secured_by"] == [0]  # the Bot's turn 3 gave it up
+    assert not bot["duty"] and not bot["fleet"]
+    assert "Phasers" not in [c["name"] for c in me["fleet"]]  # used up against the Disruptors attack

@@ -5,6 +5,7 @@
 # [Away Team] are drawn as icons.
 id: picard-basics
 title: Learn to play with Picard
+order: 1
 summary: Play a practice game with Jean-Luc Picard while a coach explains each part of the game.
 
 setup:
@@ -461,8 +462,8 @@ tips:
   - id: stardate
     when: {moment: stardate-empties}
     say: |
-      The first **Stardate** card ran out of Glory. Next turn the Market and every Neutral Zone Location without your
-      tokens are wiped, and the second Stardate starts.
+      The first **Stardate** card ran out of Glory. Next turn the Market is wiped, and if the card says so, so are the
+      neutral Locations with no tokens on them. Then the second Stardate starts.
     show: zone:stardate
   - id: last-turn
     when: {moment: last-turn}

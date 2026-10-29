@@ -23,11 +23,9 @@ class TutorialError(Exception):
 @lru_cache
 def scripts() -> dict[str, dict]:
     """Every tutorial script, by id (REQ-TUT-01)."""
-    out = {}
-    for path in sorted(SCRIPTS.glob("*.yaml")):
-        script = yaml.safe_load(path.read_text())
-        out[script["id"]] = script
-    return out
+    found = [yaml.safe_load(path.read_text()) for path in sorted(SCRIPTS.glob("*.yaml"))]
+    found.sort(key=lambda script: script.get("order", 99))  # the lobby's order: the first tutorial comes first
+    return {script["id"]: script for script in found}
 
 
 GUIDES = SCRIPTS.parent / "guides"
@@ -105,11 +103,15 @@ def resolve(state: GameState, want: str) -> str | None:
             if k == kind and m == n and uid in by_uid and by_uid[uid].card == card_id:
                 return o.id
         return None
-    if kind == "take":
-        return next((o.id for o in options if o.id.startswith("take:") and by_uid.get(o.id[5:])
-                     and by_uid[o.id[5:]].card == rest), None)
+    if kind == "react":  # a Reaction offered as "<uid>:<n>"
+        card_id, _, n = rest.rpartition(":")
+        return next((o.id for o in options if o.id.partition(":")[2] == n and by_uid.get(o.id.partition(":")[0])
+                     and by_uid[o.id.partition(":")[0]].card == card_id), None)
     if kind == "pick":
         return next((o.id for o in options if o.id in by_uid and cards[by_uid[o.id].card].suit == rest), None)
+    if rest in cards:  # "<prefix>:<card id>", such as take:1LOC19 or discard:1PIC16
+        return next((o.id for o in options if o.id.startswith(f"{kind}:") and by_uid.get(o.id[len(kind) + 1:])
+                     and by_uid[o.id[len(kind) + 1:]].card == rest), None)
     return next((o.id for o in options if o.id in by_uid and by_uid[o.id].card == want), None)
 
 
@@ -178,8 +180,8 @@ def _triggered(when: dict, state: GameState) -> bool:
             return any(content().cards[i.card].suit == "Incident" for i in me.hand)
         return False
     moment = when.get("moment")
-    if moment == "stardate-empties":
-        return len(state.stardates) < 2 and state.result is None
+    if moment == "stardate-empties":  # the first Stardate card is used up: 2 in Cadet Training, 3 against a Bot
+        return len(state.stardates) < (3 if state.mode == "solo" else 2) and state.result is None
     if moment == "last-turn":
         return state.last_turn is not None and state.turn >= state.last_turn and state.result is None
     if moment in ("final-scoring", "game-over"):

@@ -1,0 +1,359 @@
+# Tutorial: Playing against a Bot (plans/tutorial-bot.md, requirements/24-tutorials.md).
+# Picard against an Ensign Koloth Bot. Every expected move was played through in the engine with this setup;
+# tests/test_tutorial.py replays it. Text conventions as in picard-basics.yaml.
+id: bot-basics
+title: Playing against a Bot
+order: 2
+summary: A solo game against Koloth's Bot. Learn to read its turns, contest Locations and answer its attacks.
+
+setup:
+  mode: solo
+  box: core
+  deck: picard
+  board: basic
+  bot: {deck: koloth, difficulty: ensign}
+  seed: 7
+  stack:
+    hand: [1PIC23, 1PIC15, 1PIC19, 1PIC22, 1PIC17]   # Worf, Analyze, Utilize, Set a Course, Recruit
+    draw: [1PIC16, 1PIC20, 1PIC24, 1PIC21, 1PIC18]   # Diplomacy, Red Alert, Will Riker, Farpoint Station, Strange New Worlds
+    market: {Cargo: 1CAR11}                          # Phasers face up
+    neutral: [1LOC03, 1LOC02, 1LOC01]                # Archer IV, Ancient Relay Station, Amargosa Observatory
+    # The Bot's first three turns: Gr'oth and Krell; Disruptors and Klothos; Confiscate and Conquer.
+    # Krell's row discards Utilize and logs Good Day to Die.
+    bot_draw: [1KOL02, 1KOL23, 1KOL18, 1KOL17, 1KOL19, 1KOL24, 1KOL15, 1KOL16]
+
+steps:
+  # ---------------------------------------------------------------- Welcome
+  - id: welcome
+    say: |
+      Welcome back, Captain. This time you face a real opponent: a **Bot** playing **Koloth**'s Klingon deck. You play
+      Picard again, so everything new is about the Bot.
+    more: |
+      This tutorial assumes you've played **Learn to play with Picard**. The Bot is at **Ensign**, the easiest of five
+      levels. To win you need more VP than the Bot when the game ends; a tie is a loss.
+    next: button
+  - id: bot-cards
+    say: |
+      The Bot has no hand. It plays the top cards of its deck, face down, one for each **Bot action**. Its **Supplement
+      deck** works like your Reserve: one card joins its deck each time it reshuffles.
+    show: bot:deck
+    next: button
+  - id: command
+    say: |
+      The Bot ignores the text on its cards. It looks each card up on its **Automated Command cards**: the **TRAITS**
+      rows first, from the top, then the row for the card's suit on its **SUITS** card.
+    more: |
+      A card with the Surprise trait uses its own SURPRISE effect instead. The SUITS card has two sides: **WITH NO
+      DUTY OFFICER** and **WITH DUTY OFFICER**. It flips when the Bot gains or loses its Duty Officer. Tap **Solo
+      rules** under the cards for the whole procedure.
+    show: bot:command
+    next: button
+  - id: bot-actions
+    say: |
+      The **Stardate** card says how many cards the Bot plays each turn: 2 at Ensign. It also holds the Glory that both
+      of you gain, so the game ends when the last Stardate runs out, as in a real game.
+    show: zone:stardate
+    next: button
+  - id: plan
+    say: |
+      The Bot claims Locations and attacks, just like a player. This turn, start claiming **Amargosa Observatory**
+      before it does, and gain a card that protects you.
+    show: zone:neutral
+    next: button
+
+  # ---------------------------------------------------------------- Turn 1
+  - id: worf
+    say: Play **Worf** to send 2 [Away Team] Away Teams.
+    show: card:1PIC23
+    expect: play:1PIC23:0
+  - id: worf-where
+    say: Send them to **Amargosa Observatory**. When you take control of it, you gain a Person.
+    show: card:1LOC01
+    expect: 1LOC01
+  - id: utilize
+    say: Play **Utilize** for Dilithium. You'll need it next turn.
+    show: card:1PIC19
+    expect: play:1PIC19:0
+  - id: analyze
+    say: |
+      Now play **Analyze**'s second effect: discard 2 cards to gain a Cargo. You're after **Phasers**, face up in the
+      Market.
+    show: card:1PIC15
+    expect: play:1PIC15:1
+  - id: analyze-cost
+    say: Discard **Set a Course**. **Recruit**, your only other card, goes with it.
+    show: question
+    expect: 1PIC22
+  - id: gain-phasers
+    say: |
+      Gain **Phasers**. It has a **Reaction** that stops an attack removing your Away Teams, and the Bot will attack.
+    show: card:1CAR11
+    expect: market:Cargo
+  - id: phasers-top
+    say: Put it **on top of your deck**, so you draw it next turn.
+    show: question
+    expect: top
+  - id: end-turn-1
+    say: That's your three actions. **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: glory-1
+    say: |
+      Place your Glory on **Arin'sen**. The Bot places Glory too, at the end of its turn, always on the Market card
+      least valuable to you.
+    show: zone:market:Ally
+    expect: glory:Ally
+  - id: draw-up-1
+    say: Your hand is empty, so tap **Done** to draw five.
+    show: question
+    expect: done
+
+  # ---------------------------------------------------------------- Bot turn 1
+  - id: bot-turn-1
+    say: |
+      The Bot's turn plays back in this panel. Step through it with **Next**, or **Auto-play** it. The row it used
+      lights up on its command card.
+    more: |
+      The Bot's turn has no Resupply. In its Control step it takes a Location it has secured. Then it draws its
+      cards face down and resolves them one at a time. At Clean-up it places Glory and discards its Staging Area.
+    show: bot-panel
+    next: button
+  - id: bot-groth
+    say: |
+      **I.K.S. Gr'oth**, a Ship, matched the Ship row. It **explores**, warping to the neutral Location with the fewest
+      tokens, and the Bot sends an Away Team where it has the most tokens: **Archer IV**.
+    more: |
+      The Bot never sends an Away Team to a Location where you have more Ships than it does (KW-SEND-03), and that
+      rule binds you too, as you'll see.
+    show: bot-row
+    next: button
+  - id: bot-krell
+    say: |
+      **Krell**, a Person, became the Bot's **Duty Officer**, so its SUITS card flipped to **WITH DUTY OFFICER**: from
+      now on its cards use those rows.
+    show: bot:command
+    next: button
+  - id: bot-done
+    say: When you've watched it, tap **Done** on the panel, then **Next** here.
+    show: bot-panel
+    next: button
+
+  # ---------------------------------------------------------------- Turn 2
+  - id: phasers
+    say: |
+      Play **Phasers**: draw 2 cards, junk a Market card and **deploy** Phasers to your Fleet Area. There its Reaction
+      is ready whenever you're attacked.
+    show: card:1CAR11
+    expect: play:1CAR11:0
+  - id: junk
+    say: |
+      Junk **Biobed**. **Junking** removes a Market card for good, so the Bot can't gain it. A card with Glory on it
+      can't be junked.
+    show: question
+    expect: 1CAR01
+  - id: cycle
+    say: |
+      Your deck ran out while drawing, so your Discard pile was shuffled into a new deck and a **Reserve** card joined
+      it: the **Type 7 Shuttlecraft**.
+    show: zone:deck
+    next: button
+  - id: riker
+    say: Play **Will Riker** to send one more Away Team.
+    show: card:1PIC24
+    expect: play:1PIC24:0
+  - id: riker-send
+    say: Spend 1 Dilithium to send it.
+    show: question
+    expect: "yes"
+  - id: riker-where
+    say: |
+      To **Amargosa Observatory**: 3 Away Teams against none of the Bot's, so you've **secured** it. You can take
+      control next turn, if the Bot doesn't stop you.
+    show: card:1LOC01
+    expect: 1LOC01
+  - id: red-alert
+    say: Play **Red Alert** to return it to the Incident deck and promote Riker.
+    show: card:1PIC20
+    expect: play:1PIC20:0
+  - id: red-alert-cost
+    say: Put **Farpoint Station** on top of your deck. You'll play it next turn.
+    show: question
+    expect: 1PIC21
+  - id: promote
+    say: Promote **Will Riker** to Duty Officer. His RESUPPLY gains you Latinum every turn.
+    show: question
+    expect: 1PIC24
+  - id: end-turn-2
+    say: "**End Turn**."
+    show: button:end-turn
+    expect: end
+  - id: glory-2
+    say: Glory on **Arin'sen** again.
+    show: zone:market:Ally
+    expect: glory:Ally
+  - id: discard-2
+    say: "Discard **Diplomacy**: you won't need it next turn."
+    show: question
+    expect: discard:1PIC16
+  - id: draw-up-2
+    say: Then tap **Done** to draw up.
+    show: question
+    expect: done
+
+  # ---------------------------------------------------------------- Bot turn 2
+  - id: bot-attack
+    say: |
+      An **attack**! **Klingon Disruptors** matched the Weapon row, and its bold part, "you remove an Away Team", is
+      aimed at you. Use **Phasers** to ignore it.
+    more: |
+      Bold red text on a command card is an attack: you can answer it with a "when you would be attacked" Reaction.
+      Bold black text affects you too, but isn't an attack. Reactions that aren't answers to an attack wait until your
+      next turn.
+    show: question
+    expect: react:1CAR11:2
+  - id: bot-klothos
+    say: |
+      **I.K.S. Klothos** matched the Ship row on the WITH DUTY OFFICER side: it **engages**, warping to where you have
+      the most tokens, Amargosa. Its Away Team went to Archer IV.
+    show: bot-row
+    next: button
+  - id: bot-secured
+    say: |
+      Look at the Neutral Zone. Amargosa: your 3 against the Bot's 1, still secured by you. Archer IV: the Bot's Ship
+      and 2 Away Teams, so the Bot has **secured** it and will take it next turn unless you stop it.
+    show: zone:neutral
+    next: button
+  - id: bot-done-2
+    say: Tap **Done** on the panel, then **Next** here.
+    show: bot-panel
+    next: button
+
+  # ---------------------------------------------------------------- Turn 3
+  - id: resupply
+    say: Your turn began with Riker's RESUPPLY. Now, in the **Control** step, take Amargosa Observatory.
+    show: zone:duty
+    next: button
+  - id: take-control
+    say: |
+      Take control. Taking a Location **dismisses every Ship there**, the Bot's too: Klothos goes to its Discard pile.
+      The Bot gains 1 Glory for each of its tokens there.
+    show: card:1LOC01
+    expect: take:1LOC01
+  - id: amargosa-control
+    say: |
+      Amargosa's CONTROL lets you gain a Person. Gain **Mirok**: a Scientist, so you gain 1 Glory more, plus the Glory
+      the Bot left on it.
+    show: question
+    expect: market:Person
+  - id: mirok-where
+    say: Into your Discard pile.
+    show: question
+    expect: discard
+  - id: farpoint
+    say: Play **Farpoint Station**, your second Location.
+    show: card:1PIC21
+    expect: play:1PIC21:0
+  - id: contest
+    say: |
+      Now stop the Bot taking Archer IV. Worf can't send Away Teams there yet: the Bot has more Ships there than you.
+      First **warp** the Enterprise-D in.
+    more: |
+      You can't send Away Teams to a Location where the opponent has more Ships than you (KW-SEND-03). With one Ship
+      each, the way is open.
+    show: card:1PIC02
+    next: button
+  - id: warp
+    say: "Use the Enterprise-D's Activation: spend 1 Dilithium to warp it."
+    show: card:1PIC02
+    expect: activate:1PIC02:1
+  - id: warp-where
+    say: To **Archer IV**.
+    show: card:1LOC03
+    expect: 1LOC03
+  - id: worf-2
+    say: Now play **Worf**…
+    show: card:1PIC23
+    expect: play:1PIC23:0
+  - id: worf-where-2
+    say: …and send both Away Teams to **Archer IV**.
+    show: card:1LOC03
+    expect: 1LOC03
+  - id: shuttlecraft
+    say: |
+      Last action: **Type 7 Shuttlecraft** sends an Away Team to a Location where you have a Ship. That's Archer IV.
+    show: card:1PIC14
+    expect: play:1PIC14:0
+  - id: shuttle-keep
+    say: Don't put it back on your deck this time.
+    show: question
+    expect: "no"
+  - id: contested
+    say: |
+      Archer IV: your 4 tokens against the Bot's 3. Neither of you is 2 ahead, so **nobody** has secured it, and the Bot
+      can't take it next turn.
+    show: card:1LOC03
+    next: button
+  - id: end-turn-3
+    say: "**End Turn**."
+    show: button:end-turn
+    expect: end
+  - id: glory-3
+    say: Place your Glory on any Market card.
+    show: zone:market
+    expect: [glory:Person, glory:Cargo, glory:Ship, glory:Ally]
+  - id: draw-up-3
+    say: Discard what you have no plan for, then tap **Done**.
+    show: question
+    expect: done
+  - id: bot-turn-3
+    say: |
+      The Bot's third turn: **Confiscate** logged its Ship and its Duty Officer and took back an Away Team to take an
+      **Encounter**, so its SUITS card flipped back. Archer IV is now 4 to 1: **you** have secured it.
+    show: bot-panel
+    next: button
+  - id: free-play
+    say: |
+      From here the game is yours, Captain. Watch each Bot turn, protect your Locations, and keep an eye on Archer IV.
+      I'll add a tip when something new comes up.
+    next: button
+
+tips:
+  - id: take-control-ship
+    when: {question: take control}
+    say: |
+      A secured Location is ready. Remember, taking control **dismisses every Ship there**, yours too. If your
+      Enterprise-D is there, decide whether the Location is worth it, or warp the Ship away first and take it next turn.
+    show: question
+  - id: incident-in-hand
+    when: {event: take_incident}
+    say: |
+      An Incident in hand: −2 VP at the end. If the Incident deck runs out (**the Burn**), you lose the solo game, so
+      return them when you can.
+    show: zone:incident
+  - id: mission-ready
+    when: {question: mission}
+    say: |
+      **Peace Negotiations** is complete! Claim it from the mission button on your Crew board.
+    show: zone:tracks
+  - id: stardate
+    when: {moment: stardate-empties}
+    say: |
+      A **Stardate** card ran out of Glory. The Market is wiped, and if the card says so, so are the neutral Locations
+      with no tokens on them. Then the next Stardate begins; when the last one runs out, the game ends.
+    show: zone:stardate
+  - id: last-turn
+    when: {moment: last-turn}
+    say: |
+      This is your **last turn**. Spend everything: leftover Dilithium and Latinum score nothing for you.
+  - id: final-scoring
+    when: {moment: final-scoring}
+    say: |
+      **Final scoring**: you score as in the Picard tutorial. The Bot scores its Glory, its tokens on neutral
+      Locations, its printed VP, its tracks and Focus, **5 VP for each ENDGAME** it owns, and 1 VP for every 2
+      Dilithium and Latinum it collected. You win with more VP; a tie is a loss.
+  - id: next
+    when: {moment: game-over}
+    say: |
+      Well played, Captain! Try a harder Bot, another Captain, or the **Five-Year Mission**: a campaign of solo games
+      where you rise through the ranks.
+    link: {label: New game, to: /new}

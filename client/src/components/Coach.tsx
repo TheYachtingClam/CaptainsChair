@@ -117,6 +117,9 @@ export function coachTarget(show: string | null): HTMLElement | null {
   if (kind === "card") return first(`.gcard[data-card-id="${name}"]`);
   if (kind === "zone") return first(`[data-tutorial="${name === "log" ? "captain" : name}"]`);
   if (kind === "button") return first(`[data-tutorial="${name}"]`);
+  if (kind === "bot") return document.querySelector<HTMLElement>(`.mat:not(.mine) [data-tutorial="${name}"]`);
   if (show === "question") return document.querySelector<HTMLElement>(".decision-dock");
+  if (show === "bot-panel") return document.querySelector<HTMLElement>(".bot-playback");
+  if (show === "bot-row") return document.querySelector<HTMLElement>(".matched-row") ?? document.querySelector(".bot-playback");
   return null;
 }

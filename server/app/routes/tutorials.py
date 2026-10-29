@@ -46,8 +46,10 @@ def start_tutorial(tutorial_id: str, db: Session = Depends(get_db), viewer: str 
     except tutorial.TutorialError as err:
         raise HTTPException(404, str(err)) from err
     setup = script["setup"]
+    bot = setup.get("bot")  # a solo tutorial's Bot: {deck, difficulty}
     game = Game(mode=setup["mode"], box=setup.get("box", "core"), expansions=setup.get("expansions", []),
                 promos=False, promo_sets=[],
+                bot={"deck_id": bot["deck"], "difficulty": bot.get("difficulty", "ensign")} if bot else None,
                 tutorial={"id": tutorial_id, "seed": setup.get("seed"), "stack": setup.get("stack")})
     db.add(game)
     seat = add_seat(db, game, SeatChoice(deck_id=setup["deck"], board_side=setup.get("board", "basic")),

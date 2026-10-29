@@ -6,24 +6,25 @@ A tutorial is a real game with a coach: it explains each part of *Captain's Chai
 
 ### 1.1 Tutorials are data
 
-- **REQ-TUT-01** A tutorial is a script file, `server/content/tutorials/<id>.yaml`, with an id, a title, a one-line summary, its setup (§1.2), its steps (§1.3) and its tips (§1.4). Adding a tutorial adds a file, not code.
+- **REQ-TUT-01** A tutorial is a script file, `server/content/tutorials/<id>.yaml`, with an id, a title, a one-line summary, its place in the lobby's list (`order`), its setup (§1.2), its steps (§1.3) and its tips (§1.4). Adding a tutorial adds a file, not code.
 - **REQ-TUT-02** A tutorial game is an ordinary game of its mode (Cadet Training for the first tutorial) with a `tutorial` field naming the script. Everything else (replay from seed and moves, undo, the can't-be-undone warning, bug reports) works as in any game.
 
 ### 1.2 Setup
 
-- **REQ-TUT-10** The setup names the mode, box, Crew deck, board side and seed, and may **stack** the decks: the player's starting hand and Draw deck in order, the Reserve deck, a Market slot's face-up card, the order of the top cards of a Market deck, the three Neutral Zone Locations, and the top of the Incident deck. Unnamed cards keep the order the seed gives them.
+- **REQ-TUT-10** The setup names the mode, box, Crew deck, board side and seed (and in solo mode the Bot's Crew and difficulty), and may **stack** the decks: the player's starting hand and Draw deck in order, the Reserve deck, a Market slot's face-up card, the order of the top cards of a Market deck, the three Neutral Zone Locations, the tops of the Incident, Encounter and Location decks, and in solo mode the tops of the Bot deck and its Supplement deck. Unnamed cards keep the order the seed gives them.
 - **REQ-TUT-11** Stacking happens once, at setup. Later shuffles (a deck cycling) follow the seed, so they are the same every time the tutorial is played.
 - **REQ-TUT-12** The stacked setup is stored with the game, so rebuilding it from the seed and moves gives the same game.
 
 ### 1.3 Steps
 
 - **REQ-TUT-20** A step has an id and the coach's text (`say`: two or three short sentences, with **bold** for card and game terms and `[Action]`, `[Dilithium]` and the other bracketed icon names drawn as icons). It may have more detail (`more`), shown only when the player taps **More**. It may point at something (`show`) and either wait for a move (`expect`) or wait for the player to tap Next (`next: button`).
-- **REQ-TUT-21** `show` names one of: a card (`card:<card id>`, the instance the player owns, or in the Market or Neutral Zone), a zone (`zone:hand`, `zone:resources`, `zone:tracks`, `zone:captain`, `zone:fleet`, `zone:locations`, `zone:duty`, `zone:staging`, `zone:discard`, `zone:deck`, `zone:reserve`, `zone:development`, `zone:log`, `zone:market`, `zone:market:<suit>`, `zone:neutral`, `zone:stardate`, `zone:incident`), a button (`button:end-turn`, `button:undo`, `button:next`) or the question in the bottom sheet (`question`). On a phone the coach switches to the tab that holds it.
+- **REQ-TUT-21** `show` names one of: a card (`card:<card id>`, the instance the player owns, or in the Market or Neutral Zone), a zone (`zone:hand`, `zone:resources`, `zone:tracks`, `zone:captain`, `zone:fleet`, `zone:locations`, `zone:duty`, `zone:staging`, `zone:discard`, `zone:deck`, `zone:reserve`, `zone:development`, `zone:log`, `zone:market`, `zone:market:<suit>`, `zone:neutral`, `zone:stardate`, `zone:incident`), a button (`button:end-turn`, `button:undo`, `button:next`), the question in the bottom sheet (`question`), or in solo mode a zone of the Bot's (`bot:deck`, `bot:command`, …), its turn panel (`bot-panel`) or the matched row on its command card (`bot-row`). On a phone the coach switches to the tab that holds it.
 - **REQ-TUT-22** `expect` is one move or a list of moves, written so that the script needs no card uids:
   - `play:<card id>:<n>` and `activate:<card id>:<n>`: play or activate that card's operation n;
   - `<card id>`: the answer that is that card (choosing a card to discard, warp to, beam, take back);
   - `pick:<suit>`: the answer that is a card of that suit (an Incident whose name the seed decides);
-  - `take:<card id>`: take control of that Location;
+  - `take:<card id>`, `discard:<card id>` and any other `<prefix>:<card id>`: the answer `<prefix>:<uid>` for that card (take control of that Location, discard that card at Clean-up);
+  - `react:<card id>:<n>`: use that card's Reaction n when it is offered;
   - anything else is the answer's own id (`end`, `done`, `yes`, `none`, `top`, `discard`, `beam`, `use:0`, `market:Ally`, `wipe:Ally`, `glory:Ally`).
 - **REQ-TUT-23** While a step waits for a move (**on rails**), every other answer is shown but disabled, with the coach's text as the reason, and the server refuses it.
 - **REQ-TUT-24** The current step is worked out from the game's moves: each expected move answered moves on one step, each Next tap is stored as a move of its own. Undo therefore also steps the coach back.
@@ -53,3 +54,11 @@ A tutorial is a real game with a coach: it explains each part of *Captain's Chai
 - **REQ-TUT-61** Turns 1 to 3 are on rails; turns 4 to 11 are free play with tips; the game ends with final scoring explained line by line and the Cadet rating.
 - **REQ-TUT-62** It teaches, in this order: how to win; the table; the turn; playing cards and resources; the Market and gaining; Picard's Reaction; warping Ships; the Captain's Log; the Cadet Clean-up; drawing up and deck cycling with the Reserve; Away Teams and securing a Location; drawing from the Discard pile; Incidents and returning them; the Staging Area and promoting a Duty Officer; the Control step and taking control (and that it dismisses Ships there); Crew Locations; beaming to Ships and Picard's mission. Tips cover the rest: Encounters, Developments, Specialty tracks and the mission, the Stardate emptying, the Burn, logging, and final scoring.
 - **REQ-TUT-63** Attacks and an opponent's turns are not taught here; the last step points the player at solo play against a Bot.
+
+## 3. The second tutorial: "Playing against a Bot"
+
+- **REQ-TUT-70** Solo mode with Jean-Luc Picard's Core Box deck, Basic side, against an **Ensign Koloth Bot**, the Core Box only. Its stacked Bot deck fixes the Bot's first three turns.
+- **REQ-TUT-71** Turns 1 to 3 are on rails, each followed by the Bot's turn explained in steps beside its turn panel; then free play with tips.
+- **REQ-TUT-72** It teaches, in this order: the Bot's deck, Supplement deck and command cards; how a card is resolved (TRAITS rows, then the SUITS row); Bot actions on the Stardate card; reading the Bot's turn panel; exploring and engaging; the Bot's Duty Officer flipping the SUITS card; deploying an Ongoing card; junking; an attack and a "when you would be attacked" Reaction; securing against the Bot's tokens; taking control dismissing the Bot's Ship and giving it Glory; the rule that Away Teams cannot go where the opponent has more Ships; and contesting a Location the Bot has secured. Tips cover taking control with your own Ship there, Incidents and the Burn, the mission, the Stardate emptying, the last turn and the Bot's final scoring.
+- **REQ-TUT-73** While the Bot's turn panel is open on a laptop, the coach sits below it, not on top of it.
+

@@ -105,7 +105,7 @@ function CommandCards({ bot, highlight, onSoloRules }: { bot: BotView; highlight
   const shown = [pick(bot.command.filter((s) => !isSuits(s))), pick(bot.command.filter(isSuits))]
     .filter((s): s is NonNullable<typeof s> => !!s);
   return (
-    <div className="command-cards" aria-label="Automated Command cards">
+    <div className="command-cards" data-tutorial="command" aria-label="Automated Command cards">
       {shown.map((side) => (
         <CommandSide key={side.side} side={side} highlight={highlight?.side === side.side ? highlight.number : undefined} />
       ))}
