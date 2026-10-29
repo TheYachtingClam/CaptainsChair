@@ -27,7 +27,7 @@ Burnham is complexity 7 of 10, but nearly all of it is one rule, *Inert Dilithiu
 
 ## Steps
 
-1. **Script** (for your review).
-2. **Framework:** none expected. The coach's `show` needs a target for the Dilithium on Inert Dilithium.
+1. ✅ **Script** (for your review; `server/content/tutorials/burnham-basics.yaml`, 33 steps).
+2. ✅ **Framework:** none needed. The coach's `show` needs a target for the Dilithium on Inert Dilithium.
 3. **Check** on phone and laptop.
 4. **Deploy** on your word.

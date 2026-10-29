@@ -233,3 +233,22 @@ def test_the_rebner_script_plays_through_its_guided_turns(authed):
     assert [d["name"] for d in me["duty"]] == ["Grebnedlog"] and me["tracks"]["military"] == 3
     planet = next(l for l in me["locations"] if l["name"] == "Pakled Planet")
     assert [b["name"] for b in planet["beamed"]] == ["Big Helmet"]  # a Helmet spent on an Away Team stays there
+
+
+def test_the_burnham_script_plays_through_its_guided_turns(authed):
+    """plans/tutorial-burnham.md: two guided turns of Burnham in Cadet Training, around Inert Dilithium."""
+    game_id = start(authed, "burnham-basics")
+    view = state(authed, game_id)
+    seen = []
+    for _ in range(200):
+        if view["tutorial"]["free"]:
+            break
+        seen.append(view["tutorial"]["step"]["id"])
+        r = follow(authed, game_id, view)
+        assert r.status_code == 200, (seen[-1], r.text)
+        view = r.json()
+    assert view["tutorial"]["free"] and len(seen) == view["tutorial"]["total"]
+    me = view["players"][0]
+    discovery = next(s for s in me["fleet"] if s["id"] == "1BUR03")
+    assert [b["name"] for b in discovery["beamed"]] == ["Saru"] and me["resources"]["dilithium"] == 1
+    assert view["market"]["Ally"]["name"] == "Bolians" and view["tutorial"]["tip"]["id"] == "take-control-ship"

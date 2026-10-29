@@ -1,0 +1,242 @@
+# Tutorial: Burnham, short (plans/tutorial-burnham.md, requirements/24-tutorials.md).
+# Cadet Training with Burnham's Core Box deck, two guided turns. Every expected move was played through in the engine
+# with this setup; tests/test_tutorial.py replays it. Text conventions as in picard-basics.yaml.
+id: burnham-basics
+title: Playing Burnham
+order: 5
+group: captains
+captain: burnham
+summary: A short game with Michael Burnham. Learn Inert Dilithium, recrystallizing, and her Clean-up.
+
+setup:
+  mode: cadet
+  box: core
+  deck: burnham
+  board: basic
+  seed: 7
+  stack:
+    hand: [1BUR23, 1BUR22, 1BUR24, 1BUR20, 1BUR21, 1BUR25]   # Cleveland Booker, Sylvia Tilly, Paul Stamets, Keyla Detmer, Joann Owosekun, Saru
+    draw: [1BUR17, 1BUR19, 1BUR18, 1BUR16]                   # Recover, Maximum Warp, Strange New Worlds, Inspire
+
+steps:
+  # ---------------------------------------------------------------- Welcome
+  - id: welcome
+    say: |
+      Welcome, Captain. **Michael Burnham** plays like the Picard tutorial, with one big difference: her
+      **Dilithium**. This short practice game is about that.
+    more: |
+      This tutorial assumes you've played **Learn to play with Picard**. It has two guided turns, then the game is
+      yours.
+    next: button
+  - id: inert
+    say: |
+      This is **Inert Dilithium**, in play from the start. Any [Dilithium] you **gain** goes onto this card, and
+      Dilithium here **can't be spent**. It also raises your hand size to 6.
+    more: |
+      The Dilithium you start with is in your supply as usual. Dilithium on a Market card you gain comes straight to
+      your supply too. And you can't spend Glory as Dilithium.
+    show: card:1BUR02
+    next: button
+  - id: recrystallize
+    say: |
+      To use it, you **recrystallize**: move Dilithium from Inert Dilithium to your supply. Several of your cards do
+      that, and you'll use two of them.
+    show: card:1BUR02
+    next: button
+
+  # ---------------------------------------------------------------- Turn 1
+  - id: booker
+    say: |
+      Play **Cleveland Booker**'s first effect, free: gain 1 Dilithium and 1 Latinum.
+    show: card:1BUR23
+    expect: play:1BUR23:0
+  - id: cant-afford
+    say: |
+      The Latinum is in your supply, but the Dilithium went onto **Inert Dilithium**. So Burnham's Activation, "Spend 3
+      [Dilithium] to gain an Ally", isn't offered: only 1 of your 2 Dilithium can be spent.
+    show: card:1BUR02
+    next: button
+  - id: stamets
+    say: |
+      Play **Paul Stamets**. He recrystallizes 1 Dilithium for each Ship you have deployed: the U.S.S. Discovery-A.
+    show: card:1BUR24
+    expect: play:1BUR24:0
+  - id: stamets-incident
+    say: Don't take the Incident this time.
+    show: question
+    expect: "no"
+  - id: detmer
+    say: |
+      2 Dilithium in your supply now. Next, **Keyla Detmer** can warp the Discovery-A and send an Away Team with it.
+    show: card:1BUR20
+    expect: play:1BUR20:0
+  - id: detmer-yes
+    say: Yes, discard a card to do it.
+    show: question
+    expect: "yes"
+  - id: detmer-discard
+    say: |
+      Discard **Saru**. You'll get him back in a moment.
+    show: question
+    expect: 1BUR25
+  - id: detmer-where
+    say: Warp to **Amargosa Observatory**.
+    show: card:1LOC01
+    expect: 1LOC01
+  - id: owosekun
+    say: |
+      Play **Joann Owosekun**: an Away Team to the Discovery-A's Location, and a card from your hand or Discard pile
+      beamed aboard. Doing both gains 1 Glory.
+    show: card:1BUR21
+    expect: play:1BUR21:0
+  - id: owosekun-send
+    say: Send the Away Team.
+    show: question
+    expect: "yes"
+  - id: owosekun-beam
+    say: |
+      Beam **Saru** aboard from your Discard pile. Burnham's mission wants a Kelpien and a Scientist on one Ship, with 2
+      Incidents.
+    more: |
+      Her mission, in full: 2 Incidents, a Scientist and a Kelpien on the same Ship, and [Research] at 5 or more.
+    show: question
+    expect: 1BUR25
+  - id: end-turn-1
+    say: |
+      Keep **Sylvia Tilly** for next turn. **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: wipe-1
+    say: Wipe the **Voth Research Vessel**.
+    show: zone:market:Ship
+    expect: wipe:Ship
+  - id: cleanup
+    say: |
+      Burnham's own **Clean-up**: instead of placing Glory, she removes 1 Glory from the Stardate card and places
+      Dilithium on a Market card. Put it on **Arin'sen**, an Ally.
+    more: |
+      In a real game she places 2 Dilithium; in a practice game, 1. Whoever gains the card gets the Dilithium, and
+      for Burnham it comes straight to her supply, not onto Inert Dilithium.
+    show: zone:market:Ally
+    expect: 1ALL01
+  - id: draw-up-1
+    say: Tap **Done** to draw up to 6.
+    show: question
+    expect: done
+
+  # ---------------------------------------------------------------- Turn 2
+  - id: skip-control
+    say: |
+      Amargosa is secured, but taking it would **dismiss** the Discovery-A, with Saru aboard. **Don't take control**.
+    show: card:1LOC01
+    expect: skip
+  - id: booker-2
+    say: Cleveland Booker again, free. Watch the Dilithium go onto Inert Dilithium.
+    show: card:1BUR23
+    expect: play:1BUR23:0
+  - id: tilly
+    say: |
+      Now **Sylvia Tilly**'s free effect: log a card to recrystallize 1 Dilithium.
+    show: card:1BUR22
+    expect: play:1BUR22:1
+  - id: tilly-log
+    say: Log **Strange New Worlds**. Logged cards leave your deck but still score.
+    show: question
+    expect: 1BUR18
+  - id: alliance
+    say: |
+      3 Dilithium in your supply: Burnham's Activation is ready. Spend 3 to gain an Ally and 1 Glory.
+    show: zone:captain
+    expect: activate:1BUR01:1
+  - id: alliance-gain
+    say: |
+      Gain **Arin'sen**. The Dilithium you placed on it comes to your **supply**: Market Dilithium skips Inert
+      Dilithium.
+    show: question
+    expect: market:Ally
+  - id: alliance-where
+    say: Into your Discard pile.
+    show: question
+    expect: discard
+  - id: books-ship
+    say: |
+      The cycle enlisted **Book's Ship**. Play it: it deploys, and sends an Away Team.
+    show: card:1BUR15
+    expect: play:1BUR15:0
+  - id: books-send
+    say: Send the Away Team.
+    show: question
+    expect: "yes"
+  - id: books-where
+    say: To **Archer IV**.
+    show: card:1LOC03
+    expect: 1LOC03
+  - id: end-turn-2
+    say: |
+      **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: wipe-2
+    say: Wipe **Biobed**.
+    show: zone:market:Cargo
+    expect: wipe:Cargo
+  - id: cleanup-2
+    say: |
+      Burnham's Clean-up again. Place the Dilithium on **Bolians**, the new Ally, for her Activation next time.
+    show: zone:market:Ally
+    expect: 1ALL02
+  - id: draw-up-2
+    say: Tap **Done**.
+    show: question
+    expect: done
+  - id: free-play
+    say: |
+      That's Burnham's twist, Captain. Recrystallize to spend what you gain, seed the Market with your Clean-up, and
+      gain it back. The rest is yours.
+    next: button
+
+tips:
+  - id: take-control-ship
+    when: {question: take control}
+    say: |
+      A secured Location is ready. Taking control **dismisses every Ship there**, yours too, with every card beamed to
+      it. Warp a Ship away first if you need it.
+    show: question
+  - id: theta-zeta
+    when: {in_play: 1BUR10}
+    say: |
+      **Theta Zeta** recrystallized all your Dilithium and logged Inert Dilithium: from now on, Dilithium you gain goes
+      to your supply as usual.
+    show: zone:locations
+  - id: mission-ready
+    when: {question: mission}
+    say: |
+      Burnham's **mission** is complete! Claim it from the mission button on your Crew board.
+    show: zone:tracks
+  - id: develop
+    when: {question: develop}
+    say: |
+      Your Reserve is empty, so this cycle lets you **enlist a Development**. **Jett Reno** recrystallizes Dilithium,
+      and **Theta Zeta** ends Inert Dilithium for good.
+    show: zone:development
+  - id: incident-in-hand
+    when: {event: take_incident}
+    say: |
+      An Incident in hand: −2 VP at the end, but Burnham's mission needs 2 Incidents on one Ship. If the Incident deck
+      runs out, you lose the practice game.
+    show: zone:incident
+  - id: last-turn
+    when: {moment: last-turn}
+    say: |
+      This is your **last turn**. Spend everything: leftover Dilithium and Latinum score nothing.
+  - id: final-scoring
+    when: {moment: final-scoring}
+    say: |
+      **Final scoring**: your Glory, your tokens on neutral Locations, ENDGAME abilities, the VP printed on your cards
+      (Incidents −2), and your Focus cards if you completed the mission.
+  - id: next
+    when: {moment: game-over}
+    say: |
+      Well done, Captain! Against a real opponent, Burnham's Dilithium is safe: the U.S.S. Discovery-A stops it being
+      stolen. Try her against a Bot next.
+    link: {label: New game, to: /new}
