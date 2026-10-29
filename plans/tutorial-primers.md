@@ -26,4 +26,6 @@ From the Captains' complexity, and how far each departs from the general rules. 
 
 ## Steps
 
+✅ Freeman, Archer, Riker, Pike and Sela are written (`server/content/tutorials/<captain>-primer.yaml`), each with a replay test, for your review. Kirk and Sisko have none, as planned.
+
 Each primer: script (for your review), check, deploy on your word. Freeman's primer may need the coach to point at SUPPORT answers offered from the hand; that is settled when its script is written.

@@ -79,3 +79,14 @@ A tutorial is a real game with a coach: it explains each part of *Captain's Chai
 - **REQ-TUT-95** Cadet Training with Burnham's Core Box deck, Basic side. Turns 1 and 2 are on rails; then free play with tips. It assumes the Picard tutorial.
 - **REQ-TUT-96** It teaches: Inert Dilithium (gained Dilithium goes onto it and can't be spent; hand size 6); an Activation she can't afford although she has Dilithium; recrystallizing with Paul Stamets and Sylvia Tilly; beaming a Kelpien aboard for her mission; her Clean-up (1 Glory removed from the Stardate card, Dilithium placed on a Market card: 1 in Cadet Training, REQ-CTM-21); skipping a take-control that would dismiss her Ship; and Market Dilithium coming straight to her supply when she gains the card. Tips cover taking control with a Ship there, Theta Zeta, her mission, Developments, Incidents, the last turn, scoring and Discovery-A's protection against stealing.
 
+### 4.4 Captain primers
+
+- **REQ-TUT-100** A primer is a short Captain tutorial: Cadet Training with the Captain's deck, Basic side, one guided turn, then free play with tips. It assumes the Picard tutorial.
+- **REQ-TUT-101** The primers and what their guided turn shows:
+  - *Playing Freeman*: SUPPORT played from the hand (REQ-EXP-30 to -37), chaining Beckett Mariner after an Ally and Bradward Boimler after a promotion; Salt Vampires logging for his ENDGAME.
+  - *Playing Archer*: Earth (warping a Ship there, its Reaction after discarding a Directive, its CLEAN-UP); putting a card on top of the Reserve deck and enlisting it at the next cycle.
+  - *Playing Riker*: his Captain taking back a card of the same suit; Deanna Troi-Riker's PLAY for Incidents; Starbase 25 and Swooping In.
+  - *Playing Pike*: Improbable, Unstoppable, Sensational climbing a track for each card with a Skill icon put into play, and the U.S.S. Enterprise refreshing it with a promotion.
+  - *Playing Sela*: Cloak Ships sending Away Teams that ignore opponent Ships and warping together; an attack with Disruptor Rifles on the practice opponent's Away Team; her Reaction after attacking.
+- **REQ-TUT-102** Captains with complexity 4 or less (Picard, Georgiou, Shran, Soval, Koloth, Kirk, Sisko) have no primer.
+

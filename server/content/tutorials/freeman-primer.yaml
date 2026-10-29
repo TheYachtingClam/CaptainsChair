@@ -1,0 +1,180 @@
+# Captain primer: Freeman (plans/tutorial-primers.md, requirements/24-tutorials.md).
+# Cadet Training with Freeman's Second Contact deck: one guided turn, then tips. Every expected move was played
+# through in the engine with this setup; tests/test_tutorial.py replays it. Text conventions as in picard-basics.yaml.
+id: freeman-primer
+title: Playing Freeman
+order: 6
+group: captains
+captain: freeman
+summary: A one-turn primer on Carol Freeman's Lower Deckers and their SUPPORT chains.
+
+setup:
+  mode: cadet
+  box: to_boldly_go
+  expansions: [second_contact]
+  deck: freeman
+  board: basic
+  seed: 7
+  stack:
+    hand: [3FRE17, 3FRE20, 3FRE24, 3FRE23, 3FRE22]   # Set a Course, Dooplers, Beckett Mariner, Bradward Boimler, Jack Ransom
+    draw: [3FRE16, 3FRE21, 3FRE18, 3FRE19]           # Second Contact, Anomaly Consolidation Day, Class C Shuttlecraft, Douglas Station
+
+steps:
+  - id: welcome
+    say: |
+      Welcome, Captain. **Carol Freeman** commands the U.S.S. Cerritos and its **Lower Deckers**. This primer shows
+      her deck's twist in one turn, then the game is yours.
+    more: |
+      This primer assumes you've played **Learn to play with Picard**.
+    next: button
+  - id: support
+    say: |
+      Some Lower Deckers have a **SUPPORT** effect. When its trigger happens on your turn, you may play the card **from
+      your hand** for that effect alone, without spending an action. One SUPPORT can trigger the next.
+    more: |
+      A card played for its SUPPORT goes to your Staging Area, so it counts as put into play, but its PLAY effects
+      don't happen. SUPPORT only works from your hand.
+    show: zone:hand
+    next: button
+
+  - id: set-a-course
+    say: |
+      First, get the **Cerritos** to a Location. Play **Set a Course**'s free effect: draw a card, discard a card, and
+      warp your Ships.
+    show: card:3FRE17
+    expect: play:3FRE17:1
+  - id: set-a-course-discard
+    say: Discard **Second Contact**.
+    show: question
+    expect: 3FRE16
+  - id: warp-which
+    say: Warp the **U.S.S. Cerritos**…
+    show: question
+    expect: 3FRE02
+  - id: warp-where
+    say: …to **Archer IV**.
+    show: card:2LOC02
+    expect: 2LOC02
+  - id: dooplers
+    say: |
+      Now play **Dooplers**, an Ally. Putting an Ally into play is the trigger for **Beckett Mariner**'s SUPPORT.
+    show: card:3FRE20
+    expect: play:3FRE20:0
+  - id: dooplers-gain
+    say: Dooplers gains an Ally too. Gain **Salt Vampires**…
+    show: question
+    expect: market:Ally
+  - id: dooplers-where
+    say: …into your Discard pile.
+    show: question
+    expect: discard
+  - id: dooplers-pay
+    say: Spend 1 Latinum, so Dooplers isn't shuffled back into your deck.
+    show: question
+    expect: spend
+  - id: freeman-reaction
+    say: |
+      Freeman's own Reaction is offered: you gained Influence. It would cost a Person from your hand, and you need them.
+      **Pass**.
+    show: question
+    expect: pass
+  - id: mariner
+    say: |
+      Now **Beckett Mariner**'s SUPPORT: gain 1 Latinum and send an Away Team where you have a Ship. Use it.
+    show: question
+    expect: use:0
+  - id: promote
+    say: |
+      Next trigger: promoting a Person. Use the **Cerritos**' Activation to promote a Person from your hand.
+    show: card:3FRE02
+    expect: activate:3FRE02:3
+  - id: promote-who
+    say: Promote **Jack Ransom**.
+    show: question
+    expect: 3FRE22
+  - id: boimler
+    say: |
+      That triggers **Bradward Boimler**'s SUPPORT: copy a PLAY effect of the Person you promoted. Use it.
+    show: question
+    expect: use:0
+  - id: boimler-copy
+    say: Copy Jack Ransom's PLAY.
+    show: question
+    expect: react:3FRE22:0
+  - id: boimler-take
+    say: |
+      It takes a card from your Discard pile: take **Salt Vampires** back.
+    show: question
+    expect: 2ALL11
+  - id: salt-vampires
+    say: |
+      Four cards played and only one action spent. Play **Salt Vampires**, free: draw 2 cards.
+    show: card:2ALL11
+    expect: play:2ALL11:0
+  - id: end-turn
+    say: |
+      **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: salt-log
+    say: |
+      Salt Vampires' CLEAN-UP logs a card from your Staging Area. Log **Set a Course**: Freeman's ENDGAME scores 1 VP
+      for every 2 cards in your Log.
+    show: question
+    expect: 3FRE17
+  - id: wipe
+    say: Wipe any Market card.
+    show: zone:market
+    expect: [wipe:Person, wipe:Cargo, wipe:Ship, wipe:Ally]
+  - id: glory
+    say: Place the Glory on any Market card.
+    show: zone:market
+    expect: [glory:Person, glory:Cargo, glory:Ship, glory:Ally]
+  - id: draw-up
+    say: Tap **Done** to draw up.
+    show: question
+    expect: done
+  - id: free-play
+    say: |
+      That's Freeman's deck: chain SUPPORTs from your hand to do far more than three actions' worth. The rest is
+      yours, Captain.
+    next: button
+
+tips:
+  - id: support-offered
+    when: {question: support}
+    say: |
+      A **SUPPORT** is offered. It's free, but the card leaves your hand, so its PLAY effects are gone for this
+      cycle of your deck. Use it when the SUPPORT is worth more.
+    show: question
+  - id: mission-ready
+    when: {question: mission}
+    say: |
+      Freeman's **mission** is complete! Claim it from the mission button on your Crew board.
+    show: zone:tracks
+  - id: develop
+    when: {question: develop}
+    say: |
+      Your Reserve is empty, so this cycle lets you **enlist a Development**: pay its cost to put one of Freeman's
+      stronger cards on top of your deck.
+    show: zone:development
+  - id: incident-in-hand
+    when: {event: take_incident}
+    say: |
+      An Incident in hand: −2 VP at the end. Freeman's Reaction warps the Cerritos whenever you return one. If the
+      Incident deck runs out, you lose the practice game.
+    show: zone:incident
+  - id: last-turn
+    when: {moment: last-turn}
+    say: |
+      This is your **last turn**. Spend everything: leftover Dilithium and Latinum score nothing.
+  - id: final-scoring
+    when: {moment: final-scoring}
+    say: |
+      **Final scoring**: your Glory, your tokens on neutral Locations, the VP printed on your cards (Incidents −2),
+      your Focus cards if you completed the mission, and Freeman's ENDGAME: 1 VP for every 2 cards in your Log.
+  - id: next
+    when: {moment: game-over}
+    say: |
+      Well done, Captain! Try Freeman against a Bot next.
+    link: {label: New game, to: /new}

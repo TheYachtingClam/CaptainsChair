@@ -1,0 +1,173 @@
+# Captain primer: Archer (plans/tutorial-primers.md, requirements/24-tutorials.md).
+# Cadet Training with Archer's deck: one guided turn, then tips. Every expected move was played through in the engine
+# with this setup; tests/test_tutorial.py replays it. Text conventions as in picard-basics.yaml.
+id: archer-primer
+title: Playing Archer
+order: 7
+group: captains
+captain: archer
+summary: A one-turn primer on Jonathan Archer's Earth and his Reserve deck.
+
+setup:
+  mode: cadet
+  box: to_boldly_go
+  deck: archer
+  board: basic
+  seed: 7
+  stack:
+    hand: [2ARC19, 2ARC23, 2ARC22, 2ARC20, 2ARC18]   # "Trip" Tucker III, Faith of the Heart, Strength of the Soul, Recruit, Shuttlepod 1
+
+steps:
+  - id: welcome
+    say: |
+      Welcome, Captain. **Jonathan Archer** is Starfleet's first captain, with a small deck and few Away Teams. This
+      primer shows his twists in one turn, then the game is yours.
+    more: |
+      This primer assumes you've played **Learn to play with Picard**. Archer starts with only 2 Away Teams; 4 more
+      are set aside, and some of his cards bring them into play.
+    next: button
+  - id: earth
+    say: |
+      **Earth** is Archer's Status card. Your Ships can warp to it, and it collects resources. Once it holds 3, his
+      Captain's RESUPPLY can take 3 of them, if you have a Ship deployed.
+    more: |
+      Earth's Reaction places 1 Dilithium or Latinum on it after you discard a Directive in your Action Step. Its
+      CLEAN-UP beams a card there; a card that shares no trait with Archer also gains 1 Influence and places 1 Glory.
+      Cards on Earth can't be recalled or dismissed.
+    show: card:2ARC02
+    next: button
+  - id: reserve
+    say: |
+      Archer's deck is small: 5 cards in hand and none left to draw. It cycles every turn and enlists a **Reserve** card
+      each time, and several of his cards put cards on top of the Reserve.
+    show: zone:reserve
+    next: button
+
+  - id: strength
+    say: |
+      Play **Strength of the Soul**'s free effect: take a Directive back from your Discard pile, **Analyze**.
+    show: card:2ARC22
+    expect: play:2ARC22:0
+  - id: analyze
+    say: |
+      Now **Analyze**'s second effect: discard 2 cards to gain a Cargo. Discarding Directives feeds Earth.
+    show: card:2ARC21
+    expect: play:2ARC21:1
+  - id: analyze-cost-1
+    say: Discard **Recruit**…
+    show: question
+    expect: 2ARC20
+  - id: analyze-cost-2
+    say: …and **Faith of the Heart**.
+    show: question
+    expect: 2ARC23
+  - id: analyze-gain
+    say: Gain **Horta**.
+    show: question
+    expect: market:Cargo
+  - id: analyze-where
+    say: Into your Discard pile.
+    show: question
+    expect: discard
+  - id: earth-reaction
+    say: |
+      You discarded Directives, so **Earth**'s Reaction is ready. It works once a turn. Use it.
+    show: question
+    expect: use:0
+  - id: earth-latinum
+    say: Place **Latinum** on Earth.
+    show: question
+    expect: latinum
+  - id: trip
+    say: |
+      Play **"Trip" Tucker III**: gain the top Cargo of the Cargo deck, then log it or put it on top of your Reserve.
+    show: card:2ARC19
+    expect: play:2ARC19:0
+  - id: trip-where
+    say: Put it in your Discard pile for now. Trip moves it next.
+    show: question
+    expect: discard
+  - id: trip-reserve
+    say: |
+      Put it **on top of your Reserve** and place 1 Dilithium on Earth. Your next cycle enlists it straight into your
+      deck.
+    show: question
+    expect: reserve
+  - id: warp
+    say: |
+      Use the **NX-01 Enterprise**'s Activation: spend 1 Dilithium to warp it.
+    show: card:2ARC03
+    expect: activate:2ARC03:1
+  - id: warp-where
+    say: |
+      To **Earth**. It's safe there, and a deployed Ship is what Archer's RESUPPLY needs.
+    show: card:2ARC02
+    expect: 2ARC02
+  - id: end-turn
+    say: |
+      **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: earth-cleanup
+    say: |
+      Earth's CLEAN-UP offers to beam a card there. Shuttlepod 1 and Trip share traits with Archer, so there's no bonus
+      this time. Choose **No**.
+    show: question
+    expect: none
+  - id: wipe
+    say: Wipe any Market card.
+    show: zone:market
+    expect: [wipe:Person, wipe:Cargo, wipe:Ship, wipe:Ally]
+  - id: glory
+    say: Place the Glory on any Market card.
+    show: zone:market
+    expect: [glory:Person, glory:Cargo, glory:Ship, glory:Ally]
+  - id: draw-up
+    say: Tap **Done** to draw up.
+    show: question
+    expect: done
+  - id: free-play
+    say: |
+      Your deck cycled and enlisted the **Medical Diagnostic Hat** you put on your Reserve: it's in your hand. Earth
+      holds 2 resources; one more and Archer's RESUPPLY collects them. The rest is yours, Captain.
+    show: zone:hand
+    next: button
+
+tips:
+  - id: earth-ready
+    when: {question: earth}
+    say: |
+      **Earth**: beam a card that shares no trait with Archer for 1 Influence and 1 Glory on Earth. With 3+ resources
+      there and a Ship deployed, Archer's RESUPPLY takes 3 of them.
+    show: card:2ARC02
+  - id: mission-ready
+    when: {question: mission}
+    say: |
+      Archer's **mission** is complete! Claim it from the mission button on your Crew board.
+    show: zone:tracks
+  - id: develop
+    when: {question: develop}
+    say: |
+      Your Reserve is empty, so this cycle lets you **enlist a Development**. Some of Archer's Developments bring his
+      set-aside Away Teams into play.
+    show: zone:development
+  - id: incident-in-hand
+    when: {event: take_incident}
+    say: |
+      An Incident in hand: −2 VP at the end. If the Incident deck runs out, you lose the practice game.
+    show: zone:incident
+  - id: last-turn
+    when: {moment: last-turn}
+    say: |
+      This is your **last turn**. Spend everything: leftover Dilithium and Latinum score nothing.
+  - id: final-scoring
+    when: {moment: final-scoring}
+    say: |
+      **Final scoring**: your Glory, your tokens on neutral Locations, the VP printed on your cards (Incidents −2),
+      your Focus cards if you completed the mission, and Archer's ENDGAME: 1 VP for every 3 different traits you have
+      in play.
+  - id: next
+    when: {moment: game-over}
+    say: |
+      Well done, Captain! Try Archer against a Bot next.
+    link: {label: New game, to: /new}

@@ -252,3 +252,98 @@ def test_the_burnham_script_plays_through_its_guided_turns(authed):
     discovery = next(s for s in me["fleet"] if s["id"] == "1BUR03")
     assert [b["name"] for b in discovery["beamed"]] == ["Saru"] and me["resources"]["dilithium"] == 1
     assert view["market"]["Ally"]["name"] == "Bolians" and view["tutorial"]["tip"]["id"] == "take-control-ship"
+
+
+def test_the_freeman_primer_plays_through_its_guided_turn(authed):
+    """plans/tutorial-primers.md: one guided turn of Freeman, chaining two SUPPORTs from the hand."""
+    game_id = start(authed, "freeman-primer")
+    view = state(authed, game_id)
+    seen = []
+    for _ in range(100):
+        if view["tutorial"]["free"]:
+            break
+        seen.append(view["tutorial"]["step"]["id"])
+        r = follow(authed, game_id, view)
+        assert r.status_code == 200, (seen[-1], r.text)
+        view = r.json()
+    assert view["tutorial"]["free"] and len(seen) == view["tutorial"]["total"]
+    me = view["players"][0]
+    assert [d["name"] for d in me["duty"]] == ["Jack Ransom"] and view["turn"] == 2
+    archer = next(l for l in view["neutral_zone"] if l["name"] == "Archer IV")
+    assert archer["away_teams"]["0"] == 1  # Beckett Mariner's SUPPORT sent it
+
+
+def test_the_archer_primer_plays_through_its_guided_turn(authed):
+    """plans/tutorial-primers.md: one guided turn of Archer, feeding Earth and his Reserve deck."""
+    game_id = start(authed, "archer-primer")
+    view = state(authed, game_id)
+    seen = []
+    for _ in range(100):
+        if view["tutorial"]["free"]:
+            break
+        seen.append(view["tutorial"]["step"]["id"])
+        r = follow(authed, game_id, view)
+        assert r.status_code == 200, (seen[-1], r.text)
+        view = r.json()
+    assert view["tutorial"]["free"] and len(seen) == view["tutorial"]["total"]
+    me = view["players"][0]
+    assert "Medical Diagnostic Hat" in [c["name"] for c in me["hand"]]  # put on the Reserve, enlisted by the cycle
+    enterprise = next(s for s in me["fleet"] if s["id"] == "2ARC03")
+    earth = next(c for c in me["status"] if c["id"] == "2ARC02")
+    assert enterprise["at"] == earth["uid"]
+
+
+def test_the_riker_primer_plays_through_its_guided_turn(authed):
+    """plans/tutorial-primers.md: one guided turn of Riker, with Deanna's Incident play and his Captain's recovery."""
+    game_id = start(authed, "riker-primer")
+    view = state(authed, game_id)
+    seen = []
+    for _ in range(100):
+        if view["tutorial"]["free"]:
+            break
+        seen.append(view["tutorial"]["step"]["id"])
+        r = follow(authed, game_id, view)
+        assert r.status_code == 200, (seen[-1], r.text)
+        view = r.json()
+    assert view["tutorial"]["free"] and len(seen) == view["tutorial"]["total"]
+    me = view["players"][0]
+    assert [d["name"] for d in me["duty"]] == ["Deanna Troi-Riker"]
+    assert [l["name"] for l in me["locations"]] == ["Starbase 25"]
+    assert view["tutorial"]["tip"]["id"] == "deanna-refresh"
+
+
+def test_the_pike_primer_plays_through_its_guided_turn(authed):
+    """plans/tutorial-primers.md: one guided turn of Pike, climbing tracks with Improbable, Unstoppable, Sensational."""
+    game_id = start(authed, "pike-primer")
+    view = state(authed, game_id)
+    seen = []
+    for _ in range(100):
+        if view["tutorial"]["free"]:
+            break
+        seen.append(view["tutorial"]["step"]["id"])
+        r = follow(authed, game_id, view)
+        assert r.status_code == 200, (seen[-1], r.text)
+        view = r.json()
+    assert view["tutorial"]["free"] and len(seen) == view["tutorial"]["total"]
+    me = view["players"][0]
+    assert me["tracks"]["research"] == 2 and me["tracks"]["influence"] == 2
+    assert [d["name"] for d in me["duty"]] == ["Hemmer"]
+
+
+def test_the_sela_primer_plays_through_its_guided_turn(authed):
+    """plans/tutorial-primers.md: one guided turn of Sela, with cloaked Ships, an attack and her Reaction."""
+    game_id = start(authed, "sela-primer")
+    view = state(authed, game_id)
+    seen = []
+    for _ in range(100):
+        if view["tutorial"]["free"]:
+            break
+        seen.append(view["tutorial"]["step"]["id"])
+        r = follow(authed, game_id, view)
+        assert r.status_code == 200, (seen[-1], r.text)
+        view = r.json()
+    assert view["tutorial"]["free"] and len(seen) == view["tutorial"]["total"]
+    me = view["players"][0]
+    amargosa = next(l for l in view["neutral_zone"] if l["name"] == "Amargosa Observatory")
+    assert amargosa["secured_by"] == [0] and [l["name"] for l in me["locations"]] == ["Remus"]
+    assert view["tutorial"]["tip"]["id"] == "take-control-ship"

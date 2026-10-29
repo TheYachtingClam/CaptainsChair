@@ -1,0 +1,152 @@
+# Captain primer: Riker (plans/tutorial-primers.md, requirements/24-tutorials.md).
+# Cadet Training with Riker's Second Contact deck: one guided turn, then tips. Every expected move was played through
+# in the engine with this setup; tests/test_tutorial.py replays it. Text conventions as in picard-basics.yaml.
+id: riker-primer
+title: Playing Riker
+order: 8
+group: captains
+captain: riker
+summary: A one-turn primer on William T. Riker's Captain, Deanna Troi-Riker and the U.S.S. Titan.
+
+setup:
+  mode: cadet
+  box: to_boldly_go
+  expansions: [second_contact]
+  deck: riker
+  board: basic
+  seed: 7
+  stack:
+    hand: [3RIK15, 3RIK20, 3RIK22, 3RIK18, 3RIK21]   # Deanna Troi-Riker, Hostile Contact, Starbase 25, Recruit, Warp in the Factor of 5, 6, 7, 8!
+    draw: [3RIK16, 3RIK17, 3RIK19]                   # First Officer, Strange New Worlds, Analyze
+
+steps:
+  - id: welcome
+    say: |
+      Welcome, Captain. **William T. Riker** commands the U.S.S. Titan. His deck is strong in [Military], and his
+      Captain and his wife Deanna make the most of every card. This primer shows how, in one turn.
+    more: |
+      This primer assumes you've played **Learn to play with Picard**. Riker starts with three Directives in his
+      Discard pile: Swooping In, Red Alert and The Riker Maneuver.
+    next: button
+  - id: captain
+    say: |
+      Riker's Captain has two Activations. The first, free, puts a card from your hand on top of your deck to take back
+      a card of the **same suit** from your Discard pile.
+    show: zone:captain
+    next: button
+
+  - id: promote
+    say: |
+      First, a Duty Officer. Use the **Titan**'s free Activation to promote **Deanna Troi-Riker**.
+    show: card:3RIK02
+    expect: activate:3RIK02:3
+  - id: deanna
+    say: |
+      With Deanna in play, every **Incident** gets an extra PLAY: discard a card to return it, then draw a card. Look at
+      **Hostile Contact** in your hand. Her Activation also refreshes your Captain.
+    show: card:3RIK20
+    next: button
+  - id: starbase
+    say: |
+      Play **Starbase 25**, a Location from your deck: you take control of it.
+    show: card:3RIK22
+    expect: play:3RIK22:0
+  - id: starbase-send
+    say: Spend 1 Dilithium to send an Away Team there.
+    show: question
+    expect: "yes"
+  - id: riker
+    say: |
+      Now Riker's first Activation. Put a Directive on top of your deck to take a Directive from your Discard pile.
+    show: zone:captain
+    expect: activate:3RIK01:0
+  - id: riker-cost
+    say: Put **Recruit** on top. You'll draw it again soon.
+    show: question
+    expect: 3RIK18
+  - id: riker-take
+    say: Take **Swooping In**.
+    show: question
+    expect: 3RIK23
+  - id: swooping-in
+    say: |
+      Play **Swooping In**: it warps the Titan to a Location you control, and gains 1 Dilithium plus 1 for each Location you control.
+    show: card:3RIK23
+    expect: play:3RIK23:0
+  - id: starbase-draw
+    say: |
+      **Starbase 25**'s Activation draws a card when you have an Away Team there. That's Recruit, back already.
+    show: card:3RIK22
+    expect: activate:3RIK22:2
+  - id: hostile
+    say: |
+      Last action: play **Hostile Contact** with **Deanna's** PLAY: discard a card to return the Incident, then draw.
+    show: card:3RIK20
+    expect: play:3RIK20:100
+  - id: hostile-cost
+    say: Discard **Recruit**.
+    show: question
+    expect: 3RIK18
+  - id: hostile-draw
+    say: And draw a card.
+    show: question
+    expect: "yes"
+  - id: end-turn
+    say: |
+      **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: wipe
+    say: Wipe any Market card.
+    show: zone:market
+    expect: [wipe:Person, wipe:Cargo, wipe:Ship, wipe:Ally]
+  - id: glory
+    say: Place the Glory on any Market card.
+    show: zone:market
+    expect: [glory:Person, glory:Cargo, glory:Ship, glory:Ally]
+  - id: draw-up
+    say: Tap **Done** to draw up.
+    show: question
+    expect: done
+  - id: free-play
+    say: |
+      That's Riker's style: recover the cards you need, and let Deanna clean up Incidents. The rest is yours, Captain.
+    next: button
+
+tips:
+  - id: deanna-refresh
+    when: {in_play: 3RIK15}
+    say: |
+      **Deanna**'s Activation refreshes your Captain, so Riker can use an Activation twice in one turn.
+    show: zone:duty
+  - id: strange-new-worlds
+    when: {playable: 3RIK17}
+    say: |
+      **Strange New Worlds** is ready: Starbase 25 has your Away Team and the Titan. It logs the Location for 1
+      Research, and you take an **Encounter**, one of the strongest cards in the game.
+    show: card:3RIK17
+  - id: mission-ready
+    when: {question: mission}
+    say: |
+      Riker's **mission** is complete! Claim it from the mission button on your Crew board.
+    show: zone:tracks
+  - id: develop
+    when: {question: develop}
+    say: |
+      Your Reserve is empty, so this cycle lets you **enlist a Development**: pay its cost to put one of Riker's
+      stronger cards on top of your deck.
+    show: zone:development
+  - id: last-turn
+    when: {moment: last-turn}
+    say: |
+      This is your **last turn**. Spend everything: leftover Dilithium and Latinum score nothing.
+  - id: final-scoring
+    when: {moment: final-scoring}
+    say: |
+      **Final scoring**: your Glory, your tokens on neutral Locations, the VP printed on your cards (Incidents −2),
+      ENDGAME abilities, and your Focus cards if you completed the mission.
+  - id: next
+    when: {moment: game-over}
+    say: |
+      Well done, Captain! Try Riker against a Bot next.
+    link: {label: New game, to: /new}

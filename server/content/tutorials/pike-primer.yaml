@@ -1,0 +1,147 @@
+# Captain primer: Pike (plans/tutorial-primers.md, requirements/24-tutorials.md).
+# Cadet Training with Pike's Second Contact deck: one guided turn, then tips. Every expected move was played through in
+# the engine with this setup; tests/test_tutorial.py replays it. Text conventions as in picard-basics.yaml.
+id: pike-primer
+title: Playing Pike
+order: 9
+group: captains
+captain: pike
+summary: A one-turn primer on Christopher Pike's way of climbing the Specialty tracks.
+
+setup:
+  mode: cadet
+  box: to_boldly_go
+  expansions: [second_contact]
+  deck: pike
+  board: basic
+  seed: 7
+  stack:
+    hand: [3PIK21, 3PIK19, 3PIK20, 3PIK22, 3PIK16]   # Lt. Spock, U.S.S. Enterprise, Hemmer, La'an Noonien Singh, Hit It
+    draw: [3PIK17, 3PIK18, 3PIK23, 3PIK24]           # Knowledge of a Terrible Fate, Strange New Worlds, Joseph M'Benga, Cadet Uhura
+
+steps:
+  - id: welcome
+    say: |
+      Welcome, Captain. **Christopher Pike** has few of the usual ways to climb the Specialty tracks. Instead, his crew
+      climbs them just by coming into play. This primer shows how, in one turn.
+    more: |
+      This primer assumes you've played **Learn to play with Picard**. Pike starts with 4 Away Teams, plus 1 on
+      Starbase One, his starting Location, but no Ship in play: the U.S.S. Enterprise is in your hand.
+    next: button
+  - id: status
+    say: |
+      This is **Improbable, Unstoppable, Sensational**, Pike's Status card. Its Reaction: after you put a card with a
+      Skill icon into play, gain 1 on that icon's track. It's a Reaction, so it works once a turn, unless something
+      refreshes it.
+    more: |
+      Its CLEAN-UP also gains you 1 [Influence] each turn, if you have no Shady or Attack card in play.
+    show: card:3PIK02
+    next: button
+
+  - id: spock
+    say: |
+      Play **Lt. Spock**: log a card from your hand to gain 3 Dilithium and 1 on a track. He has a [Research] icon.
+    show: card:3PIK21
+    expect: play:3PIK21:0
+  - id: spock-log
+    say: Log **Hit It**.
+    show: question
+    expect: 3PIK16
+  - id: spock-track
+    say: Gain 1 [Influence].
+    show: question
+    expect: influence
+  - id: status-use
+    say: |
+      Spock came into play with a [Research] icon, so the Status card's Reaction is offered: **use** it for 1
+      [Research].
+    show: question
+    expect: use:0
+  - id: enterprise
+    say: |
+      Now deploy the **U.S.S. Enterprise**.
+    show: card:3PIK19
+    expect: play:3PIK19:0
+  - id: enterprise-warp
+    say: Warp it…
+    show: question
+    expect: warp
+  - id: enterprise-where
+    say: …to **Archer IV**.
+    show: card:2LOC02
+    expect: 2LOC02
+  - id: promote
+    say: |
+      The Enterprise's last Activation promotes a Person from your hand **and refreshes** the Status card. Use it.
+    show: card:3PIK19
+    expect: activate:3PIK19:3
+  - id: promote-who
+    say: Promote **Hemmer**. He has a [Research] icon too.
+    show: question
+    expect: 3PIK20
+  - id: status-again
+    say: |
+      Hemmer came into play and the Status card is ready again: **use** it for another [Research].
+    show: question
+    expect: use:0
+  - id: end-turn
+    say: |
+      That's 2 Research and 1 Influence from one turn, and 1 more Influence comes at Clean-up. **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: wipe
+    say: Wipe any Market card.
+    show: zone:market
+    expect: [wipe:Person, wipe:Cargo, wipe:Ship, wipe:Ally]
+  - id: glory
+    say: Place the Glory on any Market card.
+    show: zone:market
+    expect: [glory:Person, glory:Cargo, glory:Ship, glory:Ally]
+  - id: draw-up
+    say: Keep **La'an** for next turn, and tap **Done** to draw up.
+    show: question
+    expect: done
+  - id: free-play
+    say: |
+      That's Pike's engine: play cards with Skill icons, and refresh the Status card to climb twice. The rest is yours,
+      Captain.
+    next: button
+
+tips:
+  - id: time-travel
+    when: {in_play: 3PIK17}
+    say: |
+      **Knowledge of a Terrible Fate** is a Time Travel card. Pike's mission needs 4 Time Travel in play and 2 deployed
+      Ongoing cards, and his Captain's Reaction logs an Incident for 1 Glory after you put a Time Travel into play.
+    show: zone:fleet
+  - id: mission-ready
+    when: {question: mission}
+    say: |
+      Pike's **mission** is complete! Claim it from the mission button on your Crew board.
+    show: zone:tracks
+  - id: develop
+    when: {question: develop}
+    say: |
+      Your Reserve is empty, so this cycle lets you **enlist a Development**: pay its cost to put one of Pike's
+      stronger cards on top of your deck.
+    show: zone:development
+  - id: incident-in-hand
+    when: {event: take_incident}
+    say: |
+      An Incident in hand: −2 VP at the end. Pike's Captain lets effects that find, free play or return an Incident
+      from your hand use your Log too. If the Incident deck runs out, you lose the practice game.
+    show: zone:incident
+  - id: last-turn
+    when: {moment: last-turn}
+    say: |
+      This is your **last turn**. Spend everything: leftover Dilithium and Latinum score nothing.
+  - id: final-scoring
+    when: {moment: final-scoring}
+    say: |
+      **Final scoring**: your Glory, your tokens on neutral Locations, the VP printed on your cards (Incidents −2),
+      ENDGAME abilities, and your Focus cards if you completed the mission.
+  - id: next
+    when: {moment: game-over}
+    say: |
+      Well done, Captain! Try Pike against a Bot next.
+    link: {label: New game, to: /new}

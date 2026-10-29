@@ -1,0 +1,172 @@
+# Captain primer: Sela (plans/tutorial-primers.md, requirements/24-tutorials.md).
+# Cadet Training with Sela's Core Box deck: one guided turn, then tips. Every expected move was played through in the
+# engine with this setup; tests/test_tutorial.py replays it. Text conventions as in picard-basics.yaml.
+id: sela-primer
+title: Playing Sela
+order: 10
+group: captains
+captain: sela
+summary: A one-turn primer on Sela's cloaked Romulan ships and her attacks.
+
+setup:
+  mode: cadet
+  box: core
+  deck: sela
+  board: basic
+  seed: 7
+  stack:
+    hand: [1SEL21, 1SEL15, 1SEL16, 1SEL17, 1SEL18]   # Infiltrate, Disruptor Rifles, Sub-Commander T'Rul, I.R.W. Khazara, General Movar
+    draw: [1SEL19, 1SEL20]                           # Remus, Romulus
+
+steps:
+  - id: welcome
+    say: |
+      Welcome, Captain. **Sela** leads Romulans who strike from the shadows: cloaked Ships and **attacks**. This primer
+      shows her style in one turn.
+    more: |
+      This primer assumes you've played **Learn to play with Picard**. In a practice game the opponent is imaginary,
+      with 1 Away Team at every neutral Location, so your attacks have something to hit.
+    next: button
+  - id: captain
+    say: |
+      Sela's Reaction gains 1 Dilithium or Latinum **after you attack** your opponent, once a turn. Her ENDGAME scores 1
+      VP for each Attack card you own, except Romulan and Reman ones.
+    show: zone:captain
+    next: button
+
+  - id: khazara
+    say: |
+      Play the **I.R.W. Khazara**. Like her other **Cloak** Ships, it sends an Away Team that ignores opponent Ships.
+    show: card:1SEL17
+    expect: play:1SEL17:0
+  - id: khazara-send
+    say: Send the Away Team…
+    show: question
+    expect: "yes"
+  - id: khazara-where
+    say: …to **Amargosa Observatory**.
+    show: card:1LOC01
+    expect: 1LOC01
+  - id: infiltrate
+    say: |
+      Now **Infiltrate**'s free effect: warp up to 3 of your Cloak Ships. Bring both to Amargosa.
+    show: card:1SEL21
+    expect: play:1SEL21:0
+  - id: infiltrate-goraxus
+    say: The **Goraxus** first…
+    show: question
+    expect: 1SEL02
+  - id: infiltrate-goraxus-where
+    say: …to **Amargosa**.
+    show: card:1LOC01
+    expect: 1LOC01
+  - id: infiltrate-khazara
+    say: Then the **Khazara**…
+    show: question
+    expect: 1SEL17
+  - id: infiltrate-khazara-where
+    say: …to **Amargosa** too.
+    show: card:1LOC01
+    expect: 1LOC01
+  - id: rifles
+    say: |
+      Time to attack. Play **Disruptor Rifles**' first effect: discard a Romulan to remove opponent Away Teams where you
+      have a Ship, for 1 Glory each.
+    show: card:1SEL15
+    expect: play:1SEL15:0
+  - id: rifles-discard
+    say: Discard **General Movar**.
+    show: question
+    expect: 1SEL18
+  - id: rifles-remove
+    say: Remove the opponent's Away Team at **Amargosa**.
+    show: question
+    expect: 1LOC01
+  - id: rifles-junk
+    say: Don't junk a Market card this time.
+    show: question
+    expect: "no"
+  - id: sela-reaction
+    say: |
+      You attacked, so **Sela**'s Reaction is offered. Use it…
+    show: question
+    expect: use:0
+  - id: sela-latinum
+    say: …and take **Latinum**.
+    show: question
+    expect: latinum
+  - id: trul
+    say: |
+      **Sub-Commander T'Rul** is free: draw a card.
+    show: card:1SEL16
+    expect: play:1SEL16:0
+  - id: trul-keep
+    say: You drew **Remus**. Keep it; don't discard it for a Cloak.
+    show: question
+    expect: "no"
+  - id: remus
+    say: |
+      Play **Remus**, a Location from your deck. Its CONTROL is an attack too, but Sela's Reaction has been used this
+      turn.
+    show: card:1SEL19
+    expect: play:1SEL19:0
+  - id: end-turn
+    say: |
+      Amargosa now has your 2 Ships and an Away Team, and the opponent's is gone: it's **secured**. **End Turn**.
+    show: button:end-turn
+    expect: end
+  - id: wipe
+    say: Wipe any Market card.
+    show: zone:market
+    expect: [wipe:Person, wipe:Cargo, wipe:Ship, wipe:Ally]
+  - id: glory
+    say: Place the Glory on any Market card.
+    show: zone:market
+    expect: [glory:Person, glory:Cargo, glory:Ship, glory:Ally]
+  - id: draw-up
+    say: Tap **Done** to draw up.
+    show: question
+    expect: done
+  - id: free-play
+    say: |
+      That's Sela: cloaked Ships slip in, attacks clear the way, and every attack pays. The rest is yours, Captain.
+    next: button
+
+tips:
+  - id: take-control-ship
+    when: {question: take control}
+    say: |
+      Amargosa is ready to take. Remember, taking control **dismisses every Ship there**, and both of yours are at
+      Amargosa. Warp one away first if you want to keep it.
+    show: question
+  - id: mission-ready
+    when: {question: mission}
+    say: |
+      Sela's **mission** is complete! Claim it from the mission button on your Crew board.
+    show: zone:tracks
+  - id: develop
+    when: {question: develop}
+    say: |
+      Your Reserve is empty, so this cycle lets you **enlist a Development**: pay its cost to put one of Sela's
+      stronger cards on top of your deck.
+    show: zone:development
+  - id: incident-in-hand
+    when: {event: take_incident}
+    say: |
+      An Incident in hand: −2 VP at the end. If the Incident deck runs out, you lose the practice game.
+    show: zone:incident
+  - id: last-turn
+    when: {moment: last-turn}
+    say: |
+      This is your **last turn**. Spend everything: leftover Dilithium and Latinum score nothing.
+  - id: final-scoring
+    when: {moment: final-scoring}
+    say: |
+      **Final scoring**: your Glory, your tokens on neutral Locations, the VP printed on your cards (Incidents −2),
+      your Focus cards if you completed the mission, and Sela's ENDGAME: 1 VP for each Attack card that isn't Romulan or
+      Reman.
+  - id: next
+    when: {moment: game-over}
+    say: |
+      Well done, Captain! Sela shines against a real opponent: try her against a Bot next.
+    link: {label: New game, to: /new}

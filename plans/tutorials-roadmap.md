@@ -8,7 +8,7 @@ After *Learn to play with Picard* ([tutorial.md](tutorial.md)), tutorials go whe
 | 2 | Khan (complexity 9) | Full | [tutorial-khan.md](tutorial-khan.md) |
 | 3 | Rebner (8) | Full | [tutorial-rebner.md](tutorial-rebner.md) |
 | 4 | Burnham (7) | Short: 1–2 guided turns | [tutorial-burnham.md](tutorial-burnham.md) |
-| 5 | Captain primers (the rest) | One guided turn, then tips | [tutorial-primers.md](tutorial-primers.md) |
+| 5 | Captain primers (the rest) | One guided turn, then tips | [tutorial-primers.md](tutorial-primers.md) (written: Freeman, Archer, Riker, Pike, Sela) |
 
 The 1–4 Captains (Picard, Georgiou, Shran, Soval, Koloth, Kirk, Sisko) play by the rules the Picard tutorial teaches. They get primers last, if at all.
 
