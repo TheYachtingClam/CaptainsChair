@@ -45,7 +45,7 @@ A tutorial is a real game with a coach: it explains each part of *Captain's Chai
 
 ### 1.6 The lobby and the account
 
-- **REQ-TUT-50** The lobby shows a **Learn to play** card to an account that has not finished the first tutorial, and a **Tutorials** list with every tutorial and whether it is finished.
+- **REQ-TUT-50** The lobby shows a **Learn to play** card to an account that has not finished the first tutorial, and a **Tutorials** card otherwise. Either holds one dropdown of every tutorial, grouped *Learn to play* and *Captains*, marked in progress or finished (✓); below it, only the chosen tutorial's description and its own Start, Continue or Start again buttons. It starts on a tutorial in progress, else the first not finished.
 - **REQ-TUT-51** A tutorial is finished when its game reaches final scoring. The account remembers it.
 
 ## 2. The first tutorial: "Learn to play with Picard"

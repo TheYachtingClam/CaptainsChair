@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { Game, MODE_LABELS, SeatChoice, api, campaignApi, setsFor } from "../api";
+import { Game, MODE_LABELS, SeatChoice, TutorialInfo, api, campaignApi, setsFor } from "../api";
 import { SeatForm } from "../components/SeatForm";
 
 export function Lobby() {
@@ -169,12 +169,14 @@ function MyCampaigns() {
 }
 
 
-/** Learn to play (requirements/24-tutorials.md §1.6): each tutorial, continued or started again, and marked finished.
- *  Shown first and highlighted until the first tutorial is finished. */
+/** Learn to play (requirements/24-tutorials.md §1.6): one tutorial at a time, chosen from a dropdown, with its
+ *  description and its own Start / Continue buttons. Highlighted until the first tutorial is finished. The dropdown
+ *  starts on a tutorial in progress, else the first one not finished. */
 function Tutorials() {
   const tutorials = useQuery({ queryKey: ["tutorials"], queryFn: api.tutorials });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [chosen, setChosen] = useState<string | null>(null);
   const start = useMutation({
     mutationFn: (id: string) => api.startTutorial(id),
     onSuccess: (grant) => {
@@ -186,32 +188,30 @@ function Tutorials() {
   const list = tutorials.data ?? [];
   if (!list.length) return null;
   const learning = !list[0].finished;
+  const t = list.find((x) => x.id === chosen) ?? list.find((x) => x.game_id) ?? list.find((x) => !x.finished) ?? list[0];
+  const label = (x: TutorialInfo) => `${x.title}${x.game_id ? " (in progress)" : x.finished ? " ✓" : ""}`;
   return (
     <section className={`card stack learn-to-play ${learning ? "featured" : ""}`}>
       <h2>{learning ? "Learn to play" : "Tutorials"}</h2>
       {learning && <p className="muted">New to Captain&apos;s Chair? Play a practice game with a coach beside you.</p>}
-      {(["learn", "captains"] as const).map((group) => {
-        const shown = list.filter((t) => t.group === group);
-        if (!shown.length) return null;
-        return (
-          <div key={group} className="stack">
-            {group === "captains" && <h3>Captains</h3>}
-            {shown.map((t) => (
-              <div key={t.id} className="row between tutorial-row">
-                <div>
-                  <strong>{t.title}</strong>{t.finished && <span className="pill">Finished</span>}
-                  <p className="muted">{t.summary}</p>
-                </div>
-                <div className="row">
-                  {t.game_id && <Link className="button" to={`/games/${t.game_id}`}>Continue</Link>}
-                  <button className={t.game_id || t.finished ? "secondary" : undefined} disabled={start.isPending}
-                    onClick={() => start.mutate(t.id)}>{t.game_id || t.finished ? "Start again" : "Start"}</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        );
-      })}
+      <select value={t.id} onChange={(e) => setChosen(e.target.value)} aria-label="Tutorial">
+        {([["learn", "Learn to play"], ["captains", "Captains"]] as const).map(([group, name]) => {
+          const shown = list.filter((x) => x.group === group);
+          return shown.length ? (
+            <optgroup key={group} label={name}>
+              {shown.map((x) => <option key={x.id} value={x.id}>{label(x)}</option>)}
+            </optgroup>
+          ) : null;
+        })}
+      </select>
+      <div className="row between tutorial-row">
+        <p className="muted">{t.summary}{t.finished && <span className="pill">Finished</span>}</p>
+        <div className="row">
+          {t.game_id && <Link className="button" to={`/games/${t.game_id}`}>Continue</Link>}
+          <button className={t.game_id || t.finished ? "secondary" : undefined} disabled={start.isPending}
+            onClick={() => start.mutate(t.id)}>{t.game_id || t.finished ? "Start again" : "Start"}</button>
+        </div>
+      </div>
       {start.error && <p className="error" role="alert">{start.error.message}</p>}
     </section>
   );
