@@ -7,3 +7,6 @@ server/data/
 server/static/
 __pycache__/
 .pytest_cache/
+
+# Bug reports downloaded by scripts/bugs.py: they hold players' hidden cards and names.
+/bugs/

@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     smtp_user: str = ""
     smtp_password: str = ""
     mail_from: str = ""
+    # A machine token that opens only the bug report list, download and status (REQ-BUG-10, plans/bug-pipeline.md).
+    # Empty turns the token route off.
+    bug_api_token: str = ""
 
 
 @lru_cache

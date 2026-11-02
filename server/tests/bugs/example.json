@@ -1,0 +1,89 @@
+{
+ "id": "example",
+ "kind": "bug",
+ "description": "Example report for the regression test harness.",
+ "bundle": {
+  "version": 1,
+  "game": {
+   "mode": "cadet",
+   "box": "to_boldly_go",
+   "expansions": [],
+   "promos": false,
+   "promo_sets": [],
+   "seed": "6923172451422638647",
+   "bot": null,
+   "campaign": null,
+   "tutorial": null,
+   "status": "active",
+   "seats": [
+    {
+     "index": 0,
+     "display_name": "Player 1",
+     "deck_id": "kirk",
+     "board_side": "basic"
+    }
+   ]
+  },
+  "commands": [
+   {
+    "seat": 0,
+    "option": "play:c113:0",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "c117",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "market:Person",
+    "irreversible": true,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "top",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "play:c115:0",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "c119",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "c133",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "activate:c134:1",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   }
+  ],
+  "reporter_seat": 0,
+  "turn": 0,
+  "step": "action"
+ }
+}

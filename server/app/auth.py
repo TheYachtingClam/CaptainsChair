@@ -2,6 +2,8 @@
 session is a signed cookie holding the user's id and their session version (REQ-USER-13); a password change, a
 reset or disabling the account ends it."""
 
+import hmac
+import logging
 import time
 from collections import defaultdict, deque
 
@@ -83,6 +85,26 @@ def require_admin(request: Request) -> None:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Admin only")
 
 
+def require_admin_or_bug_token(request: Request) -> None:
+    """FastAPI dependency for the bug report list, download and status (REQ-BUG-10): an admin's session, or the bug
+    token as `Authorization: Bearer <token>`. The token opens nothing else. Wrong tokens count against the same
+    per-IP limit as sign-ins."""
+    header = request.headers.get("authorization", "")
+    if header.lower().startswith("bearer "):
+        settings = get_settings()
+        ip = request.client.host if request.client else "unknown"
+        if not login_limiter.allow(f"bug-token:{ip}", settings.login_attempts_per_minute):
+            raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "Too many attempts. Try again in a minute.")
+        given = header[7:].strip()
+        token = settings.bug_api_token
+        if token and hmac.compare_digest(given.encode(), token.encode()):
+            login_limiter.forgive(f"bug-token:{ip}")
+            logging.getLogger("app.auth").info("bug-token %s %s", request.method, request.url.path)
+            return
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Bad token")
+    require_admin(request)
+
+
 def websocket_user(websocket: WebSocket) -> str | None:
     """The account a WebSocket connection comes from (REQ-SRV-40)."""
     signed_in = _signed_in(websocket.cookies)
@@ -110,6 +132,10 @@ class LoginRateLimiter:
             return False
         attempts.append(now)
         return True
+
+    def forgive(self, key: str) -> None:
+        """Forget the attempts under `key`: a correct token is not an attempt to guess one."""
+        self._attempts.pop(key, None)
 
     def reset(self) -> None:
         self._attempts.clear()
