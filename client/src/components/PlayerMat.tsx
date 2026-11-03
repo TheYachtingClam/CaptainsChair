@@ -1,8 +1,10 @@
 import { useContext, useState } from "react";
+import { createPortal } from "react-dom";
 import { BotView, CardView, OptionView, PlayerView, RowRef } from "../api";
 import { usePhone } from "./Sheet";
 import { awayTokenImage, Card, CardBack, imageUrl, InspectContext, PileViewer, Slot, usePreviewHandlers } from "./Cards";
 import { IconText } from "./Icons";
+import { GuideSheet } from "./Coach";
 
 // Crew board track geometry, as fractions of the board image (measured from the scans).
 const TRACK_X0 = 0.073; // centre of space 0
@@ -164,6 +166,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
   // Hand (item 14). The Bot has none (REQ-SOLO-34). On a phone it sits under the mat, outside its border, still fanned
   // so it reads as a hand; the cards overlap more as the hand grows so it always fits the screen's width.
   const phone = usePhone();
+  const [guide, setGuide] = useState(false);
   const handCount = p.hand?.length ?? 0;
   const fanStep = phone && handCount > 1
     ? Math.min(PHONE_HAND_CARD - 6, (Math.min(window.innerWidth - 72, 440) - PHONE_HAND_CARD) / (handCount - 1))
@@ -179,6 +182,11 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
   );
   const hand = !p.bot && (
     <div className={`hand ${phone ? "under-mat" : ""}`} data-tutorial="hand" aria-label={you ? "Your hand" : `${p.name}'s hand`}>
+      {you && (
+        // How cards work, for easy reference in every game (REQ-TUT-43).
+        <button type="button" className="icon-button hand-help" onClick={() => setGuide(true)} aria-label="How cards work"
+          title="How cards work">?</button>
+      )}
       {p.hand
         ? p.hand.map((c, i) => {
             const mid = (p.hand!.length - 1) / 2;
@@ -191,6 +199,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
           })
         : Array.from({ length: p.hand_count }, (_, i) => <div key={i} className="card-back small" aria-hidden />)}
       <span className="muted hand-size">Hand {p.hand_count} / {p.hand_size}</span>
+      {guide && createPortal(<GuideSheet onClose={() => setGuide(false)} />, document.body)}
     </div>
   );
 

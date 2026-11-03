@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AuthError, MODE_LABELS, api } from "../api";
 import { Board } from "../components/Board";
-import { GuideSheet } from "../components/Coach";
 import { usePhone } from "../components/Sheet";
 import { DevPanel } from "../components/DevPanel";
 
@@ -31,7 +30,6 @@ export function GameTable() {
   const [socket, setSocket] = useState<SocketState>("connecting");
   const [exiting, setExiting] = useState(false);
   const [reporting, setReporting] = useState<"bug" | "feature" | null>(null);
-  const [guide, setGuide] = useState(false);
   const phone = usePhone();
   const quitting = useRef(false);
   const hello = useRef<number | null>(null); // the seat this page's socket connected as
@@ -122,7 +120,6 @@ export function GameTable() {
   const g = game.data;
   const systemButtons = (
     <div className="row">
-      {started && <button className="secondary" onClick={() => setGuide(true)}>How cards work</button>}
       {started && g.your_seat != null && (
         <>
           <button className="secondary" onClick={() => setReporting("feature")}>Suggest a feature</button>
@@ -183,7 +180,6 @@ export function GameTable() {
         {!(phone && onTable) && systemButtons}
       </div>
       {reporting && <BugDialog gameId={gameId} kind={reporting} onClose={() => setReporting(null)} />}
-      {guide && <GuideSheet onClose={() => setGuide(false)} />}
       {exiting && (
         <ExitDialog mode={g.mode} campaign={!!g.campaign_id} seated={g.your_seat != null} over={g.status === "finished"}
           busy={quit.isPending} error={quit.error?.message}
