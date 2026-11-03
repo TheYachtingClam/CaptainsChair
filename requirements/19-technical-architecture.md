@@ -166,13 +166,17 @@ All endpoints except login and health require a valid session (see §5).
 | Sign-up page | Reached from an invitation link: the invited email (fixed), display name and password |
 | Forgot and reset password pages | Ask for the email address; then, from the emailed link, set a new password |
 | Account | Reached from the account name in the top bar, beside Sign out: the email address (shown, not changed), the display name, the waiting-email setting (REQ-USER-25), and changing the password (current one, new one twice). A new display name applies to games created or joined afterwards |
-| Lobby | Create game, challenges for the player to accept or decline (REQ-USER-51), list of open games to join, list of the player's own in-progress games. Each of the player's own games has a Delete button that asks for confirmation, because deleting cannot be undone |
+| Lobby | The account's games in sections (REQ-CLI-60), the tutorials, the Five-Year Missions and open games to join, with New game and New Five-Year Mission. Each of the player's own games has a Delete button (✕) that asks for confirmation, because deleting cannot be undone |
 | New game | Choose mode (two-player, solo against the Bot, Cadet Training), box (Core Box, To Boldly Go or both), expansions, promo cards, Crew deck (with complexity and summary) and board side; the display name comes from the account. Solo adds Bot Crew, difficulty and Ticking Clock |
 | Campaign | Five-Year Mission log, rank, upgrades, challenges and the next assignment |
 | Game table | The main play screen (§4.3), with a Report a bug button (§5.5) |
 | Observe | Admin only: the game table, read-only, with an observer bar to step through the game, go to a turn and follow it live (§5.6, REQ-ADMIN-07 to -12) |
 | Score screen | Final score breakdown per player, following [13-final-scoring.md](13-final-scoring.md) |
 | Reference | Keyword glossary, icon reference and common card list |
+
+#### The lobby
+
+- **REQ-CLI-60** The lobby sorts games into sections, each with its count, shown only when it has games: **Challenges for you** (REQ-USER-51); **Your move**, your games whose pending decision is yours (every solo and Cadet Training game in progress); **Waiting for your opponent**, your two-player games waiting for the other player's move, for someone to join, or for a challenged player to accept; then the tutorials (REQ-TUT-50) and your Five-Year Missions; **Open games** to join; and last **Completed games**, folded away until opened. A tutorial in progress is continued from the tutorials card and not listed again. Each game shows its mode, a status (Your move, Waiting for Sam, Waiting for someone to join, You won, You lost, Tie, Finished), who plays which captain (with final scores once over), and the box, expansions, Bot difficulty, turn and time of the last move. Games in each section are newest move first. With no game in progress, a short note points to New game. The server keeps each game's `standing` (whose decision is pending, the turn, the winners and scores, the time) after every stored move and undo, so listing games never replays them; a game saved before then gets its standing the first time it is listed.
 
 ### 4.3 Game table
 

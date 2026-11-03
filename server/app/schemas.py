@@ -94,6 +94,7 @@ class GameSummary(BaseModel):
     campaign_id: str | None = None
     tutorial: str | None = None
     challenge: ChallengeOut | None = None
+    standing: dict | None = None  # whose move, the turn, the result (REQ-CLI-60)
 
 
 class GameView(GameSummary):

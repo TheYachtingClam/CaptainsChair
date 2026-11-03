@@ -149,6 +149,7 @@ def _copy(db: Session, data: dict, moves: int | None, owner: str) -> Game:
         game.status = "finished"
     elif game.status == "finished":
         game.status = "active"
+    play.record(game, state)
     db.commit()
     return game
 

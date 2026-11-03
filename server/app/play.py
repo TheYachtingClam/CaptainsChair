@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import secrets
 import threading
+from datetime import datetime, timezone
 from collections.abc import Iterator
 
 from sqlalchemy.orm import Session, object_session
@@ -29,14 +30,29 @@ def forget(game_id: str) -> None:
     observe.forget(game_id)
 
 
+def standing(state: GameState) -> dict:
+    """Where a game stands, for the lobby (REQ-CLI-60): whose decision is pending, the turn, and the result."""
+    result = state.result
+    return {
+        "waiting_on": None if result or state.decision is None else state.decision.seat,
+        "turn": state.turn,
+        "winners": list(result.get("winners", [])) if result else None,
+        "scores": [{"seat": s["seat"], "total": s["total"]} for s in result.get("scores", [])] if result else None,
+        "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    }
+
+
+def record(game: Game, state: GameState) -> None:
+    game.standing = standing(state)
+
+
 def start(game: Game) -> None:
     # A tutorial's script was written against its own seed (REQ-TUT-11).
     game.seed = int((game.tutorial or {}).get("seed") or secrets.randbits(63))
     game.commands = []
     game.status = "active"
     # Validate setup now rather than on the first view. The game id may not exist yet, so no caching.
-    new_game(game.seed, game.mode, seat_setups(game), game.expansions, game.promos, bot_setup(game), game.box,
-                     game.promo_sets, stack_of(game))
+    record(game, initial(game))
 
 
 def stack_of(game: Game) -> dict | None:
@@ -197,6 +213,7 @@ def apply(db: Session, game: Game, seat: int, option: str) -> None:
                                           "turn": state.turn, "weekday": weekday}]
         if state.step == "over":
             game.status = "finished"
+        record(game, state)
         flag_modified(game, "commands")
         db.commit()
 
@@ -222,6 +239,7 @@ def apply_dev(db: Session, game: Game, seat: int, cmd: dict) -> None:
             raise IllegalCommand(str(err)) from err
         game.commands = [*game.commands, {"seat": seat, "dev": cmd, "irreversible": False, "turn": state.turn,
                                           "weekday": weekday}]
+        record(game, state)
         flag_modified(game, "commands")
         db.commit()
 
@@ -251,6 +269,7 @@ def undo(db: Session, game: Game, seat: int) -> None:
         commands = [dict(c) for c in game.commands]
         commands[i]["undone"] = True  # kept for debugging, never replayed (REQ-UNDO-41)
         game.commands = commands
+        record(game, build(game))
         flag_modified(game, "commands")
         db.commit()
 
