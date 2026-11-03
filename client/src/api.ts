@@ -64,6 +64,8 @@ export interface Game {
   campaign_id?: string | null;
   /** The tutorial this game is (REQ-TUT-02). */
   tutorial?: string | null;
+  /** A challenge: the one account that may take the open seat (REQ-USER-50). */
+  challenge?: { user_id: string; display_name: string } | null;
 }
 
 // ------------------------------------------------------------------ Five-Year Mission campaigns
@@ -536,7 +538,8 @@ export const api = {
   boxes: () => request<Boxes>("/api/content/boxes"),
   games: () => request<Game[]>("/api/games"),
   game: (id: string) => request<Game>(`/api/games/${id}`),
-  createGame: (body: SeatChoice & { mode: GameMode; box: Box; expansions: string[]; promos: boolean; bot?: BotChoice }) =>
+  createGame: (body: SeatChoice & { mode: GameMode; box: Box; expansions: string[]; promos: boolean; bot?: BotChoice;
+    opponent_id?: string }) =>
     request<SeatGrant>("/api/games", { method: "POST", body: JSON.stringify(body) }),
   cardText: () => request<Record<string, CardText>>("/api/content/cards"),
   state: (id: string) => request<GameStateView>(`/api/games/${id}/state`),
@@ -557,6 +560,10 @@ export const api = {
     request<GameStateView>(`/api/games/${id}/tutorial/${action}`, { method: "POST" }),
   joinGame: (id: string, body: SeatChoice) =>
     request<SeatGrant>(`/api/games/${id}/join`, { method: "POST", body: JSON.stringify(body) }),
+  /** Turn a challenge down: the game is deleted (REQ-USER-53). */
+  declineGame: (id: string) => request<null>(`/api/games/${id}/decline`, { method: "POST" }),
+  /** The players you can challenge, by display name (REQ-USER-50). */
+  opponents: () => request<{ id: string; display_name: string }[]>("/api/me/opponents"),
 };
 
 export const MODE_LABELS: Record<GameMode, string> = {

@@ -36,6 +36,8 @@ class CreateGameRequest(SeatChoice):
     expansions: list[str] = []
     promos: bool = False
     bot: BotChoice | None = None
+    # Two-player games: challenge this account instead of opening the game to anyone (REQ-USER-50).
+    opponent_id: str | None = None
 
 
 class CommandRequest(BaseModel):
@@ -71,6 +73,13 @@ class SeatOut(BaseModel):
     board_side: BoardSide
 
 
+class ChallengeOut(BaseModel):
+    """The one account a challenge game is waiting for (REQ-USER-50)."""
+
+    user_id: str
+    display_name: str
+
+
 class GameSummary(BaseModel):
     id: str
     created_at: datetime
@@ -84,6 +93,7 @@ class GameSummary(BaseModel):
     bot: BotChoice | None = None
     campaign_id: str | None = None
     tutorial: str | None = None
+    challenge: ChallengeOut | None = None
 
 
 class GameView(GameSummary):

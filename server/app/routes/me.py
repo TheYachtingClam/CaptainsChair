@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.auth import require_session, viewer_id
 from app.db import get_db
-from app.models import Campaign, Game, Seat
+from app.models import Campaign, Game, Seat, User
 from app.routes.games import summarize
 
 router = APIRouter(prefix="/api/me", tags=["me"], dependencies=[Depends(require_session)])
@@ -26,3 +26,11 @@ def my_campaigns(db: Session = Depends(get_db), user_id: str = Depends(viewer_id
     return [{"id": c.id, "display_name": c.display_name, "deck_id": c.deck_id, "rank": c.rank, "status": c.status,
              "assignments": len(c.assignments or []), "created_at": c.created_at.isoformat() if c.created_at else None}
             for c in camps]
+
+
+@router.get("/opponents")
+def opponents(db: Session = Depends(get_db), user_id: str = Depends(viewer_id)) -> list[dict]:
+    """The players this account can challenge (REQ-USER-50): every other active account, by display name only; email
+    addresses stay with the admin (REQ-USER-60)."""
+    users = db.scalars(select(User).where(User.disabled.is_(False), User.id != user_id)).all()
+    return sorted(({"id": u.id, "display_name": u.display_name} for u in users), key=lambda u: u["display_name"].lower())

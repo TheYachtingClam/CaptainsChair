@@ -103,7 +103,9 @@ All endpoints except login and health require a valid session (see §5).
 | `GET /api/content/cards` | Card list for reference screens |
 | `POST /api/games` | Create a game: mode, chosen deck, board side. The seat takes the account's display name |
 | `GET /api/games` | List open and in-progress games |
-| `POST /api/games/{id}/join` | Join as the second player |
+| `POST /api/games/{id}/join` | Join as the second player; a challenge only by the challenged account (REQ-USER-52) |
+| `POST /api/games/{id}/decline` | Decline a challenge: the game is deleted (REQ-USER-53) |
+| `GET /api/me/opponents` | The players the account can challenge, by display name (REQ-USER-50) |
 | `DELETE /api/games/{id}` | Delete the game for everyone. Only a player seated in that game (REQ-USER-42). Connected players get a `game_deleted` message and return to the lobby |
 | `GET /api/admin/games` | Admin: every game, in any state, with its players |
 | `DELETE /api/admin/games/{id}` | Admin: delete any game; connected players get `game_deleted` |
@@ -164,7 +166,7 @@ All endpoints except login and health require a valid session (see §5).
 | Sign-up page | Reached from an invitation link: the invited email (fixed), display name and password |
 | Forgot and reset password pages | Ask for the email address; then, from the emailed link, set a new password |
 | Account | Reached from the account name in the top bar, beside Sign out: the email address (shown, not changed), the display name, the waiting-email setting (REQ-USER-25), and changing the password (current one, new one twice). A new display name applies to games created or joined afterwards |
-| Lobby | Create game, list of open games to join, list of the player's own in-progress games. Each of the player's own games has a Delete button that asks for confirmation, because deleting cannot be undone |
+| Lobby | Create game, challenges for the player to accept or decline (REQ-USER-51), list of open games to join, list of the player's own in-progress games. Each of the player's own games has a Delete button that asks for confirmation, because deleting cannot be undone |
 | New game | Choose mode (two-player, solo against the Bot, Cadet Training), box (Core Box, To Boldly Go or both), expansions, promo cards, Crew deck (with complexity and summary) and board side; the display name comes from the account. Solo adds Bot Crew, difficulty and Ticking Clock |
 | Campaign | Five-Year Mission log, rank, upgrades, challenges and the next assignment |
 | Game table | The main play screen (§4.3), with a Report a bug button (§5.5) |
@@ -226,7 +228,7 @@ Every player has their own account, created only by invitation from the admin, a
 - **REQ-USER-21** A reset link can be used once and expires after 1 hour. Setting a new password with it raises the session version, ending every session of that user, and signs them in.
 - **REQ-USER-22** The admin can also send a user a reset email from the Admin page, and sees the link, to pass on another way if the email does not arrive.
 - **REQ-USER-23** Emails are plain text, sent over SMTP with the settings in §6 (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM`), from a Gmail account with an app password for now (`smtp.gmail.com`, port 587 with STARTTLS; port 465 uses TLS from the start). The sender is `MAIL_FROM`, or "Captain's Chair Online" at `SMTP_USER` when it is blank. Without `SMTP_HOST` and `SMTP_PASSWORD`, as on a developer's machine, each email is written to the server log instead. Links in emails start with `PUBLIC_URL`. An email that cannot be sent never fails the request: the error is logged without the email's text, and the Admin page says so and shows the link to pass on.
-- **REQ-USER-24** There are four emails: the invitation, the password-reset link, the notice that a password was changed, and the waiting email (REQ-USER-25).
+- **REQ-USER-24** There are six emails: the invitation, the password-reset link, the notice that a password was changed, the waiting email (REQ-USER-25), the challenge (REQ-USER-51) and the notice that a challenge was declined (REQ-USER-53).
 - **REQ-USER-25** **Waiting emails.** In a two-player game, when a move leaves the game waiting for the other player, that player gets an email: either it is now their turn ("Your turn: Sam finished their turn"), or the move needs a decision from them during the other player's turn, such as a Reaction, an attack's choice or a choice forced on them ("Sam needs a decision from you", with the question). It links to the game and says the email can be turned off on the Account page. It is sent only when the player does not have the game open, and only once until they make a move in that game. Each account has the setting, on by default; a disabled account gets none. Solo and Cadet Training games and the end of a game send nothing. The email is sent after the move is saved, so it never slows the move.
 
 ### 5.4 The admin
@@ -243,6 +245,13 @@ The admin is any account with the admin flag. They can manage accounts and clean
 - **REQ-USER-41** Retired: claiming games from before accounts. Those games were deleted instead.
 - **REQ-USER-42** A player may act in a seat (commands, undo, delete the game, report) only when the seat belongs to their account. One account cannot hold both seats of a two-player game, except the admin in a copy of a reported game (REQ-BUG-07).
 - **REQ-USER-43** A campaign is opened only by the account that started it.
+
+#### Challenges
+
+- **REQ-USER-50** Creating a two-player game can **challenge** another player instead of opening the game to anyone: the New game page offers "Anyone (open game)" or any other active account, by display name (`GET /api/me/opponents`; email addresses are never shown, §5.7). A solo or Cadet Training game cannot challenge.
+- **REQ-USER-51** The challenged player is emailed at once, whatever their waiting-email setting: who challenged them, the challenger's Crew, the box and expansions, and a link to the game. The link opens the game page, after signing in if needed, where they choose their Crew and accept (the game starts), or decline. The lobby lists the challenge under **Challenges for you** with the same choices.
+- **REQ-USER-52** Only the challenged account can take the open seat. A challenge is not listed under Open games, and `GET /api/games` lists it only to its two players. The challenger sees it in Your games as "waiting for <name> to accept", and can delete it as any waiting game (REQ-ADMIN-05).
+- **REQ-USER-53** Declining deletes the game (its players get `game_deleted`) and emails the challenger that it was declined. Only the challenged player can decline, and only before the game starts.
 
 ### 5.6 Admin tools for games and campaigns
 

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { Game, MODE_LABELS, SeatChoice, TutorialInfo, api, campaignApi, setsFor } from "../api";
-import { SeatForm } from "../components/SeatForm";
+import { Game, MODE_LABELS, TutorialInfo, api, campaignApi } from "../api";
+import { useAccount } from "../account";
+import { JoinForm } from "../components/JoinForm";
 
 export function Lobby() {
   const games = useQuery({ queryKey: ["games"], queryFn: api.games, refetchInterval: 5000 });
@@ -10,7 +11,11 @@ export function Lobby() {
   const myGames = useQuery({ queryKey: ["my-games"], queryFn: api.myGames, refetchInterval: 5000 });
   const mine = myGames.data ?? [];
   const ownIds = new Set(mine.map((g) => g.id));
-  const open = (games.data ?? []).filter((g) => !ownIds.has(g.id) && g.open_seats > 0);
+  const account = useAccount();
+  const waiting = (games.data ?? []).filter((g) => !ownIds.has(g.id) && g.open_seats > 0);
+  // A challenge is for one player only (REQ-USER-51, -52); the server lists it to no one else.
+  const challenges = waiting.filter((g) => g.challenge && g.challenge.user_id === account?.id);
+  const open = waiting.filter((g) => !g.challenge);
 
   return (
     <main className="page">
@@ -22,6 +27,20 @@ export function Lobby() {
         </div>
       </div>
       {games.isError && <p className="error">{games.error.message}</p>}
+
+      {challenges.length > 0 && (
+        <section>
+          <h2>Challenges for you</h2>
+          <ul className="list">
+            {challenges.map((g) => (
+              <li key={g.id} className="card stack">
+                <GameLine game={g} />
+                <JoinForm game={g} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <Tutorials />
 
@@ -51,13 +70,20 @@ export function Lobby() {
 }
 
 function GameLine({ game }: { game: Game }) {
+  const account = useAccount();
   const players = game.seats.map((s) => `${s.display_name} (${s.deck_id})`).join(" vs ");
+  const forYou = !!game.challenge && game.challenge.user_id === account?.id;
   return (
     <div>
       <strong>{game.tutorial ? "Tutorial" : MODE_LABELS[game.mode]}</strong> · {players}
       {game.box === "core" && <span className="muted"> · Core Box</span>}
       {game.box === "both" && <span className="muted"> · both boxes</span>}
-      {game.open_seats > 0 && <span className="muted"> · waiting for opponent</span>}
+      {game.open_seats > 0 && (
+        <span className="muted">
+          {forYou ? " · challenges you"
+            : game.challenge ? ` · waiting for ${game.challenge.display_name} to accept` : " · waiting for opponent"}
+        </span>
+      )}
     </div>
   );
 }
@@ -100,44 +126,14 @@ function MyGame({ game }: { game: Game }) {
 }
 
 function OpenGame({ game }: { game: Game }) {
-  const boxes = useQuery({ queryKey: ["boxes"], queryFn: api.boxes });
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [joining, setJoining] = useState(false);
-  const [seat, setSeat] = useState<SeatChoice>({ deck_id: "", board_side: "basic" });
-
-  const join = useMutation({
-    mutationFn: () => api.joinGame(game.id, seat),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["games"] });
-      queryClient.invalidateQueries({ queryKey: ["my-games"] });
-      navigate(`/games/${game.id}`);
-    },
-  });
-
   return (
     <li className="card stack">
       <div className="row between">
         <GameLine game={game} />
         {!joining && <button onClick={() => setJoining(true)}>Join</button>}
       </div>
-      {joining && (
-        <>
-          <SeatForm
-            value={seat}
-            onChange={setSeat}
-            sets={setsFor(boxes.data, game.box, game.expansions)}
-            takenDecks={game.seats.map((s) => s.deck_id)}
-          />
-          {join.error && <p className="error" role="alert">{join.error.message}</p>}
-          <div className="row">
-            <button disabled={join.isPending || !seat.deck_id} onClick={() => join.mutate()}>
-              Take the seat
-            </button>
-            <button className="link" onClick={() => setJoining(false)}>Cancel</button>
-          </div>
-        </>
-      )}
+      {joining && <JoinForm game={game} onCancel={() => setJoining(false)} />}
     </li>
   );
 }
