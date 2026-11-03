@@ -42,8 +42,9 @@ steps:
     expect: activate:3RIK02:3
   - id: deanna
     say: |
-      With Deanna in play, every **Incident** gets an extra PLAY: discard a card to return it, then draw a card. Look at
-      **Hostile Contact** in your hand. Her Activation also refreshes your Captain.
+      With Deanna in play, her **PASSIVE** gives every **Incident** an extra PLAY: discard a card to return it, then
+      draw a card. Tap **Hostile Contact** in your hand: below its own PLAYs is an extra one, marked (Deanna Troi-Riker). Her
+      Activation also refreshes your Captain.
     show: card:3RIK20
     next: button
   - id: starbase
@@ -80,7 +81,8 @@ steps:
     expect: activate:3RIK22:2
   - id: hostile
     say: |
-      Last action: play **Hostile Contact** with **Deanna's** PLAY: discard a card to return the Incident, then draw.
+      Last action: tap **Hostile Contact** and use the extra PLAY her PASSIVE gives it, the one marked (Deanna
+      Troi-Riker): discard a card to return the Incident, then draw.
     show: card:3RIK20
     expect: play:3RIK20:100
   - id: hostile-cost
