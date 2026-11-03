@@ -41,7 +41,7 @@ A tutorial is a real game with a coach: it explains each part of *Captain's Chai
 - **REQ-TUT-40** On a laptop the coach is a panel beside what it points at; on a phone it is the top block of the bottom sheet (REQ-CLI-34). It shows the text, Back (for explanations), Next where needed, progress ("Step 7 of 52"), **Let me play** and **Leave tutorial**.
 - **REQ-TUT-41** What the step points at is highlighted and the rest of the table dimmed, without blocking it: cards can still be pressed and held to read them (REQ-CLI-31).
 - **REQ-TUT-42** Leaving keeps the game; the lobby offers to continue it or start again.
-- **REQ-TUT-43** A **?** in the coach opens **How cards work** (`server/content/guides/how-cards-work.yaml`): where a card can be, where each kind of ability works, the icons, and the game's words. The icons are cropped from the rulebook's icon reference (`scripts/crop_icons.py`) and drawn in card text and answers too.
+- **REQ-TUT-43** A **?** in the coach opens **How cards work** (`server/content/guides/how-cards-work.yaml`): where a card can be, where each kind of ability works, the icons, and the game's words. The icons are cropped from the rulebook's icon reference (`scripts/crop_icons.py`) and drawn in card text and answers too. The same sheet is on every game screen, tutorial or not: a **How cards work** button beside Report a bug (on a phone, on the System tab, REQ-CLI-32).
 
 ### 1.6 The lobby and the account
 

@@ -32,7 +32,7 @@ def all_tutorials(db: Session = Depends(get_db), viewer: str = Depends(viewer_id
 
 @router.get("/guides/{guide_id}")
 def guide(guide_id: str) -> dict:
-    """A reference sheet for the coach's "?" (REQ-TUT-43)."""
+    """A reference sheet: the coach's "?" and every game screen's How cards work (REQ-TUT-43)."""
     try:
         return tutorial.guide(guide_id)
     except tutorial.TutorialError as err:
