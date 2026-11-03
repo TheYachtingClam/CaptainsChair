@@ -5,6 +5,8 @@ import { AuthError, MODE_LABELS, api } from "../api";
 import { Board } from "../components/Board";
 import { usePhone } from "../components/Sheet";
 import { DevPanel } from "../components/DevPanel";
+import { JoinForm } from "../components/JoinForm";
+import { useAccount } from "../account";
 
 type SocketState = "connecting" | "open" | "closed" | "no-seat";
 
@@ -31,6 +33,7 @@ export function GameTable() {
   const [exiting, setExiting] = useState(false);
   const [reporting, setReporting] = useState<"bug" | "feature" | null>(null);
   const phone = usePhone();
+  const account = useAccount();
   const quitting = useRef(false);
   const hello = useRef<number | null>(null); // the seat this page's socket connected as
   const quit = useMutation({
@@ -151,7 +154,12 @@ export function GameTable() {
               <span className="muted"> · {online.includes(s.index) ? "online" : "offline"}</span>
             </li>
           ))}
-          {g.open_seats > 0 && <li className="muted">Open seat. Share this page's link with your opponent.</li>}
+          {g.open_seats > 0 && (
+            <li className="muted">
+              {g.challenge ? `Open seat, for ${g.challenge.display_name} only (a challenge).`
+                : "Open seat. Share this page's link with your opponent."}
+            </li>
+          )}
         </ul>
       </section>
     </>
@@ -201,8 +209,19 @@ export function GameTable() {
           onChoose={(o) => command.mutate(o)} onUndo={() => undo.mutate()} onCoach={(a) => coach.mutate(a)}
           system={<><section className="card">{systemButtons}</section>{gameInfo}{connection}</>} />
       ) : (
-        <section className="card">
-          <p className="muted">The game starts when every seat is filled.</p>
+        <section className="card stack">
+          {g.challenge && g.your_seat == null && g.challenge.user_id === account?.id ? (
+            // The link in a challenge email lands here (REQ-USER-51).
+            <>
+              <h2>{g.seats.map((s) => s.display_name).join(", ")} challenges you</h2>
+              <JoinForm game={g} />
+            </>
+          ) : g.challenge ? (
+            <p className="muted">Waiting for {g.challenge.display_name} to accept your challenge. They have been sent an email
+              with a link; the game starts when they accept.</p>
+          ) : (
+            <p className="muted">The game starts when every seat is filled.</p>
+          )}
         </section>
       )}
       {state.data?.dev_tools && g.your_seat != null && g.status === "active" && <DevPanel gameId={gameId} />}

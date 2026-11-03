@@ -20,9 +20,16 @@ export function NewGame() {
   const sets = setsFor(boxes.data, box, chosen);
   const bots = (decks.data ?? []).filter((d: Deck) => d.bot && sets.includes(d.set)).sort(byComplexity);
   const solo = mode === "solo";
+  const twoPlayer = mode === "two_player";
+  // Challenge one player instead of opening the game to anyone (REQ-USER-50).
+  const opponents = useQuery({ queryKey: ["opponents"], queryFn: api.opponents, enabled: twoPlayer });
+  const [opponent, setOpponent] = useState("");
 
   const create = useMutation({
-    mutationFn: () => api.createGame({ ...seat, mode, box, expansions: chosen, promos, ...(solo ? { bot } : {}) }),
+    mutationFn: () => api.createGame({
+      ...seat, mode, box, expansions: chosen, promos, ...(solo ? { bot } : {}),
+      ...(twoPlayer && opponent ? { opponent_id: opponent } : {}),
+    }),
     onSuccess: (grant) => navigate(`/games/${grant.game.id}`),
   });
 
@@ -88,6 +95,20 @@ export function NewGame() {
           </label>
         </fieldset>
         <SeatForm value={seat} onChange={setSeat} sets={sets} />
+        {twoPlayer && (
+          <label>
+            Opponent
+            <select value={opponent} onChange={(e) => setOpponent(e.target.value)}>
+              <option value="">Anyone (open game)</option>
+              {(opponents.data ?? []).map((o) => <option key={o.id} value={o.id}>{o.display_name}</option>)}
+            </select>
+            <span className="muted">
+              {opponent
+                ? "They get an email with a link to accept. Only they can take the seat."
+                : "Anyone can join from the lobby's Open games."}
+            </span>
+          </label>
+        )}
         {solo && (
           <fieldset className="stack">
             <legend>The Bot</legend>
@@ -126,7 +147,7 @@ export function NewGame() {
         )}
         {create.error && <p className="error" role="alert">{create.error.message}</p>}
         <button type="submit" disabled={create.isPending || !seat.deck_id || (solo && !bot.deck_id)}>
-          Create game
+          {twoPlayer && opponent ? "Send the challenge" : "Create game"}
         </button>
       </form>
     </main>

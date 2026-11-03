@@ -34,6 +34,8 @@ class Game(Base):
     campaign: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     # A tutorial game (requirements/24-tutorials.md): {"id": script id, "stack": the stacked decks it started with}.
     tutorial: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # A challenge (REQ-USER-50): {"user_id", "display_name"} of the one account that may take the open seat.
+    challenge: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="waiting")
 
     seats: Mapped[list["Seat"]] = relationship(

@@ -16,6 +16,11 @@ def decks() -> list[dict]:
     return json.loads((CONTENT_DIR / "decks.json").read_text())
 
 
+def deck_name(deck_id: str) -> str:
+    """A Crew deck's captain, for emails ("Riker"); the id if it is unknown."""
+    return next((d["captain"] for d in decks() if d["id"] == deck_id), deck_id)
+
+
 def box_sets(box: str) -> tuple[str, ...]:
     """The sets whose Crew decks a box allows (REQ-CORE-11)."""
     from engine.setup import BOXES

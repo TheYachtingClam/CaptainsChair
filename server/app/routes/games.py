@@ -46,6 +46,7 @@ def summarize(game: Game) -> dict:
         "bot": game.bot,
         "campaign_id": (game.campaign or {}).get("id"),
         "tutorial": (game.tutorial or {}).get("id"),
+        "challenge": game.challenge,
     }
 
 
@@ -96,14 +97,55 @@ def add_seat(db: Session, game: Game, choice: SeatChoice, user: User) -> Seat:
     return seat
 
 
+def visible_to(game: Game, user_id: str) -> bool:
+    """A challenge is listed only for the two players in it (REQ-USER-52); every other game for everyone."""
+    return (not game.challenge or game.challenge["user_id"] == user_id
+            or any(s.user_id == user_id for s in game.seats))
+
+
 @router.get("", response_model=list[GameSummary])
-def list_games(db: Session = Depends(get_db)) -> list[dict]:
+def list_games(db: Session = Depends(get_db), viewer: str = Depends(viewer_id)) -> list[dict]:
     games = db.scalars(select(Game).options(selectinload(Game.seats)).order_by(Game.created_at.desc())).all()
-    return [summarize(g) for g in games]
+    return [summarize(g) for g in games if visible_to(g, viewer)]
+
+
+def _opponent(db: Session, body: CreateGameRequest, viewer: str) -> User | None:
+    """The account a new game challenges, if any (REQ-USER-50)."""
+    if body.opponent_id is None:
+        return None
+    if body.mode != "two_player":
+        raise HTTPException(422, "Only a two-player game can challenge another player")
+    opponent = db.get(User, body.opponent_id)
+    if opponent is None or opponent.disabled:
+        raise HTTPException(422, "That player cannot be challenged")
+    if opponent.id == viewer:
+        raise HTTPException(422, "You cannot challenge yourself")
+    return opponent
+
+
+def _game_terms(game: Game) -> str:
+    """The box, expansions and promos, for an email."""
+    parts = [{"both": "Core Box and To Boldly Go combined"}.get(game.box, content.BOX_NAMES[game.box])]
+    parts += [content.EXPANSIONS.get(e, e) for e in game.expansions]
+    if game.promos:
+        parts.append("promo cards")
+    return ", ".join(parts)
+
+
+def challenge_email(game: Game, challenger: Seat, opponent: User) -> tuple[str, str, str]:
+    """The email that challenges a player to a game, with the link to accept it (REQ-USER-51)."""
+    them = challenger.display_name
+    deck = content.deck_name(challenger.deck_id)
+    body = (f"Hello {opponent.display_name},\n\n{them} challenges you to a two-player game of Captain's Chair. "
+            f"{them} plays {deck}.\nThe game: {_game_terms(game)}.\n\n"
+            f"Accept it, choose your Crew and start playing here:\n{mail.link(f'/games/{game.id}')}\n\n"
+            f"You can also decline it there, or from the lobby.\n")
+    return opponent.email, f"{them} challenges you to a game of Captain's Chair", body
 
 
 @router.post("", response_model=SeatGrant, status_code=status.HTTP_201_CREATED)
-def create_game(body: CreateGameRequest, db: Session = Depends(get_db), viewer: str = Depends(viewer_id)) -> dict:
+def create_game(body: CreateGameRequest, background: BackgroundTasks, db: Session = Depends(get_db),
+                viewer: str = Depends(viewer_id)) -> dict:
     unknown = set(body.expansions) - set(content.EXPANSIONS)
     if unknown:
         raise HTTPException(422, f"Unknown expansion: {', '.join(sorted(unknown))}")
@@ -119,8 +161,13 @@ def create_game(body: CreateGameRequest, db: Session = Depends(get_db), viewer: 
         bot = body.bot.model_dump()
     game = Game(mode=body.mode, box=body.box, expansions=body.expansions, promos=body.promos, bot=bot,
                 promo_sets=list(content.ALL_PROMOS) if body.promos else [])
+    opponent = _opponent(db, body, viewer)
+    if opponent is not None:
+        game.challenge = {"user_id": opponent.id, "display_name": opponent.display_name}
     db.add(game)
     seat = add_seat(db, game, body, db.get(User, viewer))
+    if opponent is not None:
+        background.add_task(mail.send, *challenge_email(game, seat, opponent))  # after the response (REQ-USER-51)
     return {"game": {**summarize(game), "your_seat": seat.index}, "seat_index": seat.index}
 
 
@@ -130,12 +177,36 @@ async def join_game(game_id: str, body: SeatChoice, db: Session = Depends(get_db
     game = load_game(db, game_id)
     if len(game.seats) >= seat_count(game):
         raise HTTPException(status.HTTP_409_CONFLICT, "This game is full")
+    if game.challenge and game.challenge["user_id"] != viewer:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, f"This game is a challenge for {game.challenge['display_name']}")
     validate_deck(body.deck_id, game.expansions, game.box)
     if any(s.deck_id == body.deck_id for s in game.seats):
         raise HTTPException(status.HTTP_409_CONFLICT, "Your opponent already chose that Crew deck")
     seat = add_seat(db, game, body, db.get(User, viewer))
     await hub.broadcast(game.id, {"type": "game_updated"})
     return {"game": {**summarize(game), "your_seat": seat.index}, "seat_index": seat.index}
+
+
+@router.post("/{game_id}/decline", status_code=status.HTTP_204_NO_CONTENT)
+async def decline_challenge(game_id: str, background: BackgroundTasks, db: Session = Depends(get_db),
+                            viewer: str = Depends(viewer_id)) -> None:
+    """Turn a challenge down (REQ-USER-53): the game is deleted and the challenger told by email."""
+    game = load_game(db, game_id)
+    if not game.challenge or game.challenge["user_id"] != viewer:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "This is not a challenge for you")
+    if game.status != "waiting":
+        raise HTTPException(status.HTTP_409_CONFLICT, "This game has already started")
+    them = game.challenge["display_name"]
+    challengers = [db.get(User, s.user_id) for s in game.seats]
+    db.delete(game)
+    db.commit()
+    play.forget(game_id)
+    await hub.broadcast(game_id, {"type": "game_deleted"})
+    for user in challengers:
+        if user is not None and not user.disabled:
+            background.add_task(mail.send, user.email, f"{them} declined your challenge",
+                                f"Hello {user.display_name},\n\n{them} declined your challenge to a game of Captain's "
+                                f"Chair, so the game was deleted. Start another from the lobby:\n{mail.link('/')}\n")
 
 
 @router.get("/{game_id}", response_model=GameView)
