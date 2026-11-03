@@ -281,6 +281,8 @@ A player who sees something wrong can report it from the game table. The report 
 - **REQ-BUG-07** The admin can **recreate** a report: the server makes a new game from the bundle, as reported or a chosen number of moves earlier. Every seat of the copy belongs to the admin's account, so the admin can play both sides of a two-player game: each request acts in the seat whose decision is pending. The copy is an ordinary game and can be played on. The original game is not touched, and a copy of a campaign assignment never counts for the campaign.
 - **REQ-BUG-08** A report has no link to the game's row, so deleting the game keeps the report. If the rules have changed so that a stored move no longer applies, the copy follows REQ-SRV-14's rule for that: the move and the later ones are dropped and a note is logged.
 - **REQ-BUG-09** Next to Report a bug, a seated player has **Suggest a feature**: the same dialog, asking what they would like the game to do. A suggestion is saved the same way, with the same bundle (REQ-BUG-03, -04), so the position that prompted it can be recreated. The Admin page lists bugs and suggestions together, marked by kind, and can show only one kind.
+- **REQ-BUG-10** A **bug token** lets a script fetch reports without an account: when the server's `BUG_API_TOKEN` is set, a request with `Authorization: Bearer <token>` may list reports, read or download one, and mark one resolved or open, as the admin can. It opens nothing else: deleting or recreating a report, every other admin endpoint and every player endpoint still need a signed-in account. A wrong token counts against the same per-IP limit as sign-ins (REQ-USER-12). With `BUG_API_TOKEN` empty, the token route is off. `scripts/bugs.py` uses it (plans/bug-pipeline.md).
+- **REQ-BUG-11** A fix for a report is deployed by merging it to `main`: a GitHub workflow runs the server tests and the client build on every pull request, and on `main` deploys to Fly when they pass, then marks resolved every report named by a `Fixes-Bug: <id>` line in the pushed commits.
 
 ## 6. Deployment and operations
 
@@ -295,12 +297,13 @@ A player who sees something wrong can report it from the game table. The report 
 | `ADMIN_EMAIL` | Where `python -m app.create_admin` sends the first admin invitation when no address is given |
 | `PUBLIC_URL` | The site's address, used in links in emails, for example `https://captains-chair-wild-bush-4325.fly.dev` |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | Sending email (REQ-USER-23). Optional: without them, emails go to the server log |
+| `BUG_API_TOKEN` | The bug token (REQ-BUG-10). Optional: without it, only the admin's session reads reports |
 | `DATABASE_URL` | Database location. Defaults to a local SQLite file |
 | `LOG_LEVEL` | Server log detail |
 
 - **REQ-OPS-05** Server logs must never contain passwords, session cookies, or invitation and reset codes. When no SMTP settings are set, the emails written to the log do contain their links; that is only for a developer's machine.
 - **REQ-OPS-06** The SQLite database file is backed up daily if the host allows it.
-- **REQ-OPS-07** The site is hosted on Fly.io from `fly.toml`: one machine, with one volume mounted at `/app/data` for the SQLite file. It must stay a single machine, because the server caches games in memory and locks commands in-process (REQ-SRV-42). The session secret and the SMTP password are Fly secrets, never in the file. The container starts as root only to give the mounted volume to the unprivileged `app` user (`scripts/docker-entrypoint.sh`), then runs the server as `app`.
+- **REQ-OPS-07** The site is hosted on Fly.io from `fly.toml`: one machine, with one volume mounted at `/app/data` for the SQLite file. It must stay a single machine, because the server caches games in memory and locks commands in-process (REQ-SRV-42). The session secret, the SMTP password and the bug token are Fly secrets, never in the file. Merging to `main` deploys (REQ-BUG-11). The container starts as root only to give the mounted volume to the unprivileged `app` user (`scripts/docker-entrypoint.sh`), then runs the server as `app`.
 
 ## 7. Out of scope for the first version
 

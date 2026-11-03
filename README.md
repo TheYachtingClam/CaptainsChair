@@ -17,6 +17,22 @@ Everyone signs in with their own account; accounts are made by invitation from t
 
 Local runs need [uv](https://docs.astral.sh/uv/) and Node.js 20 or later. Docker runs need only Docker.
 
+## Deploying
+
+The site runs on Fly.io (`fly.toml`). Merging to `main` deploys it: `.github/workflows/deploy.yml` runs the server tests and the client build on every pull request, and on `main` runs them again, then `flyctl deploy`, then marks resolved the bug reports named by `Fixes-Bug: <id>` lines in the pushed commits.
+
+One-time setup:
+
+- Fly: `fly secrets set BUG_API_TOKEN=<a long random token>` (make one with `python3 -c 'import secrets; print(secrets.token_urlsafe(32))'`).
+- GitHub, Settings > Secrets and variables > Actions: `FLY_API_TOKEN` (`fly tokens create deploy -a captains-chair-wild-bush-4325`) and `CC_BUG_TOKEN` (the same token as `BUG_API_TOKEN`). Without `FLY_API_TOKEN` the deploy is skipped with a notice.
+- For Claude Code cloud sessions, in the environment's settings: allow `captains-chair-wild-bush-4325.fly.dev` under Network access, and set `CC_URL=https://captains-chair-wild-bush-4325.fly.dev` and `CC_BUG_TOKEN=<the token>`.
+
+To roll back, `fly releases -a captains-chair-wild-bush-4325` lists the releases and `fly deploy --image <an earlier image>` puts one back.
+
+## Bug reports
+
+`scripts/bugs.py list` lists the open reports on the live site, `get <id>` downloads one into `bugs/` (git-ignored) and `scripts/replay_bug.py bugs/<file>` rebuilds its game. It needs `CC_URL` and `CC_BUG_TOKEN`. The whole loop, through a regression test and the deploy, is in `plans/bug-pipeline.md` and the `fix-bug` skill (`.claude/skills/fix-bug/SKILL.md`).
+
 ## Layout
 
 | Path | Contents |

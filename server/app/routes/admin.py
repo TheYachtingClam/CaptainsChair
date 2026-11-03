@@ -1,5 +1,6 @@
 """The admin (requirements/19-technical-architecture.md §5.4, §5.6): accounts and invitations, every game and
-campaign, and bug reports. Every endpoint here needs an admin account (REQ-USER-32)."""
+campaign, and bug reports. Every endpoint here needs an admin account (REQ-USER-32), except that the bug token also
+opens the bug report list, download and status (REQ-BUG-10)."""
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from pydantic import BaseModel
@@ -7,17 +8,18 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app import bugs, observe, play
-from app.auth import require_admin, require_session, session_user, viewer_id
+from app.auth import require_admin, require_admin_or_bug_token, require_session, session_user, viewer_id
 from app.db import get_db
 from app.hub import hub
 from app.models import BugReport, Campaign, Game
 from app.schemas import BugStatus
 from engine.views import game_view
 
-router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(require_session)])
+# Each endpoint states its own access: the bug token has no session.
+router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 
-@router.get("/status")
+@router.get("/status", dependencies=[Depends(require_session)])
 def admin_status(request: Request, db: Session = Depends(get_db)) -> dict:
     """Whether this account is an admin (REQ-USER-32)."""
     user = session_user(request.cookies, db)
@@ -206,21 +208,21 @@ def _bug_summary(r: BugReport) -> dict:
     }
 
 
-@router.get("/bugs", dependencies=[Depends(require_admin)])
+@router.get("/bugs", dependencies=[Depends(require_admin_or_bug_token)])
 def all_bugs(db: Session = Depends(get_db)) -> list[dict]:
     """Every bug report, newest first."""
     reports = db.scalars(select(BugReport).order_by(BugReport.created_at.desc())).all()
     return [_bug_summary(r) for r in reports]
 
 
-@router.get("/bugs/{bug_id}", dependencies=[Depends(require_admin)])
+@router.get("/bugs/{bug_id}", dependencies=[Depends(require_admin_or_bug_token)])
 def one_bug(bug_id: str, db: Session = Depends(get_db)) -> dict:
     """The whole report with its bundle: the file `scripts/replay_bug.py` reads (REQ-BUG-06)."""
     report = _bug(db, bug_id)
     return {**_bug_summary(report), "bundle": report.bundle}
 
 
-@router.get("/bugs/{bug_id}/download", dependencies=[Depends(require_admin)])
+@router.get("/bugs/{bug_id}/download", dependencies=[Depends(require_admin_or_bug_token)])
 def download_bug(bug_id: str, db: Session = Depends(get_db)) -> Response:
     """The report as a JSON file, written by the server so that no number passes through the browser: a seed above
     2**53 would be rounded by JavaScript and the game would no longer replay (REQ-BUG-06)."""
@@ -232,7 +234,7 @@ def download_bug(bug_id: str, db: Session = Depends(get_db)) -> Response:
                     headers={"Content-Disposition": f'attachment; filename="bug-{report.id[:8]}.json"'})
 
 
-@router.post("/bugs/{bug_id}/status", dependencies=[Depends(require_admin)])
+@router.post("/bugs/{bug_id}/status", dependencies=[Depends(require_admin_or_bug_token)])
 def set_bug_status(bug_id: str, body: BugStatus, db: Session = Depends(get_db)) -> dict:
     report = _bug(db, bug_id)
     report.status = body.status
