@@ -47,6 +47,7 @@ def summarize(game: Game) -> dict:
         "campaign_id": (game.campaign or {}).get("id"),
         "tutorial": (game.tutorial or {}).get("id"),
         "challenge": game.challenge,
+        "standing": game.standing,
     }
 
 

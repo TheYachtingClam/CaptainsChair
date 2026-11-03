@@ -66,6 +66,18 @@ export interface Game {
   tutorial?: string | null;
   /** A challenge: the one account that may take the open seat (REQ-USER-50). */
   challenge?: { user_id: string; display_name: string } | null;
+  /** Where it stands, for the lobby (REQ-CLI-60). */
+  standing?: GameStanding | null;
+}
+
+export interface GameStanding {
+  /** The seat whose decision is pending, or null. */
+  waiting_on: number | null;
+  turn: number;
+  winners: number[] | null;
+  scores: { seat: number; total: number }[] | null;
+  /** When the last move was stored. */
+  at: string;
 }
 
 // ------------------------------------------------------------------ Five-Year Mission campaigns

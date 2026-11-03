@@ -36,6 +36,9 @@ class Game(Base):
     tutorial: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     # A challenge (REQ-USER-50): {"user_id", "display_name"} of the one account that may take the open seat.
     challenge: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # Where the game stands, for the lobby (REQ-CLI-60), kept by app/play.py after every stored move: {"waiting_on":
+    # the seat whose decision is pending or None, "turn", "winners" and "scores" once over, "at": the last move's time}.
+    standing: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="waiting")
 
     seats: Mapped[list["Seat"]] = relationship(

@@ -414,3 +414,46 @@ def test_a_decision_mid_turn_is_emailed_once_until_the_player_moves(authed, monk
         assert routes.waiting_email(db, game, mover, state["turn"], mover) is None  # already told
         routes.waiting_email(db, game, waiting, state["turn"], mover)  # they moved...
         assert routes.waiting_email(db, game, mover, state["turn"], mover) is not None  # ...so the next one is sent
+
+
+def test_the_lobby_knows_whose_move_it_is(authed):
+    """REQ-CLI-60: each game's standing says whose decision is pending, kept after every move and undo."""
+    game_id, players = started_game(authed)
+    active = authed.get(f"/api/games/{game_id}/state").json()["active"]
+    mine = {g["id"]: g for g in authed.get("/api/me/games").json()}[game_id]
+    assert mine["standing"]["waiting_on"] == active and mine["standing"]["winners"] is None
+    finish_turn(players[active], game_id)
+    standing = {g["id"]: g for g in authed.get("/api/me/games").json()}[game_id]["standing"]
+    assert standing["waiting_on"] == 1 - active
+
+
+def test_older_games_get_their_standing_once(authed):
+    """REQ-CLI-60: a game saved before standings existed is worked out when the lobby first lists it."""
+    from app.db import open_session
+    from app.models import Game
+
+    game_id, _ = started_game(authed)
+    with open_session() as db:
+        db.get(Game, game_id).standing = None
+        db.commit()
+    mine = {g["id"]: g for g in authed.get("/api/me/games").json()}[game_id]
+    assert mine["standing"]["waiting_on"] in (0, 1)
+    with open_session() as db:
+        assert db.get(Game, game_id).standing is not None
+
+
+def test_a_finished_game_records_its_result(authed):
+    """REQ-CLI-60: winners and scores once the game is over."""
+    from app import play
+    from app.db import open_session
+    from app.models import Game
+
+    game_id, _ = started_game(authed)
+    with open_session() as db:
+        game = db.get(Game, game_id)
+        state = play.build(game)
+        state.result = {"reason": "resolution", "winners": [1], "scores": [{"seat": 0, "total": 40, "parts": {}},
+                                                                            {"seat": 1, "total": 52, "parts": {}}]}
+        standing = play.standing(state)
+    assert standing["waiting_on"] is None and standing["winners"] == [1]
+    assert standing["scores"] == [{"seat": 0, "total": 40}, {"seat": 1, "total": 52}]

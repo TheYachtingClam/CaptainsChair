@@ -495,6 +495,32 @@ label.challenge { align-items: flex-start; }
 .admin-actions :is(button, .button) { padding: 0.35rem 0.6rem; }
 .admin-actions .confirm-delete { justify-content: flex-end; gap: 0.4rem; flex-wrap: wrap; }
 .lobby-footer { margin-top: 2rem; font-size: 0.85rem; }
+/* The lobby's sections of games (REQ-CLI-60). */
+.lobby-head { margin-bottom: 0.5rem; }
+.lobby-head h1 { margin: 0; }
+.lobby-section h2, .lobby-completed h2 { display: flex; align-items: center; gap: 0.5rem; }
+.lobby .count { font-size: 0.8rem; font-weight: 600; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 0 0.55rem; }
+.game-row { list-style: none; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; display: grid; gap: 0.75rem; }
+.game-row.your-move { border-left: 4px solid var(--accent); padding-left: calc(1rem - 3px); }
+.game-row.done { background: transparent; }
+.game-row-main { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; flex-wrap: wrap; }
+.game-summary { display: grid; gap: 0.15rem; min-width: 0; flex: 1 1 18rem; }
+.game-title-line { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.game-meta { font-size: 0.85rem; }
+.game-actions { flex: 0 0 auto; gap: 0.5rem; }
+.status-pill { border-radius: 999px; padding: 0.05rem 0.6rem; font-size: 0.78rem; font-weight: 600; border: 1px solid transparent; }
+.status-pill.accent { background: var(--accent); color: var(--accent-text); }
+.status-pill.quiet { color: var(--muted); border-color: var(--border); }
+.status-pill.won { color: var(--ok); border-color: var(--ok); }
+.status-pill.lost { color: var(--error); border-color: var(--error); }
+.lobby-empty p { margin: 0.2rem 0; }
+.lobby .learn-to-play { margin-top: 1.5rem; }
+.lobby-completed { margin-top: 1.5rem; }
+.lobby-completed > summary { cursor: pointer; list-style: none; }
+.lobby-completed > summary::-webkit-details-marker { display: none; }
+.lobby-completed > summary h2 { margin: 0 0 0.5rem; }
+.lobby-completed > summary h2::before { content: "▸"; color: var(--muted); font-size: 0.9rem; }
+.lobby-completed[open] > summary h2::before { content: "▾"; }
 .pile-note { margin: 0.25rem 0 0.75rem; padding: 0.5rem 0.75rem; border-left: 3px solid var(--accent); background: rgb(127 127 127 / 0.12); font-weight: 600; }
 
 /* Bug reports (REQ-BUG-01 to -08) */
