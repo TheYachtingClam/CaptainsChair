@@ -212,6 +212,8 @@ a.button { text-decoration: none; display: inline-block; }
 .hand .gcard:focus-visible { z-index: 2; translate: 0 -10px; }
 .hand .card-back.small { margin: 0 -6px; }
 .hand-size { margin-left: 1.5rem; align-self: center; }
+.hand-help { width: 1.9rem; height: 1.9rem; border-radius: 50%; font-weight: 700; padding: 0; margin-right: 1.5rem; align-self: center; flex: 0 0 auto; position: relative; }
+.hand-help::after { content: ""; position: absolute; inset: -8px; } /* a finger-sized target around the little circle */
 
 .modal.wide { max-width: min(900px, 94vw); }
 
@@ -613,6 +615,7 @@ label.challenge { align-items: flex-start; }
   .hand.under-mat .gcard { flex: 0 0 auto; width: 92px; }
   .hand.under-mat .card-back.small { flex: 0 0 auto; }
   .hand.under-mat .hand-size { position: absolute; right: 4px; top: -6px; margin: 0; font-size: 0.8rem; }
+  .hand.under-mat .hand-help { position: absolute; left: 4px; top: -16px; z-index: 3; margin: 0; width: 1.75rem; height: 1.75rem; min-height: 0; font-size: 0.9rem; }
 }
 
 /* ---------------------------------------------------------------- a phone's mat (REQ-CLI-32) */

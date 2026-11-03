@@ -11,8 +11,9 @@ function Say({ text, className = "coach-say" }: { text: string; className?: stri
   return <p className={className}><RichText text={text} /></p>;
 }
 
-/** The How cards work sheet behind the coach's "?" (REQ-TUT-43): where cards are, where abilities work, icons, words. */
-function GuideSheet({ onClose }: { onClose: () => void }) {
+/** The How cards work sheet (REQ-TUT-43): where cards are, where abilities work, icons, words. Behind the coach's "?"
+ * and the How cards work button of every game screen. */
+export function GuideSheet({ onClose }: { onClose: () => void }) {
   const guide = useQuery({ queryKey: ["guide", "how-cards-work"], queryFn: () => api.guide("how-cards-work"),
     staleTime: Infinity });
   const close = useRef<HTMLButtonElement>(null);
