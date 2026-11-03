@@ -63,7 +63,7 @@ export function CardPanel({ selection, view, onChoose, onClose }: {
   const card = selection.card;
   const data = cards.data?.[card.id];
   const options = view.decision?.seat === view.you ? (view.decision?.options ?? []).filter((o) => !o.disabled) : [];
-  const items: Item[] = (data?.operations ?? []).map((op, index) => {
+  const printed: Item[] = (data?.operations ?? []).map((op, index) => {
     const option = options.find((o) => o.id === `play:${card.uid}:${index}` || o.id === `activate:${card.uid}:${index}`);
     return {
       index,
@@ -73,6 +73,19 @@ export function CardPanel({ selection, view, onChoose, onClose }: {
       reason: option ? undefined : unavailableReason(op.kind, op.action_cost, selection, view),
     };
   });
+  // PLAYs another card grants this one (index 100 and up: Deanna Troi-Riker gives every Incident one). They are not
+  // printed on the card, so they come from the options the server offers now.
+  const granted: Item[] = data == null ? [] : options.flatMap((option) => {
+    const m = /^play:(.+):(\d+)$/.exec(option.id);
+    if (!m || m[1] !== card.uid || Number(m[2]) < data.operations.length) return [];
+    // The label is "Play <name>[ (action)]: <text>" (engine/game.py).
+    let rest = option.label.startsWith(`Play ${card.name}`) ? option.label.slice(`Play ${card.name}`.length) : option.label;
+    const action = rest.startsWith(" (action)");
+    if (action) rest = rest.slice(" (action)".length);
+    const text = (action ? "[Action] " : "") + rest.replace(/^:\s*/, "");
+    return [{ index: Number(m[2]), kind: "PLAY", text, option }];
+  });
+  const items = [...printed, ...granted];
 
   return (
     <Sheet

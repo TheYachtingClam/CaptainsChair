@@ -29,3 +29,29 @@ def test_example():
     earlier = replay_fixture("example", back=3)
     assert len(earlier.log) < len(state.log)
     assert load_fixture("example")["bundle"]["game"]["mode"] == "cadet"
+
+
+def test_0c32aebf():
+    """The tutorial is saying that I can use the Deanna's Play (which is not true). I should be using the passive, and
+    the passive isn't changing the actions on the incident, I cannot move forward.
+
+    The engine offered Deanna's granted PLAY (index 100), but the card panel listed only the printed operations, so
+    the one move the coach was waiting for had no button. The client now adds every offered PLAY whose index is past
+    the printed ones, reading its text from the option label; this pins down what it relies on."""
+    from types import SimpleNamespace
+
+    from app import tutorial
+    from engine.content import content
+
+    state = replay_fixture("0c32aebf")
+    game = SimpleNamespace(**load_fixture("0c32aebf")["bundle"]["game"])
+    game.commands = load_fixture("0c32aebf")["bundle"]["commands"]
+    hostile = next(i for i in state.players[0].hand if i.card == "3RIK20")
+    index, free = tutorial.progress(game)
+    assert not free and tutorial.script("riker-primer")["steps"][index]["id"] == "hostile"
+    want = f"play:{hostile.uid}:100"
+    assert tutorial.allowed(game, state) == {want}
+    assert 100 >= len(content().cards["3RIK20"].operations)  # not printed: the panel must add it from the options
+    option = next(o for o in state.decision.options if o.id == want)
+    assert option.label.startswith("Play Hostile Contact (action): Discard a card to return this card.")
+    assert option.label.endswith("(Deanna Troi-Riker)")

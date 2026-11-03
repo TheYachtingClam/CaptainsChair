@@ -1,0 +1,137 @@
+{
+ "id": "0c32aebf-fe5e-4fbb-9824-145282a7f9a5",
+ "kind": "bug",
+ "description": "The tutorial is saying that I can use the Deanna's Play (which is not true).  I should be using the passive, and the passive isn't changing the actions on the incident, I cannot move forward.",
+ "bundle": {
+  "version": 1,
+  "game": {
+   "mode": "cadet",
+   "box": "to_boldly_go",
+   "expansions": [
+    "second_contact"
+   ],
+   "promos": false,
+   "promo_sets": [],
+   "seed": "7",
+   "bot": null,
+   "campaign": null,
+   "tutorial": {
+    "id": "riker-primer",
+    "seed": 7,
+    "stack": {
+     "hand": [
+      "3RIK15",
+      "3RIK20",
+      "3RIK22",
+      "3RIK18",
+      "3RIK21"
+     ],
+     "draw": [
+      "3RIK16",
+      "3RIK17",
+      "3RIK19"
+     ]
+    }
+   },
+   "status": "active",
+   "seats": [
+    {
+     "index": 0,
+     "display_name": "Player 1",
+     "deck_id": "riker",
+     "board_side": "basic"
+    }
+   ]
+  },
+  "commands": [
+   {
+    "seat": 0,
+    "option": "tutorial:next",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "tutorial:next",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "activate:c154:3",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "tutorial:next",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "play:c141:0",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "yes",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0,
+    "undone": true
+   },
+   {
+    "seat": 0,
+    "option": "yes",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "activate:c133:0",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "c137",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "c155",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "play:c155:0",
+    "irreversible": false,
+    "turn": 0,
+    "weekday": 0
+   },
+   {
+    "seat": 0,
+    "option": "activate:c141:2",
+    "irreversible": true,
+    "turn": 0,
+    "weekday": 0
+   }
+  ],
+  "reporter_seat": 0,
+  "turn": 0,
+  "step": "action"
+ }
+}
