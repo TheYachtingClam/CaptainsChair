@@ -91,5 +91,5 @@ The warning must appear **before** the command is sent, so the client has to kno
 ## 11. Client
 
 - **REQ-UNDO-80** The game table has an **Undo** button, also bound to Ctrl+Z / Cmd+Z. It is enabled only when undo is available. Its tooltip names the command it will undo, for example "Undo: warp U.S.S. Shenzhou to Archer IV".
-- **REQ-UNDO-81** Options flagged irreversible get a small marker, such as a lock icon, so the player can see which moves are final before choosing.
+- **REQ-UNDO-81** Options flagged irreversible get a small **Can't undo** tag after their label, so the player can see which moves are final before choosing. The tag is words, not a padlock, which read as "this option is locked". Its tooltip gives the reason (REQ-UNDO-10). When any answer in a list is tagged, one line under the list says what the tag means: the move reveals a card, uses chance or hands a choice to the opponent, can still be chosen, and asks to confirm.
 - **REQ-UNDO-82** The action log marks checkpoints, so players can see how far back undo reaches.

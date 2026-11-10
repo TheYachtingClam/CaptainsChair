@@ -4,6 +4,7 @@ import { GameStateView, OptionView, api } from "../api";
 import { Selection, imageUrl } from "./Cards";
 import { Sheet } from "./Sheet";
 import { IconText } from "./Icons";
+import { NoUndoNote, NoUndoTag } from "./NoUndo";
 
 const GAP = 14;
 const MARGIN = 8;
@@ -117,7 +118,7 @@ export function CardPanel({ selection, view, onChoose, onClose }: {
               >
                 <span className="op-kind">
                   {item.kind}
-                  {item.option?.irreversible && <span title="Cannot be undone"> 🔒</span>}
+                  <NoUndoTag option={item.option} />
                 </span>
                 <span className="op-text"><IconText text={item.text} /></span>
                 {item.reason && <span className="op-reason">{item.reason}</span>}
@@ -125,6 +126,7 @@ export function CardPanel({ selection, view, onChoose, onClose }: {
             </li>
           ))}
         </ul>
+        <NoUndoNote options={items.flatMap((item) => (item.option ? [item.option] : []))} />
       </div>
     </Sheet>
   );

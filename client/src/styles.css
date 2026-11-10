@@ -72,6 +72,15 @@ button.link { background: none; color: var(--accent); padding: 0.25rem 0.5rem; }
 .options { display: grid; gap: 0.4rem; }
 button.option { text-align: left; font-weight: 400; background: var(--bg); color: var(--text); border: 1px solid var(--border); }
 button.option:hover:not(:disabled) { border-color: var(--accent); }
+/* An option that cannot be undone (REQ-UNDO-81): a word tag after the label, not a padlock. */
+.no-undo {
+  display: inline-block; margin-left: 0.4rem; padding: 0 0.4rem; border: 1px solid currentColor; border-radius: 999px;
+  font-size: 0.7rem; font-weight: 700; line-height: 1.4; white-space: nowrap; vertical-align: 0.1em; color: var(--error);
+}
+.op-kind .no-undo { letter-spacing: 0; }
+.mission-button .no-undo { color: inherit; }
+.no-undo-note { font-size: 0.8rem; margin: 0; }
+.no-undo-note .no-undo { margin: 0 0.3rem 0 0; }
 button.danger { background: #c0392b; color: #fff; }
 button.danger:hover:not(:disabled) { background: #a93226; }
 .confirm-delete { flex-wrap: wrap; gap: 0.5rem; }

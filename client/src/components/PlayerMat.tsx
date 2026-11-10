@@ -4,6 +4,7 @@ import { BotView, CardView, OptionView, PlayerView, RowRef } from "../api";
 import { usePhone } from "./Sheet";
 import { awayTokenImage, Card, CardBack, imageUrl, InspectContext, PileViewer, Slot, usePreviewHandlers } from "./Cards";
 import { IconText } from "./Icons";
+import { NoUndoTag } from "./NoUndo";
 import { GuideSheet } from "./Coach";
 
 // Crew board track geometry, as fractions of the board image (measured from the scans).
@@ -246,7 +247,7 @@ export function PlayerMat({ p, you, active, locationNames, onEndTurn, missions, 
             <div className="mission-actions">
               {missions.map((o) => (
                 <button key={o.id} className="mission-button" onClick={() => onMission(o)}>
-                  {o.irreversible && <span title="Cannot be undone">🔒 </span>}<IconText text={o.label} />
+                  <IconText text={o.label} /><NoUndoTag option={o} />
                 </button>
               ))}
             </div>
