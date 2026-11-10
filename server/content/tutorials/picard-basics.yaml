@@ -128,7 +128,7 @@ steps:
   - id: undo
     say: |
       Made a mistake? **Undo** takes back your last move, as long as it revealed nothing new. A move that draws or turns
-      over a card can't be undone: it shows a 🔒 and asks you first.
+      over a card can't be undone: it's tagged **Can't undo** and asks you first.
     show: button:undo
     next: button
   - id: market

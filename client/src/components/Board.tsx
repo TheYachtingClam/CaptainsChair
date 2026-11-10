@@ -12,6 +12,7 @@ import { Coach, coachTarget } from "./Coach";
 import { PlayerMat } from "./PlayerMat";
 import { CenterMat, NeutralZone } from "./CenterMat";
 import { IconText } from "./Icons";
+import { NoUndoNote, NoUndoTag } from "./NoUndo";
 
 function Confirm({ option, onContinue, onBack, solo }: {
   option: OptionView;
@@ -70,8 +71,8 @@ function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint,
   const button = (o: OptionView) => (
     <button key={o.id} disabled={busy || o.disabled} className="option" onClick={() => onPick(o)}
       title={o.disabled ? "Follow the tutorial's coach" : undefined}>
-      {o.irreversible && <span aria-label="Cannot be undone" title="Cannot be undone">🔒 </span>}
       <IconText text={o.label} />
+      <NoUndoTag option={o} />
     </button>
   );
   // Groups keep the order of their first answer, so they read like the table.
@@ -108,6 +109,7 @@ function DecisionOptions({ prompt, options, busy, canUndo, onPick, onUndo, hint,
         </fieldset>
       ))}
       {rest.length > 0 && <div className="options">{rest.map(button)}</div>}
+      <NoUndoNote options={options} />
       {canUndo && <button className="secondary" data-tutorial="undo" disabled={busy} onClick={onUndo}>Undo</button>}
     </div>
   );
